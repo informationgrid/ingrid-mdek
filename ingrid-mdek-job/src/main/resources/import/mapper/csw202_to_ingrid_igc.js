@@ -915,7 +915,8 @@ var mappingDescription = {"mappings":[
   			"transform":{
 				"funct":transformISOToIgcDomainId,
 				"params":[518, "Could not map time-period to ISO code: "]
-			}
+			},
+			"targetContentHandling":"replace"
   		},
   		{	
   			"srcXpath":"//gmd:identificationInfo//gmd:status/gmd:MD_ProgressCode/@codeListValue",
@@ -1267,7 +1268,12 @@ function mapToTarget(mapping, source, target) {
 									}
 								}
 								
-								nodeText += value;
+								if (m.targetContentHandling && m.targetContentHandling == "replace") {
+									log.debug("replace target content '" + nodeText + "' with new content '" + value + "'");
+									nodeText = value;
+								} else {
+									nodeText += value;
+								}
 								
 								if (m.storeValue) {
 									log.debug("stored '" + value + "' as '" + m.storeValue + "' in store:" + storedValues + ".");

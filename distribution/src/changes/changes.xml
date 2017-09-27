@@ -34,6 +34,9 @@
       <action type="update" dev="wemove" issue="REDMINE-563">
         Syslist 6010 (accessConstraints) moved to codelist-repo, not editable anymore.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-846">
+        ISO import of multiple time-periods now possible (MD_MaintenanceFrequencyCode), last one wins.
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-864">
         Support schema in database connection when indexing and when editing over all supported databases.
       </action>
