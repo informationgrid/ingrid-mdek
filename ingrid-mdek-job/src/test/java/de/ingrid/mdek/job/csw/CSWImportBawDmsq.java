@@ -202,9 +202,9 @@ public class CSWImportBawDmsq {
         DataMapperFactory dataMapperFactory = new DataMapperFactory();
         HashMap<String, ImportDataMapper> mapper = new HashMap<String, ImportDataMapper>();
         ClassPathResource[] resources = new ClassPathResource[1];
-        resources[0] = new ClassPathResource( "import/mapper/csw202_to_ingrid_igc.js" ); 
+        resources[0] = new ClassPathResource( "ingrid-mdek-job/src/main/resources/import/mapper/csw202_to_ingrid_igc.js" ); 
         cswMapper.setMapperScript( resources );
-        cswMapper.setTemplate( new ClassPathResource( "import/templates/igc_template_csw202.xml" ) );
+        cswMapper.setTemplate( new ClassPathResource( "ingrid-mdek-job/src/main/resources/import/templates/igc_template_csw202.xml" ) );
         mapper.put( "csw202", cswMapper );
         dataMapperFactory.setMapperClasses( mapper );
         catJob.setDataMapperFactory( dataMapperFactory );

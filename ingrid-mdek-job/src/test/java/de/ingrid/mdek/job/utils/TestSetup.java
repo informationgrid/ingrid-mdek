@@ -191,7 +191,7 @@ public class TestSetup {
         }
         cswMapper.setMapperScript( resources );
         
-        cswMapper.setTemplate( new ClassPathResource( "import/templates/igc_template_csw202.xml" ) );
+        cswMapper.setTemplate( new ClassPathResource( "ingrid-mdek-job/src/main/resources/import/templates/igc_template_csw202.xml" ) );
         mapper.put( "csw202", cswMapper );
         dataMapperFactory.setMapperClasses( mapper );
         catJob.setDataMapperFactory( dataMapperFactory );
