@@ -27,7 +27,7 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="4.1" date="2017-xx-xx" description="Release 4.1">
+    <release version="4.1.0" date="2017-10-05" description="Release 4.1.0">
       <action type="add" dev="wemove" issue="REDMINE-199">
       	Add multiple data languages (migrate to new table, import/export, idf, ...)
       </action>
@@ -48,6 +48,12 @@
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-751">
         Fixed mapping of administrative area to correct position in ISO.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-393">
+        BKG: Fixed mapping of of codelist for use constraint and added label as prefix.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-339">
+        BKG: Fixed showing JSON is ISO document.
       </action>
     </release>
 
