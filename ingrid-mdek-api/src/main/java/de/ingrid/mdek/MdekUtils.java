@@ -330,7 +330,9 @@ public class MdekUtils {
 		VEROEFFENTLICHT("V", "ver\u00f6ffentlicht"),
 		IN_BEARBEITUNG("B", "in Bearbeitung"),
 		QS_UEBERWIESEN("Q", "an Qualit\u00e4tssicherung zugewiesen"),
-		QS_RUECKUEBERWIESEN("R", "von Qualit\u00e4tssicherung r\u00fcck\u00fcberwiesen");
+		QS_RUECKUEBERWIESEN("R", "von Qualit\u00e4tssicherung r\u00fcck\u00fcberwiesen"),
+		// this state is not set in database, but we use it when describing changed object in job info !
+        DELETED("D", "gel\u00f6scht");
 
 		WorkState(String dbValue, String description) {
 			this.dbValue = dbValue;

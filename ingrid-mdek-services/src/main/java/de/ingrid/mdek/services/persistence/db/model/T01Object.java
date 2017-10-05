@@ -51,8 +51,6 @@ public class T01Object implements IEntity {
 	private String datasetAlternateName;
 	private Integer datasetCharacterSet;
 	private String datasetUsage;
-	private Integer dataLanguageKey;
-	private String dataLanguageValue;
 	private Integer metadataCharacterSet;
 	private String metadataStandardName;
 	private String metadataStandardVersion;
@@ -81,6 +79,7 @@ public class T01Object implements IEntity {
 	private Set objectComments = new HashSet();
 	private Set objectConformitys = new HashSet();
 	private Set objectAdvProductGroup = new HashSet();
+    private Set objectDataLanguages = new HashSet();
 	private Set objectDataQualitys = new HashSet();
 	private Set objectFormatInspires = new HashSet();
 	private Set objectOpenDataCategorys = new HashSet();
@@ -289,22 +288,6 @@ public class T01Object implements IEntity {
 		this.datasetUsage = datasetUsage;
 	}
 
-	public Integer getDataLanguageKey() {
-		return dataLanguageKey;
-	}
-
-	public void setDataLanguageKey(Integer dataLanguageKey) {
-		this.dataLanguageKey = dataLanguageKey;
-	}
-
-	public String getDataLanguageValue() {
-		return dataLanguageValue;
-	}
-
-	public void setDataLanguageValue(String dataLanguageValue) {
-		this.dataLanguageValue = dataLanguageValue;
-	}
-
 	public Integer getMetadataCharacterSet() {
 		return metadataCharacterSet;
 	}
@@ -496,6 +479,14 @@ public class T01Object implements IEntity {
 
 	public void setObjectConformitys(Set objectConformitys) {
 		this.objectConformitys = objectConformitys;
+	}
+
+	public Set getObjectDataLanguages() {
+		return objectDataLanguages;
+	}
+
+	public void setObjectDataLanguages(Set objectDataLanguages) {
+		this.objectDataLanguages = objectDataLanguages;
 	}
 
 	public Set getObjectDataQualitys() {

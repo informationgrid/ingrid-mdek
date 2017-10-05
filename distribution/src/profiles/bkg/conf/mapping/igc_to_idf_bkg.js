@@ -81,9 +81,11 @@ function handleBKGAccessConstraints() {
                 }
             }
             
-            // add select value and free text to ISO depending on selection 
-            var legalConstraint = getFirstNodeInIdentificationBefore().addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-            addAccessConstraints(legalConstraint, bkgAccessConstraintSelectListItem, bkgAccessConstraintFreeText);
+            // add select value and free text to ISO depending on selection
+            if ((bkgAccessConstraintSelectListItem && bkgAccessConstraintSelectListItem !== "") || bkgAccessConstraintFreeText !== "") {
+                var legalConstraint = getFirstNodeInIdentificationBefore("gmd:accessConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+                addAccessConstraints(legalConstraint, bkgAccessConstraintSelectListItem, bkgAccessConstraintFreeText);
+            }
         }
     }
 }
@@ -108,9 +110,12 @@ function handleBKGUseConstraints() {
             }
         }
         
-        // add select value and free text to ISO depending on selection 
-        var legalConstraint = getFirstNodeInIdentificationBefore().addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-        addUseConstraints(legalConstraint, bkgUseConstraintSelectListItem, bkgUseConstraintFreeText);
+        // add select value and free text to ISO depending on selection
+        // if there is any value
+        if ((bkgUseConstraintSelectListItem && bkgUseConstraintSelectListItem !== "") || bkgUseConstraintFreeText !== "") {
+            var legalConstraint = getFirstNodeInIdentificationBefore("gmd:useConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
+            addUseConstraints(legalConstraint, bkgUseConstraintSelectListItem, bkgUseConstraintFreeText);
+        }
     }
 }
 
@@ -148,16 +153,25 @@ function getIdentificationInfo() {
     return identificationInfo;
 }
 
-function getFirstNodeInIdentificationBefore() {
-    var nodeOrder = ["gmd:resourceSpecificUsage", "gmd:descriptiveKeywords", "gmd:resourceFormat", "gmd:graphicOverview", "gmd:resourceMaintenance", 
+function getFirstNodeInIdentificationBefore(subNode) {
+    var nodeOrder = ["gmd:resourceConstraints", "gmd:resourceSpecificUsage", "gmd:descriptiveKeywords", "gmd:resourceFormat", "gmd:graphicOverview", "gmd:resourceMaintenance", 
         "gmd:pointOfContact", "gmd:status", "gmd:credit", "gmd:purpose", "gmd:abstract"];
     var identificationInfo = getIdentificationInfo();
     
     // get first element before "resourceConstraints", so that we can insert in front of all other entries
     var beforeResourceElement;
     for (var i=0; i<nodeOrder.length; i++) {
-        beforeResourceElement = DOM.getElement(identificationInfo, nodeOrder[i]);
-        if (beforeResourceElement) break;
+        // try to get last(!) element 
+        beforeResourceElement = DOM.getElement(identificationInfo, nodeOrder[i] + "[last()]");
+        if (beforeResourceElement) {
+            if (i === 0 && subNode) {
+                var subNodeElement = DOM.getElement(identificationInfo, nodeOrder[i] + "//" + subNode);
+                if (subNodeElement) {
+                    beforeResourceElement = subNodeElement.getParent(2);
+                }
+            }
+            break;
+        }
     }
     
     return beforeResourceElement;
@@ -200,7 +214,7 @@ function addAccessConstraints(legalConstraint, codelistEntryId, valueFree) {
 
 function addUseConstraints(legalConstraint, codelistEntryId, valueFree) {
     log.debug("BKG: Use Constraint codelist: " + codelistEntryId);
-    if (codelistEntryId === null || codelistEntryId === undefined| codelistEntryId === "") {
+    if (codelistEntryId === null || codelistEntryId === undefined | codelistEntryId === "") {
         addUseConstraintElements(legalConstraint, [], [valueFree]);
         return;
     }
@@ -218,13 +232,14 @@ function addUseConstraints(legalConstraint, codelistEntryId, valueFree) {
         
         // if opendata and other codelist was used, then add JSON as other constraint
         if (isOpenData()) {
-            var codelistEntryName = TRANSF.getIGCSyslistEntryName(10005, codelistEntryId);
-            var json = TRANSF.getISOCodeListEntryData(10005, codelistEntryName);
+            var codelistEntryName = TRANSF.getIGCSyslistEntryName(10006, codelistEntryId);
+            var codelistDataEntryName = TRANSF.getIGCSyslistEntryName(10005, codelistEntryId);
+            var json = TRANSF.getISOCodeListEntryData(10005, codelistDataEntryName);
             
             addUseConstraintElements(legalConstraint, ["license"], [codelistEntryName, json, valueFree]);
             
         } else {
-            addUseConstraintElements(legalConstraint, ["license"], [TRANSF.getIGCSyslistEntryName(10006, codelistEntryId), valueFree]);
+            addUseConstraintElements(legalConstraint, ["license"], [TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), valueFree]);
             
         }
         break;

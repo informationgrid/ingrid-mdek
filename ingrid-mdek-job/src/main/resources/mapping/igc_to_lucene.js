@@ -389,6 +389,11 @@ for (i=0; i<objRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
         addObjectFormatInspire(rows.get(j));
     }
+    // ---------- object data_languages ----------
+    var rows = SQL.all("SELECT * FROM object_data_language WHERE obj_id=?", [+objId]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectDataLanguage(rows.get(j));
+    }
 }
 
 function addT01Object(row) {
@@ -432,8 +437,6 @@ function addT01Object(row) {
     IDX.add("t01_object.dataset_alternate_name", row.get("dataset_alternate_name"));
     IDX.add("t01_object.dataset_character_set", row.get("dataset_character_set"));
     IDX.add("t01_object.dataset_usage", row.get("dataset_usage"));
-    IDX.add("t01_object.data_language_key", row.get("data_language_key"));
-    IDX.add("t01_object.data_language", row.get("data_language_value"));
     IDX.add("t01_object.metadata_character_set", row.get("metadata_character_set"));
     IDX.add("t01_object.metadata_standard_name", row.get("metadata_standard_name"));
     IDX.add("t01_object.metadata_standard_version", row.get("metadata_standard_version"));
@@ -939,6 +942,11 @@ function addObjectOpenDataCategory(row) {
     IDX.add("object_open_data_category.line", row.get("line"));
     IDX.add("object_open_data_category.category_key", row.get("category_key"));
     IDX.add("object_open_data_category.category_value", row.get("category_value"));
+}
+function addObjectDataLanguage(row) {
+    IDX.add("object_data_language.line", row.get("line"));
+    IDX.add("object_data_language.data_language_key", row.get("data_language_key"));
+    IDX.add("object_data_language.data_language_value", row.get("data_language_value"));
 }
 
 function boostDocumentsByReferences(num) {

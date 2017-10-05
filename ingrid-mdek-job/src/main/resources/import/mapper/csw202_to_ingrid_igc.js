@@ -193,7 +193,7 @@ var mappingDescription = {"mappings":[
 		      			  			"targetNode":"scale"
 		      			  		},
 		      	  				{
-		      			  			"srcXpath":"gmd:MD_Resolution/gmd:distance/gco:Distance[@uom='meter']",
+		      			  			"srcXpath":"gmd:MD_Resolution/gmd:distance/gco:Distance[@uom='meter' or @uom='m']",
 		      			  			"targetNode":"resolution-ground"
 		      			  		},
 		      	  				{
@@ -577,37 +577,54 @@ var mappingDescription = {"mappings":[
   		// /igc/data-sources/data-source/data-source-instance/additional-information
   		//
   		// ****************************************************
-  		{	
+  		{
   			"srcXpath":"//gmd:identificationInfo//gmd:language/gmd:LanguageCode/@codeListValue",
-  			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information/data-language",
-  			"targetAttribute":"id",
-  			"transform":{
-				"funct":transformISOToIGCLanguageCode
+  			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information",
+  			"newNodeName":"data-language",
+  			"subMappings":{
+  				"mappings": [
+	  				{
+			  			"srcXpath":".",
+			  			"targetNode":".",
+			  			"targetAttribute":"id",
+					  	"transform":{
+							"funct":transformISOToIGCLanguageCode
+						}
+			  		},
+	  				{
+			  			"srcXpath":".",
+			  			"targetNode":".",
+				  		"transform":{
+							"funct":transformISOToLanguage,
+							"params":['de']
+						}
+			  		}
+			  	]
 			}
   		},
-  		{	
-  			"srcXpath":"//gmd:identificationInfo//gmd:language/gmd:LanguageCode/@codeListValue",
-  			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information/data-language",
-  			"transform":{
-				"funct":transformISOToLanguage,
-				"params":['de']
-			}
-  		},
-  		{	
+  		{
   			"srcXpath":"//gmd:MD_Metadata/gmd:language/gmd:LanguageCode/@codeListValue",
-  			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information/metadata-language",
-  			"targetAttribute":"id",
-  			"transform":{
-				"funct":transformISOToIGCLanguageCode
-			}
-  		},
-  		{	
-  			"srcXpath":"//gmd:MD_Metadata/gmd:language/gmd:LanguageCode/@codeListValue",
-  			"defaultValue":"de",
-  			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information/metadata-language",
-  			"transform":{
-				"funct":transformISOToLanguage,
-				"params":['de']
+  			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information",
+  			"newNodeName":"metadata-language",
+  			"subMappings":{
+  				"mappings": [
+	  				{
+			  			"srcXpath":".",
+			  			"targetNode":".",
+			  			"targetAttribute":"id",
+					  	"transform":{
+							"funct":transformISOToIGCLanguageCode
+						}
+			  		},
+	  				{
+			  			"srcXpath":".",
+			  			"targetNode":".",
+				  		"transform":{
+							"funct":transformISOToLanguage,
+							"params":['de']
+						}
+			  		}
+			  	]
 			}
   		},
   		{	
@@ -898,7 +915,8 @@ var mappingDescription = {"mappings":[
   			"transform":{
 				"funct":transformISOToIgcDomainId,
 				"params":[518, "Could not map time-period to ISO code: "]
-			}
+			},
+			"targetContentHandling":"replace"
   		},
   		{	
   			"srcXpath":"//gmd:identificationInfo//gmd:status/gmd:MD_ProgressCode/@codeListValue",
@@ -1250,7 +1268,12 @@ function mapToTarget(mapping, source, target) {
 									}
 								}
 								
-								nodeText += value;
+								if (m.targetContentHandling && m.targetContentHandling == "replace") {
+									log.debug("replace target content '" + nodeText + "' with new content '" + value + "'");
+									nodeText = value;
+								} else {
+									nodeText += value;
+								}
 								
 								if (m.storeValue) {
 									log.debug("stored '" + value + "' as '" + m.storeValue + "' in store:" + storedValues + ".");
@@ -1731,7 +1754,7 @@ function mapAddresses(source, target) {
             if (hasValue(individualName)) {
               	// always use free address type for ISO import if address has an individual name, see https://dev.informationgrid.eu/redmine/issues/494
                 XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "3");
-            } else {
+            } else  {
             	// otherwise import as institution
             	XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "0");
             }

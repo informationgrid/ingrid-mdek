@@ -442,9 +442,10 @@ public class MdekImportService implements IImporterCallback {
      * @param userUuid the user
      */
     private void updateImportJobInfoChangedEntities(IdcEntityType whichType, WorkState whichState, IngridDocument inDoc,
-            String userUuid) {
+            String userUuid,
+            String auditMessage) {
         // only update in memory job state, will be persisted at end !
-        jobHandler.updateRunningJobChangedEntities(userUuid, whichType, whichState, inDoc);
+        jobHandler.updateRunningJobChangedEntities(userUuid, whichType, whichState, inDoc, auditMessage);
     }
 	/** Add new Message to info of Import job IN MEMORY. */
 	public void updateImportJobInfoMessages(String newMessage, String userUuid) {
@@ -1548,13 +1549,16 @@ public class MdekImportService implements IImporterCallback {
 		String newEntityMsg = createNewEntityMsg(whichType, (existingNode == null));
 
 		try {
+		    String auditMsg = "?";
 			if (whichType == IdcEntityType.OBJECT) {
 				objectService.assignObjectToQA(inDoc, userUuid, true);
+				auditMsg = "ASSIGNED TO QA object successfully";
 			} else if (whichType == IdcEntityType.ADDRESS) {
 				addressService.assignAddressToQA(inDoc, userUuid, true);
+                auditMsg = "ASSIGNED TO QA address successfully";
 			}
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
-            updateImportJobInfoChangedEntities(whichType, WorkState.QS_UEBERWIESEN, inDoc, userUuid);
+            updateImportJobInfoChangedEntities(whichType, WorkState.QS_UEBERWIESEN, inDoc, userUuid, auditMsg);
 			updateImportJobInfoMessages(tag + newEntityMsg + "ASSIGNED TO QA", userUuid);
 
 		} catch (Exception ex) {
@@ -1609,16 +1613,20 @@ public class MdekImportService implements IImporterCallback {
 		}
 
 		// ok, we publish !
+		// NOTICE: publish in service already writes changed entity to job info, so we do not do this here !
 		try {
 			if (whichType == IdcEntityType.OBJECT) {
 				// we DON'T force publication condition ! if error, we store working version !
 				objectService.publishObject(inDoc, false, userUuid, true);
+				// NOTICE: ID of published object was added to inDoc for later use
 			} else if (whichType == IdcEntityType.ADDRESS) {
 				addressService.publishAddress(inDoc, false, userUuid, true);
+                // NOTICE: ID of published address was added to inDoc for later use
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
-			updateImportJobInfoChangedEntities(whichType, WorkState.VEROEFFENTLICHT, inDoc, userUuid);
+	        // NOTICE: publish in service already writes changed entity to job info, so we do not do this here !
+//			updateImportJobInfoChangedEntities(whichType, WorkState.VEROEFFENTLICHT, inDoc, userUuid, auditMsg);
 			updateImportJobInfoMessages(tag + newEntityMsg + "PUBLISHED", userUuid);
 
 		} catch (Exception ex) {
@@ -1649,14 +1657,17 @@ public class MdekImportService implements IImporterCallback {
 		String newEntityMsg = createNewEntityMsg(whichType, (existingNode == null));
 
 		try {
+            String auditMsg = "?";
 			if (whichType == IdcEntityType.OBJECT) {
 				objectService.storeWorkingCopy(inDoc, userUuid, true);
+                auditMsg = "SAVED WORKING COPY object successfully";
 			} else if (whichType == IdcEntityType.ADDRESS) {
 				addressService.storeWorkingCopy(inDoc, userUuid, true);
+                auditMsg = "SAVED WORKING COPY address successfully";
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);
-            updateImportJobInfoChangedEntities(whichType, WorkState.IN_BEARBEITUNG, inDoc, userUuid);
+            updateImportJobInfoChangedEntities(whichType, WorkState.IN_BEARBEITUNG, inDoc, userUuid, auditMsg);
 			updateImportJobInfoMessages(tag + newEntityMsg + "stored as WORKING version", userUuid);
 			if (wasPublish) {
 				updateImportJobInfoFrontendMessages(

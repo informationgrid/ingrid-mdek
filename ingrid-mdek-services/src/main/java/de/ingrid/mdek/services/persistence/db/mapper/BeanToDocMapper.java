@@ -50,6 +50,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
 import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
 import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
+import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
 import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
@@ -306,8 +307,6 @@ public class BeanToDocMapper implements IMapper {
 
 			objectDoc.put(MdekKeys.METADATA_LANGUAGE_CODE, o.getMetadataLanguageKey());
 			objectDoc.put(MdekKeys.METADATA_LANGUAGE_NAME, o.getMetadataLanguageValue());
-			objectDoc.put(MdekKeys.DATA_LANGUAGE_CODE, o.getDataLanguageKey());
-			objectDoc.put(MdekKeys.DATA_LANGUAGE_NAME, o.getDataLanguageValue());
 			objectDoc.put(MdekKeys.DATASET_INTENTIONS, o.getInfoNote());
 			objectDoc.put(MdekKeys.DATASET_USAGE, o.getDatasetUsage());
 			objectDoc.put(MdekKeys.DATASET_CHARACTER_SET, o.getDatasetCharacterSet());
@@ -359,6 +358,7 @@ public class BeanToDocMapper implements IMapper {
 			mapObjectDataQualitys(o.getObjectDataQualitys(), objectDoc);
 			mapObjectFormatInspires(o.getObjectFormatInspires(), objectDoc);
 			mapSpatialSystems(o.getSpatialSystems(), objectDoc);
+            mapObjectDataLanguages(o.getObjectDataLanguages(), objectDoc);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
@@ -2190,6 +2190,33 @@ public class BeanToDocMapper implements IMapper {
 
 		return refDoc;
 	}
+
+    private IngridDocument mapObjectDataLanguages(Set<ObjectDataLanguage> refs, IngridDocument objectDoc) {
+        if (refs == null) {
+            return objectDoc;
+        }
+
+        ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+        for (ObjectDataLanguage ref : refs) {
+            IngridDocument refDoc = new IngridDocument();
+            mapObjectDataLanguage(ref, refDoc);
+            refList.add(refDoc);
+        }
+        objectDoc.put(MdekKeys.DATA_LANGUAGE_LIST, refList);
+        
+        return objectDoc;
+    }
+
+    private IngridDocument mapObjectDataLanguage(ObjectDataLanguage ref, IngridDocument refDoc) {
+        if (ref == null) {
+            return refDoc;
+        }
+
+        refDoc.put(MdekKeys.DATA_LANGUAGE_CODE, ref.getDataLanguageKey());
+        refDoc.put(MdekKeys.DATA_LANGUAGE_NAME, ref.getDataLanguageValue());
+
+        return refDoc;
+    }
 
 
 	public IngridDocument mapObjectMetadata(ObjectMetadata ref, IngridDocument refDoc,

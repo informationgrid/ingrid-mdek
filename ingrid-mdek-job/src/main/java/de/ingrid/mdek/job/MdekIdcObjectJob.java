@@ -94,10 +94,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	private IT01ObjectDao daoT01Object;
 
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
-    private IndexManager indexManager;
     
-    private DscDocumentProducer docProducer;
-
     @Autowired
     @Qualifier("dscRecordCreator")
     private DscRecordCreator dscRecordProducer;
@@ -116,7 +113,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		super(logService.getLogger(MdekIdcObjectJob.class), daoFactory);
 
 		catalogService = MdekCatalogService.getInstance(daoFactory);
-		objectService = MdekObjectService.getInstance(daoFactory, permissionService, indexManager);
+		objectService = MdekObjectService.getInstance(daoFactory, permissionService);
 //		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
 
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
@@ -125,7 +122,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
-		this.indexManager = indexManager;
+        this.indexManager = indexManager;
 
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
 		
@@ -736,6 +733,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !?
 			daoObjectNode.commitTransaction();
 
+            // Update search index with data of all published objects and also log if set
+            updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId));
+
 			IngridDocument result = new IngridDocument();
 			result.put(MdekKeys.UUID, uuid);
 
@@ -808,6 +808,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	public IngridDocument deleteObject(IngridDocument params) {
 		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
+        boolean transactionInProgress = (boolean) getOrDefault( params, MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, false );
 		try {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JobType.DELETE, 0, 1, false));
@@ -816,35 +817,29 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 			Boolean byOrigId = params.containsKey( MdekKeys.REQUESTINFO_USE_ORIG_ID) ? (Boolean)params.get(MdekKeys.REQUESTINFO_USE_ORIG_ID) : false;
 
-			daoObjectNode.beginTransaction();
+            if (!transactionInProgress) {
+                daoObjectNode.beginTransaction();
+            }
 
 			IngridDocument result = null;
 			if (byOrigId == true) {
-			    result = objectService.deleteObjectByOridId( uuid, forceDeleteReferences, userId );
+			    result = objectService.deleteObjectByOrigId( uuid, forceDeleteReferences, userId );
 			} else {
 			    result = objectService.deleteObjectFull(uuid, forceDeleteReferences, userId);
 			}
 
-			daoObjectNode.commitTransaction();
-			
-			// only remove from index if object was really removed and not just marked
-			if (result.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
-			    if (byOrigId) {
-			        String uuidFromOrigId = result.getString( MdekKeys.UUID );
-			        if (log.isDebugEnabled()) log.debug( "Going to remove it from the index using origId: " + uuidFromOrigId );
-                    indexManager.delete( docProducer.getIndexInfo(), uuidFromOrigId, true );
-			    } else {
-			        if (log.isDebugEnabled()) log.debug( "Going to remove it from the index using uuId: " + uuid );
-			        indexManager.delete( docProducer.getIndexInfo(), uuid, true );
-			    }
-			    indexManager.flush();
-			}
+            if (!transactionInProgress) {
+                daoObjectNode.commitTransaction();
+                
+                // Update search index
+                updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId));
+            }
 
 			return result;
 
 		} catch (RuntimeException e) {
 		    log.error( "Error deleting object", e );
-			RuntimeException handledExc = handleException(e);
+			RuntimeException handledExc = handleException(e, transactionInProgress);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} catch (Exception e) {
@@ -1234,11 +1229,4 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		return targetObj;
 	}
-
-    @Autowired
-    @Qualifier("dscDocumentProducer")
-    private void setDocProducer(DscDocumentProducer docProducer) {
-        this.docProducer = docProducer;
-        this.objectService.setDocProducer(docProducer);
-    }
 }

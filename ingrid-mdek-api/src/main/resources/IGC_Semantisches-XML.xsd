@@ -918,7 +918,7 @@
   <xs:element name="additional-information">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="data-language"/>
+        <xs:element maxOccurs="unbounded" ref="data-language"/>
         <xs:element ref="metadata-language"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="export-to"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="legislation"/>
@@ -942,8 +942,8 @@
   </xs:element>
   <!--
     Fachlicher Name: Sprache des Datensatzes
-    Tabelle.Feld   : T01_object.data_language_key
-    Tabelle.Feld   : T01_object.data_language_value
+    Tabelle.Feld   : object_data_language.data_language_key
+    Tabelle.Feld   : object_data_language.data_language_value
   -->
   <xs:element name="data-language" type="id-string"/>
   <!--

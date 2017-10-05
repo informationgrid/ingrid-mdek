@@ -1069,7 +1069,7 @@ public class MdekCatalogService {
 			String msg;
 			if (newType == SearchtermType.GEMET) {
 				msg = "Deskriptor aktualisiert, ist jetzt \"" + termValue.getTerm() + "\" (" + newType + "), " +
-					"\"" + termValue.getAlternateTerm() + "\" (" + SearchtermType.UMTHES.name() + ")";			
+					"\"" + termValue.getAlternateTerm() + "\" (alternativ)";			
 			} else {
 				msg = "Deskriptor aktualisiert, ist jetzt \"" + termValue.getTerm() + "\" (" + newType + ")";			
 			}
@@ -1152,7 +1152,7 @@ public class MdekCatalogService {
 			String msg;
 			if (newType == SearchtermType.GEMET) {
 				msg = "Deskriptor ERSETZT durch Deskriptor \"" + newSnsTermValue.getTerm() + "\" (" + newType + "), " +
-					"\"" + newSnsTermValue.getAlternateTerm() + "\" (" + SearchtermType.UMTHES.name() + ")";			
+					"\"" + newSnsTermValue.getAlternateTerm() + "\" (alternativ)";			
 			} else {
 				msg = "Deskriptor ERSETZT durch Deskriptor \"" + newSnsTermValue.getTerm() + "\" (" + newType + ")";			
 			}
@@ -1298,7 +1298,7 @@ public class MdekCatalogService {
 			String newTermTag;
 			if (newType == SearchtermType.GEMET) {
 				newTermTag = "\"" + newSnsTermValue.getTerm() + "\" (" + newType + "), " +
-					"\"" + newSnsTermValue.getAlternateTerm() + "\" (" + SearchtermType.UMTHES.name() + ")";			
+					"\"" + newSnsTermValue.getAlternateTerm() + "\" (alternativ)";			
 			} else {
 				newTermTag = "\"" + newSnsTermValue.getTerm() + "\" (" + newType + ")";			
 			}

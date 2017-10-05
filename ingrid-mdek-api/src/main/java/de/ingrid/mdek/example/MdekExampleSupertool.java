@@ -76,7 +76,7 @@ public class MdekExampleSupertool {
 
 	public MdekExampleSupertool(String callingUserUuid)
 	{
-		this.plugId = "/ingrid-group:ige-test";
+		this.plugId = "/ingrid-group:ige-iplug-test";
 		myUserUuid = callingUserUuid;
 
 		mdekClientCaller = MdekClientCaller.getInstance();
@@ -1189,6 +1189,13 @@ public class MdekExampleSupertool {
 				System.out.println("   " + doc);
 			}
 		}
+        docList = (List<IngridDocument>) oDoc.get(MdekKeys.DATA_LANGUAGE_LIST);
+        if (docList != null && docList.size() > 0) {
+            System.out.println("  Object data language list: " + docList.size() + " entries");
+            for (IngridDocument doc : docList) {
+                System.out.println("   " + doc);
+            }
+        }
 		docList = (List<IngridDocument>) oDoc.get(MdekKeys.ADDITIONAL_FIELDS);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("    Object - Additional Fields: " + docList.size() + " entries");

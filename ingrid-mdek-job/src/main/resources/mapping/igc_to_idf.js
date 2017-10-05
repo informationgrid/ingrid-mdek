@@ -140,10 +140,26 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
     // ---------- <gmd:contact> ----------
+    
+    // special contact for metadata from IMPORT
+    // select only adresses associated with syslist 505 entry 12 ("pointOfContactMd")
+    // this is the contact from ISO Import which should not be lost (CSW-T), if set, we do NOT map "responsible user" (see below)
+    var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, 12, 505]);
+    if (hasValue(addressRow)) {
+        // address may be hidden ! then get first visible parent in hierarchy !
+        addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
+    }
+    if (hasValue(addressRow)) {
+    	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
+    } else {
+    	log.debug('No responsible party for metadata found!');
+    }
+    
     // contact for metadata is now responsible user, see INGRID32-46
-    if (hasValue(objRow.get("responsible_uuid"))) {
+    // only map if no contact from import was found (CSW-T, see above)
+    if (!hasValue(addressRow) && hasValue(objRow.get("responsible_uuid"))) {
         // USE WORKING VERSION (pass true) ! user addresses are now separated and NOT published, see INGRID32-36
-        var addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
+        addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
         if (addressRow) {
             // map only email address (pass true as third parameter), see INGRID32-36
             // NO, ISO needs more data, see INGRID32-146
@@ -760,12 +776,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:identificationInfo/gmd:language> ----------
-        value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
-        if (hasValue(value)) {
-            identificationInfo.addElement("gmd:language/gmd:LanguageCode")
-                .addAttribute("codeList", globalCodeListLanguageAttrURL)
-                .addAttribute("codeListValue", value);
-        }
+        addDataLanguages(identificationInfo, objId);
 
         // ---------- <gmd:identificationInfo/gmd:environmentDescription> ----------
         if (hasValue(objServRow.get("environment"))) {
@@ -814,12 +825,7 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:identificationInfo/gmd:language> ----------
-        value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("data_language_key"));
-        if (hasValue(value)) {
-            identificationInfo.addElement("gmd:language/gmd:LanguageCode")
-                .addAttribute("codeList", globalCodeListLanguageAttrURL)
-                .addAttribute("codeListValue", value);
-        }
+        addDataLanguages(identificationInfo, objId);
 
         // ---------- <gmd:identificationInfo/gmd:characterSet> ----------
         value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(510, objRow.get("dataset_character_set"));
@@ -1430,8 +1436,20 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
     var ciContact = idfResponsibleParty.addElement("gmd:contactInfo").addElement("gmd:CI_Contact");
 
     var ciAddress;
-
     if (!mapOnlyEmails) {
+        
+        var addAdministrativeArea = function(ciAddress) {
+            var administrativeAreaKey = addressRow.get("administrative_area_key");
+            if (hasValue(administrativeAreaKey)) {
+                
+                if (administrativeAreaKey == -1) {
+                    ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
+                } else {
+                    ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, addressRow.get("administrative_area_key")));
+                }
+            }
+        };
+        
         if (phones.length > 0 || faxes.length > 0) {
             var ciTelephone = ciContact.addElement("gmd:phone").addElement("gmd:CI_Telephone");
             for (var j=0; j<phones.length; j++) {
@@ -1456,23 +1474,16 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
             }
             ciAddress.addElement("gmd:deliveryPoint").addElement("gco:CharacterString").addText(addressRow.get("street"));
             ciAddress.addElement("gmd:city").addElement("gco:CharacterString").addText(addressRow.get("city"));
+            addAdministrativeArea(ciAddress);
             ciAddress.addElement("gmd:postalCode").addElement("gco:CharacterString").addText(addressRow.get("postcode"));
+        } else {
+            ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
+            addAdministrativeArea(ciAddress);
         }
         if (hasValue(addressRow.get("country_key"))) {
             if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
             ciAddress.addElement("gmd:country/gco:CharacterString").addText(TRANSF.getISO3166_1_Alpha_3FromNumericLanguageCode(addressRow.get("country_key")));
         }
-        // fix problem with not mapping administrativeAreay element in object iso see https://dev.informationgrid.eu/redmine/issues/375
-        var administrativeAreaKey = addressRow.get("administrative_area_key");
-        if (hasValue(administrativeAreaKey)) {
-            if (!ciAddress) ciAddress = ciContact.addElement("gmd:address/gmd:CI_Address");
-            if (administrativeAreaKey == -1) {
-                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
-            } else {
-                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, administrativeAreaKey));
-            }
-        }
-        
     }
 
     for (var j=0; j<emailAddresses.length; j++) {
@@ -2459,6 +2470,18 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                 identificationInfo.addElement("srv:containsOperations").addAttribute("gco:nilReason", "missing");
             }
         }
+}
+
+function addDataLanguages(nodeToAddTo, objId) {
+    var rows = SQL.all("SELECT data_language_key FROM object_data_language WHERE obj_id=?", [+objId]);
+    for (i=0; i<rows.size(); i++) {
+    	var value = TRANSF.getLanguageISO639_2FromIGCCode(rows.get(i).get("data_language_key"));
+    	if (hasValue(value)) {
+    		nodeToAddTo.addElement("gmd:language/gmd:LanguageCode")
+    	        .addAttribute("codeList", globalCodeListLanguageAttrURL)
+    	        .addAttribute("codeListValue", value);
+    	}
+    }
 }
 
 /*

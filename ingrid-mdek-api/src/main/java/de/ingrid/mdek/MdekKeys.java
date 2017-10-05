@@ -220,7 +220,6 @@ public class MdekKeys {
      * If value is true, then throw away all previously analyzed data from job info.
      *  Value: Boolean */
     public final static String REQUESTINFO_IMPORT_START_NEW_ANALYSIS = "requestinfo_importStartNewAnalysis";
-    public final static String REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED = "requestinfo_transactionIsHandled";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID = "requestinfo_importErrorWhenUuidExists";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID = "requestinfo_importErrorWhenUuidNotExists";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION = "requestinfo_importErrorWhenException";
@@ -228,6 +227,9 @@ public class MdekKeys {
      * Then the parent is set via IMPORT_NODE and this flag in runningJobInfo determines special behavior concerning import node !
      */
     public final static String REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE = "requestinfo_importIgnoreParentImportNode";
+    /** Indicate handled transaction outside of jobs, so job does NOT begin/commit transaction
+    *  Value: Boolean */
+    public final static String REQUESTINFO_TRANSACTION_IS_HANDLED = "requestinfo_transactionIsHandled";
 
 
     // URL
@@ -537,7 +539,7 @@ public class MdekKeys {
     /** Additional info: various messages separated by \n for display in frontend after import<br>
      *  Value: String */
     public final static String RUNNINGJOB_FRONTEND_MESSAGES = "runningjob-frontend-messages";
-    /** Additional info: List of all changed entities with info: type, uuid, state, origId<br>
+    /** Additional info: List of all changed entities with info: type, uuid, state, origId, ...<br>
      * Value: List< HashMap > */
     public final static String CHANGED_ENTITIES = "changed-entities";
     /** This String[] contains the keys for extracting BASIC info of the running job (job description)<br>
@@ -725,10 +727,14 @@ public class MdekKeys {
     public final static String METADATA_LANGUAGE_CODE = "metadata-language-code";
     /** Value: String */
     public final static String METADATA_LANGUAGE_NAME = "metadata-language-name";
+
+    /** Value: List< IngridDocument > */
+    public final static String DATA_LANGUAGE_LIST = "data-language-list";
     /** Value: Integer */
     public final static String DATA_LANGUAGE_CODE = "data-language-code";
     /** Value: String */
     public final static String DATA_LANGUAGE_NAME = "data-language-name";
+
     /** Value: Integer */
     public final static String PUBLICATION_CONDITION = "publication-condition";
     /** Value: String */
