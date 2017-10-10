@@ -807,6 +807,35 @@ public class MdekKeys {
     public final static String HIERARCHY_LEVEL = "hierarchy-level";
     /** Value: Integer  */
     public final static String VECTOR_TOPOLOGY_LEVEL = "vector-topology-level";
+    
+    /** Value: Boolean  */
+    public final static String TRANSFORMATION_PARAMETER = "transformation-parameter";
+    /** Value: Integer  */
+    public final static String NUM_DIMENSIONS = "num-dimensions";
+    /** Value: String  */
+    public final static String AXIS_DIM_NAME = "axis-dim-name";
+    /** Value: Integer  */
+    public final static String AXIS_DIM_SIZE = "axis-dim-size";
+    /** Value: String  */
+    public final static String CELL_GEOMETRY = "cell-geometry";
+    /** Value: Boolean  */
+    public final static String GEO_RECTIFIED = "geo-rectified";
+    /** Value: Boolean  */
+    public final static String GEO_RECT_CHECKPOINT = "geo-rect-checkpoint";
+    /** Value: String  */
+    public final static String GEO_RECT_DESCRIPTION = "geo-rect-description";
+    /** Value: String  */
+    public final static String GEO_RECT_CORNER_POINT = "geo-rect-corner-point";
+    /** Value: String  */
+    public final static String GEO_RECT_POINT_IN_PIXEL = "geo-rect-point-in-pixel";
+    /** Value: Boolean  */
+    public final static String GEO_REF_CONTROL_POINT = "geo-ref-control-point";
+    /** Value: Boolean  */
+    public final static String GEO_REF_ORIENTATION_PARAM = "geo-ref-orientation-parameter";
+    /** Value: String  */
+    public final static String GEO_REF_PARAMETER = "geo-ref-parameter";
+    
+    
     /** Value: Double  */
     public final static String POS_ACCURACY_VERTICAL = "pos-accuracy-vertical";
     /** Value: Double  */
