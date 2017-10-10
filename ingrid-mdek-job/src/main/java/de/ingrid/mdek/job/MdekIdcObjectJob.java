@@ -808,6 +808,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	public IngridDocument deleteObject(IngridDocument params) {
 		String userId = getCurrentUserUuid(params);
 		boolean removeRunningJob = true;
+        boolean transactionInProgress = (boolean) getOrDefault( params, MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, false );
 		try {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JobType.DELETE, 0, 1, false));
@@ -815,7 +816,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			String uuid = (String) params.get(MdekKeys.UUID);
 			Boolean forceDeleteReferences = (Boolean) params.get(MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES);
 			Boolean byOrigId = params.containsKey( MdekKeys.REQUESTINFO_USE_ORIG_ID) ? (Boolean)params.get(MdekKeys.REQUESTINFO_USE_ORIG_ID) : false;
-	        boolean transactionInProgress = (boolean) getOrDefault( params, MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, false );
 
             if (!transactionInProgress) {
                 daoObjectNode.beginTransaction();
@@ -839,7 +839,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		} catch (RuntimeException e) {
 		    log.error( "Error deleting object", e );
-			RuntimeException handledExc = handleException(e);
+			RuntimeException handledExc = handleException(e, transactionInProgress);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 		    throw handledExc;
 		} catch (Exception e) {

@@ -70,7 +70,7 @@ import de.ingrid.utils.xpath.XPathUtils;
 public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     private static Log log = LogFactory.getLog( IgeSearchPlug.class );
-    
+
     private static final String DATA_PARAMETER = "data";
     
     private static Pattern PATTERN_IDENTIFIER = Pattern.compile("^(.*:)?identifier", Pattern.CASE_INSENSITIVE);
@@ -90,7 +90,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     private MdekIdcObjectJob objectJob = null;
 
     private final IndexImpl _indexSearcher;
-    
+
     private XPathUtils utils = new XPathUtils( new Csw202NamespaceContext() );
 
     private String adminUserUUID;
@@ -175,7 +175,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         case "importCSWDoc":
             @SuppressWarnings("unchecked")
             Map<String, Object> map = (Map<String, Object>) info.getParameter();
-            doc = cswTransaction( (String) map.get( DATA_PARAMETER )  );
+            doc = cswTransaction( (String) map.get( DATA_PARAMETER ) );
         }
 
         return doc;
@@ -201,9 +201,9 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             NodeList insertDocs = xmlDoc.getElementsByTagName( "csw:Insert" );
             NodeList updateDocs = xmlDoc.getElementsByTagName( "csw:Update" );
             NodeList deleteDocs = xmlDoc.getElementsByTagName( "csw:Delete" );
-            
+
             adminUserUUID = catalogJob.getCatalogAdminUserUuid();
-            
+
             catalogJob.beginTransaction();
             
             /**
@@ -217,11 +217,11 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 // TODO insert validation
                 String parentUuid = utils.getString( item, ".//gmd:parentIdentifier/gco:CharacterString" );
                 IngridDocument document = prepareImportAnalyzeDocument( builder, item );
-                //document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
+                // document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
                 catalogJob.analyzeImportData( document );
                 IngridDocument importDoc = prepareImportDocument();
                 importDoc.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
-                resultInsert = catalogJob.importEntities( importDoc  );
+                resultInsert = catalogJob.importEntities( importDoc );
                 Exception ex = (Exception) resultInsert.get( MdekKeys.JOBINFO_EXCEPTION );
                 if (ex == null) {
                     insertedObjects++;
@@ -232,7 +232,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     insertedEntities.addAll( (List<HashMap>) resultInsert.get(MdekKeys.CHANGED_ENTITIES));                    
                 }
             }
-            
+
             /**
              * UPDATE DOCS
              */
@@ -260,7 +260,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     throw new Exception( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
                 }
             }
-            
+
             /**
              * DELETE DOCS
              */
@@ -300,14 +300,14 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                             deletedEntities.addAll( (List<HashMap>) resultDelete.get(MdekKeys.CHANGED_ENTITIES));                    
                         }
                     } else {
-                        throw new Exception("Object could not be deleted: " + propValue);
+                        throw new Exception( "Object could not be deleted: " + propValue );
                     }
                 } else {
                     log.error( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
                     throw new Exception( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
                 }
             }
-            
+
             catalogJob.commitTransaction();
 
             // Update search index with data of all published entities and also log audit if set
@@ -330,8 +330,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         } catch (Exception e) {
             catalogJob.rollbackTransaction();
             e.printStackTrace();
-            doc.put( "error", prepareException(e) );
-            doc.putBoolean( "success", false);
+            doc.put( "error", prepareException( e ) );
+            doc.putBoolean( "success", false );
         }
 
         return doc;
@@ -345,7 +345,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         } else {
             errorMsg = cause.toString();
         }
-        
+
         for (StackTraceElement stackTraceElement : cause.getStackTrace()) {
             errorMsg += "\n" + stackTraceElement;
         }
@@ -360,7 +360,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
         IngridDocument docIn = new IngridDocument();
         docIn.put( MdekKeys.USER_ID, adminUserUUID );
-        
+
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, MdekIdcCatalogJob.compress( new ByteArrayInputStream( insertDoc.getBytes() ) ).toByteArray() );
         docIn.put( MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, "csw202" );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, true );
@@ -373,7 +373,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, true );
         return docIn;
     }
-    
+
     private IngridDocument prepareImportDocument() throws Exception {
         IngridDocument docIn = new IngridDocument();
         docIn.put( MdekKeys.USER_ID, adminUserUUID );
@@ -385,14 +385,14 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, true );
         docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, true );
-        
+
         return docIn;
     }
 
     public void setCatalogJob(MdekIdcCatalogJob catalogJob) {
         this.catalogJob = catalogJob;
     }
-    
+
     public void setObjectJob(MdekIdcObjectJob objectJob) {
         this.objectJob = objectJob;
     }

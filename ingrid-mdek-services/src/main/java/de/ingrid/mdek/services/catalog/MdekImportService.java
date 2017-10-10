@@ -1618,8 +1618,10 @@ public class MdekImportService implements IImporterCallback {
 			if (whichType == IdcEntityType.OBJECT) {
 				// we DON'T force publication condition ! if error, we store working version !
 				objectService.publishObject(inDoc, false, userUuid, true);
+				// NOTICE: ID of published object was added to inDoc for later use
 			} else if (whichType == IdcEntityType.ADDRESS) {
 				addressService.publishAddress(inDoc, false, userUuid, true);
+                // NOTICE: ID of published address was added to inDoc for later use
 			}
 
 			updateImportJobInfo(whichType, numImported+1, totalNum, userUuid);

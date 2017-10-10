@@ -49,6 +49,7 @@ import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.importer.udk.Importer;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
+import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.mdek.Versioning;
 
 @PropertiesFiles( {"config"} )
@@ -156,6 +157,14 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
             descriptor.setProperty( "hibernate.password", databasePassword );
             descriptor.setProperty( "hibernate.dialect",  databaseDialect );
             descriptor.setProperty( "hibernate.jdbcUrl", databaseUrl );
+            String myDatabaseSchema = databaseSchema;
+            if (databaseSchema == null || databaseSchema.trim().length() == 0) {
+                // no schema set, we have to set default schema for hibernate !
+                // e.g. empty schema crashes on postgres/oracle cause schema now set in springapp-servlet.xml hibernateProperties
+                myDatabaseSchema = DatabaseConnectionUtils.getDefaultSchema( this.getDatabaseConnection() );
+            }
+            log.info( "Setting hibernate.schema: " + myDatabaseSchema );
+            descriptor.setProperty( "hibernate.schema", myDatabaseSchema );                
             FileOutputStream os = new FileOutputStream( new File("conf/default-datasource.properties") );
             descriptor.store( os, "" );
             is.close();

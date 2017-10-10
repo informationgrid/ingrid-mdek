@@ -27,12 +27,18 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="4.1" date="2017-xx-xx" description="Release 4.1">
+    <release version="4.1.0" date="2017-10-05" description="Release 4.1.0">
       <action type="add" dev="wemove" issue="REDMINE-199">
       	Add multiple data languages (migrate to new table, import/export, idf, ...)
       </action>
       <action type="update" dev="wemove" issue="REDMINE-563">
         Syslist 6010 (accessConstraints) moved to codelist-repo, not editable anymore.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-846">
+        ISO import of multiple time-periods now possible (MD_MaintenanceFrequencyCode), last one wins.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-864">
+        Support schema in database connection when indexing and when editing over all supported databases.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-611">
         Fix transaction handling and Import/CSW-T.
@@ -42,6 +48,12 @@
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-751">
         Fixed mapping of administrative area to correct position in ISO.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-393">
+        BKG: Fixed mapping of of codelist for use constraint and added label as prefix.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-339">
+        BKG: Fixed showing JSON is ISO document.
       </action>
     </release>
 
