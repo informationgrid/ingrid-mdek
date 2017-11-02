@@ -34,7 +34,7 @@ In SQL Developer:
 - In Wizard:
   - wie in Manual (Video) beschrieben migrieren, also
     - Repository: Repo von oben wählen, "Abschneiden" nur, wenn Repo komplett geleert werden soll
-    - Projekt: sinnvollen Namen wählen, z.B. "MySQL_igc_sl_kommunal", in Ausgabeverzeichnis werden Skripte des Schemas oder zur Datenübertragung gespeichert
+    - Projekt: sinnvollen Namen wählen, z.B. "MySQL_igc_sl_kommunal", im Ausgabeverzeichnis wird ein Ordner dieses Namens generiert in den Skripte des Schemas oder zur Datenübertragung gespielt werden
     - Quelldatenbank: "Online", MySQL Verbindung von oben wählen
     - Erfassen: zu konvertierende Datenbank von links nach rechts schieben
     - Konvertieren: unverändert lassen
@@ -51,12 +51,13 @@ In SQL Developer:
         - zunächst Daten "Offline" migrieren
         - "Daten abschneiden" aktivieren, damit Daten in Zieldatenbank neu erzeugt werden
     - Zusammenfassung: prüfen und "Fertigstellen"
+    - ACHTUNG: Offline Migration kann zu Fehlern führen und Anwendung hängt sich auf, dann SQL Developer beenden, neu starten und weiter machen, wie beschrieben ! Skripte sind in Zielverzeichnis geschrieben worden. Eventuell muss das Zielverzeichnis in nä. Schritten manuell gewählt werden.
 - Nach Migration NEUE VERBINDUNG anlegen zu migriertem Schema: username / password ist der Datenbankname -> ACHTUNG: User ist case insensitive / passwd ist lowercase !
 	- bei Migration Datenbank igc_sl_kommunal ist USER / PASSWD z.B. igc_sl_kommunal / igc_sl_kommunal
 - Dann via Migrationsprojekt Daten zu neuem Schema migrieren
 	- Rechtsklick auf "Konvertierte Datenbankobjekte" (in Ansicht "Migrationsprojekte") und "Daten verschieben..."
 	- Modus: "Online", Quelle: MySQl Verbindung wählen, Ziel: Verbindung zu neuem Schema wählen (z.B. igc_sl_kommunal), "Daten abschneiden" aktivieren, damit Daten in Zieldatenbank neu erzeugt werden
-
+    - Zusammenfassung: prüfen und "Fertigstellen"
 
 Optional: Oracle dump ausführen von migrierter Datenbank
 --------------------------------------------------------
