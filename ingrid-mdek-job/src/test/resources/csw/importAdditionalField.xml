@@ -8,12 +8,12 @@
   for (var i=0; i<keywords.getLength(); i++ ) {
     var keyword = keywords.item(i).getTextContent();
     if ("#opendata_hh#".equals(keyword)) {
-      var targetEl = target.getDocumentElement();
+      var doc = target.getDocumentElement();
       log.debug("map keyword #opendata_hh# to additional field");
-      var additionalValues = XPATH.createElementFromXPath(targetEl, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
-      var additionalValue = additionalValues.appendChild(targetEl.getOwnerDocument().createElement("general-additional-value"));
-      XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key"), "publicationHmbTG"); 
-      XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-data"), true); 
+      var additionalValues = XPATH.createElementFromXPath(doc, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
+      var additionalValue = DOM.addElement(additionalValues, "general-additional-value");
+      additionalValue.addElement("field-key").addText("publicationHmbTG");
+      additionalValue.addElement("field-data").addText("true");
     }
   }
         ]]></scriptedCswMappingImport>

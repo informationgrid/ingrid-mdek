@@ -198,6 +198,20 @@ public class MdekJobHandler {
 		return runningJob;
 	}
 
+    /** Get Info of changed entities of running job. 
+     * @param userId user who started job
+     * @return List of Maps, every map describes one entity. Empty List if nothing processed.
+     */
+    public List<HashMap> getRunningJobChangedEntities(String userId) {
+        IngridDocument jobInfo = getRunningJobInfo(userId);
+        List<HashMap> processedEntities = (List<HashMap>) jobInfo.get(MdekKeys.CHANGED_ENTITIES);
+        if (processedEntities == null) {
+            processedEntities = new ArrayList<HashMap>();
+        }
+        
+        return processedEntities;
+    }
+
 	/** Add keys in passed map to current job information.<br> 
 	 * NOTICE: NO checks whether jobs are already running !
 	 * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled ! */
@@ -217,16 +231,18 @@ public class MdekJobHandler {
 
 		runningJobsMap.put(userId, jobInfo);
 	}
-    /** Update Info about changed entities of Import job IN MEMORY.
+    /** Update Info about changed entities of running job IN MEMORY.
      * NOTICE: NO checks whether jobs are already running !
      * BUT CHECKS WHETHER JOB WAS CANCELED ! and throws exception if canceled !
      * @param userUuid the user
      * @param whichType Object or Address
      * @param whichState was saved in which state
      * @param inDoc address/object data
+     * @param auditMessage message to log via audit service
      */
     public void updateRunningJobChangedEntities(String userId, IdcEntityType whichType, WorkState whichState,
-            IngridDocument inDoc) {
+            IngridDocument inDoc,
+            String auditMessage) {
         // throws exception if canceled !
         checkRunningJobCanceledByUser(userId);
 
@@ -238,11 +254,19 @@ public class MdekJobHandler {
             jobInfo.put( MdekKeys.CHANGED_ENTITIES, processedEntities );
         }
 
+        // TODO: Only add changed entity if not already contained in equal state !? (TYPE/STATE/ID)
+        // We ignore this so entity may be contained multiple times ...
+        // e.g. in import Process entity can be added twice if published version is additionally
+        // written as second working version if something went wrong (or when importing under import node !) 
+
         HashMap entityMap = new HashMap();
+        entityMap.put(MdekKeys.JOBINFO_MESSAGES, auditMessage);
         entityMap.put(MdekKeys.JOBINFO_ENTITY_TYPE, whichType.getDbValue());
         entityMap.put(MdekKeys.WORK_STATE, whichState.getDbValue());
         entityMap.put(MdekKeys.UUID, inDoc.get(MdekKeys.UUID));
-        entityMap.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, inDoc.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));       
+        entityMap.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, inDoc.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));
+        entityMap.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, inDoc.get(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER));
+        entityMap.put(MdekKeys.ID, inDoc.get(MdekKeys.ID));       
 
         processedEntities.add( entityMap );
 

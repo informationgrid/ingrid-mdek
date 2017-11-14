@@ -537,6 +537,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		map.addChildren(createSymbolCatalogues(mapContext));
 		map.addChildren(createSpatialRepresentationTypes(mapContext));
 		map.addChild(createVectorFormat(mapContext));
+		map.addChild(createGridFormat(mapContext));
 		map.addChild(new XMLElement(POS_ACCURACY_VERTICAL, getDoubleForKey(MdekKeys.POS_ACCURACY_VERTICAL, mapContext)));
 		map.addChild(new XMLElement(KEYC_INCL_W_DATASET, getIntegerForKey(MdekKeys.KEYC_INCL_W_DATASET, mapContext)));
 		map.addChildren(createFeatureTypes(mapContext));
@@ -612,6 +613,24 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		vectorFormat.addChild(createVectorTopologyLevel(mapContext));
 		vectorFormat.addChildren(createGeoVectors(mapContext));
 		return vectorFormat;
+	}
+	
+	private XMLElement createGridFormat(IngridDocument mapContext) {
+	    XMLElement gridFormat = new XMLElement(GRID_FORMAT);
+	    gridFormat.addChild(new XMLElement(GRID_TRANSFORM_PARAMETER, getStringForKey(MdekKeys.TRANSFORMATION_PARAMETER, mapContext)));
+	    gridFormat.addChild(new XMLElement(GRID_NUM_DIMENSIONS, getIntegerForKey(MdekKeys.NUM_DIMENSIONS, mapContext)));
+	    gridFormat.addChild(new XMLElement(GRID_AXIS_NAME, getStringForKey(MdekKeys.AXIS_DIM_NAME, mapContext)));
+	    gridFormat.addChild(new XMLElement(GRID_AXIS_SIZE, getIntegerForKey(MdekKeys.AXIS_DIM_SIZE, mapContext)));
+	    gridFormat.addChild(new XMLElement(GRID_CELL_GEOMETRY, getStringForKey(MdekKeys.CELL_GEOMETRY, mapContext)));
+	    gridFormat.addChild(new XMLElement(GRID_GEO_RECTIFIED, getStringForKey(MdekKeys.GEO_RECTIFIED, mapContext)));
+	    gridFormat.addChild(new XMLElement(GRID_RECT_CHECKPOINT, getStringForKey(MdekKeys.GEO_RECT_CHECKPOINT, mapContext)));
+	    gridFormat.addChild(new XMLElement(GRID_RECT_DESCRIPTION, getStringForKey(MdekKeys.GEO_RECT_DESCRIPTION, mapContext)));
+	    gridFormat.addChild(new XMLElement(GRID_RECT_CORNER_POINT, getStringForKey(MdekKeys.GEO_RECT_CORNER_POINT, mapContext)));
+	    gridFormat.addChild(new XMLElement(GRID_RECT_POINT_IN_PIXEL, getStringForKey(MdekKeys.GEO_RECT_POINT_IN_PIXEL, mapContext)));
+	    gridFormat.addChild(new XMLElement(GRID_REF_CONTROL_POINT, getStringForKey(MdekKeys.GEO_REF_CONTROL_POINT, mapContext)));
+	    gridFormat.addChild(new XMLElement(GRID_REF_ORIENTATION_PARAM, getStringForKey(MdekKeys.GEO_REF_ORIENTATION_PARAM, mapContext)));
+	    gridFormat.addChild(new XMLElement(GRID_REF_REFERENCED_PARAM, getStringForKey(MdekKeys.GEO_REF_PARAMETER, mapContext)));
+	    return gridFormat;
 	}
 
 	private XMLElement createVectorTopologyLevel(IngridDocument mapContext) {

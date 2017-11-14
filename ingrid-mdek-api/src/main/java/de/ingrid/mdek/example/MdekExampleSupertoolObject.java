@@ -123,7 +123,7 @@ public class MdekExampleSupertoolObject {
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
-			System.out.println("SUCCESS: ");
+			System.out.println("SUCCESS: result =");
 			supertoolGeneric.debugObjectDoc(result);
 		} else {
 			supertoolGeneric.handleError(response);
@@ -211,7 +211,7 @@ public class MdekExampleSupertoolObject {
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
-			System.out.println("SUCCESS: ");
+			System.out.println("SUCCESS: result =");
 			supertoolGeneric.debugObjectDoc(result);
 		} else {
 			supertoolGeneric.handleError(response);
@@ -236,7 +236,7 @@ public class MdekExampleSupertoolObject {
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
-			System.out.println("SUCCESS: ");
+			System.out.println("SUCCESS: result =");
 			System.out.println(result);
 		} else {
 			supertoolGeneric.handleError(response);
@@ -269,7 +269,7 @@ public class MdekExampleSupertoolObject {
 		result = mdekCallerObject.getResultFromResponse(response);
 
 		if (result != null) {
-			System.out.println("SUCCESS: ");
+			System.out.println("SUCCESS: result =");
 			supertoolGeneric.debugObjectDoc(result);
 			
 		} else {
@@ -334,7 +334,7 @@ public class MdekExampleSupertoolObject {
 		result = mdekCallerObject.getResultFromResponse(response);
 
 		if (result != null) {
-			System.out.println("SUCCESS: ");
+			System.out.println("SUCCESS: result =");
 			supertoolGeneric.debugObjectDoc(result);
 			
 		} else {
@@ -368,7 +368,7 @@ public class MdekExampleSupertoolObject {
 		result = mdekCallerObject.getResultFromResponse(response);
 
 		if (result != null) {
-			System.out.println("SUCCESS: ");
+			System.out.println("SUCCESS: result =");
 			supertoolGeneric.debugObjectDoc(result);
 			
 		} else {
@@ -408,6 +408,7 @@ public class MdekExampleSupertoolObject {
 			String uuidStoredObject = (String) result.get(MdekKeys.UUID);
 			System.out.println("uuid = " + uuidStoredObject);
 			if (withRefetch) {
+	            System.out.println("result =");
 				supertoolGeneric.debugObjectDoc(result);
 			}
 		} else {
@@ -436,7 +437,7 @@ public class MdekExampleSupertoolObject {
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
-			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " moved !");
+			System.out.println("SUCCESS: " + result.get(MdekKeys.RESULTINFO_NUMBER_OF_PROCESSED_ENTITIES) + " moved ! result =");
 			System.out.println(result);
 		} else {
 			supertoolGeneric.handleError(response);
@@ -639,7 +640,7 @@ public class MdekExampleSupertoolObject {
 		System.out.println("EXECUTION TIME: " + neededTime + " ms");
 		result = mdekCallerObject.getResultFromResponse(response);
 		if (result != null) {
-			System.out.println("SUCCESS: ");
+			System.out.println("SUCCESS: result =");
 			System.out.println(result);
 		} else {
 			supertoolGeneric.handleError(response);

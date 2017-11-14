@@ -38,6 +38,21 @@
       <property name="recGrade" type="double" column="rec_grade"/>
       <property name="hierarchyLevel" type="integer" column="hierarchy_level"/>
       <property name="vectorTopologyLevel" type="integer" column="vector_topology_level"/>
+      
+      <property name="transfParam" type="string" column="transformation_parameter"/>
+      <property name="numDimensions" type="integer" column="num_dimensions"/>
+      <property name="axisDimName" type="string" column="axis_dim_name"/>
+      <property name="axisDimSize" type="integer" column="axis_dim_size"/>
+      <property name="cellGeometry" type="string" column="cell_geometry"/>
+      <property name="geoRectified" type="string" column="geo_rectified"/>
+      <property name="rectCheckpoint" type="string" column="geo_rect_checkpoint"/>
+      <property name="rectDescription" type="string" column="geo_rect_description"/>
+      <property name="rectCornerPoint" type="string" column="geo_rect_corner_point"/>
+      <property name="rectPointInPixel" type="string" column="geo_rect_point_in_pixel"/>
+      <property name="refControlPoint" type="string" column="geo_ref_control_point"/>
+      <property name="refOrientationParam" type="string" column="geo_ref_orientation_parameter"/>
+      <property name="refGeoreferencedParam" type="string" column="geo_ref_parameter"/>
+      
       <property name="posAccuracyVertical" type="double" column="pos_accuracy_vertical"/>
       <property name="gridPosAccuracy" type="double" column="grid_pos_accuracy"/>
       <property name="keycInclWDataset" type="integer" column="keyc_incl_w_dataset"/>

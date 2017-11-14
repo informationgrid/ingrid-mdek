@@ -41,8 +41,11 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import de.ingrid.admin.elasticsearch.IndexManager;
+import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -132,7 +135,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
     @Autowired
 	public MdekIdcCatalogJob(ILogService logService,
 			DaoFactory daoFactory,
-			IPermissionService permissionService) {
+			IPermissionService permissionService,
+            IndexManager indexManager) {
 		super(logService.getLogger(MdekIdcCatalogJob.class), daoFactory);
 		
 		catalogService = MdekCatalogService.getInstance(daoFactory);
@@ -152,6 +156,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		daoHQL = daoFactory.getHQLDao();
 		daoSearchtermValue = daoFactory.getSearchtermValueDao();
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
+        this.indexManager = indexManager;
 	}
 
 	public IngridDocument getVersion(IngridDocument params) {
@@ -720,7 +725,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	    String frontendProtocol = (String) docIn.get(MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL);
 	    //Boolean importAfterAnalyze = docIn.getBoolean(MdekKeys.REQUESTINFO_IMPORT_DATA_AFTER_ANALYZE);
 	    Boolean startNewAnalysis = docIn.getBoolean(MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS);
-        boolean transactionInProgress = (boolean) getOrDefault(docIn, MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
+        boolean transactionInProgress = (boolean) getOrDefault(docIn, MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, false );
 	    ProtocolHandler protocolHandler = new HashMapProtocolHandler();
 	    byte[] mappedDataCompressed = importData;
 
@@ -793,7 +798,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	 */
 	public IngridDocument importEntities(IngridDocument docIn) {
 		String userId = getCurrentUserUuid(docIn);
-		boolean transactionInProgress = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED, false );
+		boolean transactionInProgress = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_TRANSACTION_IS_HANDLED, false );
 		boolean errorOnExisitingUuid = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, false );
 		boolean errorOnMissingUuid = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, false );
 		boolean errorOnException = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, false );
@@ -881,6 +886,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			if (!transactionInProgress) {
 	            genericDao.commitTransaction();
+	            
+	            // Update search index with data of PUBLISHED entities and also log if set
+	            updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId));
 			}
 
 			IngridDocument result = new IngridDocument();
@@ -888,7 +896,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			return result;
 
 		} catch (RuntimeException e) {
-			RuntimeException handledExc = handleException(e);
+			RuntimeException handledExc = handleException(e, transactionInProgress);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
 
 			// LOG relevant EXCEPTION IN DATABASE Job Info !
@@ -1723,14 +1731,6 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
         return addrUuid;
     }
     
-    private Object getOrDefault(IngridDocument doc, String key, Object defaultValue) {
-        if (doc.containsKey( key )) {
-            return doc.get( key );
-        } else {
-            return defaultValue;
-        }
-    }
-    
     public void beginTransaction() {
         genericDao.beginTransaction();
     }
@@ -1741,6 +1741,5 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
     
     public void rollbackTransaction() {
         genericDao.rollbackTransaction();
-    }  
-  
+    }
 }

@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<csw:Transaction service="CSW" version="2.0.2"
+	xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-publication.xsd">
+	<csw:Insert>
+		<MD_Metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xmlns="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco"
+			xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink">
+			<fileIdentifier>
+				<gco:CharacterString>fe2ce8b6-f696-4071-9928-60a17dd49028
+				</gco:CharacterString>
+			</fileIdentifier>
+			<language>
+				<LanguageCode
+					codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#LanguageCode"
+					codeListValue="ger">ger</LanguageCode>
+			</language>
+			<characterSet>
+				<MD_CharacterSetCode
+					codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_CharacterSetCode"
+					codeListValue="utf8">utf8</MD_CharacterSetCode>
+			</characterSet>
+			<hierarchyLevel>
+				<MD_ScopeCode
+					codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode"
+					codeListValue="dataset" />
+			</hierarchyLevel>
+			<contact>
+				<CI_ResponsibleParty>
+					<individualName>
+						<gco:CharacterString>Dipl.-Ing. Erika Carstens
+						</gco:CharacterString>
+					</individualName>
+					<organisationName>
+						<gco:CharacterString>Bundesanstalt für Wasserbau
+						</gco:CharacterString>
+					</organisationName>
+					<contactInfo>
+						<CI_Contact>
+							<address>
+								<CI_Address>
+									<electronicMailAddress>
+										<gco:CharacterString>erika.mustermann@baw.de
+										</gco:CharacterString>
+									</electronicMailAddress>
+								</CI_Address>
+							</address>
+						</CI_Contact>
+					</contactInfo>
+					<role>
+						<CI_RoleCode
+							codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_RoleCode"
+							codeListValue="pointOfContact" />
+					</role>
+				</CI_ResponsibleParty>
+			</contact>
+			<!-- Date the metadata was created -->
+			<dateStamp>
+				<gco:Date>2016-05-12</gco:Date>
+			</dateStamp>
+			<metadataStandardName>
+				<gco:CharacterString>ISO19115:2003/GDI-BAW</gco:CharacterString>
+			</metadataStandardName>
+			<metadataStandardVersion>
+				<gco:CharacterString>2016:1.2</gco:CharacterString>
+			</metadataStandardVersion>
+			<referenceSystemInfo>
+				<MD_ReferenceSystem>
+					<!-- Referenzsystem -->
+					<referenceSystemIdentifier>
+						<RS_Identifier>
+							<code>
+								<gco:CharacterString>EPSG 31467: DHDN / Gauss-Krüger Zone 3
+								</gco:CharacterString>
+							</code>
+							<codeSpace>
+								<gco:CharacterString>urn:og:def:crs:EPSG</gco:CharacterString>
+							</codeSpace>
+							<codeSpace>
+								<gco:CharacterString>6.11.2</gco:CharacterString>
+							</codeSpace>
+						</RS_Identifier>
+					</referenceSystemIdentifier>
+				</MD_ReferenceSystem>
+			</referenceSystemInfo>
+			<!-- IDENTIFICATION INFORMATION -->
+			<identificationInfo>
+				<MD_DataIdentification>
+					<citation>
+						<CI_Citation>
+							<title>
+								<gco:CharacterString>Hochwassergrenze IKSR</gco:CharacterString>
+							</title>
+							<date>
+								<CI_Date>
+									<date>
+										<gco:Date>2000-09-03</gco:Date>
+									</date>
+									<dateType>
+										<CI_DateTypeCode
+											codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode"
+											codeListValue="creation" />
+									</dateType>
+								</CI_Date>
+							</date>
+							<!-- Identifikator der Daten -->
+							<identifier>
+								<MD_Identifier>
+									<code>
+										<gco:CharacterString>http://namespace-uri.de/dfb5cf89-b7c0-4858-9818-68d40de48f62
+										</gco:CharacterString>
+									</code>
+								</MD_Identifier>
+							</identifier>
+						</CI_Citation>
+					</citation>
+					<abstract>
+						<gco:CharacterString>Hochwassergrenze des Rheins als Fläche, grob
+							digitalisiert
+						</gco:CharacterString>
+					</abstract>
+					<!-- Verantwortliche Stelle -->
+					<pointOfContact>
+						<CI_ResponsibleParty>
+							<individualName>
+								<gco:CharacterString>Dr.-Ing. Max Mustermann
+								</gco:CharacterString>
+							</individualName>
+							<organisationName>
+								<gco:CharacterString>Bundesanstalt für Wasserbau
+								</gco:CharacterString>
+							</organisationName>
+							<contactInfo>
+								<CI_Contact>
+									<phone>
+										<CI_Telephone>
+											<voice>
+												<gco:CharacterString>01243/1234567</gco:CharacterString>
+											</voice>
+											<facsimile>
+												<gco:CharacterString>01243/1234568</gco:CharacterString>
+											</facsimile>
+										</CI_Telephone>
+									</phone>
+									<address>
+										<CI_Address>
+											<electronicMailAddress>
+												<gco:CharacterString>max.mustermann@baw.de
+												</gco:CharacterString>
+											</electronicMailAddress>
+										</CI_Address>
+									</address>
+									<onlineResource>
+										<CI_OnlineResource>
+											<linkage>
+												<URL>http://www.domain.de</URL>
+											</linkage>
+										</CI_OnlineResource>
+									</onlineResource>
+								</CI_Contact>
+							</contactInfo>
+							<role>
+								<CI_RoleCode
+									codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_RoleCode"
+									codeListValue="publisher" />
+							</role>
+						</CI_ResponsibleParty>
+					</pointOfContact>
+					<!-- BAW Auftragsnummer -->
+					<descriptiveKeywords>
+						<MD_Keywords>
+							<keyword>
+								<gco:CharacterString>B3954.07.05.70005</gco:CharacterString>
+							</keyword>
+							<type>
+								<MD_KeywordTypeCode
+									codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_KeywordTypeCode"
+									codeListValue="discipline" />
+							</type>
+							<thesaurusName>
+								<CI_Citation>
+									<title>
+										<gco:CharacterString>DEBUNDBAWAUFTRAGNR</gco:CharacterString>
+									</title>
+									<date>
+										<CI_Date>
+											<date>
+												<gco:Date>2016-05-12</gco:Date>
+											</date>
+											<dateType>
+												<CI_DateTypeCode
+													codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode"
+													codeListValue="publication" />
+											</dateType>
+										</CI_Date>
+									</date>
+								</CI_Citation>
+							</thesaurusName>
+						</MD_Keywords>
+					</descriptiveKeywords>
+					<!-- GOVDATA Keywords -->
+					<descriptiveKeywords>
+						<MD_Keywords>
+							<keyword>
+								<gco:CharacterString>umwelt_klima</gco:CharacterString>
+							</keyword>
+							<type>
+								<MD_KeywordTypeCode
+									codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_KeywordTypeCode"
+									codeListValue="theme" />
+							</type>
+							<thesaurusName>
+								<CI_Citation>
+									<title>
+										<gco:CharacterString>OGDD-Kategorien</gco:CharacterString>
+									</title>
+									<date>
+										<CI_Date>
+											<date>
+												<gco:Date>2012-11-27</gco:Date>
+											</date>
+											<dateType>
+												<CI_DateTypeCode
+													codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode"
+													codeListValue="publication" />
+											</dateType>
+										</CI_Date>
+									</date>
+								</CI_Citation>
+							</thesaurusName>
+						</MD_Keywords>
+					</descriptiveKeywords>
+					<!-- Simulation: Räumliche Dimensionalität -->
+					<descriptiveKeywords>
+						<MD_Keywords>
+							<keyword>
+								<gco:CharacterString>3D</gco:CharacterString>
+							</keyword>
+							<type>
+								<MD_KeywordTypeCode
+									codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_KeywordTypeCode"
+									codeListValue="theme" />
+							</type>
+							<thesaurusName>
+								<CI_Citation>
+									<title>
+										<gco:CharacterString>BAW-DMQS Spatial Dimensions
+										</gco:CharacterString>
+									</title>
+									<date>
+										<CI_Date>
+											<date>
+												<gco:Date>2016-04-08</gco:Date>
+											</date>
+											<dateType>
+												<CI_DateTypeCode
+													codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode"
+													codeListValue="publication" />
+											</dateType>
+										</CI_Date>
+									</date>
+								</CI_Citation>
+							</thesaurusName>
+						</MD_Keywords>
+					</descriptiveKeywords>
+					<!-- Simulation: Verfahren -->
+					<descriptiveKeywords>
+						<MD_Keywords>
+							<keyword>
+								<gco:CharacterString>Telemac</gco:CharacterString>
+							</keyword>
+							<keyword>
+								<gco:CharacterString>fahrdynamisch</gco:CharacterString>
+							</keyword>
+							<type>
+								<MD_KeywordTypeCode
+									codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_KeywordTypeCode"
+									codeListValue="theme" />
+							</type>
+							<thesaurusName>
+								<CI_Citation>
+									<title>
+										<gco:CharacterString>BAW-DMQS Modelling Method
+										</gco:CharacterString>
+									</title>
+									<date>
+										<CI_Date>
+											<date>
+												<gco:Date>2016-04-08</gco:Date>
+											</date>
+											<dateType>
+												<CI_DateTypeCode
+													codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode"
+													codeListValue="publication" />
+											</dateType>
+										</CI_Date>
+									</date>
+								</CI_Citation>
+							</thesaurusName>
+						</MD_Keywords>
+					</descriptiveKeywords>
+					<!-- Simulation: Modellart -->
+					<descriptiveKeywords>
+						<MD_Keywords>
+							<keyword>
+								<gco:CharacterString>hydrologisch</gco:CharacterString>
+							</keyword>
+							<type>
+								<MD_KeywordTypeCode
+									codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_KeywordTypeCode"
+									codeListValue="theme" />
+							</type>
+							<thesaurusName>
+								<CI_Citation>
+									<title>
+										<gco:CharacterString>BAW-DMQS Modelling Type
+										</gco:CharacterString>
+									</title>
+									<date>
+										<CI_Date>
+											<date>
+												<gco:Date>2016-04-08</gco:Date>
+											</date>
+											<dateType>
+												<CI_DateTypeCode
+													codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode"
+													codeListValue="publication" />
+											</dateType>
+										</CI_Date>
+									</date>
+								</CI_Citation>
+							</thesaurusName>
+						</MD_Keywords>
+					</descriptiveKeywords>
+					<!-- Freie Keywords -->
+					<descriptiveKeywords>
+						<MD_Keywords>
+							<keyword>
+								<gco:CharacterString>keyword 1</gco:CharacterString>
+							</keyword>
+							<keyword>
+								<gco:CharacterString>keyword 2</gco:CharacterString>
+							</keyword>
+						</MD_Keywords>
+					</descriptiveKeywords>
+					<!-- Anwendungseinschränkungen -->
+					<resourceConstraints>
+						<MD_LegalConstraints>
+							<useLimitation>
+								<gco:CharacterString>Nutzungseinschränkungen: Datenlizenz
+									Deutschland – Namensnennung – Version 2.0
+									(https://www.govdata.de/dl-de/by-2-0)
+								</gco:CharacterString>
+							</useLimitation>
+						</MD_LegalConstraints>
+					</resourceConstraints>
+					<!-- Zugriffseinschränkungen -->
+					<resourceConstraints>
+						<MD_LegalConstraints>
+							<accessConstraints>
+								<MD_RestrictionCode
+									codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_RestrictionCode"
+									codeListValue="otherRestrictions">otherRestrictions</MD_RestrictionCode>
+							</accessConstraints>
+							<otherConstraints>
+								<gco:CharacterString>Bundesimmissionsschutzgesetz (BImSchG)
+								</gco:CharacterString>
+							</otherConstraints>
+						</MD_LegalConstraints>
+					</resourceConstraints>
+					<!-- Sprache der Ressource -->
+					<language>
+						<gco:CharacterString>eng</gco:CharacterString>
+					</language>
+					<topicCategory>
+						<MD_TopicCategoryCode>boundaries</MD_TopicCategoryCode>
+					</topicCategory>
+					<topicCategory>
+						<MD_TopicCategoryCode>elevation</MD_TopicCategoryCode>
+					</topicCategory>
+					<extent>
+						<EX_Extent>
+							<!-- Geografischer Identifikator -->
+							<geographicElement>
+								<EX_GeographicDescription>
+									<extentTypeCode>
+										<gco:Boolean>true</gco:Boolean>
+									</extentTypeCode>
+									<geographicIdentifier>
+										<RS_Identifier>
+											<code>
+												<gco:CharacterString>Bundesrepublik Deutschland
+												</gco:CharacterString>
+											</code>
+											<codeSpace>
+												<gco:CharacterString>https://registry.gdi-de.org/id/de.bund.wsv.vv-wsv-1103
+												</gco:CharacterString>
+											</codeSpace>
+											<version>
+												<gco:CharacterString>3.5-2016</gco:CharacterString>
+											</version>
+										</RS_Identifier>
+									</geographicIdentifier>
+								</EX_GeographicDescription>
+							</geographicElement>
+							<!-- Geografische Ausdehnung -->
+							<geographicElement>
+								<EX_GeographicBoundingBox>
+									<extentTypeCode>
+										<gco:Boolean>true</gco:Boolean>
+									</extentTypeCode>
+									<westBoundLongitude>
+										<gco:Decimal>5.561252</gco:Decimal>
+									</westBoundLongitude>
+									<eastBoundLongitude>
+										<gco:Decimal>15.578555</gco:Decimal>
+									</eastBoundLongitude>
+									<southBoundLatitude>
+										<gco:Decimal>47.141224</gco:Decimal>
+									</southBoundLatitude>
+									<northBoundLatitude>
+										<gco:Decimal>55.054344</gco:Decimal>
+									</northBoundLatitude>
+								</EX_GeographicBoundingBox>
+							</geographicElement>
+							<!-- Zeitliche Ausdehnung -->
+							<temporalElement>
+								<EX_TemporalExtent>
+									<extent>
+										<gml:TimePeriod
+											gml:id="timeperiod_ID_12f98dc6-be07-4132-918b-d4a845c23584">
+											<gml:beginPosition>2010-12-31</gml:beginPosition>
+											<gml:endPosition>2014-12-31</gml:endPosition>
+										</gml:TimePeriod>
+									</extent>
+								</EX_TemporalExtent>
+							</temporalElement>
+						</EX_Extent>
+					</extent>
+				</MD_DataIdentification>
+			</identificationInfo>
+			<!-- Online-Ressource -->
+			<distributionInfo>
+				<MD_Distribution>
+					<transferOptions>
+						<MD_DigitalTransferOptions>
+							<onLine>
+								<CI_OnlineResource>
+									<linkage>
+										<URL>file://nexus/referat/02/projektname/uuid</URL>
+									</linkage>
+									<!-- Optional -->
+									<name>
+										<gco:CharacterString>Luftschadstoffberechnungen.zip
+										</gco:CharacterString>
+									</name>
+									<!-- Optional -->
+									<description>
+										<gco:CharacterString>Dateiformat: Shapefile (Zip-Archiv)
+											Dateigröße: 561 KB
+										</gco:CharacterString>
+									</description>
+									<!-- Optional -->
+									<function>
+										<CI_OnLineFunctionCode
+											codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_OnLineFunctionCode"
+											codeListValue="download">download</CI_OnLineFunctionCode>
+									</function>
+								</CI_OnlineResource>
+							</onLine>
+						</MD_DigitalTransferOptions>
+					</transferOptions>
+					<!-- Simulation: Datenformat -->
+					<distributionFormat>
+						<MD_Format>
+							<name>
+								<gco:CharacterString>NetCDF (*.nc)</gco:CharacterString>
+							</name>
+							<version gco:nilReason="unknown" />
+						</MD_Format>
+					</distributionFormat>
+				</MD_Distribution>
+			</distributionInfo>
+			<!-- Herkunft / Datengrundlage, zeitliche Auflösung -->
+			<dataQualityInfo>
+				<DQ_DataQuality>
+					<scope>
+						<DQ_Scope>
+							<level>
+								<MD_ScopeCode
+									codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode"
+									codeListValue="dataset" />
+							</level>
+						</DQ_Scope>
+					</scope>
+					<!-- Zeitliche Auflösung -->
+					<report>
+						<DQ_AccuracyOfATimeMeasurement>
+							<result>
+								<DQ_QuantitativeResult>
+									<valueUnit>
+										<gml:UnitDefinition
+											gml:id="unitDefinition_ID_12f98dc6-be07-4132-918b-d4a845c235456">
+											<gml:name>second</gml:name>
+											<gml:quantityType />
+											<gml:catalogSymbol>s</gml:catalogSymbol>
+										</gml:UnitDefinition>
+									</valueUnit>
+									<value>
+										<gco:Record>1</gco:Record>
+									</value>
+								</DQ_QuantitativeResult>
+							</result>
+						</DQ_AccuracyOfATimeMeasurement>
+					</report>
+					<!-- Herkunft / Datengrundlage -->
+					<lineage>
+						<LI_Lineage>
+							<source>
+								<LI_Source>
+									<description>
+										<gco:CharacterString>Beschreibung der Herkunft /
+											Datengrundlage
+										</gco:CharacterString>
+									</description>
+								</LI_Source>
+							</source>
+						</LI_Lineage>
+					</lineage>
+				</DQ_DataQuality>
+			</dataQualityInfo>
+			<!-- BAW_DGS (Daten, Größen, Simulationsparameter) -->
+			<dataQualityInfo>
+				<DQ_DataQuality>
+					<scope>
+						<DQ_Scope>
+							<level>
+								<MD_ScopeCode
+									codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode"
+									codeListValue="model" />
+							</level>
+						</DQ_Scope>
+					</scope>
+					<report>
+						<DQ_QuantitativeAttributeAccuracy>
+							<!-- DGS Daten, Online-Ressource -->
+							<result xlink:href="\\nexus\wasserbau\w5\A39*\...\A235\RNQ">
+								<DQ_QuantitativeResult>
+									<!-- DGS Name (Parametername) -->
+									<valueType>
+										<gco:RecordType>Wasserstand</gco:RecordType>
+									</valueType>
+									<!-- DGS Einheit -->
+									<valueUnit>
+										<gml:UnitDefinition
+											gml:id="unitDefinition_ID_12f98dc6-be07-4132-918b-d4a845c23365">
+											<gml:name>meter</gml:name>
+											<gml:quantityType />
+											<gml:catalogSymbol>m</gml:catalogSymbol>
+										</gml:UnitDefinition>
+									</valueUnit>
+									<!-- Werte/Wertebereich -->
+									<value>
+										<gco:Record>930</gco:Record>
+									</value>
+								</DQ_QuantitativeResult>
+							</result>
+						</DQ_QuantitativeAttributeAccuracy>
+					</report>
+					<lineage>
+						<LI_Lineage>
+							<!-- DGS Typ, Metadatenverweis -->
+							<source
+								xlink:href="http://mdi-dienste.baw.de?recordId=b8ce05cc-2e40-4e0a-a3b5-b2f7ab1b0f63">
+								<LI_Source>
+									<description>
+										<!-- DGS Typ -->
+										<gco:CharacterString>Peilung</gco:CharacterString>
+									</description>
+								</LI_Source>
+							</source>
+						</LI_Lineage>
+					</lineage>
+				</DQ_DataQuality>
+			</dataQualityInfo>
+			<!-- BAW_DGS (Daten, Größen, Simulationsparameter) -->
+			<dataQualityInfo>
+				<DQ_DataQuality>
+					<scope>
+						<DQ_Scope>
+							<level>
+								<MD_ScopeCode
+									codeList="http://www.isotc211.org/2005/resources/codeList.xml#MD_ScopeCode"
+									codeListValue="model" />
+							</level>
+						</DQ_Scope>
+					</scope>
+					<report>
+						<DQ_QuantitativeAttributeAccuracy>
+							<!-- DGS Daten, Online-Ressource -->
+							<result xlink:href="\\nexus\wasserbau\w5\A39*\...\A235\RNQ">
+								<DQ_QuantitativeResult>
+									<!-- DGS Name (Parametername) -->
+									<valueType>
+										<gco:RecordType>Abfluss</gco:RecordType>
+									</valueType>
+									<!-- DGS Einheit -->
+									<valueUnit>
+										<gml:UnitDefinition
+											gml:id="unitDefinition_ID_12f98dc6-be07-4132-918b-d4a845c23284">
+											<gml:name>cubic meter per second</gml:name>
+											<gml:quantityType />
+											<gml:catalogSymbol>m³/s</gml:catalogSymbol>
+										</gml:UnitDefinition>
+									</valueUnit>
+									<!-- Werte/Wertebereich -->
+									<value>
+										<gco:Record>800 - 1200</gco:Record>
+									</value>
+								</DQ_QuantitativeResult>
+							</result>
+						</DQ_QuantitativeAttributeAccuracy>
+					</report>
+					<lineage>
+						<LI_Lineage>
+							<!-- DGS Typ, Metadatenverweis -->
+							<source
+								xlink:href="http://mdi-dienste.baw.de?recordId=b8ce05cc-2e40-4e0a-a3b5-b2f7a5b0f63">
+								<LI_Source>
+									<description>
+										<!-- DGS Typ -->
+										<gco:CharacterString>Peilung</gco:CharacterString>
+									</description>
+								</LI_Source>
+							</source>
+						</LI_Lineage>
+					</lineage>
+				</DQ_DataQuality>
+			</dataQualityInfo>
+		</MD_Metadata>
+	</csw:Insert>
+</csw:Transaction>

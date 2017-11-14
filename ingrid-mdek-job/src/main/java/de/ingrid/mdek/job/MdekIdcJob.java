@@ -23,16 +23,29 @@
 package de.ingrid.mdek.job;
 
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.logging.log4j.Logger;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
+import de.ingrid.admin.elasticsearch.IndexManager;
+import de.ingrid.iplug.dsc.index.DscDocumentProducer;
+import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekUtils.IdcEntityType;
+import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.tools.MdekErrorHandler;
+import de.ingrid.mdek.services.log.AuditService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
+import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -46,6 +59,10 @@ public abstract class MdekIdcJob extends MdekJob {
 
 	protected BeanToDocMapper beanToDocMapper;
 	protected DocToBeanMapper docToBeanMapper;
+
+    protected DscDocumentProducer docProducerObject;
+    protected DscDocumentProducer docProducerAddress;
+    protected IndexManager indexManager;
 
 	public MdekIdcJob(Logger log, DaoFactory daoFactory) {
 		super(log, daoFactory);
@@ -79,9 +96,31 @@ public abstract class MdekIdcJob extends MdekJob {
 		}
 	}
 
-	/** Checks passed Exception (catched from Job method) and rollbacks current transaction if necessary (e.g.
-	 * NO rollback if due to USER_HAS_RUNNING_JOBS -> job is still running and needs active transaction !!!).
-	 * Further may "transform" exception to MdekException. */
+    /** Checks passed Exception (catched from Job method) and handles current transaction accordingly.
+     * A rollback is executed if NOT keepTransaction set and if NOT exception is USER_HAS_RUNNING_JOBS
+     * (indicating a job is still running and needs active transaction !!!).
+     * Further may "transform" exception to MdekException.
+     * @param excIn an exception from a job method
+     * @param keepTransaction set to true if you do NOT want to rollback stuff
+     * @return exception of type MdekException if problem can be recognized or the given exception if not recognized.
+     */
+    protected RuntimeException handleException(RuntimeException excIn, boolean keepTransaction) {
+        if (!keepTransaction) {
+            // normal behaviour if we can manipulate transaction (e.g. rollback)
+            return handleException( excIn );
+        }
+
+        // no manipulation of transaction, we just map exception
+        return errorHandler.handleException(excIn);
+    }
+
+    /** Checks passed Exception (catched from Job method) and handles current transaction accordingly.
+     * A rollback is executed if NOT exception is USER_HAS_RUNNING_JOBS
+     * (indicating a job is still running and needs active transaction !!!).
+     * Further may "transform" exception to MdekException.
+     * @param excIn an exception from a job method
+     * @return exception of type MdekException if problem can be recognized or the given exception if not recognized.
+     */
 	protected RuntimeException handleException(RuntimeException excIn) {
 		
 		// handle transaction rollback
@@ -93,6 +132,78 @@ public abstract class MdekIdcJob extends MdekJob {
 
 		return errorHandler.handleException(excIn);
 	}
+
+	/** Update ES search index with data from PUBLISHED entities and log via audit service if set.
+	 * @param changedEntities List of maps containing data about changed entities.
+	 * NOTICE: May also contain unpublished entities, this is checked, only published ones are processed ! 
+	 */
+	protected void updateSearchIndexAndAudit(List<HashMap> changedEntities) {
+        for (Map entity : changedEntities) {
+
+            // use document producer according to entity type
+            DscDocumentProducer docProducer = docProducerObject;
+            if (IdcEntityType.ADDRESS.getDbValue().equals( entity.get( MdekKeys.JOBINFO_ENTITY_TYPE ) )) {
+                docProducer = docProducerAddress;
+            }
+
+            // PUBLISHED entities !
+            if (WorkState.VEROEFFENTLICHT.getDbValue().equals( entity.get( MdekKeys.WORK_STATE ) )) {
+                // update search index
+                ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
+                if (doc != null && !doc.isEmpty()) {
+                    indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
+                    indexManager.update( docProducer.getIndexInfo(), doc, true );
+                    indexManager.flush();
+                }
+
+                // and log if audit service set
+                if (AuditService.instance != null && doc != null) {
+                    String auditMsg = (String) entity.get( MdekKeys.JOBINFO_MESSAGES );
+                    String message = "" + auditMsg + " with UUID: " + entity.get( MdekKeys.UUID );
+                    Map<String, String> map = new HashMap<String, String>();
+                    map.put( "idf", (String) doc.get( "idf" ) );
+                    String payload = JSONObject.toJSONString( map );
+                    AuditService.instance.log( message, payload );
+                }
+            }
+
+            // DELETED entities !
+            if (WorkState.DELETED.getDbValue().equals( entity.get( MdekKeys.WORK_STATE ) )) {
+                String uuid = (String) entity.get( MdekKeys.UUID );
+                if (log.isDebugEnabled()) log.debug( "Going to remove it from the index using uuId: " + uuid );
+                indexManager.delete( docProducer.getIndexInfo(), uuid, true );
+                indexManager.flush();
+
+                if (AuditService.instance != null) {
+                    String auditMsg = (String) entity.get( MdekKeys.JOBINFO_MESSAGES );
+                    String message = "" + auditMsg + " with UUID: " + uuid;
+                    AuditService.instance.log( message );
+                }
+            }
+        }
+	}
+
+    /** Returns value of key in given doc or defaultValue if key not set ! */
+    protected Object getOrDefault(IngridDocument doc, String key, Object defaultValue) {
+        if (doc.containsKey( key )) {
+            return doc.get( key );
+        } else {
+            return defaultValue;
+        }
+    }
+
+    @Autowired
+    @Qualifier("dscDocumentProducer")
+    private void setDocProducerObject(DscDocumentProducer docProducer) {
+        this.docProducerObject = docProducer;
+    }
+
+    @Autowired
+    @Qualifier("dscDocumentProducerAddress")
+    private void setDocProducerAddress(DscDocumentProducer docProducer) {
+        this.docProducerAddress = docProducer;
+    }
+
 
 /*
 	public IngridDocument testMdekEntity(IngridDocument params) {

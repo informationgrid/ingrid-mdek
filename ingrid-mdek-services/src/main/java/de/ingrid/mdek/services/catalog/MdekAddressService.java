@@ -26,15 +26,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.simple.JSONObject;
 
-import de.ingrid.admin.elasticsearch.IndexManager;
-import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -49,7 +45,6 @@ import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
 import de.ingrid.mdek.job.MdekException;
-import de.ingrid.mdek.services.log.AuditService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
@@ -72,11 +67,11 @@ import de.ingrid.mdek.services.persistence.db.model.T02Address;
 import de.ingrid.mdek.services.security.IPermissionService;
 import de.ingrid.mdek.services.utils.EntityHelper;
 import de.ingrid.mdek.services.utils.MdekFullIndexHandler;
+import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler.GroupType;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.mdek.services.utils.MdekWorkflowHandler;
-import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -98,14 +93,11 @@ public class MdekAddressService {
 	private MdekFullIndexHandler fullIndexHandler;
 	private MdekPermissionHandler permissionHandler;
 	private MdekWorkflowHandler workflowHandler;
+    private MdekJobHandler jobHandler;
 
 	private BeanToDocMapper beanToDocMapper;
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
 	private DocToBeanMapper docToBeanMapper;
-
-    private IndexManager indexManager = null;
-    
-    private DscDocumentProducer docProducer;
 
 	/** Get The Singleton */
 	public static synchronized MdekAddressService getInstance(DaoFactory daoFactory,
@@ -116,17 +108,6 @@ public class MdekAddressService {
 		return myInstance;
 	}
 	
-	/** Get The Singleton */
-	public static synchronized MdekAddressService getInstance(DaoFactory daoFactory,
-	        IPermissionService permissionService, IndexManager indexManager) {
-	    if (myInstance == null) {
-	        myInstance = new MdekAddressService(daoFactory, permissionService);
-	    }
-	    // make sure the IndexManager is initialized!
-        myInstance.indexManager = indexManager;
-	    return myInstance;
-	}
-
 	private MdekAddressService(DaoFactory daoFactory, IPermissionService permissionService) {
 		daoAddressNode = daoFactory.getAddressNodeDao();
 		daoT02Address = daoFactory.getT02AddressDao();
@@ -142,6 +123,8 @@ public class MdekAddressService {
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
 		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
+
+        jobHandler = MdekJobHandler.getInstance(daoFactory);
 	}
 
 	/** Load address NODE with given uuid. Also prefetch concrete address instance in node if requested.
@@ -471,7 +454,7 @@ public class MdekAddressService {
 	public String publishAddress(IngridDocument aDocIn, boolean forcePubCondition,
 			String userId,
 			boolean calledByImporter) {
-		// HEN CALLED BY IGE: uuid is null when new address !
+		// WHEN CALLED BY IGE: uuid is null when new address !
 		String uuid = (String) aDocIn.get(MdekKeys.UUID);
 		boolean isNewAddress = (uuid == null) ? true : false;
 		// WHEN CALLED BY IMPORTER: uuid is NEVER NULL, but might be NEW address !
@@ -665,28 +648,14 @@ public class MdekAddressService {
 						GroupType.ONLY_GROUPS_WITH_SUBNODE_PERMISSION_ON_ADDRESS, parentUuid);				
 			}
 		}
-		
-        // commit transaction to make new/updated data available for next step
-        daoAddressNode.commitTransaction();
-        
-        // and begin transaction again for next query
-        daoAddressNode.beginTransaction();
 
-        // update index
-		ElasticDocument doc = docProducer.getById( aPubId.toString(), "id" );
-        if (doc != null && !doc.isEmpty()) {
-            indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
-            indexManager.update( docProducer.getIndexInfo(), doc, true );
-            indexManager.flush();
-        }
-        
-        if (AuditService.instance != null && doc != null) {
-            String message = "PUBLISHED address successfully with UUID: " + uuid;
-            Map<String, String> map = new HashMap<String, String>();
-            map.put( "idf", (String) doc.get( "idf" ) );
-            String payload = JSONObject.toJSONString( map );
-            AuditService.instance.log( message, payload );
-        }
+        // then set IDs in doc and update changed entities in JobInfo
+        aDocIn.put( MdekKeys.ID, aPub.getId() );
+        aDocIn.put( MdekKeys.UUID, aPub.getAdrUuid() );
+        aDocIn.put( MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, aPub.getOrgAdrId() );
+        jobHandler.updateRunningJobChangedEntities(userId,
+                IdcEntityType.ADDRESS, WorkState.VEROEFFENTLICHT, aDocIn,
+                "PUBLISHED address successfully");
 
 		return uuid;
 	}
@@ -891,11 +860,16 @@ public class MdekAddressService {
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
 		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
 
-		if (AuditService.instance != null) {
-            String message = "DELETED address: " + aNode.getAddrUuid();
-            AuditService.instance.log( message );
-        }
-		
+        // then set IDs in doc and update changed entities in JobInfo
+		//result.put( MdekKeys.ID, aPub.getId() );
+        //result.put( MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, aPub.getOrgAdrId() );
+		result.put( MdekKeys.UUID, aNode.getAddrUuid() );
+        jobHandler.updateRunningJobChangedEntities(userUuid,
+                IdcEntityType.ADDRESS, WorkState.DELETED, result,
+                "DELETED address");
+        // and we also update changed entities in result
+        result.put(MdekKeys.CHANGED_ENTITIES, jobHandler.getRunningJobChangedEntities(userUuid));
+
 		return result;
 	}
 
@@ -1721,8 +1695,4 @@ public class MdekAddressService {
 		
 		return name;
 	}
-	
-    public void setDocProducer(DscDocumentProducer docProducer) {
-        this.docProducer = docProducer;
-    }
 }

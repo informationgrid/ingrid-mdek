@@ -220,7 +220,6 @@ public class MdekKeys {
      * If value is true, then throw away all previously analyzed data from job info.
      *  Value: Boolean */
     public final static String REQUESTINFO_IMPORT_START_NEW_ANALYSIS = "requestinfo_importStartNewAnalysis";
-    public final static String REQUESTINFO_IMPORT_TRANSACTION_IS_HANDLED = "requestinfo_transactionIsHandled";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID = "requestinfo_importErrorWhenUuidExists";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID = "requestinfo_importErrorWhenUuidNotExists";
     public final static String REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION = "requestinfo_importErrorWhenException";
@@ -228,6 +227,9 @@ public class MdekKeys {
      * Then the parent is set via IMPORT_NODE and this flag in runningJobInfo determines special behavior concerning import node !
      */
     public final static String REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE = "requestinfo_importIgnoreParentImportNode";
+    /** Indicate handled transaction outside of jobs, so job does NOT begin/commit transaction
+    *  Value: Boolean */
+    public final static String REQUESTINFO_TRANSACTION_IS_HANDLED = "requestinfo_transactionIsHandled";
 
 
     // URL
@@ -537,7 +539,7 @@ public class MdekKeys {
     /** Additional info: various messages separated by \n for display in frontend after import<br>
      *  Value: String */
     public final static String RUNNINGJOB_FRONTEND_MESSAGES = "runningjob-frontend-messages";
-    /** Additional info: List of all changed entities with info: type, uuid, state, origId<br>
+    /** Additional info: List of all changed entities with info: type, uuid, state, origId, ...<br>
      * Value: List< HashMap > */
     public final static String CHANGED_ENTITIES = "changed-entities";
     /** This String[] contains the keys for extracting BASIC info of the running job (job description)<br>
@@ -805,6 +807,35 @@ public class MdekKeys {
     public final static String HIERARCHY_LEVEL = "hierarchy-level";
     /** Value: Integer  */
     public final static String VECTOR_TOPOLOGY_LEVEL = "vector-topology-level";
+    
+    /** Value: Boolean  */
+    public final static String TRANSFORMATION_PARAMETER = "transformation-parameter";
+    /** Value: Integer  */
+    public final static String NUM_DIMENSIONS = "num-dimensions";
+    /** Value: String  */
+    public final static String AXIS_DIM_NAME = "axis-dim-name";
+    /** Value: Integer  */
+    public final static String AXIS_DIM_SIZE = "axis-dim-size";
+    /** Value: String  */
+    public final static String CELL_GEOMETRY = "cell-geometry";
+    /** Value: Boolean  */
+    public final static String GEO_RECTIFIED = "geo-rectified";
+    /** Value: Boolean  */
+    public final static String GEO_RECT_CHECKPOINT = "geo-rect-checkpoint";
+    /** Value: String  */
+    public final static String GEO_RECT_DESCRIPTION = "geo-rect-description";
+    /** Value: String  */
+    public final static String GEO_RECT_CORNER_POINT = "geo-rect-corner-point";
+    /** Value: String  */
+    public final static String GEO_RECT_POINT_IN_PIXEL = "geo-rect-point-in-pixel";
+    /** Value: Boolean  */
+    public final static String GEO_REF_CONTROL_POINT = "geo-ref-control-point";
+    /** Value: Boolean  */
+    public final static String GEO_REF_ORIENTATION_PARAM = "geo-ref-orientation-parameter";
+    /** Value: String  */
+    public final static String GEO_REF_PARAMETER = "geo-ref-parameter";
+    
+    
     /** Value: Double  */
     public final static String POS_ACCURACY_VERTICAL = "pos-accuracy-vertical";
     /** Value: Double  */

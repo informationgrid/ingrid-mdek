@@ -1,4 +1,4 @@
-/*-
+/*
  * **************************************************-
  * InGrid mdek-job
  * ==================================================
@@ -20,17 +20,21 @@
  * limitations under the Licence.
  * **************************************************#
  */
-package de.ingrid.mdek.job.utils;
+package de.ingrid.mdek.job.csw;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,12 +44,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import de.ingrid.admin.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
@@ -76,94 +92,99 @@ import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapper;
 import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapperFactory;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.xml.XMLUtils;
+import de.ingrid.utils.xpath.XPathUtils;
 
-public class TestSetup {
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({DatabaseConnectionUtils.class, MdekObjectService.class, MdekJobHandler.class})
+public class CSWImportBawDmsq {
 
-    @Mock
-    protected ISysListDao daoSysList;
-    
-    @Mock
-    protected MdekJobHandler jobHandler;
-    
-    protected MdekIdcCatalogJob catJob;
-    
-    @Mock
-    IImporterCallback importerCallback;
+    // @InjectMocks
+    // RelDatabaseCSWPersister databasePersister;
 
-    @Mock
-    ILogService logService;
-    
-    @Mock
-    DaoFactory daoFactory;
-    
+    private IgeSearchPlug plug;
+
+    // @Mock
+    // MdekIdcObjectJob objectJob;
+
+    // @BeforeClass
+    // public static void setUpBeforeClass() throws Exception {}
     @Mock
     IPermissionService permissionService;
-    
     @Mock
-    private DatabaseConnectionUtils dcUtils;
+    DaoFactory daoFactory;
     @Mock
-    private Connection connectionMock;
+    ILogService logService;
+
     @Mock
-    private PreparedStatement ps;
-    
+    MdekJobHandler jobHandler;
+
     @Mock
     GenericHibernateDao<IEntity> genericDao;
 
     @Mock
+    IImporterCallback importerCallback;
+
+    // @InjectMocks
+    ScriptImportDataMapper cswMapper;
+    // @Mock
+    // MdekCatalogService catalogService;
+    @Mock
+    ISysListDao daoSysList;
+    @Mock
     IGenericDao<IEntity> daoT03Catalogue;
 
-
-    @Mock
-    private MdekIdcCatalogJob catJobMock;
-
-    @Mock
-    private MdekIdcObjectJob objectJobMock;
-
+    private MdekIdcCatalogJob catJob;
     
     @Mock
-    private ResultSet resultSet;
-
+    private MdekIdcCatalogJob catJobMock;
+    
     @Mock
-    private MdekObjectService mdekObjectService;
+    private MdekIdcObjectJob objectJobMock;
+    
+    @Mock private DatabaseConnectionUtils dcUtils;
+    @Mock private Connection connectionMock;
+    @Mock private PreparedStatement ps;
+    @Mock private ResultSet resultSet;
+
+    @Mock private MdekObjectService mdekObjectService;
 
     @Mock
     IndexManager indexManager;
 
-    ScriptImportDataMapper cswMapper;
-    
-    private IgeSearchPlug plug;
-    
-    
     private IngridXMLMapper importMapper;
-    
-    public TestSetup() {
-        importMapper = IngridXMLMapperFactory.getIngridXMLMapper( "4.0.3" );
-    }
-    
-    protected void beforeSetup(String[] mappingScripts) throws Exception {
+
+    @Before
+    public void before() throws Exception {
+        // CswTransaction trans = new CswTransaction();
+        // trans.setPersist( databasePersister );
+
         plug = new IgeSearchPlug( null, null, null, null, null );
 
         when( daoFactory.getDao( IEntity.class ) ).thenReturn( genericDao );
         HashMap<String, List<byte[]>> analyzedDataMap = new HashMap<String, List<byte[]>>();
         analyzedDataMap.put( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA, new ArrayList<byte[]>() );
         when( jobHandler.getJobDetailsAsHashMap( JobType.IMPORT_ANALYZE, "TEST_USER_ID" ) ).thenReturn( analyzedDataMap );
-        when( jobHandler.createRunningJobDescription( JobType.IMPORT, 0, 0, false ) ).thenReturn( new IngridDocument() );
-        when( jobHandler.getRunningJobInfo( any( String.class ) ) ).thenReturn( new IngridDocument() );
+        when( jobHandler.createRunningJobDescription(JobType.IMPORT, 0, 0, false) ).thenReturn( new IngridDocument() );
+        when( jobHandler.getRunningJobInfo( any(String.class) ) ).thenReturn( new IngridDocument() );
         when( permissionService.isCatalogAdmin( "TEST_USER_ID" ) ).thenReturn( true );
 
         PowerMockito.mockStatic( DatabaseConnectionUtils.class );
-        when( DatabaseConnectionUtils.getInstance() ).thenReturn( dcUtils );
-        when( dcUtils.openConnection( any( DatabaseConnection.class ) ) ).thenReturn( connectionMock );
-        when( connectionMock.prepareStatement( any( String.class ) ) ).thenReturn( ps );
+        when(DatabaseConnectionUtils.getInstance()).thenReturn( dcUtils );
+        when( dcUtils.openConnection( any(DatabaseConnection.class) ) ).thenReturn( connectionMock );
+        when( connectionMock.prepareStatement( any(String.class) ) ).thenReturn( ps );
         when( ps.executeQuery() ).thenReturn( resultSet );
-
+        
         PowerMockito.mockStatic( MdekObjectService.class );
-        when( MdekObjectService.getInstance( any( DaoFactory.class ), any( IPermissionService.class ) ) ).thenReturn( mdekObjectService );
-
+        when(MdekObjectService.getInstance( any(DaoFactory.class), any(IPermissionService.class) )).thenReturn( mdekObjectService );
+        
         PowerMockito.mockStatic( MdekJobHandler.class );
-        when( MdekJobHandler.getInstance( any( DaoFactory.class ) ) ).thenReturn( jobHandler );
-
-
+        when(MdekJobHandler.getInstance( any(DaoFactory.class))).thenReturn( jobHandler );
+        
+        ClassPathResource inputResource = new ClassPathResource( "csw/importAdditionalFieldBawDmqs.xml" );
+        File file = inputResource.getFile();
+        String xml = FileUtils.readFileToString( file );
+        when( resultSet.getString( any(String.class) )).thenReturn( xml );
+        
         when( daoFactory.getSysListDao() ).thenReturn( daoSysList );
 
         mockSyslists();
@@ -180,29 +201,23 @@ public class TestSetup {
         catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService, indexManager );
         DataMapperFactory dataMapperFactory = new DataMapperFactory();
         HashMap<String, ImportDataMapper> mapper = new HashMap<String, ImportDataMapper>();
-        
-        FileSystemResource[] resources = new FileSystemResource[mappingScripts.length];
-        ClassPathResource inputResource = new ClassPathResource( "csw/importAdditionalField.xml" );
-        String absPath = inputResource.getFile().getAbsolutePath();
-        int pos = absPath.indexOf( "ingrid-mdek-job" );
-        
-        for (int i=0; i < mappingScripts.length; i++) {
-            resources[i] = new FileSystemResource( absPath.substring( 0, pos ) + mappingScripts[i] );
-        }
+        ClassPathResource[] resources = new ClassPathResource[1];
+        resources[0] = new ClassPathResource( "ingrid-mdek-job/src/main/resources/import/mapper/csw202_to_ingrid_igc.js" ); 
         cswMapper.setMapperScript( resources );
-        
         cswMapper.setTemplate( new ClassPathResource( "ingrid-mdek-job/src/main/resources/import/templates/igc_template_csw202.xml" ) );
         mapper.put( "csw202", cswMapper );
         dataMapperFactory.setMapperClasses( mapper );
         catJob.setDataMapperFactory( dataMapperFactory );
         catJob.setJobHandler( jobHandler );
         // plug.setCswTransaction( trans );
-        // plug.setCatalogJob( catJob );
+        //plug.setCatalogJob( catJob );
         plug.setCatalogJob( catJobMock );
         plug.setObjectJob( objectJobMock );
+
+        importMapper = IngridXMLMapperFactory.getIngridXMLMapper( "4.0.0" );
     }
-    
-    protected void mockSyslists() {
+
+    private void mockSyslists() {
         List<SysList> syslist100 = createSyslist( 100, 3068, "EPSG 3068: DHDN / Soldner Berlin" );
         extendSyslist( syslist100, 25832, "EPSG 25832: ETRS89 / UTM Zone 32N" );
         List<SysList> syslist101 = createSyslist( 101, 90008, "DE_DHHN92_NH" );
@@ -212,6 +227,7 @@ public class TestSetup {
         List<SysList> syslist505 = createSyslist( 505, 7, "pointOfContact" );
         extendSyslist( syslist505, 1, "resourceProvider" );
         extendSyslist( syslist505, 5, "distributor" );
+        extendSyslist( syslist505, 12, "pointOfContactMd" );
 
         List<SysList> syslist510 = createSyslist( 510, 4, "utf8" );
         List<SysList> syslist518 = createSyslist( 518, 1, "continual" );
@@ -240,10 +256,17 @@ public class TestSetup {
         extendSyslist( syslist6100, 304, "Land use" );
         List<SysList> syslist6400 = createSyslist( 6400, 5, "Gesundheit" );
         extendSyslist( syslist6400, 11, "Umwelt und Klima" );
-        List<SysList> syslist10002 = createSyslist( 10002, 4, "Diese Daten oder dieser Dienst stehen/steht nur ausgewählten Bundesbehörden zur Verfügung." );
-        extendSyslist( syslist10002, 1, "Es gelten keine Zugriffsbeschränkungen" );
-        List<SysList> syslist10004 = createSyslist( 10004, 1, "Diese Daten können geldleistungsfrei gemäß der Verordnung zur Festlegung der Nutzungsbestimmungen für die Bereitstellung von Geodaten des Bundes (GeoNutzV) vom 19. März 2013 (Bundesgesetzblatt Jahrgang 2013 Teil I Nr. 14) genutzt werden, siehe http://www.geodatenzentrum.de/docpdf/geonutzv.pdf. Der Quellenvermerk ist zu beachten." );
-        //extendSyslist( syslist10004, 12, "" );
+        List<SysList> syslist10100 = createSyslist( 10100, 5, "B3953.02.30.10169" );
+        extendSyslist( syslist10100, 6, "B3954.07.05.70005" );
+        List<SysList> syslist10101 = createSyslist( 10101, 2, "2D" );
+        extendSyslist( syslist10101, 5, "3D" );
+        List<SysList> syslist10102 = createSyslist( 10102, 1, "BSQUAT" );
+        extendSyslist( syslist10102, 19, "Telemac" );
+        List<SysList> syslist10103 = createSyslist( 10103, 9, "numerisch" );
+        extendSyslist( syslist10103, 6, "hydrologisch" );
+        List<SysList> syslist10104 = createSyslist( 10104, 4, "Kennwort" );
+        extendSyslist( syslist10104, 6, "Peilung" );
+        
 
         when( daoSysList.getSysList( 100, "iso" ) ).thenReturn( syslist100 );
         when( daoSysList.getSysList( 101, "iso" ) ).thenReturn( syslist101 );
@@ -269,28 +292,14 @@ public class TestSetup {
         when( daoSysList.getSysList( 6020, "iso" ) ).thenReturn( syslist6020 );
         when( daoSysList.getSysList( 6100, "iso" ) ).thenReturn( syslist6100 );
         when( daoSysList.getSysList( 6400, "de" ) ).thenReturn( syslist6400 );
-        when( daoSysList.getSysList( 10002, "de" ) ).thenReturn( syslist10002 );
-        when( daoSysList.getSysList( 10004, "de" ) ).thenReturn( syslist10004 );
+        when( daoSysList.getSysList( 10100, "de" ) ).thenReturn( syslist10100 );
+        when( daoSysList.getSysList( 10101, "de" ) ).thenReturn( syslist10101 );
+        when( daoSysList.getSysList( 10102, "de" ) ).thenReturn( syslist10102 );
+        when( daoSysList.getSysList( 10103, "de" ) ).thenReturn( syslist10103 );
+        when( daoSysList.getSysList( 10104, "de" ) ).thenReturn( syslist10104 );
+        
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected IngridDocument getDocument(InvocationOnMock invocation, String uuid) {
-        Map doc = invocation.getArgumentAt( 1, Map.class );
-        List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
-        assertThat( data, is( not( nullValue() ) ) );
-        assertThat( data.size(), is( 1 ) );
-        try {
-            InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
-            IngridXMLStreamReader reader = new IngridXMLStreamReader( in, importerCallback, "TEST_USER_ID" );
-            List<Document> domForObject = reader.getDomForObject( uuid );
-            System.out.println( XMLUtils.toString( domForObject.get( 0 ) ) );
-            return importMapper.mapDataSource( domForObject.get( 0 ) );
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
-    
     private List<SysList> createSyslist(int listId, int entryId, String value) {
         List<SysList> syslist = new ArrayList<SysList>();
         SysList entry = new SysList();
@@ -307,6 +316,103 @@ public class TestSetup {
         entry.setEntryId( entryId );
         entry.setName( value );
         list.add( entry );
+    }
+
+
+    private IngridDocument prepareInsertDocument(String filename) throws Exception {
+        return prepareDocument( filename, "csw:Insert" );
+    }
+    
+    private IngridDocument prepareDocument(String filename, String tag) throws Exception {
+        ClassPathResource inputResource = new ClassPathResource( filename );
+        File file = inputResource.getFile();
+        String xml = FileUtils.readFileToString( file );
+
+        // extract csw-document
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+
+        Document xmlDoc = builder.parse( new InputSource( new StringReader( xml ) ) );
+        NodeList insert = xmlDoc.getElementsByTagName( tag );
+
+        Document singleInsertDocument = builder.newDocument();
+        Node importedNode = singleInsertDocument.importNode( insert.item( 0 ).getFirstChild().getNextSibling(), true );
+        singleInsertDocument.appendChild( importedNode );
+        // end of extract csw-document
+
+        String insertDoc = XMLUtils.toString( singleInsertDocument );
+        IngridDocument docIn = new IngridDocument();
+        docIn.put( MdekKeys.USER_ID, "TEST_USER_ID" );
+        // docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, GZipTool.gzip( insertDoc ).getBytes());
+        docIn.put( MdekKeys.REQUESTINFO_IMPORT_DATA, MdekIdcCatalogJob.compress( new ByteArrayInputStream( insertDoc.getBytes() ) ).toByteArray() );
+        docIn.put( MdekKeys.REQUESTINFO_IMPORT_FRONTEND_PROTOCOL, "csw202" );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, true );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_PUBLISH_IMMEDIATELY, true );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_DO_SEPARATE_IMPORT, false );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_COPY_NODE_IF_PRESENT, false );
+        docIn.putBoolean( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, true );
+        
+        docIn.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, "2768376B-EE24-4F34-969B-084C55B52278" );  // IMPORTKNOTEN
+        docIn.put( MdekKeys.REQUESTINFO_IMPORT_ADDR_PARENT_UUID, "BD33BC8E-519E-47F9-8A30-465C95CD0355" ); // IMPORTKNOTEN
+        return docIn;
+    }
+
+    @Test
+    public void importAdditionalField() throws Exception {
+        doAnswer( new Answer<Void>() {
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            public Void answer(InvocationOnMock invocation) throws Exception {
+                Map doc = invocation.getArgumentAt( 1, Map.class );
+                List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
+                assertThat( data, is( not( nullValue() ) ) );
+                assertThat( data.size(), is( 1 ) );
+                InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
+                IngridXMLStreamReader reader = new IngridXMLStreamReader( in, importerCallback, "TEST_USER_ID" );
+                assertThat( reader.getObjectUuids().size(), is( 1 ) );
+                assertThat( reader.getObjectUuids().iterator().next(), is( "fe2ce8b6-f696-4071-9928-60a17dd49028" ) );
+                List<Document> domForObject = reader.getDomForObject( "fe2ce8b6-f696-4071-9928-60a17dd49028" );
+                XPathUtils xpath = new XPathUtils();
+                String simSpatialDimension = xpath.getString( domForObject.get( 0 ), "//general-additional-value[./field-key='simSpatialDimension']/field-data");
+                assertThat( simSpatialDimension, is("3D") );
+                return null;
+            }
+        } ).when( jobHandler ).updateJobInfoDB( (JobType) any(), (HashMap) any(), anyString() );
+        
+        IngridDocument docIn = prepareInsertDocument( "csw/importAdditionalFieldDocBawDmqs.xml" );
+        IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+        
+        //Mockito.verify( catJob, Mockito.times( 1 ) ).analyzeImportData( (IngridDocument) any() );
+        
+        assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
+    }
+    
+    @Test
+    public void importAdditionalFieldSampleFromBaw() throws Exception {
+        doAnswer( new Answer<Void>() {
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            public Void answer(InvocationOnMock invocation) throws Exception {
+                Map doc = invocation.getArgumentAt( 1, Map.class );
+                List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
+                assertThat( data, is( not( nullValue() ) ) );
+                assertThat( data.size(), is( 1 ) );
+                InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
+                IngridXMLStreamReader reader = new IngridXMLStreamReader( in, importerCallback, "TEST_USER_ID" );
+                assertThat( reader.getObjectUuids().size(), is( 1 ) );
+                assertThat( reader.getObjectUuids().iterator().next(), is( "1f482493-8405-4b36-918f-ad94377c45d1" ) );
+                List<Document> domForObject = reader.getDomForObject( "1f482493-8405-4b36-918f-ad94377c45d1" );
+                XPathUtils xpath = new XPathUtils();
+                String simSpatialDimension = xpath.getString( domForObject.get( 0 ), "//general-additional-value[./field-key='simSpatialDimension']/field-data");
+                assertThat( simSpatialDimension, is("2D") );
+                return null;
+            }
+        } ).when( jobHandler ).updateJobInfoDB( (JobType) any(), (HashMap) any(), anyString() );
+        
+        IngridDocument docIn = prepareInsertDocument( "csw/importAdditionalFieldDocBawDmqsSampleFromBaw.xml" );
+        IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+        
+        //Mockito.verify( catJob, Mockito.times( 1 ) ).analyzeImportData( (IngridDocument) any() );
+        
+        assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
     }
     
     
