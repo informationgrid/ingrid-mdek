@@ -20,7 +20,7 @@
         <property name="indexInfo" ref="indexInfo"></property>
     </bean>
     
-    <bean id="indexInfo" class="de.ingrid.admin.elasticsearch.IndexInfo">
+    <bean id="indexInfo" class="de.ingrid.elasticsearch.IndexInfo">
         <property name="toIndex" value="ige-test" />
         <property name="toType" value="object" />
         <property name="docIdField" value="t01_object.obj_id" />

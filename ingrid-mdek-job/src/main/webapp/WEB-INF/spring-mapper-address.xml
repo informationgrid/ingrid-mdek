@@ -19,7 +19,7 @@
         <property name="indexInfo" ref="indexInfoAddress"></property>
     </bean>
     
-    <bean id="indexInfoAddress" class="de.ingrid.admin.elasticsearch.IndexInfo">
+    <bean id="indexInfoAddress" class="de.ingrid.elasticsearch.IndexInfo">
         <property name="toIndex" value="ige-test" />
         <property name="toType" value="address" />
         <property name="docIdField" value="t02_address.adr_id" />

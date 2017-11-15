@@ -35,15 +35,6 @@
     <!-- <import resource="spring.xml"/>  -->
     <import resource="spring-mappers.xml"/>
     
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" id="configuration">
-        <property name="locations">
-            <list>
-                <value>classpath:default-datasource.properties</value>
-            </list>
-        </property>
-        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
-    </bean>
-    
     <!-- the application context definition for the springapp DispatcherServlet -->
     <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView">
@@ -74,7 +65,7 @@
     
     <!-- Single parsers are injected explicitly (but created via annotation mechanism) -->
     <!-- Adapt number, type and order of parsers dependent from iPlug -->
-    <bean id="queryConverter" class="de.ingrid.admin.elasticsearch.converter.QueryConverter">
+    <bean id="queryConverter" class="de.ingrid.elasticsearch.search.converter.QueryConverter">
         <property name="queryParsers">
             <list>
                 <ref bean="defaultFieldsQueryConverter" />
@@ -214,7 +205,7 @@
     <!-- Defines a facet definition filter. Will be applied before a facet definition is analyzed. This construct is used in igc dsc iPlug to map incompatible queries to compatible. See also de.ingrid.iplug.dsc.IGCTopicsSearchPreProcessor.
         This is IGC DB specific. Please comment for other databases. -->
     <bean id="configurableFacetDefinitionProcessors"
-        class="de.ingrid.admin.elasticsearch.facets.ConfigurableFacetClassProcessor" >
+        class="de.ingrid.elasticsearch.search.facets.ConfigurableFacetClassProcessor" >
         <property name="facetFilterDefinitions">
             <map>
                 <entry key="type:topic" value-ref="topicFilterDef"/>
@@ -235,6 +226,19 @@
         <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.webapp.controller.DatabaseParameterController" />
         <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.webapp.controller.EditorController" />
     </context:component-scan>
+    
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+      <property name="ignoreUnresolvablePlaceholders" value="true" />
+      <property name="locations">
+        <list>
+          <value>classpath:default-datasource.properties</value>
+          <value>classpath:config.properties</value>
+          <value>classpath:config.override.properties</value>
+        </list>
+      </property>
+    </bean>
+    
+    <context:annotation-config />
     
     <mvc:annotation-driven/>
     <mvc:resources mapping="/css/**" location="/css/" />

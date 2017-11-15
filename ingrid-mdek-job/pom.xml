@@ -117,6 +117,11 @@
             <groupId>de.ingrid</groupId>
             <artifactId>ingrid-base-webapp</artifactId>
             <version>${ingrid-base-webapp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.ingrid</groupId>
+            <artifactId>ingrid-base-webapp</artifactId>
+            <version>${ingrid-base-webapp.version}</version>
             <classifier>res</classifier>
             <type>zip</type>
             <exclusions>
