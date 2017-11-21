@@ -200,22 +200,28 @@
                 "store": true
             },
             "summary": {
-                "type": "text"
+                "type": "text",
+                "store": true
             },
             "content": {
-                "type": "text"
+                "type": "text",
+                "store": true
             },
             "x1": {
-                "type": "double"
+                "type": "double",
+                "store": true
             },
             "x2": {
-                "type": "double"
+                "type": "double",
+                "store": true
             },
             "y1": {
-                "type": "double"
+                "type": "double",
+                "store": true
             },
             "y2": {
-                "type": "double"
+                "type": "double",
+                "store": true
             },
              "idf": {
                 "type": "string",
