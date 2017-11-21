@@ -10,6 +10,14 @@
                 "type": "keyword",
                 "store": true
             },
+            "dataType": {
+                "type": "keyword",
+                "store": true
+            },
+            "dataSourceName": {
+                "type": "keyword",
+                "store": true
+            },
             "kml": {
                 "type": "keyword",
                 "store": true

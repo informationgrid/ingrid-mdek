@@ -33,6 +33,8 @@ import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import de.ingrid.admin.Config;
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.MdekKeys;
@@ -137,6 +139,7 @@ public abstract class MdekIdcJob extends MdekJob {
 	 * @param changedEntities List of maps containing data about changed entities.
 	 * NOTICE: May also contain unpublished entities, this is checked, only published ones are processed ! 
 	 */
+	@SuppressWarnings("rawtypes") 
 	protected void updateSearchIndexAndAudit(List<HashMap> changedEntities) {
         for (Map entity : changedEntities) {
 
@@ -151,7 +154,10 @@ public abstract class MdekIdcJob extends MdekJob {
                 // update search index
                 ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
                 if (doc != null && !doc.isEmpty()) {
-                    indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
+                    Config config = JettyStarter.getInstance().config;
+                    doc.put( "datatype", config.datatypes.toArray(new String[0]) );
+                    doc.put( "partner", config.partner );
+                    doc.put( "provider", config.provider );
                     indexManager.update( docProducer.getIndexInfo(), doc, true );
                     indexManager.flush();
                 }
