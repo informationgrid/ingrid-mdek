@@ -10,7 +10,7 @@
                 "type": "keyword",
                 "store": true
             },
-            "dataType": {
+            "datatype": {
                 "type": "keyword",
                 "store": true
             },
