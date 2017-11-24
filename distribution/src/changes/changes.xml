@@ -27,6 +27,11 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="4.1.4" date="2017-11-24" description="Release 4.1.4">
+      <action type="add" dev="wemove" issue="REDMINE-920">
+        UVP: Missing regular indexing of IGE iPlugs to remove invalid documents from detail data.
+      </action>
+    </release>  
     <release version="4.1.0" date="2017-10-05" description="Release 4.1.0">
       <action type="add" dev="wemove" issue="REDMINE-199">
       	Add multiple data languages (migrate to new table, import/export, idf, ...)
