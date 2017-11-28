@@ -34,6 +34,8 @@ import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.IBusIndexManager;
 import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.mdek.EnumUtil;
@@ -103,7 +105,9 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	public MdekIdcAddressJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService,
-            IndexManager indexManager) {
+			ElasticConfig elasticConfig,
+            IndexManager indexManager,
+            IBusIndexManager iBusIndexManager) {
 		super(logService.getLogger(MdekIdcAddressJob.class), daoFactory);
 
 		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
@@ -116,7 +120,8 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		daoT02Address = daoFactory.getT02AddressDao();
 
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
-        this.indexManager = indexManager;
+		
+		this.indexManager = elasticConfig.esCommunicationThroughIBus ? iBusIndexManager : indexManager;
         
         xsltUtils = new XsltUtils();
 	}

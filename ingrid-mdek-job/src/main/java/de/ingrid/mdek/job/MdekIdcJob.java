@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import de.ingrid.admin.Config;
 import de.ingrid.admin.JettyStarter;
-import de.ingrid.elasticsearch.IndexManager;
+import de.ingrid.elasticsearch.IIndexManager;
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
@@ -64,7 +64,7 @@ public abstract class MdekIdcJob extends MdekJob {
 
     protected DscDocumentProducer docProducerObject;
     protected DscDocumentProducer docProducerAddress;
-    protected IndexManager indexManager;
+    protected IIndexManager indexManager;
 
 	public MdekIdcJob(Logger log, DaoFactory daoFactory) {
 		super(log, daoFactory);
@@ -158,6 +158,9 @@ public abstract class MdekIdcJob extends MdekJob {
                     doc.put( "datatype", config.datatypes.toArray(new String[0]) );
                     doc.put( "partner", config.partner );
                     doc.put( "provider", config.provider );
+                    doc.put( "dataSourceName", config.datasourceName);
+                    doc.put( "organisation", config.organisation );
+                    doc.put( "iPlugId", config.communicationProxyUrl );
                     indexManager.update( docProducer.getIndexInfo(), doc, true );
                     indexManager.flush();
                 }
