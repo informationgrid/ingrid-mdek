@@ -53,12 +53,13 @@ NOTICE: This is a multi module project resulting in multiple eclipse projects.
 
 ### Start and Debug IGE iPlug under eclipse
 
-- the connection to your IGC database maintained by this iPlug is set in `ingrid-mdek-job/src/test/resources/default-datasource.properties`
+- the connection to your IGC database maintained by this iPlug is set in `ingrid-mdek-job/src/test/resources/config.override.properties`
 - set up a java application Run Configuration with main class `de.ingrid.mdek.MdekServer` in the project `ingrid-mdek-job`
-- In case `ingrid-mdek-job/src/test/resources` or `ingrid-mdek-job/src/main/resources` are missing in "Source"-tab:
-   - go to tab "Dependencies" and add with "Advanced"->"Add Folder" the directories
-   - `ingrid-mdek-job/src/test/resources` to class path under "Classpath Entries"
-   - `ingrid-mdek-job/src/main/resources` to class path under "Classpath Entries"
+- go to tab "Dependencies" and add with "Advanced"->"Add Folder" the directories
+- `ingrid-mdek-job/src/test/resources` to class path under "User Entries"
+- `ingrid-mdek-job/src/main/resources` to class path under "User Entries"
+- make sure that src/test/resources is on top!
+- call 'mvn compile' inside 'ingrid-mdek-job'-project to extract admin gui
 - optionally: to debug generated SQL from Hibernate activate output in `ingrid-mdek-job/src/main/webapp/WEB-INF/springapp-servlet.xml`: `<prop key="hibernate.show_sql">true</prop>`
 
 ### Start various test examples simulating a frontend server calling various interfaces of IGE iPlug
