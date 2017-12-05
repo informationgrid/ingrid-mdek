@@ -204,7 +204,9 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
 
     // children
     // only children published and NOT hidden !
-    var rows = SQL.all("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id AND (t02_address.hide_address IS NULL OR t02_address.hide_address != 'Y')", [addressRow.get("adr_uuid")]);
+    // #933 and publish_id same or wider as parent !
+    var parentPublishId = addressRow.get("publish_id");
+    var rows = SQL.all("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id AND (t02_address.hide_address IS NULL OR t02_address.hide_address != 'Y') AND (t02_address.publish_id <= ?)", [addressRow.get("adr_uuid"), +parentPublishId]);
     for (var j=0; j<rows.size(); j++) {
         idfResponsibleParty.addElement(getIdfAddressReference(rows.get(j), "idf:subordinatedParty"));
     }
