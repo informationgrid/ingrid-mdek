@@ -31,6 +31,9 @@
       <action type="add" dev="wemove" issue="REDMINE-381">
         Map new fields for spatial representation info.
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-934">
+        Map id of gazetteer location to areaid in index if no ags/rs found, so spatial search via gazetteer works in portal.   
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-933">
         IDF: Only map child addresses with same or wider Publication Condition (publish_id). 
       </action>
