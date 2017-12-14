@@ -27,7 +27,7 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="4.1.5-SNAPSHOT" date="????-??-??" description="?">
+    <release version="4.1.5" date="2017-12-14" description="Release 4.1.5">
       <action type="fix" dev="wemove" issue="REDMINE-934">
         Map id of gazetteer location to areaid in index if no ags/rs found, so spatial search via gazetteer works in portal.   
       </action>
