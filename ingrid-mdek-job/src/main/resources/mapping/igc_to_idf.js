@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -234,6 +234,72 @@ for (i=0; i<objRows.size(); i++) {
             }
         }
     }
+    
+    // ---------- <gmd:spatialRepresentationInfo/gmd:MD_GridSpatialRepresentation> ----------
+    if (objGeoId) {
+        // if a grid entry was found then add additional data
+        rows = SQL.all("SELECT type FROM t011_obj_geo_spatial_rep WHERE obj_geo_id=? AND type=2", [+objGeoId]);
+        if (rows.size() > 0) {
+            var transformParam = objGeoRow.get("transformation_parameter");
+            var numDim = objGeoRow.get("num_dimensions");
+            var nameDim = objGeoRow.get("axis_dim_name");
+            var sizeDim = objGeoRow.get("axis_dim_size");
+            var cellGeo = objGeoRow.get("cell_geometry");
+            var isGeoRectified = "Y".equals(objGeoRow.get("geo_rectified"));
+            
+            var gridSpatialRepr = isGeoRectified
+                ? mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_Georectified")
+                : mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable");
+                
+            /* numberOfDimensions */
+            gridSpatialRepr.addElement("gmd:numberOfDimensions/gco:Integer").addText(numDim);
+            
+            /* axisDimensionProperties */
+            var dimensionNode = gridSpatialRepr.addElement("gmd:axisDimensionProperties/gmd:MD_Dimension");
+            dimensionNode.addElement("gmd:dimensionName/gmd:MD_DimensionNameTypeCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
+            .addAttribute("codeListValue", nameDim);
+            dimensionNode.addElement("gmd:dimensionSize/gco:Integer").addText(sizeDim)
+
+            /* cellGeometry */
+            gridSpatialRepr.addElement("gmd:cellGeometry/gmd:MD_CellGeometryCode")
+                .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
+                .addAttribute("codeListValue", cellGeo);
+            
+            /* transformationParameterAvailability */
+            gridSpatialRepr.addElement("gmd:transformationParameterAvailability/gco:Boolean").addText("Y".equals(transformParam));
+            
+            if (isGeoRectified) {
+                var rectCheckpoint = objGeoRow.get("geo_rect_checkpoint");
+                var rectDescription = objGeoRow.get("geo_rect_description");
+                var rectCornerPoint = objGeoRow.get("geo_rect_corner_point");
+                var rectPointInPixel = objGeoRow.get("geo_rect_point_in_pixel");
+                
+                gridSpatialRepr.addElement("gmd:checkPointAvailability/gco:Boolean").addText("Y".equals(rectCheckpoint));
+                gridSpatialRepr.addElement("gmd:checkPointDescription/gco:CharacterString").addText(rectDescription);
+                gridSpatialRepr.addElement("gmd:cornerPoints/gml:Point").addAttribute("gml:id", "cornerPointId1").addElement("gml:coordinates").addText(rectCornerPoint);
+                //gridSpatialRepr.addElement("gmd:centerPoint")
+                if (rectPointInPixel) {
+                    var pixelOrientCodeList = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(2100, rectPointInPixel);
+                    gridSpatialRepr.addElement("gmd:pointInPixel/gmd:MD_PixelOrientationCode").addText(pixelOrientCodeList);
+                }
+                //gridSpatialRepr.addElement("gmd:transformationDimensionDescription")
+                //gridSpatialRepr.addElement("gmd:transformationDimensionMapping")
+                
+            } else {
+                var refControlPoint = objGeoRow.get("geo_ref_control_point");
+                var refOrientationParameter = objGeoRow.get("geo_ref_orientation_parameter");
+                var refParameter = objGeoRow.get("geo_ref_parameter");
+                
+                gridSpatialRepr.addElement("gmd:controlPointAvailability/gco:Boolean").addText("Y".equals(refControlPoint));
+                gridSpatialRepr.addElement("gmd:orientationParameterAvailability/gco:Boolean").addText("Y".equals(refOrientationParameter));
+                //gridSpatialRepr.addElement("gmd:orientationParameterDescription")
+                gridSpatialRepr.addElement("gmd:georeferencedParameters/gco:Record/gco:CharacterString").addText(refParameter);
+                //gridSpatialRepr.addElement("gmd:parameterCitation")
+            }
+        }
+    }
+    
     // ---------- <gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier> ----------
     var spatialSystemRows = SQL.all("SELECT * FROM spatial_system WHERE obj_id=? ORDER BY spatial_system.line ASC", [+objId]);
     for (j=0; j<spatialSystemRows.size(); j++) {

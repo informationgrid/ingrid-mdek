@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -1313,6 +1313,21 @@ public class DocToBeanMapper implements IMapper {
 			ref.setRecGrade((Double)refDoc.get(MdekKeys.DEGREE_OF_RECORD));
 			ref.setHierarchyLevel((Integer)refDoc.get(MdekKeys.HIERARCHY_LEVEL));
 			ref.setVectorTopologyLevel((Integer)refDoc.get(MdekKeys.VECTOR_TOPOLOGY_LEVEL));
+			
+			ref.setTransfParam( refDoc.getString( MdekKeys.TRANSFORMATION_PARAMETER ) );
+			ref.setNumDimensions( (Integer)refDoc.get( MdekKeys.NUM_DIMENSIONS ) );
+			ref.setAxisDimName( refDoc.getString( MdekKeys.AXIS_DIM_NAME ) );
+			ref.setAxisDimSize( (Integer)refDoc.get( MdekKeys.AXIS_DIM_SIZE ) );
+			ref.setCellGeometry( refDoc.getString( MdekKeys.CELL_GEOMETRY ) );
+			ref.setGeoRectified( refDoc.getString( MdekKeys.GEO_RECTIFIED ) );
+			ref.setRectCheckpoint( refDoc.getString( MdekKeys.GEO_RECT_CHECKPOINT ) );
+			ref.setRectDescription( refDoc.getString( MdekKeys.GEO_RECT_DESCRIPTION ) );
+			ref.setRectCornerPoint( refDoc.getString( MdekKeys.GEO_RECT_CORNER_POINT ) );
+			ref.setRectPointInPixel( refDoc.getString( MdekKeys.GEO_RECT_POINT_IN_PIXEL ) );
+			ref.setRefControlPoint( refDoc.getString( MdekKeys.GEO_REF_CONTROL_POINT ) );
+			ref.setRefOrientationParam( refDoc.getString( MdekKeys.GEO_REF_ORIENTATION_PARAM ) );
+			ref.setRefGeoreferencedParam( refDoc.getString( MdekKeys.GEO_REF_PARAMETER ) );
+			
 			ref.setPosAccuracyVertical((Double)refDoc.get(MdekKeys.POS_ACCURACY_VERTICAL));
 			ref.setGridPosAccuracy((Double)refDoc.get(MdekKeys.GRID_POS_ACCURACY));
 			ref.setKeycInclWDataset((Integer)refDoc.get(MdekKeys.KEYC_INCL_W_DATASET));

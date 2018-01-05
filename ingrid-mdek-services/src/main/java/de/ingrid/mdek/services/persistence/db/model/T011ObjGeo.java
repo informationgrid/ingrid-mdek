@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -39,6 +39,21 @@ public class T011ObjGeo implements IEntity {
 	private Double recGrade;
 	private Integer hierarchyLevel;
 	private Integer vectorTopologyLevel;
+	
+	private String transfParam;
+    private Integer numDimensions;
+    private String axisDimName;
+    private Integer axisDimSize;
+    private String cellGeometry;
+    private String geoRectified;
+    private String rectCheckpoint;
+    private String rectDescription;
+    private String rectCornerPoint;
+    private String rectPointInPixel;
+    private String refControlPoint;
+    private String refOrientationParam;
+    private String refGeoreferencedParam;
+	
 	private Double posAccuracyVertical;
 	private Double gridPosAccuracy;
 	private Integer keycInclWDataset;
@@ -203,6 +218,110 @@ public class T011ObjGeo implements IEntity {
 
     public void setGridPosAccuracy(Double gridPosAccuracy) {
         this.gridPosAccuracy = gridPosAccuracy;
+    }
+
+    public String getTransfParam() {
+        return transfParam;
+    }
+
+    public void setTransfParam(String transfParam) {
+        this.transfParam = transfParam;
+    }
+
+    public Integer getNumDimensions() {
+        return numDimensions;
+    }
+
+    public void setNumDimensions(Integer numDimensions) {
+        this.numDimensions = numDimensions;
+    }
+
+    public String getAxisDimName() {
+        return axisDimName;
+    }
+
+    public void setAxisDimName(String axisDimName) {
+        this.axisDimName = axisDimName;
+    }
+
+    public Integer getAxisDimSize() {
+        return axisDimSize;
+    }
+
+    public void setAxisDimSize(Integer axisDimSize) {
+        this.axisDimSize = axisDimSize;
+    }
+
+    public String getCellGeometry() {
+        return cellGeometry;
+    }
+
+    public void setCellGeometry(String cellGeometry) {
+        this.cellGeometry = cellGeometry;
+    }
+
+    public String getGeoRectified() {
+        return geoRectified;
+    }
+
+    public void setGeoRectified(String geoRectified) {
+        this.geoRectified = geoRectified;
+    }
+
+    public String getRectCheckpoint() {
+        return rectCheckpoint;
+    }
+
+    public void setRectCheckpoint(String rectCheckpoint) {
+        this.rectCheckpoint = rectCheckpoint;
+    }
+
+    public String getRectDescription() {
+        return rectDescription;
+    }
+
+    public void setRectDescription(String rectDescription) {
+        this.rectDescription = rectDescription;
+    }
+
+    public String getRectCornerPoint() {
+        return rectCornerPoint;
+    }
+
+    public void setRectCornerPoint(String rectCornerPoint) {
+        this.rectCornerPoint = rectCornerPoint;
+    }
+
+    public String getRectPointInPixel() {
+        return rectPointInPixel;
+    }
+
+    public void setRectPointInPixel(String rectPointInPixel) {
+        this.rectPointInPixel = rectPointInPixel;
+    }
+
+    public String getRefOrientationParam() {
+        return refOrientationParam;
+    }
+
+    public void setRefOrientationParam(String refOrientationParam) {
+        this.refOrientationParam = refOrientationParam;
+    }
+
+    public String getRefGeoreferencedParam() {
+        return refGeoreferencedParam;
+    }
+
+    public void setRefGeoreferencedParam(String refGeoreferencedParam) {
+        this.refGeoreferencedParam = refGeoreferencedParam;
+    }
+
+    public String getRefControlPoint() {
+        return refControlPoint;
+    }
+
+    public void setRefControlPoint(String refControlPoint) {
+        this.refControlPoint = refControlPoint;
     }
 
 }

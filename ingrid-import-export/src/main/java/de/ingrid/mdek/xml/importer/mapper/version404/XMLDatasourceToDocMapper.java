@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-import-export
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -158,6 +158,19 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_MAP_SPATIAL_REPRESENTATION_TYPE_LIST = "spatial-representation-type/@iso-code";
 	private static final String X_MAP_VECTOR_TOPOLOGY_LEVEL = "vector-format/vector-topology-level/@iso-code";
 	private static final String X_MAP_GEO_VECTOR_LIST = "vector-format/geo-vector";
+	private static final String X_MAP_GEO_GRID_TRANSFORM_PARAM = "grid-format/grid-transform-param";
+	private static final String X_MAP_GEO_GRID_NUM_DIMENSIONS = "grid-format/grid-num-dimensions";
+	private static final String X_MAP_GEO_GRID_AXIS_NAME = "grid-format/grid-axis-name";
+	private static final String X_MAP_GEO_GRID_AXIS_SIZE = "grid-format/grid-axis-size";
+	private static final String X_MAP_GEO_GRID_CELL_GEOMETRY = "grid-format/grid-cell-geometry";
+	private static final String X_MAP_GEO_GRID_GEO_RECTIFIED = "grid-format/grid-geo-rectified";
+	private static final String X_MAP_GEO_GRID_RECT_CHECKPOINT = "grid-format/grid-rect-checkpoint";
+	private static final String X_MAP_GEO_GRID_RECT_DESCRIPTION = "grid-format/grid-rect-description";
+	private static final String X_MAP_GEO_GRID_RECT_CORNER_POINT = "grid-format/grid-rect-corner-point";
+	private static final String X_MAP_GEO_GRID_RECT_POINT_IN_PIXEL = "grid-format/grid-rect-point-in-pixel";
+	private static final String X_MAP_GEO_GRID_REF_CONTROL_POINT = "grid-format/grid-ref-control-point";
+	private static final String X_MAP_GEO_GRID_REF_ORIENTATION_PARAM = "grid-format/grid-ref-orientation-param";
+	private static final String X_MAP_GEO_GRID_REF_PARAMETER = "grid-format/grid-ref-referenced-param";
 	private static final String X_MAP_GEO_VECTOR_OBJECT_COUNT = "geometric-object-count/text()";
 	private static final String X_MAP_GEO_VECTOR_OBJECT_TYPE = "geometric-object-type/@iso-code";
 	private static final String X_MAP_POS_ACCURACY_VERTICAL = "pos-accuracy-vertical/text()";
@@ -644,6 +657,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putInt(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.VECTOR_TOPOLOGY_LEVEL},
 				XPathUtils.getInt(map, X_MAP_VECTOR_TOPOLOGY_LEVEL), target);
 		mapGeoVectors(map, target);
+		mapGeoGrid(map, target);
 		putDouble(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.POS_ACCURACY_VERTICAL},
 				XPathUtils.getDouble(map, X_MAP_POS_ACCURACY_VERTICAL), target);
 		putInt(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.KEYC_INCL_W_DATASET},
@@ -703,6 +717,24 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		}
 
 		putDocList(new String[]{MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GEO_VECTOR_LIST}, geoVectorList, target);
+	}
+	
+	private static void mapGeoGrid(Node mapContext, IngridDocument target) {
+	    
+	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.TRANSFORMATION_PARAMETER}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_TRANSFORM_PARAM), target);
+	    putInt(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.NUM_DIMENSIONS}, XPathUtils.getInt(mapContext, X_MAP_GEO_GRID_NUM_DIMENSIONS), target);
+	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.AXIS_DIM_NAME}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_AXIS_NAME), target);
+	    putInt(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.AXIS_DIM_SIZE}, XPathUtils.getInt(mapContext, X_MAP_GEO_GRID_AXIS_SIZE), target);
+	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.CELL_GEOMETRY}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_CELL_GEOMETRY), target);
+	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GEO_RECTIFIED}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_GEO_RECTIFIED), target);
+	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GEO_RECT_CHECKPOINT}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_RECT_CHECKPOINT), target);
+	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GEO_RECT_DESCRIPTION}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_RECT_DESCRIPTION), target);
+	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GEO_RECT_CORNER_POINT}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_RECT_CORNER_POINT), target);
+	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GEO_RECT_POINT_IN_PIXEL}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_RECT_POINT_IN_PIXEL), target);
+	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GEO_REF_CONTROL_POINT}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_REF_CONTROL_POINT), target);
+	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GEO_REF_ORIENTATION_PARAM}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_REF_ORIENTATION_PARAM), target);
+	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GEO_REF_PARAMETER}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_REF_PARAMETER), target);
+	    
 	}
 
 	private static void mapProject(Document source, IngridDocument target) {

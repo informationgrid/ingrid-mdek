@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -1100,6 +1100,21 @@ public class BeanToDocMapper implements IMapper {
 		domainDoc.put(MdekKeys.DEGREE_OF_RECORD, objGeo.getRecGrade());
 		domainDoc.put(MdekKeys.HIERARCHY_LEVEL, objGeo.getHierarchyLevel());
 		domainDoc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, objGeo.getVectorTopologyLevel());
+		
+		domainDoc.put( MdekKeys.TRANSFORMATION_PARAMETER, objGeo.getTransfParam() );
+        domainDoc.put( MdekKeys.NUM_DIMENSIONS, (Integer) objGeo.getNumDimensions() );
+        domainDoc.put( MdekKeys.AXIS_DIM_NAME, objGeo.getAxisDimName() );
+        domainDoc.put( MdekKeys.AXIS_DIM_SIZE, objGeo.getAxisDimSize() );
+        domainDoc.put( MdekKeys.CELL_GEOMETRY, objGeo.getCellGeometry() );
+        domainDoc.put( MdekKeys.GEO_RECTIFIED, objGeo.getGeoRectified() );
+        domainDoc.put( MdekKeys.GEO_RECT_CHECKPOINT, objGeo.getRectCheckpoint() );
+        domainDoc.put( MdekKeys.GEO_RECT_DESCRIPTION, objGeo.getRectDescription() );
+        domainDoc.put( MdekKeys.GEO_RECT_CORNER_POINT, objGeo.getRectCornerPoint() );
+        domainDoc.put( MdekKeys.GEO_RECT_POINT_IN_PIXEL, objGeo.getRectPointInPixel() );
+        domainDoc.put( MdekKeys.GEO_REF_CONTROL_POINT, objGeo.getRefControlPoint() );
+        domainDoc.put( MdekKeys.GEO_REF_ORIENTATION_PARAM, objGeo.getRefOrientationParam() );
+        domainDoc.put( MdekKeys.GEO_REF_PARAMETER, objGeo.getRefGeoreferencedParam() );
+		
 		domainDoc.put(MdekKeys.POS_ACCURACY_VERTICAL, objGeo.getPosAccuracyVertical());
 		domainDoc.put(MdekKeys.GRID_POS_ACCURACY, objGeo.getGridPosAccuracy());
 		domainDoc.put(MdekKeys.KEYC_INCL_W_DATASET, objGeo.getKeycInclWDataset());
