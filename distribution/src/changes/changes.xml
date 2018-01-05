@@ -27,7 +27,7 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="4.2.0-SNAPSHOT" date="2017-xx-xx" description="Release 4.2.0">
+    <release version="4.2.0" date="2018-01-05" description="Release 4.2.0">
       <action type="add" dev="wemove" issue="REDMINE-381">
         Map new fields for spatial representation info.
       </action>
