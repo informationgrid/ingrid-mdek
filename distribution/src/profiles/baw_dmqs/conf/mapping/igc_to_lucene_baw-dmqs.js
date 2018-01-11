@@ -938,6 +938,18 @@ function addObjectOpenDataCategory(row) {
     IDX.add("object_open_data_category.category_value", row.get("category_value"));
 }
 
+
+// ---- additional_field_data ------
+var addnFieldRows = SQL.all("SELECT * FROM additional_field_data WHERE obj_id = ?", [objId]);
+for(var i=0; i<addnFieldRows.size(); i++) {
+	var row = addnFieldRows.get(i);
+	var fieldKey = row.get("field_key");
+	var data = row.get("data");
+	if (fieldKey && data && fieldKey == "bawHierarchyLevelName") {
+		IDX.add("bawhierarchylevelname", data);
+	}
+}
+
 function boostDocumentsByReferences(num) {
     // punish score of document if no coupled resource has been found
     if (num == 0) {

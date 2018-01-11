@@ -2339,11 +2339,12 @@ for (var i=0; i<resourceFormatNodes.getLength(); i++ ) {
 // change address import:
 //  * remove institutions if they have no email address
 //  * in addresses that hold references to that address, remove the reference to the institution and change type to "Freie Adresse"
-var unitsWithoutEmail = XPATH.getNodeList(targetEl, "//addresses/address/address-instance[not(communication/communication-medium/@id=3) and type-of-address/@id=0]");
-for (var i=0; i<unitsWithoutEmail.getLength(); i++ ) {
+var unitsWithoutEmail = XPATH.getNodeList(target, "//addresses/address/address-instance[not(./communication/communication-medium/@id=3) and ./type-of-address/@id=0]");
+for (var i=0; i<unitsWithoutEmail && unitsWithoutEmail.getLength(); i++ ) {
     var unitsWithoutEmailNode = unitsWithoutEmail.item(i);
     var unitsWithoutEmailsUUID = XPATH.getString(unitsWithoutEmailNode, "./address-identifier");
     // get all referencing addresses
+	var targetEl = target.getDocumentElement();
     var referencingAdresses = XPATH.getNodeList(targetEl, "//addresses/address/address-instance[./parent-address/address-identifier = '" + unitsWithoutEmailsUUID + "']");
     for (var j=0; j<referencingAdresses.getLength(); j++ ) {
         var referencingAdressesNode = referencingAdresses.item(j);
@@ -2361,6 +2362,7 @@ var contactMdNodes = XPATH.getNodeList(source, "//gmd:contact/gmd:CI_Responsible
 for (var i=0; i<contactMdNodes.getLength(); i++) {
     var contactMdNode = contactMdNodes.item(i);
     var ContactMdUUID = createUUIDFromAddress(contactMdNode);
+	var targetEl = target.getDocumentElement();
     var relatedAddresses = XPATH.getNodeList(targetEl, "//related-address[./type-of-relation/@entry-id=7 and address-identifier='"+ContactMdUUID+"']");
     for (var j=0; j<relatedAddresses.getLength(); j++) {
         var relatedAddressNode = relatedAddresses.item(j);
@@ -2391,6 +2393,7 @@ for (var i=0; i<contactMdNodes.getLength(); i++) {
 //</bounding-coordinates>
 //</geo-location>
 
+var targetEl = target.getDocumentElement();
 var geoLocationNodesNodes = XPATH.getNodeList(targetEl, "//spatial-domain/geo-location");
 if (geoLocationNodesNodes.getLength() == 2 
 		&& XPATH.nodeExists(targetEl, "(//spatial-domain/geo-location)[2]/bounding-coordinates")

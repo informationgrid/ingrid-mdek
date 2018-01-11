@@ -25,12 +25,13 @@ package de.ingrid.mdek.job.mapping;
 import java.io.InputStream;
 
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
+import org.w3c.dom.Document;
 
-public class DummyImportDataMapper implements ImportDataMapper {
+public class DummyImportDataMapper implements ImportDataMapper<Document, Document> {
 
-	public InputStream convert(InputStream in, ProtocolHandler protocolHandler) {
-		// no mapping needed here
-		return in;
-	}
+    @Override
+    public void convert(Document in, Document target, ProtocolHandler protocolHandler) {
+        // no mapping needed here
+    }
 
 }
