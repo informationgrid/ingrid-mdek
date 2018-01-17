@@ -37,6 +37,12 @@
       <action type="fix" dev="wemove" issue="REDMINE-933">
         IDF: Only map child addresses with same or wider Publication Condition (publish_id). 
       </action>
+      <action type="fix" dev="wemove" issue="REDMINE-944">
+        IGE: Only use lowercase index fields while indexing to avoid problems with search.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-945">
+        IGE: Wait for indexing to finish before writing the plug description file so that all index fields are available for search.
+      </action>
     </release>
 
     <release version="4.1.0" date="2017-10-05" description="Release 4.1.0">
