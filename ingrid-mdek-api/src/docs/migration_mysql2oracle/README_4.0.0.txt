@@ -39,7 +39,7 @@ In SQL Developer:
     - Erfassen: zu konvertierende Datenbank von links nach rechts schieben
     - Konvertieren: unverändert lassen
     - Übersetzen:
-        - die checkbox "Weiter zu Zusammenfassungsseite" anklicken und "Fertigstellen" klicken
+        - die checkbox "Weiter zu Zusammenfassungsseite" anklicken und "Weiter", Angaben kontrollieren und "Fertigstellen" klicken
         -> Konvertierung des Schemas wird ausgeführt und im Migrations-Repo abgelegt
 - danach im Migrations-Repo unter gewähltem Projektnamen "Konvertierte Datenbankobjekte" selektieren: Rechts in den Reitern wird Info ausgegeben, z.B. "Erfassungsprobleme" und "Konverttierungsprobleme" prüfen
 - jetzt Zieldatenbank anlegen und Daten verschieben, dafür Rechtsklick auf "Konvertierte Datenbankobjekte" und "Ziel generieren ...."
@@ -81,6 +81,10 @@ Nach der Migration folgendes SQL Skript im Schema des migrierten Katalogs ausfü
 
 Migration Benutzer aus mdek und Portal Datenbank
 ================================================
+
+ACHTUNG:
+Nachfolgend nicht bis zum Abschluss geführte Migrations-Anleitungen.
+Die automatische Überführung der Benutzer ist kompliziert, bisher wurden die Benutzer nach Migration des Katalogs manuell angelegt, d.h. im Portal neuen Benutzer anlegen und im IGE zuweisen.
 
 Migration aus mdek Datenbank
 ---------------------------- 
