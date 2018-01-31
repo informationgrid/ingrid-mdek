@@ -47,7 +47,7 @@ import org.dom4j.io.DOMWriter;
  * @author vikram
  */
 public class BawDmqsSimulationImportDataMapper implements ImportDataMapper<org.w3c.dom.Document, org.w3c.dom.Document> {
-    private static final Log LOG = LogFactory.getLog(BawDmqsHierarchicalImportDataMapper.class);
+    private static final Log LOG = LogFactory.getLog(BawDmqsSimulationImportDataMapper.class);
 
     private static final String HIERARCHY_LEVEL_NAME_KEY = "bawHierarchyLevelName";
     
