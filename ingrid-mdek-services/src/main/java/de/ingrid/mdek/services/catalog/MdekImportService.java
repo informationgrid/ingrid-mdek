@@ -560,10 +560,14 @@ public class MdekImportService implements IImporterCallback {
         // fetch and check nodes, ONLY WORKING VERSION !
 
         ObjectNode objImportNode = objectService.loadByUuid(defaultObjectParentUuid, IdcEntityVersion.WORKING_VERSION);
+        // if parent node with uuid does not exist then search using orig ids
+        if (objImportNode == null) {
+            objImportNode = objectService.loadByOrigId(defaultObjectParentUuid, IdcEntityVersion.WORKING_VERSION);
+        }
         // if parent node does not exist then add it to the top of the hierarchy
         if (objImportNode == null) {
             return;
-        }           
+        }
 
         updateImportJobInfoMessages("OBJECT Import Node = " + objImportNode.getObjUuid(), userUuid);
 
