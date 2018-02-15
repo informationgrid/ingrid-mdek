@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -204,7 +204,9 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
 
     // children
     // only children published and NOT hidden !
-    var rows = SQL.all("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id AND (t02_address.hide_address IS NULL OR t02_address.hide_address != 'Y')", [addressRow.get("adr_uuid")]);
+    // #933 and publish_id same or wider as parent !
+    var parentPublishId = addressRow.get("publish_id");
+    var rows = SQL.all("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id AND (t02_address.hide_address IS NULL OR t02_address.hide_address != 'Y') AND (t02_address.publish_id <= ?)", [addressRow.get("adr_uuid"), +parentPublishId]);
     for (var j=0; j<rows.size(); j++) {
         idfResponsibleParty.addElement(getIdfAddressReference(rows.get(j), "idf:subordinatedParty"));
     }

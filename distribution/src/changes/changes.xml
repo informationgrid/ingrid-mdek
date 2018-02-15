@@ -27,9 +27,21 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="4.2.0-SNAPSHOT" date="2017-xx-xx" description="Release 4.2.0">
+    <release version="4.2.0" date="2018-01-05" description="Release 4.2.0">
       <action type="add" dev="wemove" issue="REDMINE-381">
         Map new fields for spatial representation info.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-934">
+        Map id of gazetteer location to areaid in index if no ags/rs found, so spatial search via gazetteer works in portal.   
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-933">
+        IDF: Only map child addresses with same or wider Publication Condition (publish_id). 
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-944">
+        IGE: Only use lowercase index fields while indexing to avoid problems with search.
+      </action>
+      <action type="fix" dev="wemove" issue="REDMINE-945">
+        IGE: Wait for indexing to finish before writing the plug description file so that all index fields are available for search.
       </action>
     </release>
 

@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2017 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -779,6 +779,7 @@ function addSpatialRefValue(row) {
     IDX.add("location", row.get("name_value"));
     // map "nativekey" also as areaid ! queried via extended search gazetteer !
     IDX.add("spatial_ref_value.nativekey", row.get("nativekey"));
+    // #934 WFSService as gazetteerService delivers here no nativekey, so we also index sns_id as "areaid", see below !
     IDX.add("areaid", row.get("nativekey"));
 
     // --------------
@@ -810,6 +811,10 @@ function addSpatialRefValue(row) {
 }
 function addSpatialRefSns(row) {
     IDX.add("spatial_ref_sns.sns_id", row.get("sns_id"));
+    // #934 WFSService as gazetteerService delivers no nativekey so we index sns_id as areaid if no value yet !
+    if (!hasValue(IDX.get("areaid"))) {
+        IDX.add("areaid", row.get("sns_id"));    	
+    }
     // GS Soil FIX !!! map id of gazetteer Location also as areaid, cause NO "nativekey" set in Location at the moment !
     // Extended search portal uses this id as areaid if no nativekey set.
     // Should be solved in the future when gazetteer also delivers nativekey which then is set as areaid (see above).
