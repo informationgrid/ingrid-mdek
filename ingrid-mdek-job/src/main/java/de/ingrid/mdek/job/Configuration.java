@@ -103,6 +103,25 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     @DefaultValue("30")
     public Integer reconnectInterval;
     
+    
+    /**
+     *  Holds the base url that points to the document store. It will be used as
+     *  a base for generating the download links in the uvp portal detail view.
+     *  
+     *  This property is specific to the uvp profile.
+     *  
+     *  The property was introduced to be able to connect UVP NI installation to
+     *  uvp-verbund.de. Since all document urls were relative before. With this 
+     *  property set to an absolute base url, exchange of datasets between uvp
+     *  ingrid installations is no problem anymore. 
+     *  
+     *  see also https://redmine.informationgrid.eu/issues/915
+     *  
+     */
+    @PropertyValue("profile.uvp.document.store.base.url")
+    @DefaultValue("/document/")
+    public String profileUvpDocumentStoreBaseUrl;
+    
     @Override
     public void initialize() {
         super.initialize();

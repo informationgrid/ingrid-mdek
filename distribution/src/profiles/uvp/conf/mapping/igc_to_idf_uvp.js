@@ -27,7 +27,7 @@ if (javaVersion.indexOf( "1.8" ) === 0) {
 
 importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
-
+importPackage(Packages.de.ingrid.mdek);
 
 
 if (log.isDebugEnabled()) {
@@ -629,7 +629,7 @@ function getAdditionalFieldDataTable(id, fields, table){
                     // excluds (http|https|ftp)://
                     pos = value.indexOf("://");
                     if (pos <= 3 || pos >= 10) {
-                        value = "/documents/"+value;
+                        value = MdekServer.conf.profileUvpDocumentStoreBaseUrl+value;
                     }
                 } else if (fields[s].id == "expires") {
                     if (value.length > 0) {
