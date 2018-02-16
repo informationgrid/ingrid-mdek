@@ -73,6 +73,7 @@ public class T01Object implements IEntity {
 	private String modTime;
 	private String modUuid;
 	private String responsibleUuid;
+	private String publicationDate;
 
 	private Set additionalFieldDatas = new HashSet();
 	private Set objectAccesss = new HashSet();
@@ -745,4 +746,11 @@ public class T01Object implements IEntity {
         this.objectAdvProductGroup = objectAdvProductGroup;
     }
 
+	public String getPublicationDate() {
+		return publicationDate;
+	}
+
+	public void setPublicationDate(String publicationDate) {
+		this.publicationDate = publicationDate;
+	}
 }

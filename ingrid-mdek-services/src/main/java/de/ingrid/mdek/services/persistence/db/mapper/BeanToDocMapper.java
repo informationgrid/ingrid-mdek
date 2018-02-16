@@ -270,6 +270,7 @@ public class BeanToDocMapper implements IMapper {
 		objectDoc.put(MdekKeys.CATALOGUE_IDENTIFIER, o.getCatId());
 		objectDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, o.getModTime());
 		objectDoc.put(MdekKeys.PUBLICATION_CONDITION, o.getPublishId());
+		objectDoc.put(MdekKeys.PUBLICATION_DATE, o.getPublicationDate());
 
 		if (howMuch == MappingQuantity.TREE_ENTITY ||
 			howMuch == MappingQuantity.DETAIL_ENTITY ||
