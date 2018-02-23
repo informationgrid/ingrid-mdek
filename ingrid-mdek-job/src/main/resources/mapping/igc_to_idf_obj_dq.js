@@ -297,19 +297,37 @@ function getDqConformanceResultElement(conformityRow) {
     var dqConformanceResult = DOM.createElement("gmd:DQ_ConformanceResult");
     var ciCitation = dqConformanceResult.addElement("gmd:specification/gmd:CI_Citation");
 
-    // ISO: first iso value, see INGRID-2337
-    var specification = TRANSF.getCodeListEntryFromIGCSyslistEntry(6005, conformityRow.get("specification_key"), "iso");
-    // if no iso then as usual
-    if (!hasValue(specification)) {
-        specification = TRANSF.getIGCSyslistEntryName(6005, conformityRow.get("specification_key"));
+    var isInspire = conformityRow.get("is_inspire");
+    if (!hasValue(isInspire)) {
+        isInspire = "Y"; // Assume that we are dealing with INSPIRE conformity list
     }
-    var specificationDate;
+    var specification;
+    if (isInspire.equals("Y")) {
+        // ISO: first iso value, see INGRID-2337
+        specification = TRANSF.getCodeListEntryFromIGCSyslistEntry(6005, conformityRow.get("specification_key"), "iso");
+    } else {
+        specification = TRANSF.getCodeListEntryFromIGCSyslistEntry(6006, conformityRow.get("specification_key"), "iso");
+    }
+    // if no iso then as usual
+    if (!hasValue(specification) && isInspire.equals("Y")) {
+        specification = TRANSF.getIGCSyslistEntryName(6005, conformityRow.get("specification_key"));
+    } else if (!hasValue(specification) && isInspire.equals("N")) {
+        specification = TRANSF.getIGCSyslistEntryName(6006, conformityRow.get("specification_key"));
+    }
     if (!hasValue(specification)) {
         specification = conformityRow.get("specification_value");
-    } else {
-    	// INGRID-2270: get date from data field
-    	specificationDate = TRANSF.getISOCodeListEntryData(6005, specification);
     }
+
+    var specificationDate;
+    if (!hasValue(specification)) {
+        specificationDate = TRANSF.getISODateFromIGCDate(conformityRow.get("publication_date"));
+    } else if (isInspire.equals("Y")) {
+    	// INGRID-2270: get date from data field
+        specificationDate = TRANSF.getISOCodeListEntryData(6005, specification);
+    } else if (hasValue(specification)) {
+        specificationDate = TRANSF.getISOCodeListEntryData(6006, specification);
+    }
+
     if (hasValue(specification)) {
         ciCitation.addElement("gmd:title/gco:CharacterString").addText(specification);
     } else {
@@ -318,6 +336,7 @@ function getDqConformanceResultElement(conformityRow) {
 
     var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
     if (hasValue(specificationDate)) {
+        specificationDate = specificationDate.substring(0, 10);
         ciDate.addElement("gmd:date").addElement(getDateOrDateTime(specificationDate));
     } else {
         ciDate.addElement("gmd:date").addAttribute("gco:nilReason", "unknown");

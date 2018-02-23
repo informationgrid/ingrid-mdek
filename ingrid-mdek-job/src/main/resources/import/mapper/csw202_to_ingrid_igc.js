@@ -726,6 +726,14 @@ var mappingDescription = {"mappings":[
   				"mappings": [
 	  				{
 			  			"srcXpath":"gmd:specification/gmd:CI_Citation/gmd:title/gco:CharacterString",
+			  			"targetNode":"conformity-is-inspire",
+			  			"transform":{
+							"funct":conformityIsInspire,
+							"params":[""]
+						}
+			  		},
+	  				{
+			  			"srcXpath":"gmd:specification/gmd:CI_Citation/gmd:title/gco:CharacterString",
 			  			"targetNode":"conformity-specification"
 			  		},
 	  				{
@@ -734,8 +742,8 @@ var mappingDescription = {"mappings":[
 			  			"targetAttribute":"id",
 			  			"defaultValue":"-1",
 			  			"transform":{
-							"funct":transformToIgcDomainId,
-							"params":[6005, "", true]
+							"funct":transformConformityToIgcDomainId,
+							"params":["", true]
 						}
 			  		},
 	  				{
@@ -771,7 +779,11 @@ var mappingDescription = {"mappings":[
                             "funct":transformToStaticValue,
                             "params":["nicht evaluiert"]
                         }
-                    }
+                    },
+	  				{
+			  			"srcXpath":"gmd:specification/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:date/gco:Date",
+			  			"targetNode":"conformity-publication-date"
+			  		}
 			  	]
 			}
   		},
@@ -826,7 +838,7 @@ var mappingDescription = {"mappings":[
         },
         {
             "srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:description/gco:CharacterString",
-            "targetNode":"/igc/data-sources/data-source/data-source-instance/spatial-domain/description-of-spatial-domain"
+            "targetNode":"/igc/data-sources/data-source/data-source-instane/spatial-domain/description-of-spatial-domain"
         },
   		{
   			"srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:geographicElement",
@@ -2095,6 +2107,83 @@ function transformISOToIgcDomainValue(val, codeListId, languageId, logErrorOnNot
 			return "";
 		}
 	}
+}
+
+function transformConformityToIgcDomainId(val, languageId, logErrorOnNotFound, doRobustComparison) {
+	if (hasValue(val)) {
+		// transform to IGC domain id
+		var idcCode = null;
+		try {
+            // more robust comparison, see INGRID-2334
+			var robustCompare = false;
+			if (doRobustComparison) {
+                robustCompare = true;
+			}
+            var codelists = [6005, 6006];
+            for (var i=0; i<2 && !hasValue(idcCode) && idcCode<0; i++) {
+				var codeListId = codeLists[i];
+				idcCode = codeListService.getSysListEntryKey(codeListId, val, languageId, robustCompare);
+            }
+		} catch (e) {
+			if (log.isWarnEnabled()) {
+				log.warn("Error tranforming code '" + val + "' with code list " + codeListId + " with language '" + languageId + "' to IGC id. Does the codeList exist?");
+			}
+			protocol(WARN, "Error tranforming code '" + val + "' with code list " + codeListId + " with language '" + languageId + "' to IGC id. Does the codeList exist?")
+			if (logErrorOnNotFound) {
+				log.warn(logErrorOnNotFound + val);
+				protocol(WARN, logErrorOnNotFound + val)
+			}
+		}
+		if (hasValue(idcCode)) {
+			return idcCode;
+		} else {
+			if (log.isWarnEnabled()) {
+				if (languageId != null && languageId != "") {
+					log.warn("Domain code '" + val + "' unknown in code list " + codeListId + " for language '" + languageId + "'.");
+					protocol(WARN, "Domain code '" + val + "' unknown in code list " + codeListId + " for language '" + languageId + "'.");
+				} else {
+                    log.warn("Domain code '" + val + "' unknown in code list " + codeListId + " for all languages.");
+                    protocol(WARN, "Domain code '" + val + "' unknown in code list " + codeListId + " for all languages.");
+				}
+			}
+			if (logErrorOnNotFound) {
+				log.warn(logErrorOnNotFound + val);
+				protocol(WARN, logErrorOnNotFound + val)
+			}
+			return -1;
+		}
+	}
+}
+
+function conformityIsInspire(val, languageId, doRobustComparison) {
+	if (hasValue(val)) {
+		// transform to IGC domain id
+        var codeListId = 6005;
+		var idcCode = null;
+		try {
+            // more robust comparison, see INGRID-2334
+			var robustCompare = false;
+			if (doRobustComparison) {
+                robustCompare = true;
+			}
+		    idcCode = codeListService.getSysListEntryKey(codeListId, val, languageId, robustCompare);
+		} catch (e) {
+			if (log.isWarnEnabled()) {
+				log.warn("Error tranforming code '" + val + "' with code list " + codeListId + " with language '" + languageId + "' to IGC id. Does the codeList exist?");
+			}
+			protocol(WARN, "Error tranforming code '" + val + "' with code list " + codeListId + " with language '" + languageId + "' to IGC id. Does the codeList exist?")
+			if (logErrorOnNotFound) {
+				log.warn(logErrorOnNotFound + val);
+				protocol(WARN, logErrorOnNotFound + val)
+			}
+		}
+		if (hasValue(idcCode) && idcCode > 0) {
+			return "Y";
+		} else {
+            return "N";
+		}
+	}
+    return "N";
 }
 
 function transformISOToIGCLanguageCode(val) {

@@ -2577,10 +2577,12 @@ public class DocToBeanMapper implements IMapper {
 			int line)
 	{
 		ref.setObjId(oFrom.getId());
+		ref.setIsInspire(refDoc.getString(MdekKeys.CONFORMITY_IS_INSPIRE));
 		ref.setSpecificationKey((Integer)refDoc.get(MdekKeys.CONFORMITY_SPECIFICATION_KEY));
 		ref.setSpecificationValue(refDoc.getString(MdekKeys.CONFORMITY_SPECIFICATION_VALUE));
 		ref.setDegreeKey((Integer)refDoc.get(MdekKeys.CONFORMITY_DEGREE_KEY));
 		ref.setDegreeValue(refDoc.getString(MdekKeys.CONFORMITY_DEGREE_VALUE));
+		ref.setPublicationDate(refDoc.getString(MdekKeys.CONFORMITY_PUBLICATION_DATE));
 		ref.setLine(line);
 		keyValueService.processKeyValue(ref);
 
