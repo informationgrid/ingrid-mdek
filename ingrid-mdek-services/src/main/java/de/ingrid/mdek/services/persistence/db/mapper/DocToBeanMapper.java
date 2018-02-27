@@ -22,11 +22,7 @@
  */
 package de.ingrid.mdek.services.persistence.db.mapper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -2612,26 +2608,6 @@ public class DocToBeanMapper implements IMapper {
 	}	
 	private void updateObjectConformitys(IngridDocument oDocIn, T01Object oIn) {
 		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.CONFORMITY_LIST);
-		// NOTICE: objects conformities are only editable in special object types (classes) and have default
-		// values in other types. We guarantee default values, when necessary ! object-classes can be switched
-		// so conformity might be wrong, remaining from former class !
-		ObjectType oType = EnumUtil.mapDatabaseToEnumConst(ObjectType.class, oIn.getObjClass());
-		if (oType == ObjectType.GEO_INFORMATION || 
-				oType == ObjectType.GEO_DIENST ||
-				oType == ObjectType.INFOSYSTEM_DIENST) {
-			// set default if not set, else keep set values. DISPLAYED in frontend.
-			if (refDocs == null) {
-				refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);
-			}			
-		} else {
-			// check whether correct default is set ! if not, set it. NOT displayed in frontend !
-			if (refDocs == null ||
-					refDocs.size() != 1 ||
-					!MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_SPECIFICATION_KEY)) ||
-					!MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_DEGREE_KEY))) {
-				refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);				
-			}
-		}
 
 		Set<ObjectConformity> refs = oIn.getObjectConformitys();
 		ArrayList<ObjectConformity> refs_unprocessed = new ArrayList<ObjectConformity>(refs);
@@ -2641,13 +2617,17 @@ public class DocToBeanMapper implements IMapper {
 			// delete-orphan doesn't work !!!?????
 			dao.makeTransient(ref);			
 		}		
-		// and add all new ones !
-		int line = 1;
-		for (IngridDocument refDoc : refDocs) {
-			// add all as new ones
-			ObjectConformity ref = mapObjectConformity(oIn, refDoc, new ObjectConformity(), line);
-			refs.add(ref);
-			line++;
+		// and add all new ones if exist !
+		// see changes in behavior at https://redmine.informationgrid.eu/projects/ingrid/wiki/09052017_-_Arbeitstreffen_InGrid_Editor#Konformit%C3%A4t-Liste-der-Spezifikationen
+		// see https://redmine.informationgrid.eu/issues/859
+		if (refDocs != null && refDocs.size() > 0) {
+			int line = 1;
+			for (IngridDocument refDoc : refDocs) {
+				// add all as new ones
+				ObjectConformity ref = mapObjectConformity(oIn, refDoc, new ObjectConformity(), line);
+				refs.add(ref);
+				line++;
+			}
 		}
 	}
 	private void updateObjectAdvProductGroup(IngridDocument oDocIn, T01Object oIn) {
