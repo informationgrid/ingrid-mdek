@@ -119,7 +119,7 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
      *  
      */
     @PropertyValue("profile.uvp.document.store.base.url")
-    @DefaultValue("/document/")
+    @DefaultValue("/documents/")
     public String profileUvpDocumentStoreBaseUrl;
     
     @Override
