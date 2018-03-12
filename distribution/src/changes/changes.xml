@@ -29,7 +29,7 @@
   <body>
     <release version="4.3.0-SNAPSHOT" date="2018-xx-xx" description="Release 4.3.0-SNAPSHOT">
       <action type="update" dev="wemove" issue="REDMINE-859">
-        Map new fields for conformites.
+        Map new fields for conformites. Updated FAQs for finding out metadata-sets with missing publication dates at: http://www.ingrid-oss.eu/4.3.0/components/ige.html#wie-kann-ich-metadatensätze-mit-fehlender-datumsangabe-für-die-konformität-ermitteln-
       </action>
     </release>
 
