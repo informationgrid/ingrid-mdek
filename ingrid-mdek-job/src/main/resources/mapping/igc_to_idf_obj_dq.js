@@ -319,7 +319,7 @@ function getDqConformanceResultElement(conformityRow) {
     }
 
     var specificationDate;
-    if (!hasValue(specification)) {
+    if (!hasValue(specification) || conformityRow.get("specification_key") < 0) {
         specificationDate = TRANSF.getISODateFromIGCDate(conformityRow.get("publication_date"));
     } else if (isInspire.equals("Y")) {
     	// INGRID-2270: get date from data field
