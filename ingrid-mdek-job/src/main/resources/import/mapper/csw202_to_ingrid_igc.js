@@ -729,7 +729,7 @@ var mappingDescription = {"mappings":[
 			  			"targetNode":"conformity-is-inspire",
 			  			"transform":{
 							"funct":conformityIsInspire,
-							"params":[""]
+							"params":["", true]
 						}
 			  		},
 	  				{

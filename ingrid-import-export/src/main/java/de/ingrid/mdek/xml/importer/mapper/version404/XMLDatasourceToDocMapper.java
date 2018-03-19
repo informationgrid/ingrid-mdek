@@ -215,6 +215,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADDITIONAL_COMMENT_CREATOR = "creator-identifier/text()";
 	private static final String X_ADDITIONAL_COMMENT_DATE_OF_CREATION = "date-of-creation/text()";
 	private static final String X_ADDITIONAL_CONFORMITY_LIST = X_DATA_SOURCE + "/additional-information/conformity";
+	private static final String X_ADDITIONAL_CONFORMITY_IS_INSPIRE = "conformity-is-inspire/text()";
 	private static final String X_ADDITIONAL_CONFORMITY_SPECIFICATION = "conformity-specification/text()";
 	private static final String X_ADDITIONAL_CONFORMITY_SPECIFICATION_KEY = "conformity-specification/@id";
 	private static final String X_ADDITIONAL_CONFORMITY_DEGREE = "conformity-degree/text()";
@@ -935,6 +936,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		for (int index = 0; index < conformities.getLength(); index++) {
 			Node conformity = conformities.item(index);
 			IngridDocument conformityDoc = new IngridDocument();
+			putString(MdekKeys.CONFORMITY_IS_INSPIRE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_IS_INSPIRE), conformityDoc);
 			putString(MdekKeys.CONFORMITY_SPECIFICATION_VALUE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_SPECIFICATION), conformityDoc);
 			putInt(MdekKeys.CONFORMITY_SPECIFICATION_KEY, XPathUtils.getInt(conformity, X_ADDITIONAL_CONFORMITY_SPECIFICATION_KEY), conformityDoc);
 			putString(MdekKeys.CONFORMITY_DEGREE_VALUE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_DEGREE), conformityDoc);
