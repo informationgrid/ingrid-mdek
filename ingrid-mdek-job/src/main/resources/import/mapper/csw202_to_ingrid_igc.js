@@ -782,7 +782,10 @@ var mappingDescription = {"mappings":[
                     },
 	  				{
 			  			"srcXpath":"gmd:specification/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:date/gco:Date",
-			  			"targetNode":"conformity-publication-date"
+						"targetNode":"conformity-publication-date",
+						"transform":{
+							"funct":transformDateIso8601ToIndex
+						}
 			  		}
 			  	]
 			}
