@@ -2110,21 +2110,25 @@ function transformISOToIgcDomainValue(val, codeListId, languageId, logErrorOnNot
 }
 
 function transformConformityToIgcDomainId(val, languageId, logErrorOnNotFound, doRobustComparison) {
-	if (hasValue(val)) {
-		// transform to IGC domain id
-		var idcCode = null;
-		try {
-            // more robust comparison, see INGRID-2334
-			var robustCompare = false;
-			if (doRobustComparison) {
-                robustCompare = true;
-			}
-            var codelists = [6005, 6006];
-            for (var i=0; i<2 && !hasValue(idcCode) && idcCode<0; i++) {
-				var codeListId = codeLists[i];
-				idcCode = codeListService.getSysListEntryKey(codeListId, val, languageId, robustCompare);
-            }
-		} catch (e) {
+    if (hasValue(val)) {
+        // Robust comparison
+        var robustCompare = false;
+        if (doRobustComparison) {
+            robustCompare = true;
+        }
+
+        // Which codelist should be used?
+        var isInspire = conformityIsInspire(val, languageId, doRobustComparison);
+        var codeListId = 6005; // Use INSPIRE by default
+        if (isInspire != 'Y') {
+            codeListId = 6006;
+        }
+
+        // transform to IGC domain id
+        var idcCode = null;
+        try {
+            idcCode = codeListService.getSysListEntryKey(codeListId, val, languageId, robustCompare);
+        } catch (e) {
 			if (log.isWarnEnabled()) {
 				log.warn("Error tranforming code '" + val + "' with code list " + codeListId + " with language '" + languageId + "' to IGC id. Does the codeList exist?");
 			}
@@ -2133,26 +2137,20 @@ function transformConformityToIgcDomainId(val, languageId, logErrorOnNotFound, d
 				log.warn(logErrorOnNotFound + val);
 				protocol(WARN, logErrorOnNotFound + val)
 			}
-		}
-		if (hasValue(idcCode)) {
-			return idcCode;
-		} else {
-			if (log.isWarnEnabled()) {
+        }
+        log.debug("Values while debugging conformities: value -> " + val + ", codelist id -> " + codeListId + ", idcCode -> " + idcCode);
+        if (hasValue(idcCode)) {
+            return idcCode;
+        } else {
 				if (languageId != null && languageId != "") {
-					log.warn("Domain code '" + val + "' unknown in code list " + codeListId + " for language '" + languageId + "'.");
-					protocol(WARN, "Domain code '" + val + "' unknown in code list " + codeListId + " for language '" + languageId + "'.");
+					log.warn("Domain code '" + val + "' unknown in code lists 6005 and 6006 for language '" + languageId + "'.");
+					protocol(WARN, "Domain code '" + val + "' unknown in code lists 6005 and 6006 for language '" + languageId + "'.");
 				} else {
-                    log.warn("Domain code '" + val + "' unknown in code list " + codeListId + " for all languages.");
-                    protocol(WARN, "Domain code '" + val + "' unknown in code list " + codeListId + " for all languages.");
+                    log.warn("Domain code '" + val + "' unknown in code lists 6005 and 6006 for all languages.");
+                    protocol(WARN, "Domain code '" + val + "' unknown in code lists 6005 and 6006 for all languages.");
 				}
-			}
-			if (logErrorOnNotFound) {
-				log.warn(logErrorOnNotFound + val);
-				protocol(WARN, logErrorOnNotFound + val)
-			}
-			return -1;
-		}
-	}
+        }
+    }
 }
 
 function conformityIsInspire(val, languageId, doRobustComparison) {
