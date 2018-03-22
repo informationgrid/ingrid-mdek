@@ -948,6 +948,11 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		return conformity;
 	}
 
+	private XMLElement createConformityIsInspire(IngridDocument conformityContext) {
+		XMLElement conformityIsInspire = new XMLElement(CONFORMITY_IS_INSPIRE, getStringForKey(MdekKeys.CONFORMITY_IS_INSPIRE, conformityContext));
+		return conformityIsInspire;
+	}
+
 	private XMLElement createConformitySpecification(IngridDocument conformityContext) {
 		XMLElement conformitySpecification = new XMLElement(CONFORMITY_SPECIFICATION, getStringForKey(MdekKeys.CONFORMITY_SPECIFICATION_VALUE, conformityContext));
 		conformitySpecification.addAttribute(ID, getIntegerForKey(MdekKeys.CONFORMITY_SPECIFICATION_KEY, conformityContext));
@@ -958,6 +963,11 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		XMLElement conformityDegree = new XMLElement(CONFORMITY_DEGREE, getStringForKey(MdekKeys.CONFORMITY_DEGREE_VALUE, conformityContext));
 		conformityDegree.addAttribute(ID, getIntegerForKey(MdekKeys.CONFORMITY_DEGREE_KEY, conformityContext));
 		return conformityDegree;
+	}
+
+	private XMLElement createConformityPublicationDate(IngridDocument conformityContext) {
+		XMLElement conformityPublicationDate = new XMLElement(CONFORMITY_PUBLICATION_DATE, getStringForKey(MdekKeys.CONFORMITY_PUBLICATION_DATE, conformityContext));
+		return conformityPublicationDate;
 	}
 
 	private List<XMLElement> createDQs() {

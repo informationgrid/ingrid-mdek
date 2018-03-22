@@ -30,10 +30,12 @@ public class ObjectConformity implements IEntity {
 	private int version;
 	private Long objId;
 	private Integer line;
+	private String isInspire;
 	private Integer specificationKey;
 	private String specificationValue;
 	private Integer degreeKey;
 	private String degreeValue;
+	private String publicationDate;
 
 
 	public ObjectConformity() {}
@@ -70,6 +72,14 @@ public class ObjectConformity implements IEntity {
 		this.line = line;
 	}
 
+	public String getIsInspire() {
+		return isInspire;
+	}
+
+	public void setIsInspire(String isInspire) {
+		this.isInspire = isInspire;
+	}
+
 	public Integer getSpecificationKey() {
 		return specificationKey;
 	}
@@ -100,6 +110,14 @@ public class ObjectConformity implements IEntity {
 
 	public void setDegreeValue(String degreeValue) {
 		this.degreeValue = degreeValue;
+	}
+
+	public String getPublicationDate() {
+		return publicationDate;
+	}
+
+	public void setPublicationDate(String publicationDate) {
+		this.publicationDate = publicationDate;
 	}
 
 

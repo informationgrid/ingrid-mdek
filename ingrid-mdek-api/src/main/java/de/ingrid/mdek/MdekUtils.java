@@ -137,7 +137,10 @@ public class MdekUtils {
 		ADDRESS_TITLE(4305, "T02Address:titleKey:titleValue"),
 		COMM_TYPE(4430, "T021Communication:commtypeKey:commtypeValue"),
 		OBJ_CONFORMITY_DEGREE(6000, "ObjectConformity:degreeKey:degreeValue"),
+		// INSPIRE conformities
 		OBJ_CONFORMITY_SPECIFICATION(6005, "ObjectConformity:specificationKey:specificationValue"),
+		// Free conformities
+		OBJ_CONFORMITY_FREE_SPECIFICATION(6006, "ObjectConformity:specificationKey:specificationValue"),
 		OBJ_ACCESS(6010, "ObjectAccess:restrictionKey:restrictionValue"),
 		// NOT used anymore, see REDMINE-13 2)
 //		OBJ_USE(6020, "ObjectUse:termsOfUseKey:termsOfUseValue"),
