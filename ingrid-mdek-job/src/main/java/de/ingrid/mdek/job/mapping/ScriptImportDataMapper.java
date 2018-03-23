@@ -107,7 +107,7 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
     }
     
     @Override
-    public void convert(Document source, Document docTarget, ProtocolHandler protocolHandler) throws MdekException {
+    public void convert(Document sourceIso, Document targetIgc, ProtocolHandler protocolHandler) throws MdekException {
         Map<String, Object> parameters = new ConcurrentHashMap<>();
         DatabaseConnectionUtils connUtils = DatabaseConnectionUtils.getInstance();
         try(Connection conn = connUtils.openConnection(internalDatabaseConnection)) {
@@ -117,22 +117,22 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
             
             // get DOM-tree from template-file. Ignore the provided document
             Document templateXml = getDomFromSourceData(template.getInputStream(), false);
-            Node importNode = docTarget.importNode(templateXml.getDocumentElement(), true);
-            docTarget.appendChild(importNode);
+            Node importNode = targetIgc.importNode(templateXml.getDocumentElement(), true);
+            targetIgc.appendChild(importNode);
 
 			if (log.isDebugEnabled()) {
-                log.debug("Target XML template:\n" + XMLUtils.toString(docTarget));
+                log.debug("Target XML template:\n" + XMLUtils.toString(targetIgc));
 			}
             // create utils for script
             SQLUtils sqlUtils = new SQLUtils(dbConnection);
             // get initialized XPathUtils (see above)
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
-            DOMUtils domUtils = new DOMUtils(docTarget, xpathUtils);
+            DOMUtils domUtils = new DOMUtils(targetIgc, xpathUtils);
 			
-			preProcessMapping(docTarget);
+			preProcessMapping(targetIgc);
 			
-		    parameters.put("source", source);
-		    parameters.put("target", docTarget);
+		    parameters.put("source", sourceIso);
+		    parameters.put("target", targetIgc);
             parameters.put("protocolHandler", protocolHandler );
 		    parameters.put("codeListService", catalogService);
 		    parameters.put("javaVersion", System.getProperty( "java.version" ));
@@ -148,9 +148,9 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 		    //parameters.put("template", template);
 			doMap(parameters);
 			
-			mapAdditionalFields(docTarget);
+			mapAdditionalFields(targetIgc);
 
-			String targetString = XMLUtils.toString(docTarget);
+			String targetString = XMLUtils.toString(targetIgc);
 			if (log.isDebugEnabled()) {
 				log.debug("Resulting XML:\n" + targetString);
 			}

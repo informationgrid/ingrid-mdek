@@ -189,7 +189,6 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         IngridDocument resultInsert = null;
         IngridDocument resultUpdate = null;
         IngridDocument resultDelete = null;
-        List<Exception> errors = new ArrayList<Exception>();
         int insertedObjects = 0;
         int updatedObjects = 0;
         int deletedObjects = 0;
@@ -235,8 +234,6 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 Exception ex = (Exception) resultInsert.get( MdekKeys.JOBINFO_EXCEPTION );
                 if (ex == null) {
                     insertedObjects++;
-                } else {
-                    errors.add( ex );
                 }
                 if (resultInsert.get(MdekKeys.CHANGED_ENTITIES) != null) {
                     insertedEntities.addAll( (List<HashMap>) resultInsert.get(MdekKeys.CHANGED_ENTITIES));                    
@@ -349,7 +346,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
         } catch (Exception e) {
             catalogJob.rollbackTransaction();
-            e.printStackTrace();
+            log.error("Error in CSW transaction", e);
             doc.put( "error", prepareException( e ) );
             doc.putBoolean( "success", false );
         }
