@@ -430,7 +430,7 @@ public final class BawMetadataProfileValidator extends  AbstractIsoValidator {
     private boolean canParse(String dt, TemporalQuery<?> query, DateTimeFormatter... formatters) {
         boolean valid = false;
         for (int i=0; !valid && i<formatters.length; i++) {
-            valid = valid || canParse(dt, formatters[i], query);
+            valid = canParse(dt, formatters[i], query);
         }
         return valid;
     }
