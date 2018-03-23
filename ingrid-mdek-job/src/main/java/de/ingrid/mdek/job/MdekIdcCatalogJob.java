@@ -760,6 +760,17 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
                         .newDocument();
 
                     dataMapperFactory.getMapper(frontendProtocol).convert(source, target, protocolHandler);
+
+                    /*
+                     * Collect all errors from the protocol handler and put them
+                     * in the result. If the mapping has been started by a CSW
+                     * insert or update operation, then we will later retrieve
+                     * them and return them as the exception text, if necessary.
+                     */
+                    List<String> errors = protocolHandler.getProtocol(ProtocolHandler.Type.ERROR);
+                    if (!errors.isEmpty()) {
+                        result.put("mapping_errors", String.join("\n - ", errors));
+                    }
                     if (log.isDebugEnabled()) {
                         log.debug(String.format("Converted XML%n%s", XMLUtils.toString(target)));
                     }
