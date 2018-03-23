@@ -264,7 +264,7 @@
                     <key>
                         <value>csw202</value>
                     </key>
-                    <ref bean="csw202ScriptImportDataMapper" />
+                    <ref bean="serialDataMapper" />
                 </entry>
             </map>
         </property>
@@ -272,6 +272,18 @@
     
     <bean id="dummyImportDataMapper" class="de.ingrid.mdek.job.mapping.DummyImportDataMapper"></bean>
     
+    <bean id="serialDataMapper" class="de.ingrid.mdek.job.mapping.bawdmqs.SerialDataMapper">
+        <property name="mappers">
+            <list>
+                <!-- ISO Validation -->
+                <ref bean="iso19115SchemaValidator" />
+                <ref bean="iso19115ConditionsValidator" />
+                <!-- ISO to IGC mapping -->
+                <ref bean="csw202ScriptImportDataMapper" />
+            </list>
+        </property>
+    </bean>
+
     <bean id="csw202ScriptImportDataMapper" class="de.ingrid.mdek.job.mapping.ScriptImportDataMapper">
         <property name="mapperScript" value="classpath:import/mapper/csw202_to_ingrid_igc.js" />
         <property name="template" value="classpath:import/templates/igc_template_csw202.xml" />
@@ -282,5 +294,7 @@
             <ref bean="codeListService" />
         </property> -->
     </bean>
+    <bean id="iso19115SchemaValidator" class="de.ingrid.mdek.job.validation.iso.bawdmqs.ISO_19115_2003_SchemaValidator" />
+    <bean id="iso19115ConditionsValidator" class="de.ingrid.mdek.job.validation.iso.bawdmqs.ISO_19115_2003_ConditionsValidator" />
     
 </beans>

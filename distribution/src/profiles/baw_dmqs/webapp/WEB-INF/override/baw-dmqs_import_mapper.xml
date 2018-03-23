@@ -58,6 +58,11 @@
     <bean id="serialDataMapper" class="de.ingrid.mdek.job.mapping.bawdmqs.SerialDataMapper">
         <property name="mappers">
             <list>
+                <!-- ISO Validation -->
+                <ref bean="iso19115SchemaValidator" />
+                <ref bean="iso19115ConditionsValidator" />
+                <ref bean="bawProfileValidator" />
+                <!-- ISO to IGC mapping -->
                 <ref bean="csw202ScriptImportDataMapper" />
                 <ref bean="bawDmqsSimulationImportDataMapper" />
             </list>
@@ -73,6 +78,11 @@
         <property name="template" value="classpath:import/templates/igc_template_csw202.xml" />
     </bean>
     <bean id="bawDmqsSimulationImportDataMapper" class="de.ingrid.mdek.job.mapping.bawdmqs.BawDmqsSimulationImportDataMapper" />
+
+    <bean id="iso19115SchemaValidator" class="de.ingrid.mdek.job.validation.iso.bawdmqs.ISO_19115_2003_SchemaValidator" />
+    <bean id="iso19115ConditionsValidator" class="de.ingrid.mdek.job.validation.iso.bawdmqs.ISO_19115_2003_ConditionsValidator" />
+    <bean id="bawProfileValidator" class="de.ingrid.mdek.job.validation.iso.bawdmqs.BawMetadataProfileValidator" />
+    <!-- end ISO validation -->
     
     
     <!-- SEARCH / INDEX CONFIGURATION -->
