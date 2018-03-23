@@ -83,7 +83,12 @@ public class BawDmqsSimulationImportDataMapper implements ImportDataMapper<org.w
 
     private void mapHierarchyLevelName(Document source, Document target) {
         Element hierarchyLevelNameElement = (Element) source.selectSingleNode("/gmd:MD_Metadata/gmd:hierarchyLevelName/gco:CharacterString");
-        String hierarchyLevelName = hierarchyLevelNameElement.getText();
+        String hierarchyLevelName;
+        if (hierarchyLevelNameElement == null) {
+            hierarchyLevelName = "";
+        } else {
+            hierarchyLevelName = hierarchyLevelNameElement.getText();
+        }
 
         Element addnValues = (Element) target.selectSingleNode("//general-additional-values[1]");
         Element addnValue = addnValues.addElement("general-additional-value");
