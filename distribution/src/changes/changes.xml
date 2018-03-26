@@ -27,7 +27,7 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="4.3.0" date="2018-03-22" description="Release 4.3.0">
+    <release version="4.3.0" date="2018-03-26" description="Release 4.3.0">
       <action type="add" dev="wemove" issue="REDMINE-859">
         Map new fields for conformity.
         Updated FAQs for finding out metadata-sets with missing publication dates at: http://www.ingrid-oss.eu/4.3.0/components/ige.html#wie-kann-ich-metadatensätze-mit-fehlender-datumsangabe-für-die-konformität-ermitteln-
