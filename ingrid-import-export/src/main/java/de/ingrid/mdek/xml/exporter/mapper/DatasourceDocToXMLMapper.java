@@ -943,8 +943,10 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createConformity(IngridDocument conformityContext) {
 		XMLElement conformity = new XMLElement(CONFORMITY);
+		conformity.addChild(createConformityIsInspire(conformityContext));
 		conformity.addChild(createConformitySpecification(conformityContext));
 		conformity.addChild(createConformityDegree(conformityContext));
+		conformity.addChild(createConformityPublicationDate(conformityContext));
 		return conformity;
 	}
 
