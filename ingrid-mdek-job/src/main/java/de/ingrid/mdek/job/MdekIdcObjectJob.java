@@ -298,12 +298,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				oDocIn.put(MdekKeys.LOCATIONS, locList);
 			}
 
-			// INSPIRE: always add default values (will be displayed when new object is set to according class in frontend)
-			beanToDocMapper.mapObjectConformitys(
-					beanToDocMapper.createObjectConformitySet(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY,
-							MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED),
-					oDocIn);
-
 			// add permissions the user has on initial object !
 			List<Permission> perms = permissionHandler.getPermissionsForInitialObject(oDocIn, userUuid);
 			beanToDocMapperSecurity.mapPermissionList(perms, oDocIn);

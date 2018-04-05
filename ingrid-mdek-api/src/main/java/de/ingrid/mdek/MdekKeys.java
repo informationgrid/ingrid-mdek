@@ -1247,6 +1247,8 @@ public class MdekKeys {
 
     /** Value: List< IngridDocument > */
     public final static String CONFORMITY_LIST = "conformity_list";
+    /** Value: Boolean */
+    public final static String CONFORMITY_IS_INSPIRE = "conformity-is-inspire";
     /** Value: Integer */
     public final static String CONFORMITY_SPECIFICATION_KEY = "conformity-specification-key";
     /** Value: String */
@@ -1255,6 +1257,8 @@ public class MdekKeys {
     public final static String CONFORMITY_DEGREE_KEY = "conformity-degree-key";
     /** Value: String */
     public final static String CONFORMITY_DEGREE_VALUE = "conformity-degree-value";
+    /** Value: String */
+    public final static String CONFORMITY_PUBLICATION_DATE = "conformity-publication-date";
 
     /** Value: List< IngridDocument > */
     public final static String ACCESS_LIST = "access_list";

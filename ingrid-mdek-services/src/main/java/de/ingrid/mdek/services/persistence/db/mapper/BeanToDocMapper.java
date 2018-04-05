@@ -1955,6 +1955,7 @@ public class BeanToDocMapper implements IMapper {
 	public Set<ObjectConformity> createObjectConformitySet(int specifikationKey, int degreeKey) {
 		Set<ObjectConformity> oCs = new HashSet<ObjectConformity>();
 		ObjectConformity oC = new ObjectConformity();
+		oC.setIsInspire(MdekUtils.YES);
 		oC.setSpecificationKey(specifikationKey);
 		oC.setDegreeKey(degreeKey);
 		oCs.add(oC);
@@ -1999,10 +2000,12 @@ public class BeanToDocMapper implements IMapper {
 			return refDoc;
 		}
 
+		refDoc.put(MdekKeys.CONFORMITY_IS_INSPIRE, ref.getIsInspire());
 		refDoc.put(MdekKeys.CONFORMITY_SPECIFICATION_KEY, ref.getSpecificationKey());
 		refDoc.put(MdekKeys.CONFORMITY_SPECIFICATION_VALUE, ref.getSpecificationValue());
 		refDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, ref.getDegreeKey());
 		refDoc.put(MdekKeys.CONFORMITY_DEGREE_VALUE, ref.getDegreeValue());
+		refDoc.put(MdekKeys.CONFORMITY_PUBLICATION_DATE, ref.getPublicationDate());
 
 		return refDoc;
 	}

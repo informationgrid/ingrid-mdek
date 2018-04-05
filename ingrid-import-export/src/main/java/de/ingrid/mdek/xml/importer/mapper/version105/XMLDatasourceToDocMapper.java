@@ -177,6 +177,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADDITIONAL_COMMENT_CREATOR = "creator-identifier/text()";
 	private static final String X_ADDITIONAL_COMMENT_DATE_OF_CREATION = "date-of-creation/text()";
 	private static final String X_ADDITIONAL_CONFORMITY_LIST = "//data-source/additional-information/conformity";
+	private static final String X_ADDITIONAL_CONFORMITY_IS_INSPIRE = "conformity-is-inspire/text()";
 	private static final String X_ADDITIONAL_CONFORMITY_SPECIFICATION = "conformity-specification/text()";
 	private static final String X_ADDITIONAL_CONFORMITY_DEGREE = "conformity-degree/text()";
 	private static final String X_ADDITIONAL_CONFORMITY_DEGREE_KEY = "conformity-degree/@id";
@@ -714,10 +715,12 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			IngridDocument conformityDoc = new IngridDocument();
 			// TODO: CHANGED IN VERSION 3.2.0. !!! Fix if import of older formats needed !
 //			putString(MdekKeys.CONFORMITY_SPECIFICATION, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_SPECIFICATION), conformityDoc);
+			putString(MdekKeys.CONFORMITY_IS_INSPIRE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_IS_INSPIRE), conformityDoc);
 			putString(MdekKeys.CONFORMITY_DEGREE_VALUE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_DEGREE), conformityDoc);
 			putInt(MdekKeys.CONFORMITY_DEGREE_KEY, XPathUtils.getInt(conformity, X_ADDITIONAL_CONFORMITY_DEGREE_KEY), conformityDoc);
-			// TODO: REMOVED IN VERSION 3.2.0. !!! Fix if import of older formats needed !
+			// TODO: REMOVED IN VERSION 3.2.0. !!! Fix if import of older formats needed ! Reintroduced in 4.3.0
 //			putString(MdekKeys.CONFORMITY_PUBLICATION_DATE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_PUBLICATION_DATE), conformityDoc);
+			putString(MdekKeys.CONFORMITY_PUBLICATION_DATE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_PUBLICATION_DATE), conformityDoc);
 
 			conformityList.add(conformityDoc);
 		}
