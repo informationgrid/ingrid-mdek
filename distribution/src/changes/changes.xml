@@ -27,6 +27,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+        <release version="4.4.0" date="2018-03-28" description="Release 4.3.0">
+          <action type="update" dev="wemove" issue="REDMINE-601">
+            IGE: Add option to publish metadata at a later date. UVP: Add option to conditionally publish documents in Phase 1.
+          </action>
+        </release>
+
     <release version="4.3.0" date="2018-03-27" description="Release 4.3.0">
       <action type="add" dev="wemove" issue="REDMINE-859">
         Map new fields for conformity.
