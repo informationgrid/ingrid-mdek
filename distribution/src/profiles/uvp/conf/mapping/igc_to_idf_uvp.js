@@ -219,6 +219,9 @@ for (i=0; i<objRows.size(); i++) {
                     var datePeriod;
                     var datePeriodFrom;
                     var datePeriodTo;
+
+                    var startDate;
+                    var today = (new Date()).getTime();
                     for (var k=0; k < phaseContentRow.size(); k++) {
                         var id = phaseContentRow.get(k).get("id");
                         var data = phaseContentRow.get(k).get("data");
@@ -227,10 +230,13 @@ for (i=0; i<objRows.size(); i++) {
                             if(fieldKey == "publicDateFrom"){
                                 if (hasValue(data)){
                                     datePeriodFrom = TRANSF.getISODateFromMilliseconds(data);
+                                    startDate = data;
                                     if(!datePeriod){
                                         datePeriod = DOM.createElement("datePeriod")
                                     }
                                     datePeriod.addElement("from").addText(datePeriodFrom);
+                                } else {
+                                    startDate = today;
                                 }
                             }else if(fieldKey == "publicDateTo"){
                                 if (hasValue(data)){
@@ -251,17 +257,47 @@ for (i=0; i<objRows.size(); i++) {
                                 var table = phase.addElement("docs").addAttribute("type", fieldKey);
                                 getAdditionalFieldDataTable(id, fields, table);
                             }else if(fieldKey == "applicationDocs"){
-                                var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
-                                var table = phase.addElement("docs").addAttribute("type", fieldKey);
-                                getAdditionalFieldDataTable(id, fields, table);
+                                var publishLaterRow = SQL.first("SELECT * FROM additional_field_data WHERE field_key = 'applicationDocsPublishLater' AND parent_field_id=? ORDER BY sort", [phaseId]);
+                                var shouldPublish = !(hasValue(publishLaterRow))
+                                        || publishLaterRow.get("data") == "N"
+                                        || (publishLaterRow.get("data") == "Y" && startDate <= today);
+                                if (hasValue(publishLaterRow)) {
+                                    log.debug(publishLaterRow.get("field_key") + " has value: " + publishLaterRow.get("data"));
+                                    log.debug("Start Date: " + startDate);
+                                    log.debug("today: " + today);
+                                    log.debug("Date comparison: " + (startDate <= today));
+                                }
+                                if (shouldPublish) {
+                                    var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
+                                    var table = phase.addElement("docs").addAttribute("type", fieldKey);
+                                    getAdditionalFieldDataTable(id, fields, table);
+                                }
                             }else if(fieldKey == "reportsRecommendationsDocs"){
-                                var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
-                                var table = phase.addElement("docs").addAttribute("type", fieldKey);
-                                getAdditionalFieldDataTable(id, fields, table);
+                                var publishLaterRow = SQL.first("SELECT * FROM additional_field_data WHERE field_key = 'reportsRecommendationsDocsPublishLater' AND parent_field_id=? ORDER BY sort", [phaseId]);
+                                var shouldPublish = !(hasValue(publishLaterRow))
+                                        || publishLaterRow.get("data") == "N"
+                                        || (publishLaterRow.get("data") == "Y" && startDate <= today);
+                                if (hasValue(publishLaterRow)) {
+                                    log.debug(publishLaterRow.get("field_key") + " has value: " + publishLaterRow.get("data"));
+                                }
+                                if (shouldPublish) {
+                                    var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
+                                    var table = phase.addElement("docs").addAttribute("type", fieldKey);
+                                    getAdditionalFieldDataTable(id, fields, table);
+                                }
                             }else if(fieldKey == "moreDocs"){
-                                var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
-                                var table = phase.addElement("docs").addAttribute("type", fieldKey);
-                                getAdditionalFieldDataTable(id, fields, table); 
+                                var publishLaterRow = SQL.first("SELECT * FROM additional_field_data WHERE field_key = 'moreDocsPublishLater' AND parent_field_id=? ORDER BY sort", [phaseId]);
+                                var shouldPublish = !(hasValue(publishLaterRow))
+                                        || publishLaterRow.get("data") == "N"
+                                        || (publishLaterRow.get("data") == "Y" && startDate <= today);
+                                if (hasValue(publishLaterRow)) {
+                                    log.debug(publishLaterRow.get("field_key") + " has value: " + publishLaterRow.get("data"));
+                                }
+                                if (shouldPublish) {
+                                    var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
+                                    var table = phase.addElement("docs").addAttribute("type", fieldKey);
+                                    getAdditionalFieldDataTable(id, fields, table);
+                                }
                             }else if(fieldKey == "publicationDocs"){
                                 var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
                                 var table = phase.addElement("docs").addAttribute("type", fieldKey);
