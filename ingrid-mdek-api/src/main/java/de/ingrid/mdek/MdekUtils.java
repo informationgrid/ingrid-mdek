@@ -558,6 +558,8 @@ public class MdekUtils {
 	}
 	/** Format date to database timestamp. */
 	public static String dateToTimestamp(Date date) {
+		if (date == null) return null;
+
 		try {
 			String out = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(date);
 			return out;
