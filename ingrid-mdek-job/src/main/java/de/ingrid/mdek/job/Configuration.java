@@ -134,6 +134,11 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
         config.communicationProxyUrl = temp;
         
         Importer.main( new String[0] );
+
+        if (Importer.importSuccess == null || !Importer.importSuccess) {
+            log.error("Error during database migration. Please check out the logs.");
+            System.exit(1);
+        }
     }
 
     private void updateDatabaseDescriptor() {
