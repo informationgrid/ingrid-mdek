@@ -33,7 +33,6 @@ import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
-import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.MdekException;
@@ -434,7 +433,7 @@ public class DocToBeanMapper implements IMapper {
 		oIn.setObjName((String) oDocIn.get(MdekKeys.TITLE));
 		oIn.setWorkState((String) oDocIn.get(MdekKeys.WORK_STATE));
 		oIn.setModTime((String) oDocIn.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
-		oIn.setPublicationDate(MdekUtils.dateToTimestamp((Date) oDocIn.get(MdekKeys.PUBLICATION_DATE)));
+		oIn.setToBePublishedOn((Date) oDocIn.get(MdekKeys.TO_BE_PUBLISHED_ON));
 
 		// stuff only set if NEW object !
 		String creationDate = (String) oDocIn.get(MdekKeys.DATE_OF_CREATION);

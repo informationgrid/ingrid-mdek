@@ -580,7 +580,7 @@ public class MdekKeys {
     /** Value: Boolean */
     public final static String WILL_BE_PUBLISHED = "willBePublished";
     /** Value: Date */
-    public final static String PUBLICATION_DATE = "publicationDate";
+    public final static String TO_BE_PUBLISHED_ON = "toBePublishedOn";
     /** database column "type"<br>
      *  Value: Integer */
     public final static String RELATION_TYPE_ID = "relation-type-id";
