@@ -637,7 +637,8 @@ public class ObjectNodeDaoHibernate
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.SPATIAL_REF_EXPIRED) {
 			return getWorkObjectsSpatialRefExpired(userUuid, orderBy, orderAsc, startHit, numHits);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST ||
-					selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS) {
+					selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS ||
+					selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS_PUBLISHED) {
 			return getWorkObjectsPortalQuicklist(userUuid, startHit, numHits, selectionType);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_PUBLISHED) {
 			return getPublishedObjectsPortalQuicklist(userUuid, startHit, numHits);
@@ -1022,6 +1023,10 @@ public class ObjectNodeDaoHibernate
 				"(o.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' or " +
 					"o.workState = '" + WorkState.QS_UEBERWIESEN.getDbValue() + "' or " +
 					"o.workState = '" + WorkState.QS_RUECKUEBERWIESEN.getDbValue() + "') ";
+		} else if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS_PUBLISHED) {
+			// all users, only published
+			qCriteria = qCriteria +
+				"(o.workState = '" + WorkState.VEROEFFENTLICHT.getDbValue() + "') ";
 		}
 
 		// query string for counting -> without fetch (fetching not possible)

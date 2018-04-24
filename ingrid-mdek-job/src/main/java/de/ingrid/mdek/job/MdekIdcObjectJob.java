@@ -385,6 +385,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 						permissionHandler.getPermissionsForObject(oN.getObjUuid(), userUuid, true);
 					beanToDocMapperSecurity.mapPermissionList(perms, objDoc);				
 				}
+				if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS_PUBLISHED) {
+					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.DETAIL_ENTITY);
+				}
 
 				oNDocs.add(objDoc);
 			}
@@ -1028,7 +1031,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	
 	/**
 	 * Generate the IDF of the requested document.
-	 * @param id is the ID of the document to be transformed
+	 * @param doc is the document to get ISO XML from
 	 * @returns the document as XML
 	 */
 	public IngridDocument getIsoXml(IngridDocument doc) {
