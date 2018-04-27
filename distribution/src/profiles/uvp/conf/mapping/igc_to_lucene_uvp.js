@@ -27,6 +27,7 @@ if (javaVersion.indexOf( "1.8" ) === 0) {
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);
+importPackage(Packages.de.ingrid.iplug.dsc.index.mapper);
 
 // constant to punish the rank of a service/data object, which has no coupled resource
 var BOOST_NO_COUPLED_RESOURCE  = 0.9;
@@ -44,10 +45,50 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 // add default boost value
 IDX.addDocumentBoost(1.0);
 
+// add UVP specific mapping
+// UVP Codelist
+var behavioursValueRow = SQL.first("SELECT * FROM sys_generic_key WHERE key_name='BEHAVIOURS'");
+var codelist = '';
+var publishNegativeExaminations = false;
+if (hasValue(behavioursValueRow)){
+    var behaviours = behavioursValueRow.get("value_string");
+    if(hasValue(behaviours)){
+        var behavioursJson = JSON.parse(behaviours);
+        for(var beh in behavioursJson){
+            var behaviour = behavioursJson[beh];
+            if(hasValue(behaviour)){
+                var behaviourId = behaviour.id;
+                if(hasValue(behaviourId)){
+                    if (behaviourId.equals("uvpPhaseField")){
+                        var behaviourParams = behaviour.params;
+                        if (hasValue(behaviourParams)){
+                            for(var behParam in behaviourParams){
+                                var behaviourParam = behaviourParams[behParam];
+                                if (hasValue(behaviourParam)){
+                                    var behaviourParamId = behaviourParam.id;
+                                    if (behaviourParamId.equals("categoryCodelist")){
+                                        var behaviourParamValue = behaviourParam.value;
+                                        if (hasValue(behaviourParamValue)){
+                                            codelist = behaviourParamValue;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else if (behaviourId.equals("uvpPublishNegativeExamination")) {
+                        publishNegativeExaminations = behaviour.active;
+                    }
+                }
+            }
+        }
+    }
+}
+
 // ---------- t01_object ----------
 var objId = sourceRecord.get("id");
 var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
-for (i=0; i<objRows.size(); i++) {
+for (var i=0; i<objRows.size(); i++) {
 /*
     // Example iterating all columns !
     var objRow = objRows.get(i);
@@ -57,13 +98,16 @@ for (i=0; i<objRows.size(); i++) {
         IDX.add(colName, objRow.get(colName));
     }
 */
-    // Example adding additional HTML to result
-//    IDX.add("additional_html_1", "<h1>MEIN ZUSATZ</h1>", false);
+    var objClass = objRows.get(i).get("obj_class");
+
+    // skip negative examinations if not defined otherwise in catalog settings
+    if (!publishNegativeExaminations && objClass === "12") {
+        throw new SkipException("Catalog settings say not to publish negative examinations");
+    }
 
     addT01Object(objRows.get(i));
     var catalogId = objRows.get(i).get("cat_id");
     var objUuid = objRows.get(i).get("obj_uuid");
-    var objClass = objRows.get(i).get("obj_class");
 
     // ---------- t012_obj_adr ----------
     var rows = SQL.all("SELECT * FROM t012_obj_adr WHERE obj_id=?", [objId]);
@@ -93,48 +137,10 @@ for (i=0; i<objRows.size(); i++) {
         addT03Catalogue(rows.get(j));
     }
     
-    
-    // add UVP specific mapping
-    // UVP Codelist
-    var behavioursValueRow = SQL.first("SELECT * FROM sys_generic_key WHERE key_name='BEHAVIOURS'");
-    var codelist = '';
-    if (hasValue(behavioursValueRow)){
-        var behaviours = behavioursValueRow.get("value_string");
-        if(hasValue(behaviours)){
-            var behavioursJson = JSON.parse(behaviours);
-            for(i in behavioursJson){
-                var behaviour = behavioursJson[i];
-                if(hasValue(behaviour)){
-                    var behaviourId = behaviour.id;
-                    if(hasValue(behaviourId)){
-                        if(behaviourId.equals("uvpPhaseField")){
-                            var behaviourParams = behaviour.params;
-                            if(hasValue(behaviourParams)){
-                                for(j in behaviourParams){
-                                    var behaviourParam = behaviourParams[j];
-                                    if(hasValue(behaviourParam)){
-                                        var behaviourParamId = behaviourParam.id;
-                                        if(behaviourParamId.equals("categoryCodelist")){
-                                            var behaviourParamValue = behaviourParam.value;
-                                            if(hasValue(behaviourParamValue)){
-                                                codelist = behaviourParamValue;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
     if(!hasValue(codelist)){
         codelist = 9000;
     }
-    
+
     // UVP Categories
     var uvpgCategoriesValueRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvpgCategory']);
     if (hasValue(uvpgCategoriesValueRow) && hasValue(uvpgCategoriesValueRow.get("id"))) {
