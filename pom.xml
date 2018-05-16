@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
+    <version>4.2.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid.mdek</groupId>
@@ -16,9 +16,9 @@
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
 
   <properties>
-    <ingrid-udk-importer.version>4.2.0</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>4.1.0</ingrid-codelist-service.version>
-    <ingrid-utils.version>4.3.0-SNAPSHOT</ingrid-utils.version>
+    <ingrid-udk-importer.version>4.4.0-SNAPSHOT</ingrid-udk-importer.version>
+    <ingrid-codelist-service.version>4.3.0</ingrid-codelist-service.version>
+    <ingrid-utils.version>4.2.2</ingrid-utils.version>
     <ingrid-iplug-dsc.version>5.0.0-SNAPSHOT</ingrid-iplug-dsc.version>
     <ingrid-base-webapp.version>5.0.0-SNAPSHOT</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>

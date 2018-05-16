@@ -137,7 +137,10 @@ public class MdekUtils {
 		ADDRESS_TITLE(4305, "T02Address:titleKey:titleValue"),
 		COMM_TYPE(4430, "T021Communication:commtypeKey:commtypeValue"),
 		OBJ_CONFORMITY_DEGREE(6000, "ObjectConformity:degreeKey:degreeValue"),
+		// INSPIRE conformities
 		OBJ_CONFORMITY_SPECIFICATION(6005, "ObjectConformity:specificationKey:specificationValue"),
+		// Free conformities
+		OBJ_CONFORMITY_FREE_SPECIFICATION(6006, "ObjectConformity:specificationKey:specificationValue"),
 		OBJ_ACCESS(6010, "ObjectAccess:restrictionKey:restrictionValue"),
 		// NOT used anymore, see REDMINE-13 2)
 //		OBJ_USE(6020, "ObjectUse:termsOfUseKey:termsOfUseValue"),
@@ -245,6 +248,8 @@ public class MdekUtils {
 		PORTAL_QUICKLIST,
 		/** PORTAL QUICKLIST -> MODIFIED or REASSIGNED entities of ALL USERS with permissions for current user */
 		PORTAL_QUICKLIST_ALL_USERS,
+		/** PORTAL QUICKLIST -> PUBLISHED entities of ALL USERS with permissions for current user */
+		PORTAL_QUICKLIST_ALL_USERS_PUBLISHED,
 		/** PORTAL_QUICKLIST_PUBLISHED -> <b>PUBLISHED</b> entities where user is MOD-User, see REDMINE-115 */
 		PORTAL_QUICKLIST_PUBLISHED,
 	}
@@ -555,6 +560,8 @@ public class MdekUtils {
 	}
 	/** Format date to database timestamp. */
 	public static String dateToTimestamp(Date date) {
+		if (date == null) return null;
+
 		try {
 			String out = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(date);
 			return out;

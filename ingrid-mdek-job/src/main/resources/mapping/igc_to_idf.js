@@ -2265,6 +2265,13 @@ function addDistributionInfo(mdMetadata, objId) {
     }
 
     // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
+    /* Vorschaugrafik:
+     * t017_url_ref :
+     * - special_ref / special_name (9000 / null)
+     * - content ('preview-image')
+     * URL wird in t017_url_ref abgelegt mit special_ref = 9000
+     * ACHTUNG: Eintrag 9000 gibt es nicht in der Sysliste 2000, die hier eigentlich verwendet wird. Der Eintrag soll auch nicht bei den Verweistypen auftauchen !
+     */
     rows = SQL.all("SELECT * FROM T017_url_ref WHERE obj_id=? AND special_ref!=9000", [+objId]);
     for (i=0; i<rows.size(); i++) {
         if (hasValue(rows.get(i).get("url_link"))) {

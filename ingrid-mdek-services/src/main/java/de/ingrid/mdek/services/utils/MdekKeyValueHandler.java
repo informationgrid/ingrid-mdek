@@ -521,11 +521,18 @@ public class MdekKeyValueHandler {
 
 			bean.setDegreeValue(keyNameMap.get(entryKey));
 		}
-		
+
+		String isInspire = bean.getIsInspire();
 		entryKey = bean.getSpecificationKey();
-		if (entryKey != null && entryKey > -1) {
+		if (isInspire != null && isInspire.equals("Y") && entryKey != null && entryKey > -1) {
 			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
-				MdekSysList.OBJ_CONFORMITY_SPECIFICATION.getDbValue(),
+					MdekSysList.OBJ_CONFORMITY_SPECIFICATION.getDbValue(),
+					catalogService.getCatalogLanguage());
+
+			bean.setSpecificationValue(keyNameMap.get(entryKey));
+		} else if (isInspire != null && isInspire.equals("N") && entryKey != null && entryKey > -1) {
+			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+				MdekSysList.OBJ_CONFORMITY_FREE_SPECIFICATION.getDbValue(),
 				catalogService.getCatalogLanguage());
 
 			bean.setSpecificationValue(keyNameMap.get(entryKey));

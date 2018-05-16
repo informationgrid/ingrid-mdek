@@ -1317,10 +1317,12 @@
 	</xs:complexType>
 	<xs:complexType name="CONFORMITY_MAP">
 		<xs:sequence>
+			<xs:element name="conformity-is-inspire" type="xs:string"/>
 			<xs:element name="conformity-specification-key" type="xs:integer"/>
 			<xs:element name="conformity-specification-value" type="xs:string"/>
 			<xs:element name="conformity-degree-key" type="xs:integer"/>
 			<xs:element name="conformity-degree-value" type="xs:string"/>
+			<xs:element name="conformity-publication-date" type="xs:string"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="ACCESS_LIST">

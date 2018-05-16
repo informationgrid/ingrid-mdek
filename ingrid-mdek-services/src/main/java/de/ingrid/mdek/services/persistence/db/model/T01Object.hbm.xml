@@ -74,6 +74,7 @@
       <property name="modTime" type="string" column="mod_time"/>
       <property name="modUuid" type="string" column="mod_uuid"/>
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
+      <property name="toBePublishedOn" type="date" column="to_be_published_on"/>
 
       <set name="additionalFieldDatas" order-by="sort" table="additional_field_data"
            inverse="true"

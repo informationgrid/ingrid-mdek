@@ -577,6 +577,10 @@ public class MdekKeys {
     public final static String HAS_CHILD = "hasChild";
     /** Value: Boolean */
     public final static String IS_PUBLISHED = "isPublished";
+    /** Value: Boolean */
+    public final static String WILL_BE_PUBLISHED = "willBePublished";
+    /** Value: Date */
+    public final static String TO_BE_PUBLISHED_ON = "toBePublishedOn";
     /** database column "type"<br>
      *  Value: Integer */
     public final static String RELATION_TYPE_ID = "relation-type-id";
@@ -1243,6 +1247,8 @@ public class MdekKeys {
 
     /** Value: List< IngridDocument > */
     public final static String CONFORMITY_LIST = "conformity_list";
+    /** Value: Boolean */
+    public final static String CONFORMITY_IS_INSPIRE = "conformity-is-inspire";
     /** Value: Integer */
     public final static String CONFORMITY_SPECIFICATION_KEY = "conformity-specification-key";
     /** Value: String */
@@ -1251,6 +1257,8 @@ public class MdekKeys {
     public final static String CONFORMITY_DEGREE_KEY = "conformity-degree-key";
     /** Value: String */
     public final static String CONFORMITY_DEGREE_VALUE = "conformity-degree-value";
+    /** Value: String */
+    public final static String CONFORMITY_PUBLICATION_DATE = "conformity-publication-date";
 
     /** Value: List< IngridDocument > */
     public final static String ACCESS_LIST = "access_list";

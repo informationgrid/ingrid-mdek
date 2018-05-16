@@ -22,11 +22,7 @@
  */
 package de.ingrid.mdek.services.persistence.db.mapper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +33,6 @@ import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
-import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.MdekException;
@@ -182,7 +177,7 @@ public class DocToBeanMapper implements IMapper {
 	/**
      * Update syslist with new data and persist.
      * @param docIn map containing new syslist data
-     * @param sysList current entries of list from DB ordered by entities ascending
+     * @param sysListEntries current entries of list from DB ordered by entities ascending
      */
     public void updateSysList(IngridDocument docIn, List<SysList> sysListEntries) {
 
@@ -286,7 +281,7 @@ public class DocToBeanMapper implements IMapper {
 	/**
 	 * Update a syslist with all available languages and persist.
 	 * @param docIn map containing new syslist data
-	 * @param sysList current entries of list from DB ordered by entities ascending
+	 * @param sysListEntries current entries of list from DB ordered by entities ascending
 	 */
 	public void updateSysListAllLang(IngridDocument docIn, List<SysList> sysListEntries) {
 
@@ -438,6 +433,7 @@ public class DocToBeanMapper implements IMapper {
 		oIn.setObjName((String) oDocIn.get(MdekKeys.TITLE));
 		oIn.setWorkState((String) oDocIn.get(MdekKeys.WORK_STATE));
 		oIn.setModTime((String) oDocIn.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
+		oIn.setToBePublishedOn((Date) oDocIn.get(MdekKeys.TO_BE_PUBLISHED_ON));
 
 		// stuff only set if NEW object !
 		String creationDate = (String) oDocIn.get(MdekKeys.DATE_OF_CREATION);
@@ -641,7 +637,7 @@ public class DocToBeanMapper implements IMapper {
 	 * Transfer data of passed doc to passed bean.
 	 * @param oFrom from object
 	 * @param oToDoc the to doc containing to object data
-	 * @param oO the bean to transfer data to, pass new Bean or null if new one
+	 * @param oRef the bean to transfer data to, pass new Bean or null if new one
 	 * @param line additional line data for bean
 	 * @return the passed bean containing all mapped data
 	 */
@@ -2577,10 +2573,12 @@ public class DocToBeanMapper implements IMapper {
 			int line)
 	{
 		ref.setObjId(oFrom.getId());
+		ref.setIsInspire(refDoc.getString(MdekKeys.CONFORMITY_IS_INSPIRE));
 		ref.setSpecificationKey((Integer)refDoc.get(MdekKeys.CONFORMITY_SPECIFICATION_KEY));
 		ref.setSpecificationValue(refDoc.getString(MdekKeys.CONFORMITY_SPECIFICATION_VALUE));
 		ref.setDegreeKey((Integer)refDoc.get(MdekKeys.CONFORMITY_DEGREE_KEY));
 		ref.setDegreeValue(refDoc.getString(MdekKeys.CONFORMITY_DEGREE_VALUE));
+		ref.setPublicationDate(refDoc.getString(MdekKeys.CONFORMITY_PUBLICATION_DATE));
 		ref.setLine(line);
 		keyValueService.processKeyValue(ref);
 
@@ -2610,26 +2608,6 @@ public class DocToBeanMapper implements IMapper {
 	}	
 	private void updateObjectConformitys(IngridDocument oDocIn, T01Object oIn) {
 		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.CONFORMITY_LIST);
-		// NOTICE: objects conformities are only editable in special object types (classes) and have default
-		// values in other types. We guarantee default values, when necessary ! object-classes can be switched
-		// so conformity might be wrong, remaining from former class !
-		ObjectType oType = EnumUtil.mapDatabaseToEnumConst(ObjectType.class, oIn.getObjClass());
-		if (oType == ObjectType.GEO_INFORMATION || 
-				oType == ObjectType.GEO_DIENST ||
-				oType == ObjectType.INFOSYSTEM_DIENST) {
-			// set default if not set, else keep set values. DISPLAYED in frontend.
-			if (refDocs == null) {
-				refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);
-			}			
-		} else {
-			// check whether correct default is set ! if not, set it. NOT displayed in frontend !
-			if (refDocs == null ||
-					refDocs.size() != 1 ||
-					!MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_SPECIFICATION_KEY)) ||
-					!MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED.equals(refDocs.get(0).get(MdekKeys.CONFORMITY_DEGREE_KEY))) {
-				refDocs = createObjectConformityList(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY, MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED);				
-			}
-		}
 
 		Set<ObjectConformity> refs = oIn.getObjectConformitys();
 		ArrayList<ObjectConformity> refs_unprocessed = new ArrayList<ObjectConformity>(refs);
@@ -2639,13 +2617,17 @@ public class DocToBeanMapper implements IMapper {
 			// delete-orphan doesn't work !!!?????
 			dao.makeTransient(ref);			
 		}		
-		// and add all new ones !
-		int line = 1;
-		for (IngridDocument refDoc : refDocs) {
-			// add all as new ones
-			ObjectConformity ref = mapObjectConformity(oIn, refDoc, new ObjectConformity(), line);
-			refs.add(ref);
-			line++;
+		// and add all new ones if exist !
+		// see changes in behavior at https://redmine.informationgrid.eu/projects/ingrid/wiki/09052017_-_Arbeitstreffen_InGrid_Editor#Konformit%C3%A4t-Liste-der-Spezifikationen
+		// see https://redmine.informationgrid.eu/issues/859
+		if (refDocs != null && refDocs.size() > 0) {
+			int line = 1;
+			for (IngridDocument refDoc : refDocs) {
+				// add all as new ones
+				ObjectConformity ref = mapObjectConformity(oIn, refDoc, new ObjectConformity(), line);
+				refs.add(ref);
+				line++;
+			}
 		}
 	}
 	private void updateObjectAdvProductGroup(IngridDocument oDocIn, T01Object oIn) {

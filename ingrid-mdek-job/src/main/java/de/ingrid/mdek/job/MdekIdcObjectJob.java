@@ -302,12 +302,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 				oDocIn.put(MdekKeys.LOCATIONS, locList);
 			}
 
-			// INSPIRE: always add default values (will be displayed when new object is set to according class in frontend)
-			beanToDocMapper.mapObjectConformitys(
-					beanToDocMapper.createObjectConformitySet(MdekUtils.OBJ_CONFORMITY_SPECIFICATION_INSPIRE_KEY,
-							MdekUtils.OBJ_CONFORMITY_NOT_EVALUATED),
-					oDocIn);
-
 			// add permissions the user has on initial object !
 			List<Permission> perms = permissionHandler.getPermissionsForInitialObject(oDocIn, userUuid);
 			beanToDocMapperSecurity.mapPermissionList(perms, oDocIn);
@@ -394,6 +388,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 					List<Permission> perms = 
 						permissionHandler.getPermissionsForObject(oN.getObjUuid(), userUuid, true);
 					beanToDocMapperSecurity.mapPermissionList(perms, objDoc);				
+				}
+				if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_ALL_USERS_PUBLISHED) {
+					beanToDocMapper.mapObjectMetadata(o.getObjectMetadata(), objDoc, MappingQuantity.DETAIL_ENTITY);
 				}
 
 				oNDocs.add(objDoc);
@@ -1038,7 +1035,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	
 	/**
 	 * Generate the IDF of the requested document.
-	 * @param id is the ID of the document to be transformed
+	 * @param doc is the document to get ISO XML from
 	 * @returns the document as XML
 	 */
 	public IngridDocument getIsoXml(IngridDocument doc) {
