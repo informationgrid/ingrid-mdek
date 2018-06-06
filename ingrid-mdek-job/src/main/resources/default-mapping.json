@@ -35,7 +35,7 @@
                 "store": true
             },
             "t01_object.mod_time": {
-                "type": "string"
+                "type": "keyword"
             },
             "t01_object.obj_id": {
                 "type": "keyword",
@@ -232,8 +232,8 @@
                 "store": true
             },
              "idf": {
-                "type": "string",
-                "index": "no"
+                "type": "text",
+                "store": true
             }
         }
     }
