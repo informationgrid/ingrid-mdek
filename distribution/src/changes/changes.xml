@@ -27,10 +27,19 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-        <release version="4.4.0-SNAPSHOT" date="2018-xx-xx" description="Release 4.3.0">
+        <release version="4.4.0" date="2018-06-21" description="Release 4.4.0">
+          <action type="new" dev="wemove" issue="REDMINE-905">
+            UVP: Add new statistic request to get all published documents. 
+          </action>
           <action type="update" dev="wemove" issue="REDMINE-601">
             IGE: Add option to publish metadata at a later date. UVP: Add option to conditionally publish documents in Phase 1.
           </action>
+	      <action type="fix" dev="wemove">
+	        Fix postgres error when updating to 4.3.0 (in 4_3_0_b strategy).
+	      </action>
+	      <action type="fix" dev="wemove" issue="REDMINE-816">
+	        Fix missing searchterm references after "Kein INSPIRE-Thema" has been removed.
+	      </action>
         </release>
 
     <release version="4.3.0" date="2018-03-27" description="Release 4.3.0">
