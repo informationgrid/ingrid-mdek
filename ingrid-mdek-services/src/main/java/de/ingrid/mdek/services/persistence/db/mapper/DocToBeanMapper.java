@@ -33,7 +33,6 @@ import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
-import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.MdekUtils.SpatialReferenceType;
 import de.ingrid.mdek.job.MdekException;
@@ -178,7 +177,7 @@ public class DocToBeanMapper implements IMapper {
 	/**
      * Update syslist with new data and persist.
      * @param docIn map containing new syslist data
-     * @param sysList current entries of list from DB ordered by entities ascending
+     * @param sysListEntries current entries of list from DB ordered by entities ascending
      */
     public void updateSysList(IngridDocument docIn, List<SysList> sysListEntries) {
 
@@ -282,7 +281,7 @@ public class DocToBeanMapper implements IMapper {
 	/**
 	 * Update a syslist with all available languages and persist.
 	 * @param docIn map containing new syslist data
-	 * @param sysList current entries of list from DB ordered by entities ascending
+	 * @param sysListEntries current entries of list from DB ordered by entities ascending
 	 */
 	public void updateSysListAllLang(IngridDocument docIn, List<SysList> sysListEntries) {
 
@@ -434,6 +433,7 @@ public class DocToBeanMapper implements IMapper {
 		oIn.setObjName((String) oDocIn.get(MdekKeys.TITLE));
 		oIn.setWorkState((String) oDocIn.get(MdekKeys.WORK_STATE));
 		oIn.setModTime((String) oDocIn.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
+		oIn.setToBePublishedOn((Date) oDocIn.get(MdekKeys.TO_BE_PUBLISHED_ON));
 
 		// stuff only set if NEW object !
 		String creationDate = (String) oDocIn.get(MdekKeys.DATE_OF_CREATION);
@@ -637,7 +637,7 @@ public class DocToBeanMapper implements IMapper {
 	 * Transfer data of passed doc to passed bean.
 	 * @param oFrom from object
 	 * @param oToDoc the to doc containing to object data
-	 * @param oO the bean to transfer data to, pass new Bean or null if new one
+	 * @param oRef the bean to transfer data to, pass new Bean or null if new one
 	 * @param line additional line data for bean
 	 * @return the passed bean containing all mapped data
 	 */

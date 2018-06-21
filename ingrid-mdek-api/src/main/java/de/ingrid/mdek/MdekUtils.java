@@ -248,6 +248,8 @@ public class MdekUtils {
 		PORTAL_QUICKLIST,
 		/** PORTAL QUICKLIST -> MODIFIED or REASSIGNED entities of ALL USERS with permissions for current user */
 		PORTAL_QUICKLIST_ALL_USERS,
+		/** PORTAL QUICKLIST -> PUBLISHED entities of ALL USERS with permissions for current user */
+		PORTAL_QUICKLIST_ALL_USERS_PUBLISHED,
 		/** PORTAL_QUICKLIST_PUBLISHED -> <b>PUBLISHED</b> entities where user is MOD-User, see REDMINE-115 */
 		PORTAL_QUICKLIST_PUBLISHED,
 	}
@@ -558,6 +560,8 @@ public class MdekUtils {
 	}
 	/** Format date to database timestamp. */
 	public static String dateToTimestamp(Date date) {
+		if (date == null) return null;
+
 		try {
 			String out = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(date);
 			return out;

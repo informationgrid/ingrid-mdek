@@ -577,6 +577,10 @@ public class MdekKeys {
     public final static String HAS_CHILD = "hasChild";
     /** Value: Boolean */
     public final static String IS_PUBLISHED = "isPublished";
+    /** Value: Boolean */
+    public final static String WILL_BE_PUBLISHED = "willBePublished";
+    /** Value: Date */
+    public final static String TO_BE_PUBLISHED_ON = "toBePublishedOn";
     /** database column "type"<br>
      *  Value: Integer */
     public final static String RELATION_TYPE_ID = "relation-type-id";

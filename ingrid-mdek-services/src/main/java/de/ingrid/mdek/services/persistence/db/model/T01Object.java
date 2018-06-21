@@ -22,6 +22,7 @@
  */
 package de.ingrid.mdek.services.persistence.db.model;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -73,6 +74,7 @@ public class T01Object implements IEntity {
 	private String modTime;
 	private String modUuid;
 	private String responsibleUuid;
+	private Date toBePublishedOn;
 
 	private Set additionalFieldDatas = new HashSet();
 	private Set objectAccesss = new HashSet();
@@ -745,4 +747,11 @@ public class T01Object implements IEntity {
         this.objectAdvProductGroup = objectAdvProductGroup;
     }
 
+	public Date getToBePublishedOn() {
+		return toBePublishedOn;
+	}
+
+	public void setToBePublishedOn(Date toBePublishedOn) {
+		this.toBePublishedOn = toBePublishedOn;
+	}
 }
