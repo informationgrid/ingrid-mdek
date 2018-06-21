@@ -28,7 +28,7 @@
   </properties>
   <body>
         <release version="4.4.0" date="2018-06-21" description="Release 4.4.0">
-          <action type="new" dev="wemove" issue="REDMINE-905">
+          <action type="add" dev="wemove" issue="REDMINE-905">
             UVP: Add new statistic request to get all published documents. 
           </action>
           <action type="update" dev="wemove" issue="REDMINE-601">
