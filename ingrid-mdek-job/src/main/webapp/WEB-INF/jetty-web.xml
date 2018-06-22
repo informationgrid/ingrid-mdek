@@ -29,8 +29,10 @@
     <New class="org.mortbay.resource.ResourceCollection">
       <Arg>
         <Array type="java.lang.String">
+          <!-- mCloud -->
+          <!--<Item>../distribution/src/profiles/mcloud/webapp</Item>-->
           <!-- UVP -->
-          <!-- <Item>../distribution/src/profiles/uvp/webapp</Item> -->
+          <!--<Item>../distribution/src/profiles/uvp/webapp</Item>-->
           <!-- BKG -->
           <!-- <Item>../distribution/src/profiles/bkg/webapp</Item> -->
           <Item>src/main/webapp</Item>
