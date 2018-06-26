@@ -47,6 +47,7 @@
         <property name="toIndex" value="ige-test" />
         <property name="toType" value="object" />
         <property name="docIdField" value="uuid" />
+        <property name="toAlias" value="mcloud" />
     </bean>
     
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
