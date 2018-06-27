@@ -103,7 +103,8 @@ function getDistributions(objId) {
 
             distributions.push(JSON.stringify({
                 format: row['dateFormat'],
-                accessUrl: row['link']
+                accessURL: row['link'],
+                description: row['title']
             }));
         }
     }
@@ -135,7 +136,7 @@ function getOrganizations(objId) {
                 }
 
                 publisher.push({
-                    "organization": addrRow.get('institution'),
+                    "organization": getOrganization(addrRow),
                     "homepage": homepage
                 });
 
@@ -143,6 +144,50 @@ function getOrganizations(objId) {
         }
     }
     return JSON.stringify(publisher);
+}
+
+function getOrganization(addrRow) {
+    var organization = getIndividualNameFromAddressRow(addrRow);
+
+    if (!organization) {
+        organization = addrRow.get('institution');
+    }
+
+    return organization;
+}
+
+/**
+ * Get the individual name from a address record.
+ *
+ * @param addressRow
+ * @return The individual name.
+ */
+function getIndividualNameFromAddressRow(addressRow) {
+    var individualName = "";
+    var addressing = addressRow.get("address_value");
+    var title = addressRow.get("title_value");
+    var firstName = addressRow.get("firstname");
+    var lastName = addressRow.get("lastname");
+
+    var name = "";
+
+    if (hasValue(title) && !hasValue(addressing)) {
+        name = title + " ";
+    } else if (!hasValue(title) && hasValue(addressing)) {
+        name = addressing + " ";
+    } else if (hasValue(title) && hasValue(addressing)) {
+        name = addressing + " " + title + " ";
+    }
+
+    if (hasValue(firstName)) {
+        name = name + "" + firstName +  " ";
+    }
+
+    if (hasValue(lastName)) {
+        name = name + "" + lastName;
+    }
+
+    return name;
 }
 
 function getAdditionalField(objId, additionalFieldId) {
