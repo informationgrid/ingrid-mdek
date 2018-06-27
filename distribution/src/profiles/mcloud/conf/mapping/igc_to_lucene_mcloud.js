@@ -46,25 +46,12 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 IDX.addDocumentBoost(1.0);
 
 // ---------- t01_object ----------
-var objId = sourceRecord.get('id');
+var objId = +sourceRecord.get('id');
 var objRows = SQL.all('SELECT * FROM t01_object WHERE id=?', [objId]);
 for (var i=0; i<objRows.size(); i++) {
-/*
-    // Example iterating all columns !
-    var objRow = objRows.get(i);
-    var colNames = objRow.keySet().toArray();
-    for (var i in colNames) {
-        var colName = colNames[i];
-        IDX.add(colName, objRow.get(colName));
-    }
-*/
+
     var objRow = objRows.get(i);
     var objClass = objRow.get('obj_class');
-
-    // skip negative examinations if not defined otherwise in catalog settings
-    // if (!publishNegativeExaminations && objClass === '12') {
-    //     throw new SkipException('Catalog settings say not to publish negative examinations');
-    // }
 
     IDX.add('id', objRow.get('id'));
     IDX.add('uuid', objRow.get('obj_uuid'));
@@ -86,7 +73,7 @@ function createExtras(objId, objRow) {
     var extrasArray = [];
     extrasArray.push( '"subgroups": ' + getCategories(objId) );
     extrasArray.push( '"license_id": "' + getAdditionalFieldData(objId, 'mcloudLicense') + '"' );
-    extrasArray.push( '"license_url": "' + getAdditionalFieldData(objId, 'mcloudLicenseUrlXXX') + '"' );
+    extrasArray.push( '"license_url": "' + getAdditionalFieldData(objId, 'mcloudLicenseUrl') + '"' );
     extrasArray.push( '"terms_of_use": "' + getAdditionalFieldData(objId, 'mcloudTermsOfUse') + '"' );
     extrasArray.push( '"realtime": ' + (objRow.get('time_period') === '1' ? 'true' : 'false') );
 
@@ -174,32 +161,26 @@ function getAdditionalFieldData(objId, additionalFieldId) {
 function getAdditionalFieldTable(objId, additionalFieldId) {
     var rows = [];
     var table = getAdditionalField(objId, additionalFieldId);
-    var tableResult = SQL.all('SELECT * FROM additional_field_data WHERE parent_field_id=? ORDER BY sort', [table.get('id')]);
-    // for (var i=0; i<tableResult.size(); i++) {
-        var i = 0;
-        var sort = '1';
-        var row = {};
-        var processing = true;
-        while (processing) {
-            log.debug('processing: ' + i);
-            var column = tableResult.get(i);
-            log.debug('processing: ' + column);
-            if (column.get('sort') === sort) {
-                row[column.get('field_key')] = column.get('data');
-                i++;
-            } else {
-                sort = column.get('sort');
-                rows.push(row);
-                row = {};
-            }
-            log.debug('sort: ' + sort);
-            if (i === tableResult.size()) {
-                rows.push(row);
-                processing = false;
-            }
+    var tableResult = SQL.all('SELECT * FROM additional_field_data WHERE parent_field_id=? ORDER BY sort', [+table.get('id')]);
+
+    var i = 0;
+    var sort = '1';
+    var row = {};
+    var processing = true;
+    while (processing) {
+        var column = tableResult.get(i);
+        if (column.get('sort') === sort) {
+            row[column.get('field_key')] = column.get('data');
+            i++;
+        } else {
+            sort = column.get('sort');
+            rows.push(row);
+            row = {};
         }
-    // }
-    log.debug('result table: ' + rows);
-    log.debug('result table: ' + rows.length);
+        if (i === tableResult.size()) {
+            rows.push(row);
+            processing = false;
+        }
+    }
     return rows;
 }
