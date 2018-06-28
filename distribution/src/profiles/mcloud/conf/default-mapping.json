@@ -6,6 +6,7 @@
     "properties": {
       "title": {
         "type": "string",
+        "analyzer": "decomp",
         "fields": {
           "raw": {
             "type": "string",
@@ -14,7 +15,8 @@
         }
       },
       "description": {
-        "type": "string"
+        "type": "string",
+        "analyzer": "decomp"
       },
       "creator": {
         "properties": {
@@ -87,10 +89,12 @@
             "index": "not_analyzed"
           },
           "title": {
-            "type": "string"
+            "type": "string",
+            "analyzer": "decomp"
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "analyzer": "decomp"
           },
           "format": {
             "type": "string",
