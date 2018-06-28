@@ -85,4 +85,7 @@
     <!-- enable audit service for logging operations publish and delete -->
     <bean id="auditService" class="de.ingrid.mdek.services.log.AuditService" />
 
+    <bean id="idfProducerIndexMapper" class="de.ingrid.iplug.dsc.index.mapper.IdfProducerDocumentMapper">
+        <property name="skipMapping" value="true" />
+    </bean>
 </beans>

@@ -44,12 +44,7 @@ Contribute
  
 ### Set up eclipse project
 
-```
-mvn eclipse:eclipse
-```
-
-and import projects into eclipse.
-NOTICE: This is a multi module project resulting in multiple eclipse projects.
+Just import as Maven Projects.
 
 ### Start and Debug IGE iPlug under eclipse
 
@@ -61,6 +56,21 @@ NOTICE: This is a multi module project resulting in multiple eclipse projects.
 - make sure that src/test/resources is on top!
 - call 'mvn compile' inside 'ingrid-mdek-job'-project to extract admin gui
 - optionally: to debug generated SQL from Hibernate activate output in `ingrid-mdek-job/src/main/webapp/WEB-INF/springapp-servlet.xml`: `<prop key="hibernate.show_sql">true</prop>`
+
+### Start/Debug iPlug for another profile
+
+The profiles can be found under "distribution/src/profiles" where all changes should be made specific for the
+profile.
+
+To develop for a profile you need to make the following changes:
+* edit "ingrid-mdek-job/src/main/webapp/WEB-INF/jetty-web.xml" and uncomment the `<Item>` you need
+for your profile (this extends and overwrites the webapp folder)
+* add `distribution/src/profiles/<profile>/conf` to your classpath on top
+    * IntelliJ IDEA: 
+        * Click on ingrid-mdek-job (module) and press F4 (Open Module Settings)
+        * add a new dependency ("JARs or directory")
+        * choose "Classes" as category
+        * move dependency to top
 
 ### Start various test examples simulating a frontend server calling various interfaces of IGE iPlug
 
