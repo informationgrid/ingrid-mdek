@@ -77,8 +77,6 @@ function createExtras(objId, objRow) {
     extrasArray.push( '"terms_of_use": "' + getAdditionalFieldData(objId, 'mcloudTermsOfUse') + '"' );
     extrasArray.push( '"realtime": ' + (objRow.get('time_period') === '1' ? 'true' : 'false') );
 
-    log.debug("realtime: " + objRow.get('time_period'));
-
     return extrasArray.join(',');
 }
 
@@ -87,7 +85,6 @@ function getCategories(objId) {
     if (mcloudCategories) {
         var categories = [];
         categories.push(mcloudCategories.get('list_item_id'));
-        log.debug('resultCategory: ' + categories);
         return JSON.stringify(categories);
     }
     return [];
@@ -99,8 +96,6 @@ function getDistributions(objId) {
     if (table) {
         for (var i=0; i<table.length; i++) {
             var row = table[i];
-            log.debug('distribution:' + JSON.stringify(row));
-
             distributions.push(JSON.stringify({
                 format: row['dateFormat'],
                 accessURL: row['link'],
