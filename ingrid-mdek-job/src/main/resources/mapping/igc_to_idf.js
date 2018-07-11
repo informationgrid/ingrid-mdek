@@ -252,19 +252,37 @@ for (i=0; i<objRows.size(); i++) {
                 : mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable");
                 
             /* numberOfDimensions */
-            gridSpatialRepr.addElement("gmd:numberOfDimensions/gco:Integer").addText(numDim);
+            if (hasValue(numDim)) {
+            	gridSpatialRepr.addElement("gmd:numberOfDimensions/gco:Integer").addText(numDim);
+            } else {
+            	gridSpatialRepr.addElement("gmd:numberOfDimensions").addAttribute("gco:nilReason", "unknown");
+            }
             
             /* axisDimensionProperties */
-            var dimensionNode = gridSpatialRepr.addElement("gmd:axisDimensionProperties/gmd:MD_Dimension");
-            dimensionNode.addElement("gmd:dimensionName/gmd:MD_DimensionNameTypeCode")
-            .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
-            .addAttribute("codeListValue", nameDim);
-            dimensionNode.addElement("gmd:dimensionSize/gco:Integer").addText(sizeDim)
+            if (hasValue(nameDim) || hasValue(sizeDim)) {
+                var dimensionNode = gridSpatialRepr.addElement("gmd:axisDimensionProperties/gmd:MD_Dimension");
+                if (hasValue(nameDim)) {
+                    dimensionNode.addElement("gmd:dimensionName/gmd:MD_DimensionNameTypeCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
+                    .addAttribute("codeListValue", nameDim);                	
+                } else {
+                    dimensionNode.addElement("gmd:dimensionName").addAttribute("gco:nilReason", "unknown");
+                }
+                if (hasValue(sizeDim)) {
+                	dimensionNode.addElement("gmd:dimensionSize/gco:Integer").addText(sizeDim);
+                } else {
+                    dimensionNode.addElement("gmd:dimensionSize").addAttribute("gco:nilReason", "unknown");
+                }
+            }
 
             /* cellGeometry */
-            gridSpatialRepr.addElement("gmd:cellGeometry/gmd:MD_CellGeometryCode")
+            if (hasValue(cellGeo)) {
+                gridSpatialRepr.addElement("gmd:cellGeometry/gmd:MD_CellGeometryCode")
                 .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
                 .addAttribute("codeListValue", cellGeo);
+            } else {
+            	gridSpatialRepr.addElement("gmd:cellGeometry").addAttribute("gco:nilReason", "unknown");
+            }
             
             /* transformationParameterAvailability */
             gridSpatialRepr.addElement("gmd:transformationParameterAvailability/gco:Boolean").addText("Y".equals(transformParam));
@@ -276,12 +294,18 @@ for (i=0; i<objRows.size(); i++) {
                 var rectPointInPixel = objGeoRow.get("geo_rect_point_in_pixel");
                 
                 gridSpatialRepr.addElement("gmd:checkPointAvailability/gco:Boolean").addText("Y".equals(rectCheckpoint));
-                gridSpatialRepr.addElement("gmd:checkPointDescription/gco:CharacterString").addText(rectDescription);
-                gridSpatialRepr.addElement("gmd:cornerPoints/gml:Point").addAttribute("gml:id", "cornerPointId1").addElement("gml:coordinates").addText(rectCornerPoint);
+                if (hasValue(rectDescription)) {
+                	gridSpatialRepr.addElement("gmd:checkPointDescription/gco:CharacterString").addText(rectDescription);
+                }
+                if (hasValue(rectCornerPoint)) {
+                    gridSpatialRepr.addElement("gmd:cornerPoints/gml:Point").addAttribute("gml:id", "cornerPointId1").addElement("gml:coordinates").addText(rectCornerPoint);
+                }
                 //gridSpatialRepr.addElement("gmd:centerPoint")
-                if (rectPointInPixel) {
+                if (hasValue(rectPointInPixel)) {
                     var pixelOrientCodeList = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(2100, rectPointInPixel);
                     gridSpatialRepr.addElement("gmd:pointInPixel/gmd:MD_PixelOrientationCode").addText(pixelOrientCodeList);
+                } else {
+                	gridSpatialRepr.addElement("gmd:pointInPixel").addAttribute("gco:nilReason", "unknown");
                 }
                 //gridSpatialRepr.addElement("gmd:transformationDimensionDescription")
                 //gridSpatialRepr.addElement("gmd:transformationDimensionMapping")
@@ -294,7 +318,11 @@ for (i=0; i<objRows.size(); i++) {
                 gridSpatialRepr.addElement("gmd:controlPointAvailability/gco:Boolean").addText("Y".equals(refControlPoint));
                 gridSpatialRepr.addElement("gmd:orientationParameterAvailability/gco:Boolean").addText("Y".equals(refOrientationParameter));
                 //gridSpatialRepr.addElement("gmd:orientationParameterDescription")
-                gridSpatialRepr.addElement("gmd:georeferencedParameters/gco:Record/gco:CharacterString").addText(refParameter);
+                if (hasValue(refParameter)) {
+                	gridSpatialRepr.addElement("gmd:georeferencedParameters/gco:Record/gco:CharacterString").addText(refParameter);
+                } else {
+                	gridSpatialRepr.addElement("gmd:georeferencedParameters").addAttribute("gco:nilReason", "unknown");
+                }
                 //gridSpatialRepr.addElement("gmd:parameterCitation")
             }
         }

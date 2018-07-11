@@ -27,6 +27,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="4.5.0-SNAPSHOT" date="????-??-??" description="">
+      <action type="fix" dev="wemove" issue="REDMINE-1129">
+        Fix ISO mapping of "Raster/Gridformat".
+      </action>
+    </release>
+
     <release version="4.4.1" date="2018-06-25" description="Release InGrid 4.4.1">
       <action type="update" dev="wemove" issue="REDMINE-1121">
         Use latest codelists library to avoid missing codelists when migrating catalog.
