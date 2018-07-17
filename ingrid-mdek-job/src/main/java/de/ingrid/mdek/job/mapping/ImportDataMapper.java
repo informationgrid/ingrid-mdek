@@ -22,12 +22,11 @@
  */
 package de.ingrid.mdek.job.mapping;
 
-import java.io.InputStream;
 
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
 
 
-public interface ImportDataMapper {
-	public InputStream convert(InputStream in, ProtocolHandler protocolHandler) throws MdekException;
+public interface ImportDataMapper<S, T> {
+    void convert(S source, T target, ProtocolHandler protocolHandler) throws MdekException;
 }

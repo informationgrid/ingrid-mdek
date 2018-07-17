@@ -22,7 +22,6 @@
  */
 package de.ingrid.mdek.job.mapping;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,9 +29,7 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -70,8 +67,10 @@ import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xml.IgcProfileNamespaceContext;
 import de.ingrid.utils.xml.XMLUtils;
 import de.ingrid.utils.xpath.XPathUtils;
+import java.util.concurrent.ConcurrentHashMap;
+import org.w3c.dom.Node;
 
-public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
+public class ScriptImportDataMapper implements ImportDataMapper<Document, Document>, IConfigurable {
 	
 	final protected static Log log = LogFactory.getLog(ScriptImportDataMapper.class);
 	
@@ -104,37 +103,35 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
     
     @Override
     public void configure(PlugDescription plugDescription) {
-        internalDatabaseConnection = (DatabaseConnection) plugDescription.getConnection();
-    }
-	
-	public InputStream convert(InputStream data, ProtocolHandler protocolHandler)
-	throws MdekException {
-		Map<String, Object> parameters = new Hashtable<String, Object>();
-		InputStream targetStream = null;
-		
-		try {
-		    // open database connection
-		    dbConnection = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection);
+		internalDatabaseConnection = (DatabaseConnection) plugDescription.getConnection();
+	}
+
+    @Override
+    public void convert(Document source, Document docTarget, ProtocolHandler protocolHandler) throws MdekException {
+        Map<String, Object> parameters = new ConcurrentHashMap<>();
+        DatabaseConnectionUtils connUtils = DatabaseConnectionUtils.getInstance();
+        try(Connection conn = connUtils.openConnection(internalDatabaseConnection)) {
+            // set database connection
+            dbConnection = conn;
 			// get DOM-tree from XML-file
-			Document doc = getDomFromSourceData(data, true);
-			// close the input file after it was read
-			data.close();
+
+            // get DOM-tree from template-file. Ignore the provided document
+            Document templateXml = getDomFromSourceData(template.getInputStream(), false);
+            Node importNode = docTarget.importNode(templateXml.getDocumentElement(), true);
+            docTarget.appendChild(importNode);
+
 			if (log.isDebugEnabled()) {
-				String sourceString = XMLUtils.toString(doc);
-				log.debug("Input XML:" + sourceString);
+                log.debug("Target XML template:\n" + XMLUtils.toString(docTarget));
 			}
-			
-			// get DOM-tree from template-file
-			Document docTarget = getDomFromSourceData(template.getInputStream(), false);
             // create utils for script
             SQLUtils sqlUtils = new SQLUtils(dbConnection);
             // get initialized XPathUtils (see above)
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
             DOMUtils domUtils = new DOMUtils(docTarget, xpathUtils);
-			
+
 			preProcessMapping(docTarget);
-			
-		    parameters.put("source", doc);
+
+		    parameters.put("source", source);
 		    parameters.put("target", docTarget);
             parameters.put("protocolHandler", protocolHandler );
 		    parameters.put("codeListService", catalogService);
@@ -150,29 +147,18 @@ public class ScriptImportDataMapper implements ImportDataMapper, IConfigurable {
 		    // new objects made from template will be put into?
 		    //parameters.put("template", template);
 			doMap(parameters);
-			
+
 			mapAdditionalFields(docTarget);
 
 			String targetString = XMLUtils.toString(docTarget);
 			if (log.isDebugEnabled()) {
-				log.debug("Resulting XML:" + targetString);
+				log.debug("Resulting XML:\n" + targetString);
 			}
-			targetStream = new ByteArrayInputStream(targetString.getBytes("UTF-8"));
 		} catch (Exception e) {
 			log.error("Error while converting the input data!", e);
 			String msg = "Problems converting import file: " + e;
-//			String msg = "Problems converting file '" + protocolHandler.getCurrentFilename() + "': " + e;
-//			protocolHandler.addMessage(msg + "\n");
 			throw new MdekException(new MdekError(MdekErrorType.IMPORT_PROBLEM, msg));
-		} finally {
-            try {
-                dbConnection.close();
-            } catch (SQLException e) {
-                log.error( "Error closing database connection", e );
-            }
-        }
-		
-		return targetStream;
+		}
 	}
 	
 	private void mapAdditionalFields(Document docTarget) throws Exception {
