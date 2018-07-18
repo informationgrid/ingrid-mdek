@@ -32,7 +32,12 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
 
     <bean id="csw202ScriptImportDataMapper" class="de.ingrid.mdek.job.mapping.ScriptImportDataMapper">
-        <property name="mapperScript" value="classpath:import/mapper/csw202_to_ingrid_igc_baw-dmqs.js" />
+        <property name="mapperScript">
+            <list>
+                <value>classpath:import/mapper/csw202_to_ingrid_igc.js</value>
+                <value>classpath:import/mapper/iso_to_ingrid_igc_baw_postprocessing.js</value>
+            </list>
+        </property>
         <property name="template" value="classpath:import/templates/igc_template_csw202.xml" />
         <!-- <property name="dataProvider">
             <ref bean="importDataProviderImpl" />
