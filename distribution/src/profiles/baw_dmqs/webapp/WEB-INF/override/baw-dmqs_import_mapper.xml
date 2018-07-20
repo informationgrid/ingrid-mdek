@@ -31,6 +31,39 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
 
+    <bean id="dataMapperFactory" class="de.ingrid.mdek.job.mapping.DataMapperFactory">
+        <property name="mapperClasses">
+            <map>
+                <entry>
+                    <key><value>igc</value></key>
+                    <ref bean="dummyImportDataMapper" />
+                </entry>
+                <entry>
+                    <key><value>csw202</value></key>
+                    <ref bean="isoToIgcMappers" />
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="isoToIgcMappers" class="de.ingrid.mdek.job.mapping.bawdmqs.MapperQueue">
+        <property name="mappers">
+            <list>
+                <!-- ISO 19115/19139 Validators -->
+                <ref bean="isoSchemaValidator" />
+                <ref bean="isoConditionsValidator" />
+                <ref bean="bawProfileValidator" />
+
+                <!-- Scripts for IGC generation -->
+                <ref bean="csw202ScriptImportDataMapper" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="isoSchemaValidator" class="de.ingrid.mdek.job.validation.iso.bawdmqs.ISO_19115_2003_SchemaValidator" />
+    <bean id="isoConditionsValidator" class="de.ingrid.mdek.job.validation.iso.bawdmqs.ISO_19115_2003_ConditionsValidator" />
+    <bean id="bawProfileValidator" class="de.ingrid.mdek.job.validation.iso.bawdmqs.BawMetadataProfileValidator" />
+
     <bean id="csw202ScriptImportDataMapper" class="de.ingrid.mdek.job.mapping.ScriptImportDataMapper">
         <property name="mapperScript">
             <list>
