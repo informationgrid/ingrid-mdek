@@ -75,7 +75,7 @@ public final class BawMetadataProfileValidator extends  AbstractIsoValidator {
         validateDatasetCharset(dom4jDoc, reportHelper);
         validateHierarchyLevel(dom4jDoc, reportHelper);
         // TODO hierarchy level name
-        validateParentIdentifier(dom4jDoc, reportHelper);
+        //validateParentIdentifier(dom4jDoc, reportHelper);
         validateMdContactDetails(dom4jDoc, reportHelper);
         validateDatsetContactDetails(dom4jDoc, reportHelper);
         validateMdDatestamp(dom4jDoc, reportHelper);
@@ -170,6 +170,7 @@ public final class BawMetadataProfileValidator extends  AbstractIsoValidator {
                 .validate();
     }
 
+    /*
     private void validateParentIdentifier(Document dom4jDoc, ValidationReportHelper reportHelper) {
         String xpathPid = "/gmd:MD_Metadata/gmd:parentIdentifier/gco:CharacterString";
         String xpathHln = "/gmd:MD_Metadata/gmd:hierarchyLevelName/gco:CharacterString";
@@ -201,6 +202,7 @@ public final class BawMetadataProfileValidator extends  AbstractIsoValidator {
                     "Parent identifier conforms to the BAW standard.");
         }
     }
+    */
 
     private void validateMdContactDetails(Document dom4jdoc, ValidationReportHelper reportHelper) {
         String xpath = "/gmd:MD_Metadata/gmd:contact";
