@@ -527,7 +527,7 @@ public final class BawMetadataProfileValidator extends  AbstractIsoValidator {
 
     private void validateGeographicIdentifier(Document dom4jdoc, ValidationReportHelper reportHelper) {
         String tagName = ValidationReportHelper.getLocalisedString("validation.iso.tag.geographic_identifier", "geographicIdentifier");
-        String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:extent/*/gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:RS_Identifier/gmd:code/gco:CharacterString";
+        String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:extent/*/gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString";
         List<Node> nodes = dom4jdoc.selectNodes(xpath);
         if (nodes == null || nodes.isEmpty()) {
             reportHelper.fail(

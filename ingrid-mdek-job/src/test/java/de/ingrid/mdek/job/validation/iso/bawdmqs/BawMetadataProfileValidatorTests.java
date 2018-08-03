@@ -308,11 +308,11 @@ public class BawMetadataProfileValidatorTests {
                         + "\t\t\t\t\t\t\t\t<gco:Boolean>true</gco:Boolean>\n"
                         + "\t\t\t\t\t\t\t</gmd:extentTypeCode>\n"
                         + "\t\t\t\t\t\t\t<gmd:geographicIdentifier>\n"
-                        + "\t\t\t\t\t\t\t\t<gmd:RS_Identifier>\n"
+                        + "\t\t\t\t\t\t\t\t<gmd:MD_Identifier>\n"
                         + "\t\t\t\t\t\t\t\t\t<gmd:code>\n"
                         + "\t\t\t\t\t\t\t\t\t\t<gco:CharacterString>{%d}</gco:CharacterString>\n"
                         + "\t\t\t\t\t\t\t\t\t</gmd:code>\n"
-                        + "\t\t\t\t\t\t\t\t</gmd:RS_Identifier>\n"
+                        + "\t\t\t\t\t\t\t\t</gmd:MD_Identifier>\n"
                         + "\t\t\t\t\t\t\t</gmd:geographicIdentifier>\n"
                         + "\t\t\t\t\t\t</gmd:EX_GeographicDescription>\n"
                         + "\t\t\t\t\t</gmd:geographicElement>\n",

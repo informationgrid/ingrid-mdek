@@ -153,11 +153,11 @@
 								<gco:Boolean>true</gco:Boolean>
 							</gmd:extentTypeCode>
 							<gmd:geographicIdentifier>
-								<gmd:RS_Identifier>
+								<gmd:MD_Identifier>
 									<gmd:code>
 										<gco:CharacterString>{34}</gco:CharacterString>
 									</gmd:code>
-								</gmd:RS_Identifier>
+								</gmd:MD_Identifier>
 							</gmd:geographicIdentifier>
 						</gmd:EX_GeographicDescription>
 					</gmd:geographicElement>
