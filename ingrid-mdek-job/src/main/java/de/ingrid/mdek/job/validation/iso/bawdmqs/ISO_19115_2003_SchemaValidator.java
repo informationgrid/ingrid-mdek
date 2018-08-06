@@ -28,12 +28,11 @@ import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -46,7 +45,7 @@ public final class ISO_19115_2003_SchemaValidator extends AbstractIsoValidator {
 
     private static final Logger LOG = Logger.getLogger(ISO_19115_2003_SchemaValidator.class);
 
-    private static final String GMD_XSD_FILESYSTEM_LOCATION = "src/main/resources/org/isotc211/2005/gmd/gmd.xsd";
+    private static final String GMD_XSD_FILESYSTEM_LOCATION = "org/isotc211/2005/gmd/gmd.xsd";
 
     public ISO_19115_2003_SchemaValidator() {
     }
@@ -82,7 +81,8 @@ public final class ISO_19115_2003_SchemaValidator extends AbstractIsoValidator {
     private Validator getIsoSchemaValidator() {
         try {
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = sf.newSchema(new StreamSource(new File(GMD_XSD_FILESYSTEM_LOCATION)));
+            URL url = getClass().getClassLoader().getResource(GMD_XSD_FILESYSTEM_LOCATION);
+            Schema schema = sf.newSchema(url);
 
             return schema.newValidator();
         } catch (SAXException ex) {
