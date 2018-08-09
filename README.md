@@ -54,6 +54,7 @@ Just import as Maven Projects.
 - `ingrid-mdek-job/src/test/resources` to class path under "User Entries"
 - `ingrid-mdek-job/src/main/resources` to class path under "User Entries"
 - make sure that src/test/resources is on top!
+- if you are going to use PostgreSQL, then make sure that `hibernate.default_schema` in `ingrid-mdek-job/src/main/webapp/WEB-INF/springapp-servlet.xml` isn't empty. If you haven't defined one on your own, the default schema in PostgreSQL is generally `public`.
 - call 'mvn compile' inside 'ingrid-mdek-job'-project to extract admin gui
 - optionally: to debug generated SQL from Hibernate activate output in `ingrid-mdek-job/src/main/webapp/WEB-INF/springapp-servlet.xml`: `<prop key="hibernate.show_sql">true</prop>`
 
