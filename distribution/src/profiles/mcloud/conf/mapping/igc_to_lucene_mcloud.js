@@ -60,6 +60,10 @@ for (var i=0; i<objRows.size(); i++) {
     IDX.add('title', objRow.get('obj_name'));
     IDX.add('description', objRow.get('obj_descr'));
 
+    // issued (created) and modified dates
+    IDX.add('issued', toMilliseconds(objRow.get('create_time')));
+    IDX.add('modified', toMilliseconds(objRow.get('mod_time')));
+
     var extras = createExtras(objId, objRow);
     IDX.addAllFromJSON('{ "extras": { ' + extras + ' } }');
 
@@ -224,3 +228,10 @@ function getAdditionalFieldTable(objId, additionalFieldId) {
     }
     return rows;
 }
+
+function toMilliseconds(igcTimestamp) {
+    var millis = TRANSF.getISODateFromIGCDate(igcTimestamp);
+    var date = Date.parse(millis);
+    return date;
+}
+
