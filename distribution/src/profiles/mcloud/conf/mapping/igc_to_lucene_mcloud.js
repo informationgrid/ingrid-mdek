@@ -125,13 +125,10 @@ function getOrganizations(objId) {
             var addrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [+addrIdPublished]);
             if (hasValue(addrRow)) {
                 var homepage = "";
-                var commRows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [+addrIdPublished]);
-                for (l=0; l<commRows.size(); l++) {
-                    // TODO: only add emails! (just one needed!)
-                    if (commRows.get(l).get('commtype_key') === '3') {
-                        homepage = commRows.get(l).get('comm_value');
-                        break;
-                    }
+                var commRows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=? AND commtype_key = 4", [+addrIdPublished]); // commtype_4 is url
+                if (commRows && commRows.size() > 0) {
+                    // Use the first available value
+                    homepage = commRows.get(0).get('comm_value');
                 }
 
                 publisher.push({
