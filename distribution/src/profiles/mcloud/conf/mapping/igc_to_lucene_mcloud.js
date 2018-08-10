@@ -113,7 +113,7 @@ function getDistributions(objId) {
 function getOrganizations(objId) {
     var publisher = [];
 
-    var rows = SQL.all("SELECT * FROM t012_obj_adr WHERE obj_id=?", [+objId]);
+    var rows = SQL.all("SELECT * FROM t012_obj_adr WHERE obj_id=? AND type=10", [+objId]); // type 10 is Publisher/Herausgeber
     for (j=0; j<rows.size(); j++) {
         var addrUuid = rows.get(j).get("adr_uuid");
 
