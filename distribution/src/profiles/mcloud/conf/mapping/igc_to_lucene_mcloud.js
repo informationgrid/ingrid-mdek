@@ -63,6 +63,7 @@ for (var i=0; i<objRows.size(); i++) {
     // issued (created) and modified dates
     IDX.add('issued', toMilliseconds(objRow.get('create_time')));
     IDX.add('modified', toMilliseconds(objRow.get('mod_time')));
+    IDX.addAllFromJSON( JSON.stringify({accessRights: [ getAdditionalFieldData(objId, 'mcloudTermsOfUse')] }) );
 
     var extras = createExtras(objId, objRow);
     IDX.addAllFromJSON('{ "extras": { ' + extras + ' } }');
@@ -78,7 +79,6 @@ function createExtras(objId, objRow) {
     extrasArray.push( '"subgroups": ' + getCategories(objId) );
     extrasArray.push( '"license_id": "' + getAdditionalFieldData(objId, 'mcloudLicense') + '"' );
     extrasArray.push( '"license_url": "' + getAdditionalFieldData(objId, 'mcloudLicenseUrl') + '"' );
-    extrasArray.push( '"terms_of_use": "' + getAdditionalFieldData(objId, 'mcloudTermsOfUse') + '"' );
     extrasArray.push( '"realtime": ' + (objRow.get('time_period') === '1' ? 'true' : 'false') );
 
     return extrasArray.join(',');
