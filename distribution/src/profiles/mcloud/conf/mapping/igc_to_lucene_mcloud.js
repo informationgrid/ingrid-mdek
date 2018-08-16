@@ -85,13 +85,14 @@ function createExtras(objId, objRow) {
 }
 
 function getCategories(objId) {
-    var mcloudCategories = getAdditionalField(objId, 'mcloudCategory');
-    if (mcloudCategories) {
-        var categories = [];
-        categories.push(mcloudCategories.get('list_item_id'));
-        return JSON.stringify(categories);
+    var categories = [];
+    var rows = getAdditionalFieldChildren(objId, 'mcloudCategory');
+    if (rows) {
+        for(var i=0; i<rows.size(); i++) {
+            categories.push(rows.get(i).get('data'));
+        }
     }
-    return [];
+    return JSON.stringify(categories);
 }
 
 function getDistributions(objId) {
@@ -192,6 +193,21 @@ function getAdditionalField(objId, additionalFieldId) {
         return row;
     }
     return null;
+}
+
+function getAdditionalFieldChildren(objId, additionalFieldId) {
+    var rows = SQL.all('SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?', [+objId, additionalFieldId]);
+    if (rows) {
+        var children = [];
+        for (var i=0; i<rows.size(); i++) {
+            var row = rows.get(i);
+            var childRows = SQL.all('SELECT * FROM additional_field_data WHERE parent_field_id=?', [+row.get('id')]);
+            if (childRows) {
+                return childRows;
+            }
+        }
+    }
+    return [];
 }
 
 function getAdditionalFieldData(objId, additionalFieldId) {
