@@ -338,7 +338,7 @@ for (i=0; i<objRows.size(); i++) {
 	var fieldKey = "uvpNegativeRelevantDocs";
     var uvpNegativeApprovalDate = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvpNegativeApprovalDate']);
     if (hasValue(uvpNegativeApprovalDate)) {
-        var data = objRow.get("data");
+        var data = uvpNegativeApprovalDate.get("data");
         if(hasValue(data)){
             var datePeriodFrom = TRANSF.getISODateFromMilliseconds(data);
             var datePeriod = DOM.createElement("datePeriod").addAttribute("type", fieldKey);
@@ -349,7 +349,7 @@ for (i=0; i<objRows.size(); i++) {
     
     var uvpNegativeRelevantDocs = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldKey]);
     if (hasValue(uvpNegativeRelevantDocs)) {
-        var id = objRow.get("id");
+        var id = uvpNegativeRelevantDocs.get("id");
         if(hasValue(id)){
             var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
             var table = body.addElement("docs").addAttribute("type", fieldKey);
