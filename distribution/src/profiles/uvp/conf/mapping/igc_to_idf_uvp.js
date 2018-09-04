@@ -335,8 +335,8 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // Add 'negative Vorprüfungen'
-	var fieldKey = "uvpNegativeRelevantDocs";
-    var uvpNegativeApprovalDate = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvpNegativeApprovalDate']);
+    var fieldKey = "uvpNegativeApprovalDate";
+    var uvpNegativeApprovalDate = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldKey]);
     if (hasValue(uvpNegativeApprovalDate)) {
         var data = uvpNegativeApprovalDate.get("data");
         if(hasValue(data)){
@@ -346,7 +346,7 @@ for (i=0; i<objRows.size(); i++) {
             body.addElement(datePeriod);
         }
     }
-    
+    fieldKey = "uvpNegativeRelevantDocs";
     var uvpNegativeRelevantDocs = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldKey]);
     if (hasValue(uvpNegativeRelevantDocs)) {
         var id = uvpNegativeRelevantDocs.get("id");
