@@ -247,7 +247,7 @@ for (i=0; i<objRows.size(); i++) {
                                     datePeriodFrom = TRANSF.getISODateFromMilliseconds(data);
                                     startDate = data;
                                     if(!datePeriod){
-                                        datePeriod = DOM.createElement("datePeriod")
+                                        datePeriod = DOM.createElement("datePeriod");
                                     }
                                     datePeriod.addElement("from").addText(datePeriodFrom);
                                 } else {
@@ -257,7 +257,7 @@ for (i=0; i<objRows.size(); i++) {
                                 if (hasValue(data)){
                                     datePeriodTo = TRANSF.getISODateFromMilliseconds(data);
                                     if(!datePeriod){
-                                        datePeriod = DOM.createElement("datePeriod")
+                                        datePeriod = DOM.createElement("datePeriod");
                                     }
                                     datePeriod.addElement("to").addText(datePeriodTo);
                                 }
@@ -331,6 +331,29 @@ for (i=0; i<objRows.size(); i++) {
                 }
                 phases.addElement(phase);
             }
+        }
+    }
+
+    // Add 'negative Vorprüfungen'
+	var fieldKey = "uvpNegativeRelevantDocs";
+    var uvpNegativeApprovalDate = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvpNegativeApprovalDate']);
+    if (hasValue(uvpNegativeApprovalDate)) {
+        var data = objRow.get("data").addAttribute("type", fieldKey);
+        if(hasValue(data)){
+            var datePeriodFrom = TRANSF.getISODateFromMilliseconds(data);
+            var datePeriod = DOM.createElement("datePeriod");
+            datePeriod.addElement("from").addText(datePeriodFrom);
+            body.addElement(datePeriod);
+        }
+    }
+    
+    var uvpNegativeRelevantDocs = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldKey]);
+    if (hasValue(uvpNegativeRelevantDocs)) {
+        var id = objRow.get("id");
+        if(hasValue(id)){
+            var fields = [{"id":"label", "type":"text"}, {"id":"link", "type":"link"}, {"id":"type", "type":"text"}, {"id":"size", "type":"bytes"}, {"id":"expires", "type":"text"}];
+            var table = body.addElement("docs").addAttribute("type", fieldKey);
+            getAdditionalFieldDataTable(id, fields, table);
         }
     }
 }
@@ -653,7 +676,7 @@ function getAdditionalFieldDataTable(id, fields, table){
                         if (d < now) {
                           expired = true;
                           break;
-                        }                       
+                        }
                     } 
                 }
                 
