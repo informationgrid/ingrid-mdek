@@ -338,10 +338,10 @@ for (i=0; i<objRows.size(); i++) {
 	var fieldKey = "uvpNegativeRelevantDocs";
     var uvpNegativeApprovalDate = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvpNegativeApprovalDate']);
     if (hasValue(uvpNegativeApprovalDate)) {
-        var data = objRow.get("data").addAttribute("type", fieldKey);
+        var data = objRow.get("data");
         if(hasValue(data)){
             var datePeriodFrom = TRANSF.getISODateFromMilliseconds(data);
-            var datePeriod = DOM.createElement("datePeriod");
+            var datePeriod = DOM.createElement("datePeriod").addAttribute("type", fieldKey);
             datePeriod.addElement("from").addText(datePeriodFrom);
             body.addElement(datePeriod);
         }
