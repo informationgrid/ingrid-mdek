@@ -286,6 +286,7 @@ public class BeanToDocMapper implements IMapper {
 			howMuch == MappingQuantity.COPY_ENTITY) 
 		{
 			objectDoc.put(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, o.getOrgObjId());
+			objectDoc.put(MdekKeys.PARENT_IDENTIFIER, o.getParentIdentifier());
 			objectDoc.put(MdekKeys.DATASET_ALTERNATE_NAME, o.getDatasetAlternateName());
 			objectDoc.put(MdekKeys.ABSTRACT, o.getObjDescr());
 			objectDoc.put(MdekKeys.DATE_OF_CREATION, o.getCreateTime());

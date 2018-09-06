@@ -49,6 +49,7 @@ public class T01Object implements IEntity {
 	private String timeAlle;
 	private String timeType;
 	private Integer publishId;
+	private String parentIdentifier;
 	private String datasetAlternateName;
 	private Integer datasetCharacterSet;
 	private String datasetUsage;
@@ -753,5 +754,13 @@ public class T01Object implements IEntity {
 
 	public void setToBePublishedOn(Date toBePublishedOn) {
 		this.toBePublishedOn = toBePublishedOn;
+	}
+
+	public String getParentIdentifier() {
+		return parentIdentifier;
+	}
+
+	public void setParentIdentifier(String parentIdentifier) {
+		this.parentIdentifier = parentIdentifier;
 	}
 }
