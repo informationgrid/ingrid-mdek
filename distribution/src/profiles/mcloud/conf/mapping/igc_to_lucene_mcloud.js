@@ -89,7 +89,7 @@ function getCategories(objId) {
     var rows = getAdditionalFieldChildren(objId, 'mcloudCategory');
     if (rows) {
         for(var i=0; i<rows.size(); i++) {
-            categories.push(rows.get(i).get('data'));
+            categories.push(rows.get(i).get('list_item_id'));
         }
     }
     return JSON.stringify(categories);
