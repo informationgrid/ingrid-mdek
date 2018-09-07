@@ -49,6 +49,13 @@
         <property name="docIdField" value="uuid" />
         <property name="toAlias" value="mcloud" />
     </bean>
+
+    <bean id="indexInfoAddress" class="de.ingrid.admin.elasticsearch.IndexInfo">
+        <property name="toIndex" value="ige-test" />
+        <property name="toType" value="address" />
+        <property name="docIdField" value="t02_address.adr_id" />
+        <property name="toAlias" value="mcloud" />
+    </bean>
     
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
         <property name="mappingScripts">
