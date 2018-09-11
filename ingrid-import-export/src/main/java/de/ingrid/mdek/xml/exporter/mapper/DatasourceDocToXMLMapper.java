@@ -66,6 +66,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	private XMLElement createGeneral() {
 		XMLElement general = new XMLElement(GENERAL);
 		general.addChild(createObjectIdentifier());
+		general.addChild(createParentIdentifier());
 		general.addChild(createCatalogueIdentifier());
 		general.addChild(createModificatorIdentifier());
 		general.addChild(createResponsibleIdentifier());
@@ -89,7 +90,11 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		return general;
 	}
 
-    private XMLElement createObjectIdentifier() {
+	private XMLElement createParentIdentifier() {
+		return new XMLElement(PARENT_IDENTIFIER_EXTERN, getStringForKey(MdekKeys.PARENT_IDENTIFIER));
+	}
+
+	private XMLElement createObjectIdentifier() {
 		return new XMLElement(OBJECT_IDENTIFIER, getStringForKey(MdekKeys.UUID));
 	}
 

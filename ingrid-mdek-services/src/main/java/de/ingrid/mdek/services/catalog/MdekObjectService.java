@@ -492,7 +492,7 @@ public class MdekObjectService {
 	 * Publish the object represented by the passed doc.<br>
 	 * NOTICE: pass PARENT_UUID in doc when new object !
 	 * @param oDocIn doc representing object
-	 * @param forcePublicationCondition apply restricted PubCondition to subnodes (true)
+	 * @param forcePubCondition apply restricted PubCondition to subnodes (true)
 	 * 		or receive Error when subnodes PubCondition conflicts (false)
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
@@ -1085,6 +1085,21 @@ public class MdekObjectService {
 		// remember former tree path and set new tree path.
 		String oldRootPath = pathHandler.getTreePathNotNull(rootNode);
 		String newRootPath = pathHandler.setTreePath(rootNode, newParentUuid);
+
+		// remove external parentIdentifier if we move under an object (not root and not folder!)
+		// see: https://redmine.informationgrid.eu/issues/364
+		ObjectNode fromNode = loadByUuid(newParentUuid, null);
+		T01Object parentNode = fromNode.getT01ObjectWork() != null ? fromNode.getT01ObjectWork() : fromNode.getT01ObjectPublished();
+		boolean newParentIsNoFolder = parentNode.getObjClass() != 1000;
+		if (newParentUuid != null && newParentIsNoFolder) {
+			if (rootNode.getT01ObjectWork() != null) {
+				rootNode.getT01ObjectWork().setParentIdentifier(null);
+			}
+			if (rootNode.getT01ObjectPublished() != null) {
+				rootNode.getT01ObjectPublished().setParentIdentifier(null);
+			}
+		}
+
 		daoObjectNode.makePersistent(rootNode);
 
 		// set modification time and user only in top node, not in subnodes !
