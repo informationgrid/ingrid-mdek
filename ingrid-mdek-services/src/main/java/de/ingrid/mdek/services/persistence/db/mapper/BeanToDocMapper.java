@@ -378,7 +378,7 @@ public class BeanToDocMapper implements IMapper {
 	}
 
 	public List<IngridDocument> mapT01Objects(List<T01Object> objs, MappingQuantity howMuch) {
-		ArrayList<IngridDocument> objDocs = new ArrayList<IngridDocument>(objs.size());
+		ArrayList<IngridDocument> objDocs = new ArrayList<>(objs.size());
 		for (T01Object obj : objs) {
 			IngridDocument objDoc = new IngridDocument();
 			mapT01Object(obj, objDoc, howMuch);
@@ -494,7 +494,7 @@ public class BeanToDocMapper implements IMapper {
 	}
 
 	public List<IngridDocument> mapT02Addresses(List<T02Address> addrs, MappingQuantity howMuch) {
-		ArrayList<IngridDocument> addrDocs = new ArrayList<IngridDocument>(addrs.size());
+		ArrayList<IngridDocument> addrDocs = new ArrayList<>(addrs.size());
 		for (T02Address addr : addrs) {
 			IngridDocument addrDoc = new IngridDocument();
 			mapT02Address(addr, addrDoc, howMuch);
@@ -600,7 +600,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> docList = new ArrayList<>(refs.size());
 		for (ObjectComment ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			refDoc.put(MdekKeys.COMMENT, ref.getComment());
@@ -643,7 +643,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> docList = new ArrayList<>(refs.size());
 		for (AdditionalFieldData ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapAdditionalFieldData(ref, refDoc);
@@ -656,7 +656,7 @@ public class BeanToDocMapper implements IMapper {
 	
 	/** Return rows as List of List<Columns> */ 
 	public List<List<IngridDocument>> mapAdditionalFieldDatas(Set<AdditionalFieldData> refs) {
-		ArrayList<List<IngridDocument>> rowList = new ArrayList<List<IngridDocument>>();
+		ArrayList<List<IngridDocument>> rowList = new ArrayList<>();
 
 		int currentRow = -1;
 		// List of columns in row !
@@ -675,7 +675,7 @@ public class BeanToDocMapper implements IMapper {
 			if (currentRow == -1 || rowChange) {
 				// set up next row
 				currentRow = nextRow;
-				row = new ArrayList<IngridDocument>();
+				row = new ArrayList<>();
 			}
 			
 			// add column to row
@@ -696,7 +696,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return addressDoc;
 		}
-		ArrayList<IngridDocument> docList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> docList = new ArrayList<>(refs.size());
 		for (AddressComment ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			refDoc.put(MdekKeys.COMMENT, ref.getComment());
@@ -756,7 +756,7 @@ public class BeanToDocMapper implements IMapper {
 		if (oRefs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> objsList = new ArrayList<IngridDocument>(oRefs.size());
+		ArrayList<IngridDocument> objsList = new ArrayList<>(oRefs.size());
 		for (ObjectReference oRef : oRefs) {
 			IngridDocument oToDoc = new IngridDocument();
 			mapObjectReference(oRef, oToDoc);
@@ -806,7 +806,7 @@ public class BeanToDocMapper implements IMapper {
 		List<IngridDocument> docLists[] = new ArrayList[oNodesFrom.length];
 		for (int i=0; i < oNodesFrom.length; i++) {
 			List<ObjectNode> nodeList = oNodesFrom[i];
-			List<IngridDocument> refDocList = new ArrayList<IngridDocument>(nodeList.size());
+			List<IngridDocument> refDocList = new ArrayList<>(nodeList.size());
 			// map every node to IngridDoc
 			for (ObjectNode oN : nodeList) {
 				// map working or published version, dependent from list !
@@ -871,7 +871,7 @@ public class BeanToDocMapper implements IMapper {
 		if (oAs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> adrsList = new ArrayList<IngridDocument>(oAs.size());
+		ArrayList<IngridDocument> adrsList = new ArrayList<>(oAs.size());
 		for (T012ObjAdr oA : oAs) {
 			
 			if (howMuch == MappingQuantity.INITIAL_ENTITY) {
@@ -902,7 +902,7 @@ public class BeanToDocMapper implements IMapper {
 			return inDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T021Communication ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT021Communication(ref, refDoc);
@@ -931,7 +931,7 @@ public class BeanToDocMapper implements IMapper {
 			return inDoc;
 		}
 
-		ArrayList<IngridDocument> refDocs = new ArrayList<IngridDocument>();
+		ArrayList<IngridDocument> refDocs = new ArrayList<>();
 		for (SpatialRefValue refValue : refValues) {
 			IngridDocument refDoc = mapSpatialRefValue(refValue, new IngridDocument());
 			mapSpatialRefSns(refValue.getSpatialRefSns(), refDoc);
@@ -982,7 +982,7 @@ public class BeanToDocMapper implements IMapper {
 		if (spatRefs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(spatRefs.size());
+		ArrayList<IngridDocument> locList = new ArrayList<>(spatRefs.size());
 		for (SpatialReference spatRef : spatRefs) {
 			IngridDocument locDoc = new IngridDocument();
 			SpatialRefValue spatRefValue = spatRef.getSpatialRefValue();
@@ -1021,7 +1021,7 @@ public class BeanToDocMapper implements IMapper {
 		if (urlRefs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> urlList = new ArrayList<IngridDocument>(urlRefs.size());
+		ArrayList<IngridDocument> urlList = new ArrayList<>(urlRefs.size());
 		for (T017UrlRef url : urlRefs) {
 			IngridDocument urlDoc = new IngridDocument();
 			mapT017UrlRef(url, urlDoc);
@@ -1046,7 +1046,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T0113DatasetReference ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT0113DatasetReference(ref, refDoc);
@@ -1062,7 +1062,7 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T014InfoImpart ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT014InfoImpart(ref, refDoc);
@@ -1144,7 +1144,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> locList = new ArrayList<>(refs.size());
 		for (T011ObjGeoScale ref : refs) {
 			IngridDocument doc = new IngridDocument();
 			doc.put(MdekKeys.SCALE, ref.getScale());
@@ -1161,7 +1161,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> locList = new ArrayList<>(refs.size());
 		for (T011ObjGeoSymc ref : refs) {
 			IngridDocument doc = new IngridDocument();
 			doc.put(MdekKeys.SYMBOL_CAT, ref.getSymbolCatValue());
@@ -1179,7 +1179,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<String> locList = new ArrayList<String>(refs.size());
+		ArrayList<String> locList = new ArrayList<>(refs.size());
 		for (T011ObjGeoSupplinfo ref : refs) {
 			locList.add(ref.getFeatureType());
 		}
@@ -1192,7 +1192,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> locList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> locList = new ArrayList<>(refs.size());
 		for (T011ObjGeoVector ref : refs) {
 			IngridDocument doc = new IngridDocument();
 			doc.put(MdekKeys.GEOMETRIC_OBJECT_TYPE, ref.getGeometricObjectType());
@@ -1208,7 +1208,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<Integer> locList = new ArrayList<Integer>(refs.size());
+		ArrayList<Integer> locList = new ArrayList<>(refs.size());
 		for (T011ObjGeoSpatialRep ref : refs) {
 			locList.add(ref.getType());
 		}
@@ -1255,7 +1255,7 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 		
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T015Legist ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT015Legist(ref, refDoc);
@@ -1293,7 +1293,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T0110AvailFormat ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT0110AvailFormat(ref, refDoc);
@@ -1319,7 +1319,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T0112MediaOption ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT0112MediaOption(ref, refDoc);
@@ -1335,7 +1335,7 @@ public class BeanToDocMapper implements IMapper {
 			return inDoc;
 		}
 
-		ArrayList<IngridDocument> termDocs = new ArrayList<IngridDocument>();
+		ArrayList<IngridDocument> termDocs = new ArrayList<>();
 		for (SearchtermValue termValue : termValues) {
 			IngridDocument termDoc = mapSearchtermValue(termValue, new IngridDocument());
 			mapSearchtermSns(termValue.getSearchtermSns(), termDoc);
@@ -1376,8 +1376,8 @@ public class BeanToDocMapper implements IMapper {
 		if (termEntityRefs == null) {
 			return docIn;
 		}
-		ArrayList<IngridDocument> terms = new ArrayList<IngridDocument>();
-		ArrayList<IngridDocument> termsInspire = new ArrayList<IngridDocument>();
+		ArrayList<IngridDocument> terms = new ArrayList<>();
+		ArrayList<IngridDocument> termsInspire = new ArrayList<>();
 
 		String THESAURUS_TYPE = MdekUtils.SearchtermType.UMTHES.getDbValue();
 		String GEMET_TYPE = MdekUtils.SearchtermType.GEMET.getDbValue();
@@ -1421,13 +1421,13 @@ public class BeanToDocMapper implements IMapper {
 	private IngridDocument mapSearchtermObjs(Set<SearchtermObj> refs, IngridDocument objectDoc,
 		MappingQuantity howMuch)
 	{
-		ArrayList<IEntity> termEntityRefs = new ArrayList<IEntity>(refs);
+		ArrayList<IEntity> termEntityRefs = new ArrayList<>(refs);
 		return mapSearchterms(IdcEntityType.OBJECT, termEntityRefs, objectDoc, howMuch);
 	}
 	private IngridDocument mapSearchtermAdrs(Set<SearchtermAdr> refs, IngridDocument addressDoc,
 		MappingQuantity howMuch)
 	{
-		ArrayList<IEntity> termEntityRefs = new ArrayList<IEntity>(refs);
+		ArrayList<IEntity> termEntityRefs = new ArrayList<>(refs);
 		return mapSearchterms(IdcEntityType.ADDRESS, termEntityRefs, addressDoc, howMuch);
 	}
 
@@ -1435,7 +1435,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<Integer> refList = new ArrayList<Integer>(refs.size());
+		ArrayList<Integer> refList = new ArrayList<>(refs.size());
 		for (T0114EnvTopic ref : refs) {
 			refList.add(ref.getTopicKey());				
 		}
@@ -1448,7 +1448,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return objectDoc;
 		}
-		ArrayList<Integer> refList = new ArrayList<Integer>(refs.size());
+		ArrayList<Integer> refList = new ArrayList<>(refs.size());
 		for (T011ObjTopicCat ref : refs) {
 			refList.add(ref.getTopicCategory());				
 		}
@@ -1497,7 +1497,7 @@ public class BeanToDocMapper implements IMapper {
 			return inDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T011ObjDataPara ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT011ObjDataPara(ref, refDoc);
@@ -1524,7 +1524,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null || refs.size() == 0) {
 			return inDoc;
 		}
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (ObjectTypesCatalogue ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapObjectTypesCatalogue(ref, refDoc);
@@ -1614,7 +1614,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null || refs.size() == 0) {
 			return inDoc;
 		}
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T011ObjServVersion ref : refs) {
             IngridDocument refDoc = new IngridDocument();
             mapT011ObjServVersion(ref, refDoc);
@@ -1637,7 +1637,7 @@ public class BeanToDocMapper implements IMapper {
 			return inDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T011ObjServOperation ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT011ObjServOperation(ref, refDoc);
@@ -1671,7 +1671,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null || refs.size() == 0) {
 			return inDoc;
 		}
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T011ObjServOpPlatform ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT011ObjServOpPlatform(ref, refDoc);
@@ -1693,7 +1693,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return inDoc;
 		}
-		ArrayList<String> refList = new ArrayList<String>(refs.size());
+		ArrayList<String> refList = new ArrayList<>(refs.size());
 		for (T011ObjServOpDepends ref : refs) {
 			refList.add(ref.getDependsOn());				
 		}
@@ -1705,7 +1705,7 @@ public class BeanToDocMapper implements IMapper {
 		if (refs == null) {
 			return inDoc;
 		}
-		ArrayList<String> refList = new ArrayList<String>(refs.size());
+		ArrayList<String> refList = new ArrayList<>(refs.size());
 		for (T011ObjServOpConnpoint ref : refs) {
 			refList.add(ref.getConnectPoint());				
 		}
@@ -1718,7 +1718,7 @@ public class BeanToDocMapper implements IMapper {
 			return inDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T011ObjServOpPara ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT011ObjServOpPara(ref, refDoc);
@@ -1747,7 +1747,7 @@ public class BeanToDocMapper implements IMapper {
 			return inDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T011ObjServType ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT011ObjServType(ref, refDoc);
@@ -1773,7 +1773,7 @@ public class BeanToDocMapper implements IMapper {
 			return inDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T011ObjServScale ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT011ObjServScale(ref, refDoc);
@@ -1800,7 +1800,7 @@ public class BeanToDocMapper implements IMapper {
 			return inDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (T011ObjServUrl ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapT011ObjServUrl(ref, refDoc);
@@ -1891,9 +1891,9 @@ public class BeanToDocMapper implements IMapper {
 
 		listDoc.put(MdekKeys.LST_ID, listId);
 		
-		ArrayList<Integer> entryIds  = new ArrayList<Integer>();
-		ArrayList<String> entryNames = new ArrayList<String>();
-		ArrayList<String> entryData  = new ArrayList<String>();
+		ArrayList<Integer> entryIds  = new ArrayList<>();
+		ArrayList<String> entryNames = new ArrayList<>();
+		ArrayList<String> entryData  = new ArrayList<>();
 		for (SysList entry : list) {
 			if (!listDoc.containsKey(MdekKeys.LST_MAINTAINABLE)) {
 				listDoc.put(MdekKeys.LST_MAINTAINABLE, entry.getMaintainable());
@@ -1954,7 +1954,7 @@ public class BeanToDocMapper implements IMapper {
 
 	/** Create default conformity set with passed conformity. e.g. To be mapped to doc. */
 	public Set<ObjectConformity> createObjectConformitySet(int specifikationKey, int degreeKey) {
-		Set<ObjectConformity> oCs = new HashSet<ObjectConformity>();
+		Set<ObjectConformity> oCs = new HashSet<>();
 		ObjectConformity oC = new ObjectConformity();
 		oC.setIsInspire(MdekUtils.YES);
 		oC.setSpecificationKey(specifikationKey);
@@ -1969,7 +1969,7 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (ObjectConformity ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapObjectConformity(ref, refDoc);
@@ -1985,7 +1985,7 @@ public class BeanToDocMapper implements IMapper {
 	        return objectDoc;
 	    }
 	    
-	    ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+	    ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 	    for (ObjectAdvProductGroup ref : refs) {
 	        IngridDocument refDoc = new IngridDocument();
 	        mapObjectAdvProductGroup(ref, refDoc);
@@ -2027,7 +2027,7 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (ObjectAccess ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapObjectAccess(ref, refDoc);
@@ -2054,7 +2054,7 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (ObjectUse ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapObjectUse(ref, refDoc);
@@ -2081,7 +2081,7 @@ public class BeanToDocMapper implements IMapper {
             return objectDoc;
         }
 
-        ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+        ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
         for (ObjectUseConstraint ref : refs) {
             IngridDocument refDoc = new IngridDocument();
             mapObjectUseConstraint(ref, refDoc);
@@ -2099,6 +2099,7 @@ public class BeanToDocMapper implements IMapper {
 
         refDoc.put(MdekKeys.USE_LICENSE_KEY, ref.getLicenseKey());
         refDoc.put(MdekKeys.USE_LICENSE_VALUE, ref.getLicenseValue());
+        refDoc.put(MdekKeys.USE_LICENSE_SOURCE, ref.getSource());
 
         return refDoc;
     }
@@ -2108,7 +2109,7 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (ObjectOpenDataCategory ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapObjectOpenDataCategory(ref, refDoc);
@@ -2134,7 +2135,7 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (ObjectDataQuality ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapObjectDataQuality(ref, refDoc);
@@ -2164,7 +2165,7 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (ObjectFormatInspire ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapObjectFormatInspire(ref, refDoc);
@@ -2190,7 +2191,7 @@ public class BeanToDocMapper implements IMapper {
 			return objectDoc;
 		}
 
-		ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
 		for (SpatialSystem ref : refs) {
 			IngridDocument refDoc = new IngridDocument();
 			mapSpatialSystem(ref, refDoc);
@@ -2216,7 +2217,7 @@ public class BeanToDocMapper implements IMapper {
             return objectDoc;
         }
 
-        ArrayList<IngridDocument> refList = new ArrayList<IngridDocument>(refs.size());
+        ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
         for (ObjectDataLanguage ref : refs) {
             IngridDocument refDoc = new IngridDocument();
             mapObjectDataLanguage(ref, refDoc);

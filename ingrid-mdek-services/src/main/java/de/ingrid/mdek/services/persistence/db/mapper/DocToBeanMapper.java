@@ -2791,6 +2791,7 @@ public class DocToBeanMapper implements IMapper {
         ref.setObjId(oFrom.getId());
         ref.setLicenseKey((Integer)refDoc.get(MdekKeys.USE_LICENSE_KEY));
         ref.setLicenseValue(refDoc.getString(MdekKeys.USE_LICENSE_VALUE));
+        ref.setSource(refDoc.getString(MdekKeys.USE_LICENSE_SOURCE));
         ref.setLine(line);
         keyValueService.processKeyValue(ref);
 

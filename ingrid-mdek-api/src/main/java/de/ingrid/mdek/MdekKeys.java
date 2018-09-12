@@ -1284,6 +1284,8 @@ public class MdekKeys {
     public final static String USE_LICENSE_KEY = "use-license-key";
     /** Value: String */
     public final static String USE_LICENSE_VALUE = "use-license-value";
+    /** Value: String */
+    public final static String USE_LICENSE_SOURCE = "use-license-source";
 
     /** Value: List< IngridDocument > */
     public final static String DATA_QUALITY_LIST = "data-quality-list";
