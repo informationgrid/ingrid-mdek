@@ -50,7 +50,7 @@ var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStan
 var globalCodeListLanguageAttrURL = "http://www.loc.gov/standards/iso639-2/";
 
 // ---------- <idf:html> ----------
-var idfHtml = XPATH.getNode(idfDoc, "/idf:html")
+var idfHtml = XPATH.getNode(idfDoc, "/idf:html");
 DOM.addAttribute(idfHtml, "idf-version", "3.6.1");
 
 // ---------- <idf:body> ----------
@@ -118,12 +118,28 @@ for (i=0; i<objRows.size(); i++) {
         .addAttribute("codeList", globalCodeListAttrURL + "#MD_CharacterSetCode")
         .addAttribute("codeListValue", value);
 // ---------- <gmd:parentIdentifier> ----------
+    /**
+     * Always try to use the value from the specific field "parentIdentifier". If it has no value
+     * then use the hierarchical parent of the dataset, unless the parent is a folder. In that case
+     * do not add a parentIdentifier at all. (see: https://redmine.informationgrid.eu/issues/364)
+     */
     // NOTICE: Has to be published ! Guaranteed by select of passed sourceRecord ! 
-    rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
-    // Should be only one row !
-    objParentUuid = rows.get(0).get("fk_obj_uuid");
-    if (hasValue(objParentUuid)) {
-        mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
+    var explicitParentIdentifier = objRow.get("parent_identifier");
+    if (hasValue(explicitParentIdentifier)) {
+        mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(explicitParentIdentifier);
+    } else {
+        rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
+        // Should be only one row !
+        objParentUuid = rows.get(0).get("fk_obj_uuid");
+        if (hasValue(objParentUuid)) {
+            // check if parent is a folder
+            // this query normally shoud return no value if parent is a folder, since they are never published ("V")
+            var parentObjRow = SQL.first("SELECT obj_class FROM t01_object WHERE obj_uuid=? and work_state=?", [objParentUuid, "V"]);
+            log.debug("parentObjRow: " + parentObjRow);
+            if (hasValue(parentObjRow) && !parentObjRow.get("obj_class").equals("1000")) {
+                mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
+            }
+        }
     }
 // ---------- <gmd:hierarchyLevel> ----------
 // ---------- <gmd:hierarchyLevelName> ----------
@@ -774,7 +790,7 @@ for (i=0; i<objRows.size(); i++) {
     // ATTENTION: since LGV Hamburg wants their categories always displayed, they also want
     //            these mapped to IDF even if open data is not checked (REDMINE-395)
     mdKeywords = DOM.createElement("gmd:MD_Keywords");
-    rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=?", [+objId])
+    rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=?", [+objId]);
     for (i=0; i<rows.size(); i++) {
         mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(rows.get(i).get("category_value"));
     }
@@ -1426,7 +1442,7 @@ function getFirstVisibleAddress(addrUuid, useWorkingVersion) {
         }
         addrIdToFetch = "addr_id";      
     }
-    sqlQuery = sqlQuery + addrIdToFetch + " IS NOT NULL"
+    sqlQuery = sqlQuery + addrIdToFetch + " IS NOT NULL";
     var addrNodeRows = SQL.all(sqlQuery, [addrUuid]);
     for (k=0; k<addrNodeRows.size(); k++) {
         var parentAddrUuid = addrNodeRows.get(k).get("fk_addr_uuid");
