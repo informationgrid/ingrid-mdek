@@ -1987,7 +1987,14 @@ function addResourceConstraints(identificationInfo, objRow) {
 
             var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
             if (hasValue(licenseJSON)) {
-                mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(licenseJSON);            	
+                var licenseSource = row.get("source");
+                log.debug("licenseSource: " + licenseSource);
+                if (licenseSource) {
+                    var licenseJSONParsed = JSON.parse(licenseJSON);
+                    licenseJSONParsed.quelle = licenseSource;
+                    licenseJSON = JSON.stringify(licenseJSONParsed);
+                }
+                mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(licenseJSON);
             }
         }
     }
