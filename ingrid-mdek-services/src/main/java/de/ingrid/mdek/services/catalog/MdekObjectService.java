@@ -1088,15 +1088,17 @@ public class MdekObjectService {
 
 		// remove external parentIdentifier if we move under an object (not root and not folder!)
 		// see: https://redmine.informationgrid.eu/issues/364
-		ObjectNode fromNode = loadByUuid(newParentUuid, null);
-		T01Object parentNode = fromNode.getT01ObjectWork() != null ? fromNode.getT01ObjectWork() : fromNode.getT01ObjectPublished();
-		boolean newParentIsNoFolder = parentNode.getObjClass() != 1000;
-		if (newParentUuid != null && newParentIsNoFolder) {
-			if (rootNode.getT01ObjectWork() != null) {
-				rootNode.getT01ObjectWork().setParentIdentifier(null);
-			}
-			if (rootNode.getT01ObjectPublished() != null) {
-				rootNode.getT01ObjectPublished().setParentIdentifier(null);
+		if (newParentUuid != null) { // if it's not root
+			ObjectNode fromNode = loadByUuid(newParentUuid, null);
+			T01Object parentNode = fromNode.getT01ObjectWork() != null ? fromNode.getT01ObjectWork() : fromNode.getT01ObjectPublished();
+			boolean newParentIsNoFolder = parentNode.getObjClass() != 1000;
+			if (newParentUuid != null && newParentIsNoFolder) {
+				if (rootNode.getT01ObjectWork() != null) {
+					rootNode.getT01ObjectWork().setParentIdentifier(null);
+				}
+				if (rootNode.getT01ObjectPublished() != null) {
+					rootNode.getT01ObjectPublished().setParentIdentifier(null);
+				}
 			}
 		}
 
