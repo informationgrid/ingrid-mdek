@@ -145,7 +145,7 @@ for (i=0; i<objRows.size(); i++) {
     // select only addresses associated with syslist 505 entry 12 ("pointOfContactMd")
     // use this address to be able to keep contact address from import/csw-t data
     // otherwise the responsible user will be used 
-    var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, 12, 505]);
+    var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', +objId, 12, 505]);
     if (hasValue(addressRow)) {
         // address may be hidden ! then get first visible parent in hierarchy !
         addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
