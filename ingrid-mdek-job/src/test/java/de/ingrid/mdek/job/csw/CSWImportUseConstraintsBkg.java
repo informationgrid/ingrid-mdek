@@ -66,7 +66,7 @@ import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.xml.XMLUtils;
 
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"javax.management.*", "javax.script.*"})
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ DatabaseConnectionUtils.class, MdekObjectService.class, MdekJobHandler.class })
 public class CSWImportUseConstraintsBkg extends TestSetup {
