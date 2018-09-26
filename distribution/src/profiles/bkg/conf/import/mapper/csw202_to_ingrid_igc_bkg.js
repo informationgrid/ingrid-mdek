@@ -383,6 +383,6 @@ function removeConstraint(target, name, nodes) {
 
 function isOpenData(target) {
     var nodes = XPATH.getNodeList(target, '//is-open-data[text()="Y"]');
-    return hasValue(nodes);
+    return (hasValue(nodes) && (nodes.getLength() > 0));
 }
 
