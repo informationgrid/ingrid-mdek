@@ -137,6 +137,7 @@ public class TestSetup {
     private IngridXMLMapper importMapper;
     
     public TestSetup() {
+//        importMapper = IngridXMLMapperFactory.getIngridXMLMapper( "4.0.3" );
         importMapper = IngridXMLMapperFactory.getIngridXMLMapper( "4.5.0" );
     }
     
