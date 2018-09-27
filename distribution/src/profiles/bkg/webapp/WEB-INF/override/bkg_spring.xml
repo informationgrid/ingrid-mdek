@@ -72,7 +72,7 @@
         <property name="mapperScript">
             <list>
                 <value>classpath:import/mapper/csw202_to_ingrid_igc.js</value>
-                <!-- <value>classpath:import/mapper/csw202_to_ingrid_igc_bkg.js</value> -->
+                <value>classpath:import/mapper/csw202_to_ingrid_igc_bkg.js</value>
             </list>
         </property>
         <property name="template" value="classpath:import/templates/igc_template_csw202.xml" />
