@@ -57,6 +57,7 @@ import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.IngridHit;
 import de.ingrid.utils.IngridHitDetail;
 import de.ingrid.utils.IngridHits;
+import de.ingrid.mdek.job.validation.iso.bawdmqs.IsoValidationException;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.metadata.IMetadataInjector;
 import de.ingrid.utils.processor.IPostProcessor;
@@ -188,7 +189,6 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         IngridDocument resultInsert = null;
         IngridDocument resultUpdate = null;
         IngridDocument resultDelete = null;
-        List<Exception> errors = new ArrayList<Exception>();
         int insertedObjects = 0;
         int updatedObjects = 0;
         int deletedObjects = 0;
@@ -214,19 +214,26 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
             for (int i = 0; i < insertDocs.getLength(); i++) {
                 Node item = insertDocs.item( i );
-                // TODO insert validation
                 String parentUuid = utils.getString( item, ".//gmd:parentIdentifier/gco:CharacterString" );
                 IngridDocument document = prepareImportAnalyzeDocument( builder, item );
                 // document.putBoolean( MdekKeys.REQUESTINFO_IMPORT_START_NEW_ANALYSIS, i==0 ? true : false );
-                catalogJob.analyzeImportData( document );
+
+                IngridDocument analyseResult = catalogJob.analyzeImportData(document);
+                /*
+                 * If errors were reported during the mapping, then stop the
+                 * import and show the validation messages as the exception text
+                 */
+                if (analyseResult.containsKey("mapping_errors")) {
+                    String err = analyseResult.getString("mapping_errors");
+                    err = String.format("%s%n%s", "Validation failed.", err);
+                    throw new IsoValidationException(err);
+                }
                 IngridDocument importDoc = prepareImportDocument();
                 importDoc.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
                 resultInsert = catalogJob.importEntities( importDoc );
                 Exception ex = (Exception) resultInsert.get( MdekKeys.JOBINFO_EXCEPTION );
                 if (ex == null) {
                     insertedObjects++;
-                } else {
-                    errors.add( ex );
                 }
                 if (resultInsert.get(MdekKeys.CHANGED_ENTITIES) != null) {
                     insertedEntities.addAll( (List<HashMap>) resultInsert.get(MdekKeys.CHANGED_ENTITIES));                    
@@ -249,7 +256,17 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, true );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
-                    catalogJob.analyzeImportData( document );
+
+                    IngridDocument analyseResult = catalogJob.analyzeImportData( document );
+                    /*
+                     * If errors were reported during the mapping, then stop the
+                     * import and show the validation messages as the exception text
+                     */
+                    if (analyseResult.containsKey("mapping_errors")) {
+                        String err = analyseResult.getString("mapping_errors");
+                        err = String.format("%s%n%s", "Validation failed.", err);
+                        throw new IsoValidationException(err);
+                    }
                     resultUpdate = catalogJob.importEntities( document );
                     updatedObjects++;
                     if (resultUpdate.get(MdekKeys.CHANGED_ENTITIES) != null) {
@@ -329,8 +346,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
         } catch (Exception e) {
             catalogJob.rollbackTransaction();
-            e.printStackTrace();
             doc.put( "error", prepareException( e ) );
+            log.error("Error in CSW transaction", e);
             doc.putBoolean( "success", false );
         }
 
@@ -346,8 +363,10 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             errorMsg = cause.toString();
         }
 
-        for (StackTraceElement stackTraceElement : cause.getStackTrace()) {
-            errorMsg += "\n" + stackTraceElement;
+        if (!(exception instanceof IsoValidationException)) {
+            for (StackTraceElement stackTraceElement : cause.getStackTrace()) {
+                errorMsg += "\n" + stackTraceElement;
+            }
         }
         return errorMsg;
     }
