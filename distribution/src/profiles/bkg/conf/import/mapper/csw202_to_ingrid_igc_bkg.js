@@ -85,11 +85,14 @@ function mapAccessConstraintsBkg(source, target) {
         var accessConstraintNodes = null;
         var legalNode = null;
         
-        // get first legal constraint that contains access constraints
+        // get LAST legal constraint that contains access constraints, this is the BKG ONE !
         for (var i=0; i < legalConstraints.getLength(); i++) {
-            legalNode = legalConstraints.item(i);
-            accessConstraintNodes = XPATH.getNodeList(legalNode, "gmd:accessConstraints/gmd:MD_RestrictionCode");
-            if (accessConstraintNodes.getLength() > 0) break;
+            var myLegalNode = legalConstraints.item(i);
+            var myAccessConstraintNodes = XPATH.getNodeList(myLegalNode, "gmd:accessConstraints/gmd:MD_RestrictionCode");
+            if (myAccessConstraintNodes.getLength() > 0) {
+            	legalNode = myLegalNode;
+            	accessConstraintNodes = myAccessConstraintNodes;
+            }
         }
         
         if (hasValue(accessConstraintNodes)) {
@@ -189,11 +192,14 @@ function mapUseConstraintsBkg(source, target) {
         var useConstraintNodes = null;
         var legalNode = null;
         
-        // get first legal constraint that contains use constraints
+        // get LAST legal constraint that contains use constraints, this is the BKG ONE !
         for (var i=0; i < legalConstraints.getLength(); i++) {
-            legalNode = legalConstraints.item(i);
-            useConstraintNodes = XPATH.getNodeList(legalNode, "gmd:useConstraints/gmd:MD_RestrictionCode");
-            if (useConstraintNodes.getLength() > 0) break;
+            var myLegalNode = legalConstraints.item(i);
+            var myUseConstraintNodes = XPATH.getNodeList(myLegalNode, "gmd:useConstraints/gmd:MD_RestrictionCode");
+            if (myUseConstraintNodes.getLength() > 0) {
+            	legalNode = myLegalNode;
+            	useConstraintNodes = myUseConstraintNodes;
+            }
         }
         
         if (hasValue(useConstraintNodes)) {
@@ -237,7 +243,7 @@ function mapUseConstraintsBkg(source, target) {
                 // copyright and otherRestrictions
                 var accessNode1 = XPATH.getString(useConstraintNodes.item(0), ".");
                 var accessNode2 = XPATH.getString(useConstraintNodes.item(1), ".");
-                
+
                 var arrayNodes = [accessNode1, accessNode2];
                 if ( (arrayNodes.indexOf("copyright") !== -1 || arrayNodes.indexOf("license") !== -1 || arrayNodes.indexOf("intellectualPropertyRights") !== -1 || arrayNodes.indexOf("restricted") !== -1) && arrayNodes.indexOf("otherRestrictions") !== -1) {
                 
@@ -263,7 +269,7 @@ function mapUseConstraintsBkg(source, target) {
                         freeTextValue = XPATH.getString(otherConstraintNodes.item(2), ".");
                         entryId = codeListService.getSysListEntryKey(codelistIdBkg, selectValue, "de", true);
                     }
-                    
+
                     addUseValuesToDoc(target, entryId, freeTextValue);
                     removeUseConstraint(target, codeListService.getSysListEntryName(codelistIdBkg, entryId));
                     removeUseConstraint(target, freeTextValue);
@@ -353,6 +359,7 @@ function addAdditionalValue(additionalFieldsNode, parent, key, codelistEntryId, 
 }
 
 function removeAccessConstraint(target, name) {
+//	log.debug("MM: Try to remove accessConstraint: '" + name + "'");
     if (hasValue(name)) {
         var nodes = XPATH.getNodeList(target, "//access-constraint/restriction");
         if (hasValue(nodes)) {
@@ -362,6 +369,7 @@ function removeAccessConstraint(target, name) {
 }
 
 function removeUseConstraint(target, name) {
+//	log.debug("MM: Try to remove useConstraint: '" + name + "'");
     if (hasValue(name)) {
         var nodes = XPATH.getNodeList(target, "//use-constraint/license");
         if (hasValue(nodes)) {
@@ -375,6 +383,7 @@ function removeConstraint(target, name, nodes) {
         var constraintName = XPATH.getString(nodes.item(i), ".");
         if (hasValue(constraintName)) {
             if (constraintName.trim() === name.trim()) {
+//            	log.debug("MM: REMOVING constraint: '" + name + "'");
                 XPATH.removeElementAtXPath(nodes.item(i), "..");
             }
         }
