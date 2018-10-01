@@ -20,6 +20,9 @@
         <!-- <geotk.version>3.20-geoapi-3.0</geotk.version> -->
         <geotk.version>4.0-M0</geotk.version>
         <powermock.version>1.7.0RC4</powermock.version>
+<!--
+        <powermock.version>2.0.0-beta.5</powermock.version>
+-->
     </properties>
 
     <repositories>
@@ -60,6 +63,9 @@
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
+<!--
+            <artifactId>powermock-api-mockito2</artifactId>
+-->
             <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>

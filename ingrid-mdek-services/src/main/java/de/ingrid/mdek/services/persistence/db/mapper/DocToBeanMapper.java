@@ -449,6 +449,7 @@ public class DocToBeanMapper implements IMapper {
 				howMuch == MappingQuantity.COPY_ENTITY)
 		{
 			oIn.setOrgObjId((String) oDocIn.get(MdekKeys.ORIGINAL_CONTROL_IDENTIFIER));
+			oIn.setParentIdentifier((String) oDocIn.get(MdekKeys.PARENT_IDENTIFIER));
 			oIn.setDatasetAlternateName((String) oDocIn.get(MdekKeys.DATASET_ALTERNATE_NAME));
 			oIn.setObjDescr((String) oDocIn.get(MdekKeys.ABSTRACT));
 
@@ -2790,6 +2791,7 @@ public class DocToBeanMapper implements IMapper {
         ref.setObjId(oFrom.getId());
         ref.setLicenseKey((Integer)refDoc.get(MdekKeys.USE_LICENSE_KEY));
         ref.setLicenseValue(refDoc.getString(MdekKeys.USE_LICENSE_VALUE));
+        ref.setSource(refDoc.getString(MdekKeys.USE_LICENSE_SOURCE));
         ref.setLine(line);
         keyValueService.processKeyValue(ref);
 

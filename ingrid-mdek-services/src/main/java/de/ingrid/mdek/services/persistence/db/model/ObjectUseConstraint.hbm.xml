@@ -11,6 +11,7 @@
       <property name="line" type="integer" column="line"/>
       <property name="licenseKey" type="integer" column="license_key"/>
       <property name="licenseValue" type="string" column="license_value"/>
+      <property name="source" type="string" column="source"/>
 
    </class>
 
