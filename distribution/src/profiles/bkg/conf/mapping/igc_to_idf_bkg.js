@@ -57,7 +57,7 @@ for (i=0; i<objRows.size(); i++) {
     
     handleBKGAccessConstraints();
     handleBKGUseConstraints();
-    
+    handleBKGUseLimitation();
 }
 
 function handleBKGAccessConstraints() {
@@ -336,4 +336,34 @@ function isOpenData() {
 function isInspireRelevant() {
     var value = objRow.get("is_inspire_relevant");
     return hasValue(value) && value.equals('Y');
+}
+
+function handleBKGUseLimitation() {
+    // remove "Nutzungseinschränkungen" from useLimitation
+    var useLimitationCharNodes = XPATH.getNodeList(body.getElement(), "//gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString");
+    
+    if (hasValue(useLimitationCharNodes)) {
+        for (var i=0; i < useLimitationCharNodes.getLength(); i++) {
+            var myCharNode = useLimitationCharNodes.item(i);
+            var myText = XPATH.getString(myCharNode, ".");
+            var myNewText = removeConstraintPraefixBkg(myText);
+            myCharNode.setTextContent(myNewText);
+        }
+    }
+}
+
+function removeConstraintPraefixBkg(val) {
+ 	if (hasValue(val)) {
+//    	log.warn("MM IN constraint : " + val);
+
+    	val = val.trim();
+
+    	// remove GDI-DE prefix
+    	val = val.replace("Nutzungseinschränkungen: ", "");
+    	// keep "Nutzungsbedingungen", this one marks fake useLimitations ! 
+//    	val = val.replace("Nutzungsbedingungen: ", "");
+
+//    	log.warn("MM OUT constraint : " + val);
+	}
+	return val;
 }

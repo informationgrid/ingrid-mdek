@@ -345,7 +345,7 @@ function getSysListEntryKey(codelistId, entryName) {
 	if (hasValue(entryName)) {
 		entryName = entryName.trim();
 	    // remove praefix, defined in regular csw import mapper
-		entryName = removeConstraintPraefix(entryName);
+		entryName = removeConstraintPraefixBkg(entryName);
 	}
 
 	log.debug("BKG: getSysListEntryKey -> codelistId='" + codelistId + "', entryName='" + entryName +"'");
@@ -396,7 +396,7 @@ function addUseValuesToDoc(target, codelistEntryId, freeText) {
     addAdditionalValue(additionalFieldsNode, "bkg_useConstraints", "bkg_useConstraints_select", codelistEntryId, null);
 
     // remove praefix, defined in regular csw import mapper
-    freeText = removeConstraintPraefix(freeText);
+    freeText = removeConstraintPraefixBkg(freeText);
     addAdditionalValue(additionalFieldsNode, "bkg_useConstraints", "bkg_useConstraints_freeText", null, freeText);
     
     return true;
@@ -442,7 +442,7 @@ function removeUseConstraint(target, name) {
         if (hasValue(nodes)) {
             removeConstraint(target, name, nodes);
             // also check version without prafix, defined in regular csw import mapper
-            var nameWithoutPraefix = removeConstraintPraefix(name);
+            var nameWithoutPraefix = removeConstraintPraefixBkg(name);
             if (nameWithoutPraefix != name) {
                 removeConstraint(target, nameWithoutPraefix, nodes);            	
             }
@@ -474,4 +474,20 @@ function checkJSON(val) {
 		return true;
 	}
 	return false;
+}
+
+function removeConstraintPraefixBkg(val) {
+	if (hasValue(val)) {
+//    	log.warn("MM IN constraint : " + val);
+
+    	val = val.trim();
+
+    	// remove GDI-DE prefix
+    	// we don't handle useLimitations here
+//    	val = val.replace("Nutzungseinschränkungen: ", "");
+    	val = val.replace("Nutzungsbedingungen: ", "");
+
+//    	log.warn("MM OUT constraint : " + val);
+	}
+	return val;
 }
