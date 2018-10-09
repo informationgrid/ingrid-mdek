@@ -17,10 +17,10 @@
 
   <properties>
     <ingrid-udk-importer.version>4.5.0-SNAPSHOT</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>4.5.0-SNAPSHOT</ingrid-codelist-service.version>
+    <ingrid-codelist-service.version>4.5.0</ingrid-codelist-service.version>
     <ingrid-utils.version>4.2.2</ingrid-utils.version>
     <ingrid-iplug-dsc.version>4.4.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>4.5.0-SNAPSHOT</ingrid-base-webapp.version>
+    <ingrid-base-webapp.version>4.5.0</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
 

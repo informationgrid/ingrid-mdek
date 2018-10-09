@@ -132,13 +132,7 @@ for (i=0; i<objRows.size(); i++) {
         // Should be only one row !
         objParentUuid = rows.get(0).get("fk_obj_uuid");
         if (hasValue(objParentUuid)) {
-            // check if parent is a folder
-            // this query normally shoud return no value if parent is a folder, since they are never published ("V")
-            var parentObjRow = SQL.first("SELECT obj_class FROM t01_object WHERE obj_uuid=? and work_state=?", [objParentUuid, "V"]);
-            log.debug("parentObjRow: " + parentObjRow);
-            if (hasValue(parentObjRow) && !parentObjRow.get("obj_class").equals("1000")) {
-                mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
-            }
+            mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
         }
     }
 // ---------- <gmd:hierarchyLevel> ----------

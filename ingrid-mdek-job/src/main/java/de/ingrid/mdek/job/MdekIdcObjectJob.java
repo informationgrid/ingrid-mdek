@@ -1144,21 +1144,6 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// also care for tree path !
 			pathHandler.setTreePath(targetNode, newParentNode);
-
-			// remove parent identifier if not copied under folder or root node
-            if (newParentNode != null) {
-                T01Object parentNode = newParentNode.getT01ObjectWork() != null ? newParentNode.getT01ObjectWork() : newParentNode.getT01ObjectPublished();
-                boolean newParentIsNoFolder = parentNode.getObjClass() != 1000;
-                if (newParentIsNoFolder) {
-                    if (targetNode.getT01ObjectWork() != null) {
-                        targetNode.getT01ObjectWork().setParentIdentifier(null);
-                    }
-                    if (targetNode.getT01ObjectPublished() != null) {
-                        targetNode.getT01ObjectPublished().setParentIdentifier(null);
-                    }
-                }
-            }
-
 			daoObjectNode.makePersistent(targetNode);
 
 			// add child bean to parent bean, so we can determine child info when mapping (without reloading)
