@@ -240,6 +240,7 @@ public class XMLKeys {
 	public static final String RESPONSIBLE_IDENTIFIER = "responsible-identifier";
 	public static final String MODIFICATOR_IDENTIFIER = "modificator-identifier";
 	public static final String CATALOGUE_IDENTIFIER = "catalogue-identifier";
+	public static final String PARENT_IDENTIFIER_EXTERN = "parent-identifier-extern";
 	public static final String OBJECT_IDENTIFIER = "object-identifier";
 	public static final String PARENT_DATA_SOURCE = "parent-data-source";
 	public static final String AVAILABLE_LINKAGE = "available-linkage";

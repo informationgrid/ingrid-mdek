@@ -1,3 +1,4 @@
+#!/bin/sh
 ###
 # **************************************************-
 # ingrid-mdek-job
@@ -20,7 +21,6 @@
 # limitations under the Licence.
 # **************************************************#
 ###
-#!/bin/sh
 #
 ##
 # Environment Variables
