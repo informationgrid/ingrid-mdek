@@ -27,12 +27,27 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="4.5.0-SNAPSHOT" date="????-??-??" description="">
+    <release version="4.5.0" date="2018-10-11" description="Release InGrid 4.5.0">
+      <action type="add" dev="wemove" issue="REDMINE-826">
+        BKG: Remove praefix from useLimitation when exporting to ISO.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-1085">
+        BKG: Import useConstraints to BKG specific field.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-364">
+        Free parentIdentifier in database.
+      </action>
+      <action type="add" dev="wemove" issue="REDMINE-1066">
+        Add source for a license in database. Make "accessConstraints" field optional.
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-1129">
         Fix ISO mapping of "Raster/Gridformat".
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-1156">
         UVP: Fix mapping for procedure 'negative Vorprüfungen'.
+      </action>      
+      <action type="fix" dev="wemove" issue="REDMINE-1192">
+        Fix postgres detection on english system.
       </action>
     </release>
 
