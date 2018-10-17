@@ -566,6 +566,10 @@ public class MdekKeys {
     /** the uuid of the parent (object or address)<br>
      *	Value: String */
     public final static String PARENT_UUID = "parent-uuid";
+    /** the parent identifier for root objects and those inside folders
+     *  these can have a different parent than the hierarchy tells<br>
+     *	Value: String */
+    public final static String PARENT_IDENTIFIER = "parent-identifier";
     /** Value: String */
     public final static String FROM_UUID = "from-uuid";
     /** Value: String */
@@ -1280,6 +1284,8 @@ public class MdekKeys {
     public final static String USE_LICENSE_KEY = "use-license-key";
     /** Value: String */
     public final static String USE_LICENSE_VALUE = "use-license-value";
+    /** Value: String */
+    public final static String USE_LICENSE_SOURCE = "use-license-source";
 
     /** Value: List< IngridDocument > */
     public final static String DATA_QUALITY_LIST = "data-quality-list";

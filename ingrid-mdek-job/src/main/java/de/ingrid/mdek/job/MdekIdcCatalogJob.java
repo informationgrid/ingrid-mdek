@@ -96,6 +96,10 @@ import de.ingrid.mdek.xml.exporter.XMLExporter;
 import de.ingrid.mdek.xml.importer.IImporter;
 import de.ingrid.mdek.xml.importer.XMLImporter;
 import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.xml.XMLUtils;
+import java.nio.charset.StandardCharsets;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
 
 /**
  * Encapsulates all Catalog functionality concerning access, syslists etc. 
@@ -738,8 +742,38 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
     	    try {
                 if (!"igc".equals( frontendProtocol )) {
                     InputStream in = new GZIPInputStream(new ByteArrayInputStream(importData));
-                    InputStream mappedData = dataMapperFactory.getMapper(frontendProtocol).convert(in, protocolHandler);
-//                    System.out.println( "out: "+ IOUtils.toString( mappedData ) );
+
+                    // Create source ISO XML Document from input stream
+                    DocumentBuilderFactory nsAwareDbf = DocumentBuilderFactory.newInstance();
+                    nsAwareDbf.setNamespaceAware(true);
+                    Document source = nsAwareDbf.newDocumentBuilder()
+                        .parse(in);
+                    if (log.isDebugEnabled()) {
+                        log.debug(String.format("Source XML%n%s", XMLUtils.toString(source)));
+                    }
+
+                    // Create target empty document.
+                    Document target = DocumentBuilderFactory.newInstance()
+                        .newDocumentBuilder()
+                        .newDocument();
+
+                    dataMapperFactory.getMapper(frontendProtocol).convert(source, target, protocolHandler);
+
+                    /*
+                     * Collect all errors from the protocol handler and put them
+                     * in the result. If the mapping has been started by a CSW
+                     * insert or update operation, then we will later retrieve
+                     * them and return them as the exception text, if necessary.
+                     */
+                    List<String> errors = protocolHandler.getProtocol(ProtocolHandler.Type.ERROR);
+                    if (!errors.isEmpty()) {
+                        result.put("mapping_errors", String.join("\n - ", errors));
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug(String.format("Converted XML%n%s", XMLUtils.toString(target)));
+                    }
+                    String xml = XMLUtils.toString(target);
+                    InputStream mappedData = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
                     mappedDataCompressed = compress(mappedData).toByteArray();
                 }
     	    } catch( Exception ex ) {
