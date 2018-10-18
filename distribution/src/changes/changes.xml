@@ -27,9 +27,9 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="4.5.1-SNAPSHOT" date="????-??-??" description="Release ????">
+    <release version="4.5.1" date="2018-10-18" description="Release 4.5.1">
       <action type="fix" dev="wemove" issue="1199">
-        BKG: Fix import of useConstraints. 
+        BKG: Fix import of useConstraints.
       </action>
     </release>
 
