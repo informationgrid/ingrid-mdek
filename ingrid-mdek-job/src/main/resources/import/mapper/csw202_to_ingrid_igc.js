@@ -1924,6 +1924,7 @@ function transformNumberStrToIGCNumber(val) {
 	return UtilsString.transformNumberStrToIGCNumber(val);		
 }
 
+// NOTICE: Also used in other mapping scripts in profiles (BKG ...) !
 function removeConstraintPraefix(val) {
 	if (hasValue(val)) {
 //    	log.warn("MM IN constraint : " + val);
