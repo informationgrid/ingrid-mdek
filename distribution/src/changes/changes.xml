@@ -27,6 +27,12 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="4.5.1-SNAPSHOT" date="????-??-??" description="Release ????">
+      <action type="fix" dev="wemove" issue="1199">
+        BKG: Fix import of useConstraints. 
+      </action>
+    </release>
+
     <release version="4.5.0" date="2018-10-11" description="Release InGrid 4.5.0">
       <action type="add" dev="wemove" issue="REDMINE-826">
         BKG: Remove praefix from useLimitation when exporting to ISO.
