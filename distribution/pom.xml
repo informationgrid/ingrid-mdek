@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
@@ -9,20 +10,15 @@
   <artifactId>ingrid-iplug-ige</artifactId>
   <packaging>pom</packaging>
   <name>InGrid IGE Distribution</name>
+
+  <!-- ==================== Source Code Management ==================== -->
   <scm>
     <connection>scm:git:git@github.com:informationgrid/ingrid-mdek.git/distribution</connection>
     <developerConnection>scm:git:git@github.com:informationgrid/ingrid-mdek.git/distribution</developerConnection>
     <tag>HEAD</tag>
   </scm>
-  <repositories>
-    <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
-    <repository>
-      <id>de.ingrid.all</id>
-      <name>Maven Repo InGrid</name>
-      <url>https://dev.informationgrid.eu/archiva/repository/ingrid-all</url>
-    </repository>
-  </repositories>
 
+  <!-- ==================== DEPENDENCIES ==================== -->
   <dependencies>
     <dependency>
       <groupId>de.ingrid.mdek</groupId>
@@ -30,6 +26,7 @@
     </dependency>
   </dependencies>
 
+  <!-- ==================== Build Configuration ==================== -->
   <build>
     <finalName>${project.artifactId}-${project.version}</finalName>
     <plugins>
@@ -54,17 +51,17 @@
           </execution>
         </executions>
       </plugin>
-      
+
       <!-- Activate docker image build and push integration (see parent-pom) -->
-<!--       <plugin>
-        <groupId>com.spotify</groupId>
-        <artifactId>docker-maven-plugin</artifactId>
-        <configuration>
-          since we call the command from the parent we also have to set the path to the child module
-               where the docker configuration is
-          <dockerDirectory>distribution/src/docker</dockerDirectory>
-        </configuration>
-      </plugin> -->
+      <!--       <plugin>
+              <groupId>com.spotify</groupId>
+              <artifactId>docker-maven-plugin</artifactId>
+              <configuration>
+                since we call the command from the parent we also have to set the path to the child module
+                     where the docker configuration is
+                <dockerDirectory>distribution/src/docker</dockerDirectory>
+              </configuration>
+            </plugin> -->
     </plugins>
   </build>
 

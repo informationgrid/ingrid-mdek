@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
@@ -9,19 +10,15 @@
   <artifactId>ingrid-mdek-services</artifactId>
   <packaging>jar</packaging>
   <name>InGrid mdek-services</name>
+
+  <!-- ==================== Source Code Management ==================== -->
   <scm>
     <connection>scm:git:git@github.com:informationgrid/ingrid-mdek.git/ingrid-mdek-services</connection>
     <developerConnection>scm:git:git@github.com:informationgrid/ingrid-mdek.git/ingrid-mdek-services</developerConnection>
     <tag>HEAD</tag>
   </scm>
-  <repositories>
-    <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
-    <repository>
-      <id>de.ingrid.all</id>
-      <name>Maven Repo InGrid</name>
-      <url>https://dev.informationgrid.eu/archiva/repository/ingrid-all</url>
-    </repository>
-  </repositories>
+
+  <!-- ==================== DEPENDENCIES ==================== -->
   <dependencies>
     <dependency>
       <groupId>de.ingrid.mdek</groupId>
@@ -71,7 +68,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-<!-- Needed for eclipse otherwise indirectly referenced class missing in DefaultPermissionServiceTest.java ! -->
+    <!-- Needed for eclipse otherwise indirectly referenced class missing in DefaultPermissionServiceTest.java ! -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-hibernate3</artifactId>
@@ -132,13 +129,15 @@
       <version>${ingrid-iplug-dsc.version}</version>
       <type>jar</type>
       <exclusions>
-          <exclusion>
-              <groupId>log4j</groupId>
-              <artifactId>log4j</artifactId>
-          </exclusion>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
   </dependencies>
+
+  <!-- ==================== Build Configuration ==================== -->
   <build>
     <plugins>
       <plugin>
