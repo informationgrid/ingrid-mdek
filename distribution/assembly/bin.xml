@@ -50,6 +50,7 @@
               <exclude>de.ingrid.mdek:ingrid-mdek-services</exclude>
               <exclude>de.ingrid.mdek:ingrid-mdek-api</exclude>
               <exclude>de.ingrid.mdek:ingrid-import-export</exclude>
+              <exclude>de.ingrid:ingrid-base-webapp:zip:res</exclude>
             </excludes>
           </dependencySet>
         </dependencySets>

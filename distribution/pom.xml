@@ -31,37 +31,24 @@
     <finalName>${project.artifactId}-${project.version}</finalName>
     <plugins>
 
+      <!--
+        Override assembly plugin to be activated in package phase again and
+        usage of different path to bin.xml
+      -->
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.5.3</version>
-        <inherited>true</inherited>
+        <configuration>
+          <descriptors>
+            <descriptor>assembly/bin.xml</descriptor>
+          </descriptors>
+        </configuration>
         <executions>
           <execution>
             <id>make-installer</id>
             <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <appendAssemblyId>true</appendAssemblyId>
-              <descriptors>
-                <descriptor>assembly/bin.xml</descriptor>
-              </descriptors>
-            </configuration>
           </execution>
         </executions>
       </plugin>
-
-      <!-- Activate docker image build and push integration (see parent-pom) -->
-      <!--       <plugin>
-              <groupId>com.spotify</groupId>
-              <artifactId>docker-maven-plugin</artifactId>
-              <configuration>
-                since we call the command from the parent we also have to set the path to the child module
-                     where the docker configuration is
-                <dockerDirectory>distribution/src/docker</dockerDirectory>
-              </configuration>
-            </plugin> -->
     </plugins>
   </build>
 

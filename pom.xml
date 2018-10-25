@@ -19,8 +19,9 @@
 
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
+    <iplug.type>IPLUG_IGE</iplug.type>
     <ingrid-udk-importer.version>4.5.0</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>4.5.0</ingrid-codelist-service.version>
+    <ingrid-codelist-service.version>5.0.0-SNAPSHOT</ingrid-codelist-service.version>
     <ingrid-utils.version>5.0.0-SNAPSHOT</ingrid-utils.version>
     <ingrid-iplug-dsc.version>5.0.0-SNAPSHOT</ingrid-iplug-dsc.version>
     <ingrid-base-webapp.version>5.0.0-SNAPSHOT</ingrid-base-webapp.version>
@@ -211,16 +212,13 @@
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.5.3</version>
         <inherited>true</inherited>
-        <!-- Add Type of Component to Manifest of Installer for Upgrade Server -->
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <ingridComponentType>IPLUG_IGE</ingridComponentType>
-            </manifestEntries>
-          </archive>
-        </configuration>
+        <executions>
+          <execution>
+            <id>make-installer</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
