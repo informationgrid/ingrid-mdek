@@ -22,19 +22,7 @@
  */
 package de.ingrid.mdek.job;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-
-import org.apache.logging.log4j.Logger;
-import org.json.simple.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import de.ingrid.admin.Config;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.elasticsearch.IIndexManager;
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.MdekKeys;
@@ -49,6 +37,12 @@ import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
+import org.apache.logging.log4j.Logger;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.util.*;
 
 /**
  * Abstract base class of all idc jobs encapsulating common idc stuff.
@@ -65,6 +59,9 @@ public abstract class MdekIdcJob extends MdekJob {
     protected DscDocumentProducer docProducerObject;
     protected DscDocumentProducer docProducerAddress;
     protected IIndexManager indexManager;
+
+    @Autowired
+    private Config config;
 
 	public MdekIdcJob(Logger log, DaoFactory daoFactory) {
 		super(log, daoFactory);
@@ -154,7 +151,6 @@ public abstract class MdekIdcJob extends MdekJob {
                 // update search index
                 ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
                 if (doc != null && !doc.isEmpty()) {
-                    Config config = JettyStarter.getInstance().config;
                     doc.put( "datatype", config.datatypes.toArray(new String[0]) );
                     doc.put( "partner", config.partner );
                     doc.put( "provider", config.provider );

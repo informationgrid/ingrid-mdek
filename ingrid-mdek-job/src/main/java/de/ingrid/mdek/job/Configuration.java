@@ -22,85 +22,65 @@
  */
 package de.ingrid.mdek.job;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-
-import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertiesFiles;
-import com.tngtech.configbuilder.annotation.propertyloaderconfiguration.PropertyLocations;
-import com.tngtech.configbuilder.annotation.typetransformer.TypeTransformers;
-import com.tngtech.configbuilder.annotation.valueextractor.DefaultValue;
-import com.tngtech.configbuilder.annotation.valueextractor.PropertyValue;
-
 import de.ingrid.admin.Config;
-import de.ingrid.admin.Config.StringToCommunications;
-import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
 import de.ingrid.importer.udk.Importer;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.mdek.Versioning;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
-@PropertiesFiles( {"config"} )
-@PropertyLocations(directories = {"conf"}, fromClassLoader = true)
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+@org.springframework.context.annotation.Configuration
 public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     
     private static Log log = LogFactory.getLog(Configuration.class);
+
+    @Autowired
+    private Config config;
     
-    @PropertyValue("iplug.database.dialect")
-    @DefaultValue("org.hibernate.dialect.MySQLInnoDBDialect")
+    @Value("${iplug.database.dialect:org.hibernate.dialect.MySQLInnoDBDialect}")
     public String databaseDialect;
     
-    @PropertyValue("igc.name")
-    @DefaultValue("")
+    @Value("${igc.name:}")
     public String igcName;
     
-    @PropertyValue("igc.language")
-    @DefaultValue("de")
+    @Value("${igc.language:de}")
     public String igcLanguage;
     
-    @PropertyValue("igc.email")
-    @DefaultValue("")
+    @Value("${igc.email:}")
     public String igcEmail;
     
-    @PropertyValue("igc.partner")
-    @DefaultValue("")
+    @Value("${igc.partner:}")
     public String igcPartner;
     
-    @PropertyValue("igc.provider")
-    @DefaultValue("")
+    @Value("${igc.provider:}")
     public String igcProvider;
     
-    @PropertyValue("igc.country")
-    @DefaultValue("de")
+    @Value("${igc.country:de}")
     public String igcCountry;
 
-    @PropertyValue("igc.enableIBusCommunication")
-    @DefaultValue("true")
+    @Value("${igc.enableIBusCommunication:true}")
     public boolean igcEnableIBusCommunication;
 
-    @TypeTransformers(StringToCommunications.class)
-    @PropertyValue("communications.ige")
     public List<CommunicationCommandObject> igeCommunication;
     
-    @PropertyValue("communications.ige.clientName")
-    @DefaultValue("ige-iplug-test")
+    @Value("${communications.ige.clientName:ige-iplug-test}")
     public String igeClientName;
     
     // @CommandLineValue(longOpt = "reconnectIntervall", shortOpt = "ri")
-    @PropertyValue("communications.ige.reconnectInterval")
-    @DefaultValue("30")
+    @Value("${communications.ige.reconnectInterval:30}")
     public Integer reconnectInterval;
     
     
@@ -118,8 +98,7 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
      *  see also https://redmine.informationgrid.eu/issues/915
      *  
      */
-    @PropertyValue("profile.uvp.document.store.base.url")
-    @DefaultValue("/documents/")
+    @Value("${profile.uvp.document.store.base.url:/documents/}")
     public String profileUvpDocumentStoreBaseUrl;
     
     @Override
@@ -127,7 +106,6 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
         super.initialize();
         
         updateDatabaseDescriptor();
-        Config config = JettyStarter.getInstance().config;
         String temp = config.communicationProxyUrl;
         config.communicationProxyUrl = igeClientName;
         config.writeCommunication( "conf/communication-ige.xml", igeCommunication );
@@ -235,6 +213,23 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
                 this.databaseUsername,
                 this.databasePassword,
                 this.databaseSchema);
+    }
+
+    @Value("${communications.ige}")
+    private void setCommunication(String ibusse) {
+        List<CommunicationCommandObject> list = new ArrayList<>();
+        String[] split = ibusse.split( "##" );
+        for (String comm : split) {
+            String[] communication = comm.split( "," );
+            if (communication.length == 3) {
+                CommunicationCommandObject commObject = new CommunicationCommandObject();
+                commObject.setBusProxyServiceUrl( communication[0] );
+                commObject.setIp( communication[1] );
+                commObject.setPort( Integer.valueOf( communication[2] ) );
+                list.add( commObject );
+            }
+        }
+        igeCommunication = list;
     }
 
 }
