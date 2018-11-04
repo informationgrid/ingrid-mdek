@@ -162,43 +162,6 @@
         </property>
     </bean>
     
-    <bean class="com.mchange.v2.c3p0.ComboPooledDataSource" id="dataSource">
-        <property name="driverClass" value="${hibernate.driverClass}"/>
-        <property name="jdbcUrl" value="${hibernate.jdbcUrl}"/>
-        <property name="user" value="${hibernate.user}"/>
-        <property name="password" value="${hibernate.password}"/>
-        <property name="minPoolSize" value="5"/>
-        <property name="maxPoolSize" value="20"/>
-        <property name="acquireIncrement" value="5"/>
-        <property name="idleConnectionTestPeriod" value="300"/>
-        <property name="maxIdleTime" value="600"/>
-        <property name="maxStatements" value="0"/>
-        <property name="acquireRetryAttempts" value="30"/>
-        <property name="acquireRetryDelay" value="1000"/>
-    </bean>
-    <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" id="hibernateProperties">
-        <property name="properties">
-            <props>
-                <prop key="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</prop>
-                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
-                <prop key="hibernate.default_schema">${hibernate.schema}</prop>
-                <prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</prop>
-                <prop key="hibernate.cache.use_query_cache">false</prop>
-                <prop key="hibernate.jdbc.batch_size">0</prop>
-                <prop key="hibernate.current_session_context_class">thread</prop>
-                <!--
-                <prop key="hibernate.hbm2ddl.auto">update</prop>
--->
-                <prop key="hibernate.show_sql">false</prop>
-            </props>
-        </property>
-    </bean>
-    
-    
-    
-    
-    
-    
     <!-- Defines a facet definition filter. Will be applied before a facet definition is analyzed. This construct is used in igc dsc iPlug to map incompatible queries to compatible. See also de.ingrid.iplug.dsc.IGCTopicsSearchPreProcessor.
         This is IGC DB specific. Please comment for other databases. -->
     <bean id="configurableFacetDefinitionProcessors"
@@ -229,7 +192,6 @@
       <property name="ignoreUnresolvablePlaceholders" value="true" />
       <property name="locations">
         <list>
-          <value>classpath:default-datasource.properties</value>
           <value>classpath:config.properties</value>
           <value>classpath:config.override.properties</value>
         </list>

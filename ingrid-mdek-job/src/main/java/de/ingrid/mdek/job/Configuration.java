@@ -22,6 +22,7 @@
  */
 package de.ingrid.mdek.job;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.ingrid.admin.Config;
 import de.ingrid.admin.command.CommunicationCommandObject;
 import de.ingrid.admin.command.PlugdescriptionCommandObject;
@@ -33,10 +34,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.PropertiesFactoryBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
+import java.beans.PropertyVetoException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +104,44 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
      */
     @Value("${profile.uvp.document.store.base.url:/documents/}")
     public String profileUvpDocumentStoreBaseUrl;
-    
+
+
+    @Bean
+    public ComboPooledDataSource dataSource() throws PropertyVetoException {
+        ComboPooledDataSource source = new ComboPooledDataSource();
+        source.setDriverClass(databaseDriver);
+        source.setJdbcUrl(databaseUrl);
+        source.setUser(databaseUsername);
+        source.setPassword(databasePassword);
+        source.setMinPoolSize(5);
+        source.setMaxPoolSize(20);
+        source.setAcquireIncrement(5);
+        source.setIdleConnectionTestPeriod(300);
+        source.setMaxIdleTime(600);
+        source.setMaxStatements(0);
+        source.setAcquireRetryAttempts(30);
+        source.setAcquireRetryDelay(1000);
+        return source;
+    }
+
+    @Bean
+    public PropertiesFactoryBean hibernateProperties() {
+        PropertiesFactoryBean props = new PropertiesFactoryBean();
+        Properties p = new Properties();
+        p.put("hibernate.cache.provider_class", "org.hibernate.cache.NoCacheProvider");
+        p.put("hibernate.dialect", databaseDialect);
+        p.put("hibernate.default_schema", databaseSchema);
+        p.put("hibernate.transaction.factory_class", "org.hibernate.transaction.JDBCTransactionFactory");
+        p.put("hibernate.cache.use_query_cache", false);
+        p.put("hibernate.jdbc.batch_size", 0);
+        p.put("hibernate.current_session_context_class", "thread");
+        // p.put("hibernate.hbm2ddl.auto", "update");
+        p.put("hibernate.show_sql", false);
+        props.setProperties(p);
+
+        return props;
+    }
+
     @Override
     public void initialize() {
         super.initialize();
@@ -122,6 +163,11 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     private void updateDatabaseDescriptor() {
         try {
             File descriptorFile = getPropertyResource( "descriptor.properties" ).getFile();
+
+            if (!descriptorFile.exists()) {
+                descriptorFile.createNewFile();
+            }
+
             Properties descriptor = new Properties();
             FileInputStream is = new FileInputStream( descriptorFile );
             descriptor.load( is );
@@ -140,41 +186,12 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
             descriptor.setProperty( "idc.version", Versioning.UPDATE_TO_IGC_VERSION );
             FileOutputStream os = new FileOutputStream( new File("conf/descriptor.properties") );
             descriptor.store( os, "" );
+            os.flush();
             is.close();
             os.close();
         } catch (Exception ex) {
             log.error( "Could not write to descriptor.properties file!", ex );
         }
-        
-        try {
-            Properties descriptor = new Properties();
-            File datasourceFile = getPropertyResource( "default-datasource.properties" ).getFile();
-            if (!datasourceFile.exists()) {
-                datasourceFile.createNewFile();
-            }
-            FileInputStream is = new FileInputStream( datasourceFile );
-            descriptor.load( is );
-            descriptor.setProperty( "hibernate.driverClass", databaseDriver );
-            descriptor.setProperty( "hibernate.user", databaseUsername );
-            descriptor.setProperty( "hibernate.password", databasePassword );
-            descriptor.setProperty( "hibernate.dialect",  databaseDialect );
-            descriptor.setProperty( "hibernate.jdbcUrl", databaseUrl );
-            String myDatabaseSchema = databaseSchema;
-            if (databaseSchema == null || databaseSchema.trim().length() == 0) {
-                // no schema set, we have to set default schema for hibernate !
-                // e.g. empty schema crashes on postgres/oracle cause schema now set in springapp-servlet.xml hibernateProperties
-                myDatabaseSchema = DatabaseConnectionUtils.getDefaultSchema( this.getDatabaseConnection() );
-            }
-            log.info( "Setting hibernate.schema: " + myDatabaseSchema );
-            descriptor.setProperty( "hibernate.schema", myDatabaseSchema );                
-            FileOutputStream os = new FileOutputStream( new File("conf/default-datasource.properties") );
-            descriptor.store( os, "" );
-            is.close();
-            os.close();
-        } catch (Exception ex) {
-            log.error( "Could not write to descriptor.properties file!", ex );
-        }
-        
     }
     
     @Override

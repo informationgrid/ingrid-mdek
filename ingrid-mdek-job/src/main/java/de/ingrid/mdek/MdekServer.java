@@ -55,13 +55,13 @@ public class MdekServer {
     private static File _communicationProperties = null;
  
     private final IJobRepositoryFacade _jobRepositoryFacade;
-    private Configuration igeConfig;
 
     private ICommunication _communication;
-    
+
     private static volatile boolean _shutdown = false;
 
     public static Configuration conf;
+    private Configuration igeConfig;
 
     @Autowired
     public MdekServer(IJobRepositoryFacade jobRepositoryFacade, Configuration igeConfig) {
@@ -188,8 +188,8 @@ public class MdekServer {
         
         // start the Webserver for admin-page and iplug initialization for search and index
         // this also initializes all spring services and does autowiring
-        new JettyStarter();
-        
+        new JettyStarter(Configuration.class);
+
         _communicationProperties = getCommunicationFile((String) map.get("--descriptor"));
         
         // shutdown the server normally
