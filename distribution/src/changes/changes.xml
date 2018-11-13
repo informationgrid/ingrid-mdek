@@ -29,6 +29,9 @@
   <body>
 
     <release version="4.6.0-SNAPSHOT" date="????-??-??" description="Release ????">
+      <action type="update" dev="wemove" issue="1099">
+        Remove ISO themes from non Geo-Datasets.
+      </action>
       <action type="update" dev="wemove" issue="1212">
         Update Oracle driver to ojdbc7 for Oracle 12.
       </action>
