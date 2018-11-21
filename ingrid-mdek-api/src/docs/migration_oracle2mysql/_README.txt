@@ -17,6 +17,10 @@ Für Oracle und MySQL Connections folgendes installieren:
 Migration IGC
 -------------
 
+ACHTUNG:
+Die migrierten MetaVer Kataloge liegen in der Version 4.2.0_a vor, dies ist die Version vom IGE iPlug 4.2.0.
+Die Scripte hier tragen Version 4.2.1, da dies die MetaVer Portal Version ist.
+
 - MySQL Datenbank anlegen, z.B.
     CREATE DATABASE IF NOT EXISTS igc_hh DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
     
