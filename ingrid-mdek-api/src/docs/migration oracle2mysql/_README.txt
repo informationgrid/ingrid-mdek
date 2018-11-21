@@ -48,5 +48,5 @@ Migration IGC
     - in Tab "Raw Log" detaillierte Ausgaben, auch in log Dateien im sqllines Verzeichnis
     - click auf "Validate" überprüft Anzahl Zeilen in Tabellen
 
-- für SL Kataloge nach der Datenmigration alte Spalten löschen
+- für SL Kataloge nach der Datenmigration in MySQL alte Spalten löschen, hier sind in Oracle noch Überbleibsel, die nicht mehr benötigt werden (aber migriert wurden):
     421_igc_mysql_schema_post_migration_SL.sql
