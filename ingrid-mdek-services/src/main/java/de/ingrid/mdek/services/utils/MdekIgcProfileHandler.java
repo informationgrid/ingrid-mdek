@@ -119,6 +119,12 @@ public class MdekIgcProfileHandler {
 		try {
 			Document profile = getProfileDOM();
 	        Node idNode = XPathUtils.getNode(profile, "//igcp:controls//igcp:id[text()='" + fieldKey + "']");
+
+	        if (idNode == null) {
+	        	LOG.debug("FieldKey not found in profile. Probably created in a behavior: " + fieldKey);
+	        	return map;
+			}
+
 	        Node controlNode = idNode.getParentNode();
             NodeList listItems = XPathUtils.getNodeList(controlNode, "igcp:selectionList/igcp:items[@lang='" + language + "']/igcp:item");
             for (int i = 0; i < listItems.getLength(); i++) {
@@ -131,7 +137,7 @@ public class MdekIgcProfileHandler {
 		} catch (Exception exc) {
 			String msg = "Problems extracting field selection list from profile, " +
 				"fieldKey='" + fieldKey + "', language='" + language + "', we return empty map !\n";
-			LOG.warn(msg + exc);
+			LOG.warn(msg, exc);
 //			throw new MdekException(msg + exc);
 		}
 		
