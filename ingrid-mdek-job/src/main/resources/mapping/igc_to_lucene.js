@@ -453,6 +453,7 @@ function addT01Object(row) {
     IDX.add("t01_object.mod_time", row.get("mod_time"));
     IDX.add("t01_object.mod_uuid", row.get("mod_uuid"));
     IDX.add("t01_object.responsible_uuid", row.get("responsible_uuid"));
+    IDX.add("t01_object.is_inspire_relevant", row.get("is_inspire_relevant"));
     if (hasValue(row.get("is_inspire_relevant")) && row.get("is_inspire_relevant")=='Y') {
         // add as FREIER term, no alternate value
         addSearchtermValue("F", "inspireidentifiziert", "");
@@ -463,6 +464,8 @@ function addT01Object(row) {
         // add as FREIER term, no alternate value
         addSearchtermValue("F", "opendata", "");
     }
+    // also adv keyword and checkbox, see #1105
+    IDX.add("t01_object.is_adv_compatible", row.get("is_adv_compatible"));
     if (hasValue(row.get("is_adv_compatible")) && row.get("is_adv_compatible")=='Y') {
         // add as FREIER term, no alternate value
         addSearchtermValue("F", "AdVMIS", "");
