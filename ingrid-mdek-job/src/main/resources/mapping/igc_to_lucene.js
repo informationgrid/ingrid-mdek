@@ -463,6 +463,10 @@ function addT01Object(row) {
         // add as FREIER term, no alternate value
         addSearchtermValue("F", "opendata", "");
     }
+    if (hasValue(row.get("is_adv_compatible")) && row.get("is_adv_compatible")=='Y') {
+        // add as FREIER term, no alternate value
+        addSearchtermValue("F", "AdVMIS", "");
+    }
 }
 function addT0110AvailFormat(row) {
     IDX.add("t0110_avail_format.line", row.get("line"));
