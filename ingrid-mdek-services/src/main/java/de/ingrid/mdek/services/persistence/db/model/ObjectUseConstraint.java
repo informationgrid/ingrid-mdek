@@ -32,6 +32,7 @@ public class ObjectUseConstraint implements IEntity {
 	private Integer line;
 	private Integer licenseKey;
 	private String licenseValue;
+	private String source;
 
 
 	public ObjectUseConstraint() {}
@@ -85,4 +86,11 @@ public class ObjectUseConstraint implements IEntity {
 	}
 
 
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
 }

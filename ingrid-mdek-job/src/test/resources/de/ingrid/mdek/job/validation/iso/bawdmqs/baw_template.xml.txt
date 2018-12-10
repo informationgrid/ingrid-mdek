@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<gmd:MD_Metadata xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gml="http://www.opengis.net/gml" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:srv="http://www.isotc211.org/2005/srv" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.isotc211.org/2005/gmd http://schemas.opengis.net/csw/2.0.2/profiles/apiso/1.0.0/apiso.xsd">
+	<gmd:fileIdentifier>
+		<gco:CharacterString>{0}</gco:CharacterString>
+	</gmd:fileIdentifier>
+	<gmd:language>
+		<gmd:LanguageCode codeList="{1}" codeListValue="{2}">{2}</gmd:LanguageCode>
+	</gmd:language>
+	<gmd:characterSet>
+		<gmd:MD_CharacterSetCode codeList="{3}" codeListValue="{4}"/>
+	</gmd:characterSet>
+	<gmd:parentIdentifier>
+		<gco:CharacterString>{5}</gco:CharacterString>
+	</gmd:parentIdentifier>
+	<gmd:hierarchyLevel>
+		<gmd:MD_ScopeCode codeList="{6}" codeListValue="{7}">{7}</gmd:MD_ScopeCode>
+	</gmd:hierarchyLevel>
+	<gmd:hierarchyLevelName>
+		<gco:CharacterString>{8}</gco:CharacterString>
+	</gmd:hierarchyLevelName>
+	<gmd:contact>
+		<gmd:CI_ResponsibleParty uuid="{9}">
+			<gmd:organisationName>
+				<gco:CharacterString>{10}</gco:CharacterString>
+			</gmd:organisationName>
+			<gmd:contactInfo>
+				<gmd:CI_Contact>
+					<gmd:address>
+						<gmd:CI_Address>
+							<gmd:electronicMailAddress>
+								<gco:CharacterString>{11}</gco:CharacterString>
+							</gmd:electronicMailAddress>
+						</gmd:CI_Address>
+					</gmd:address>
+					<gmd:onlineResource>
+						<gmd:CI_OnlineResource>
+							<gmd:linkage>
+								<gmd:URL>{12}</gmd:URL>
+							</gmd:linkage>
+						</gmd:CI_OnlineResource>
+					</gmd:onlineResource>
+				</gmd:CI_Contact>
+			</gmd:contactInfo>
+			<gmd:role>
+				<gmd:CI_RoleCode codeList="{13}" codeListValue="{14}"/>
+			</gmd:role>
+		</gmd:CI_ResponsibleParty>
+	</gmd:contact>
+	<gmd:dateStamp>
+		<gco:DateTime>{15}</gco:DateTime>
+	</gmd:dateStamp>
+	<gmd:metadataStandardName>
+		<gco:CharacterString>{16}</gco:CharacterString>
+	</gmd:metadataStandardName>
+	<gmd:metadataStandardVersion>
+		<gco:CharacterString>{17}</gco:CharacterString>
+	</gmd:metadataStandardVersion>
+	<gmd:identificationInfo>
+		<gmd:MD_DataIdentification uuid="fedcba98-7654-3210-fedc-ba9876543210">
+			<gmd:citation>
+				<gmd:CI_Citation>
+					<gmd:title>
+						<gco:CharacterString>{18}</gco:CharacterString>
+					</gmd:title>
+					<gmd:date>
+						<gmd:CI_Date>
+							<gmd:date>
+								<gco:DateTime>{19}</gco:DateTime>
+							</gmd:date>
+							<gmd:dateType>
+								<gmd:CI_DateTypeCode codeList="{20}" codeListValue="{21}"/>
+							</gmd:dateType>
+						</gmd:CI_Date>
+					</gmd:date>
+					<gmd:identifier>
+						<gmd:MD_Identifier>
+							<gmd:code>
+								<gco:CharacterString>http://example.com/fedcba98-7654-3210-fedc-ba9876543210</gco:CharacterString>
+							</gmd:code>
+						</gmd:MD_Identifier>
+					</gmd:identifier>
+				</gmd:CI_Citation>
+			</gmd:citation>
+			<gmd:abstract>
+				<gco:CharacterString>{22}</gco:CharacterString>
+			</gmd:abstract>
+			<gmd:pointOfContact>
+				<gmd:CI_ResponsibleParty uuid="{23}">
+					<gmd:organisationName>
+						<gco:CharacterString>{24}</gco:CharacterString>
+					</gmd:organisationName>
+					<gmd:contactInfo>
+						<gmd:CI_Contact>
+							<gmd:address>
+								<gmd:CI_Address>
+									<gmd:electronicMailAddress>
+										<gco:CharacterString>{25}</gco:CharacterString>
+									</gmd:electronicMailAddress>
+								</gmd:CI_Address>
+							</gmd:address>
+							<gmd:onlineResource>
+								<gmd:CI_OnlineResource>
+									<gmd:linkage>
+										<gmd:URL>{26}</gmd:URL>
+									</gmd:linkage>
+								</gmd:CI_OnlineResource>
+							</gmd:onlineResource>
+						</gmd:CI_Contact>
+					</gmd:contactInfo>
+					<gmd:role>
+						<gmd:CI_RoleCode codeList="{27}" codeListValue="{28}"/>
+					</gmd:role>
+				</gmd:CI_ResponsibleParty>
+			</gmd:pointOfContact>
+			<gmd:descriptiveKeywords>
+				<gmd:MD_Keywords>
+					<gmd:keyword>
+						<gco:CharacterString>{29}</gco:CharacterString>
+					</gmd:keyword>
+					<gmd:type>
+						<gmd:MD_KeywordTypeCode codeList="http://www.isotc211.org/2005/resources/Codelist/ML_gmxCodelists.xml#MD_KeywordTypeCode" codeListValue="discipline"/>
+					</gmd:type>
+					<gmd:thesaurusName>
+						<gmd:CI_Citation>
+							<gmd:title>
+								<gco:CharacterString>DEBUNDBAWAUFTRAGNR</gco:CharacterString>
+							</gmd:title>
+							<gmd:date>
+								<gmd:CI_Date>
+									<gmd:date>
+										<gco:Date>2017-01-31</gco:Date>
+									</gmd:date>
+									<gmd:dateType>
+										<gmd:CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication"/>
+									</gmd:dateType>
+								</gmd:CI_Date>
+							</gmd:date>
+						</gmd:CI_Citation>
+					</gmd:thesaurusName>
+				</gmd:MD_Keywords>
+			</gmd:descriptiveKeywords>
+			<gmd:language>
+				<gmd:LanguageCode codeList="{30}" codeListValue="{31}">{31}</gmd:LanguageCode>
+			</gmd:language>
+			<gmd:characterSet>
+				<gmd:MD_CharacterSetCode codeList="{32}" codeListValue="{33}"/>
+			</gmd:characterSet>
+			<gmd:extent>
+				<gmd:EX_Extent>
+					<gmd:geographicElement>
+						<gmd:EX_GeographicDescription>
+							<gmd:extentTypeCode>
+								<gco:Boolean>true</gco:Boolean>
+							</gmd:extentTypeCode>
+							<gmd:geographicIdentifier>
+								<gmd:MD_Identifier>
+									<gmd:code>
+										<gco:CharacterString>{34}</gco:CharacterString>
+									</gmd:code>
+								</gmd:MD_Identifier>
+							</gmd:geographicIdentifier>
+						</gmd:EX_GeographicDescription>
+					</gmd:geographicElement>
+					<gmd:geographicElement>
+						<gmd:EX_GeographicBoundingBox>
+							<gmd:extentTypeCode>
+								<gco:Boolean>true</gco:Boolean>
+							</gmd:extentTypeCode>
+							<gmd:westBoundLongitude>
+								<gco:Decimal>6.70249535409269</gco:Decimal>
+							</gmd:westBoundLongitude>
+							<gmd:eastBoundLongitude>
+								<gco:Decimal>{35}</gco:Decimal>
+							</gmd:eastBoundLongitude>
+							<gmd:southBoundLatitude>
+								<gco:Decimal>{36}</gco:Decimal>
+							</gmd:southBoundLatitude>
+							<gmd:northBoundLatitude>
+								<gco:Decimal>51.3270606108592</gco:Decimal>
+							</gmd:northBoundLatitude>
+						</gmd:EX_GeographicBoundingBox>
+					</gmd:geographicElement>
+				</gmd:EX_Extent>
+			</gmd:extent>
+		</gmd:MD_DataIdentification>
+	</gmd:identificationInfo>
+	<gmd:dataQualityInfo>
+		<gmd:DQ_DataQuality>
+			<gmd:scope>
+				<gmd:DQ_Scope>
+					<gmd:level>
+						<gmd:MD_ScopeCode codeList="http://www.isotc211.org/2005/resources/Codelist/ML_gmxCodelists.xml#MD_ScopeCode" codeListValue="dataset"/>
+					</gmd:level>
+				</gmd:DQ_Scope>
+			</gmd:scope>
+			<!-- scope code test -->
+			<gmd:lineage>
+				<gmd:LI_Lineage>
+					<gmd:statement>
+						<gco:CharacterString>{37}</gco:CharacterString>
+					</gmd:statement>
+					<gmd:source>
+						<gmd:LI_Source>
+							<gmd:description>
+								<gco:CharacterString>Description</gco:CharacterString>
+							</gmd:description>
+						</gmd:LI_Source>
+					</gmd:source>
+				</gmd:LI_Lineage>
+			</gmd:lineage>
+		</gmd:DQ_DataQuality>
+	</gmd:dataQualityInfo>
+	<gmd:dataQualityInfo>
+		<gmd:DQ_DataQuality>
+			<gmd:scope>
+				<gmd:DQ_Scope>
+					<gmd:level>
+						<gmd:MD_ScopeCode codeList="http://www.isotc211.org/2005/resources/Codelist/ML_gmxCodelists.xml#MD_ScopeCode" codeListValue="model"/>
+					</gmd:level>
+				</gmd:DQ_Scope>
+			</gmd:scope>
+			<gmd:report>
+				<gmd:DQ_AccuracyOfATimeMeasurement>
+					<gmd:result>
+						<gmd:DQ_QuantitativeResult>
+							<gmd:valueUnit>
+								<gml:UnitDefinition gml:id="seconds">
+									<gml:identifier codeSpace=""/>
+									<gml:catalogSymbol>{38}</gml:catalogSymbol>
+								</gml:UnitDefinition>
+							</gmd:valueUnit>
+							<gmd:value>
+								<gco:Record>1.0</gco:Record>
+							</gmd:value>
+						</gmd:DQ_QuantitativeResult>
+					</gmd:result>
+				</gmd:DQ_AccuracyOfATimeMeasurement>
+			</gmd:report>
+		</gmd:DQ_DataQuality>
+	</gmd:dataQualityInfo>
+	<gmd:dataQualityInfo>
+		<gmd:DQ_DataQuality>
+			<gmd:scope>
+				<gmd:DQ_Scope>
+					<gmd:level>
+						<gmd:MD_ScopeCode codeList="http://www.isotc211.org/2005/resources/Codelist/ML_gmxCodelists.xml#MD_ScopeCode" codeListValue="model" />
+					</gmd:level>
+				</gmd:DQ_Scope>
+			</gmd:scope>
+			<gmd:report>
+				<gmd:DQ_QuantitativeAttributeAccuracy>
+					<gmd:result xlink:href="http://wserv6x.baw.de/downloads/dummy-download-url">
+						<gmd:DQ_QuantitativeResult>
+							<!-- Parametername -->
+							<gmd:valueType>
+								<gco:RecordType>{39}</gco:RecordType>
+							</gmd:valueType>
+							<gmd:valueUnit>
+								<gml:UnitDefinition gml:id="unitDefinition_ID_f9d675d6-1c37-48b8-bdc4-4cd24a41bdfb">
+									<gml:identifier codeSpace="" />
+									<gml:catalogSymbol>m3/s</gml:catalogSymbol>
+								</gml:UnitDefinition>
+							</gmd:valueUnit>
+							<gmd:value>
+								<gco:Record>0.0</gco:Record>
+							</gmd:value>
+							<gmd:value>
+								<gco:Record>293.0</gco:Record>
+							</gmd:value>
+							<gmd:value>
+								<gco:Record>117.0</gco:Record>
+							</gmd:value>
+						</gmd:DQ_QuantitativeResult>
+					</gmd:result>
+				</gmd:DQ_QuantitativeAttributeAccuracy>
+			</gmd:report>
+			<!--Rolle-->
+			<gmd:lineage>
+				<gmd:LI_Lineage>
+					<gmd:source xlink:href="http://wserv6x.baw.de/downloads/dummy-md-reference">
+						<gmd:LI_Source>
+							<gmd:description>
+								<gco:CharacterString>{40}</gco:CharacterString>
+							</gmd:description>
+						</gmd:LI_Source>
+					</gmd:source>
+				</gmd:LI_Lineage>
+			</gmd:lineage>
+		</gmd:DQ_DataQuality>
+	</gmd:dataQualityInfo>
+	<gmd:dataQualityInfo>
+		<gmd:DQ_DataQuality>
+			<gmd:scope>
+				<gmd:DQ_Scope>
+					<gmd:level>
+						<gmd:MD_ScopeCode codeList="http://www.isotc211.org/2005/resources/Codelist/ML_gmxCodelists.xml#MD_ScopeCode" codeListValue="feature" />
+					</gmd:level>
+				</gmd:DQ_Scope>
+			</gmd:scope>
+			<gmd:lineage>
+				<gmd:LI_Lineage>
+					<gmd:source>
+						<gmd:LI_Source>
+							<gmd:description>
+								<gco:CharacterString>Lineage Test</gco:CharacterString>
+							</gmd:description>
+						</gmd:LI_Source>
+					</gmd:source>
+				</gmd:LI_Lineage>
+			</gmd:lineage>
+		</gmd:DQ_DataQuality>
+	</gmd:dataQualityInfo>
+</gmd:MD_Metadata>
+

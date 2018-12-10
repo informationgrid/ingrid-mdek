@@ -1141,6 +1141,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			targetNode.setObjId(targetObjWorkId);
 			targetNode.setT01ObjectWork(targetObjWork);
 			targetNode.setFkObjUuid(newParentUuid);
+
 			// also care for tree path !
 			pathHandler.setTreePath(targetNode, newParentNode);
 			daoObjectNode.makePersistent(targetNode);

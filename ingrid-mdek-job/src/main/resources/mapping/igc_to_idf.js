@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,7 +50,7 @@ var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStan
 var globalCodeListLanguageAttrURL = "http://www.loc.gov/standards/iso639-2/";
 
 // ---------- <idf:html> ----------
-var idfHtml = XPATH.getNode(idfDoc, "/idf:html")
+var idfHtml = XPATH.getNode(idfDoc, "/idf:html");
 DOM.addAttribute(idfHtml, "idf-version", "3.6.1");
 
 // ---------- <idf:body> ----------
@@ -118,12 +118,22 @@ for (i=0; i<objRows.size(); i++) {
         .addAttribute("codeList", globalCodeListAttrURL + "#MD_CharacterSetCode")
         .addAttribute("codeListValue", value);
 // ---------- <gmd:parentIdentifier> ----------
+    /**
+     * Always try to use the value from the specific field "parentIdentifier". If it has no value
+     * then use the hierarchical parent of the dataset, unless the parent is a folder. In that case
+     * do not add a parentIdentifier at all. (see: https://redmine.informationgrid.eu/issues/364)
+     */
     // NOTICE: Has to be published ! Guaranteed by select of passed sourceRecord ! 
-    rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
-    // Should be only one row !
-    objParentUuid = rows.get(0).get("fk_obj_uuid");
-    if (hasValue(objParentUuid)) {
-        mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
+    var explicitParentIdentifier = objRow.get("parent_identifier");
+    if (hasValue(explicitParentIdentifier)) {
+        mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(explicitParentIdentifier);
+    } else {
+        rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
+        // Should be only one row !
+        objParentUuid = rows.get(0).get("fk_obj_uuid");
+        if (hasValue(objParentUuid)) {
+            mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
+        }
     }
 // ---------- <gmd:hierarchyLevel> ----------
 // ---------- <gmd:hierarchyLevelName> ----------
@@ -252,19 +262,37 @@ for (i=0; i<objRows.size(); i++) {
                 : mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable");
                 
             /* numberOfDimensions */
-            gridSpatialRepr.addElement("gmd:numberOfDimensions/gco:Integer").addText(numDim);
+            if (hasValue(numDim)) {
+            	gridSpatialRepr.addElement("gmd:numberOfDimensions/gco:Integer").addText(numDim);
+            } else {
+            	gridSpatialRepr.addElement("gmd:numberOfDimensions").addAttribute("gco:nilReason", "unknown");
+            }
             
             /* axisDimensionProperties */
-            var dimensionNode = gridSpatialRepr.addElement("gmd:axisDimensionProperties/gmd:MD_Dimension");
-            dimensionNode.addElement("gmd:dimensionName/gmd:MD_DimensionNameTypeCode")
-            .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
-            .addAttribute("codeListValue", nameDim);
-            dimensionNode.addElement("gmd:dimensionSize/gco:Integer").addText(sizeDim)
+            if (hasValue(nameDim) || hasValue(sizeDim)) {
+                var dimensionNode = gridSpatialRepr.addElement("gmd:axisDimensionProperties/gmd:MD_Dimension");
+                if (hasValue(nameDim)) {
+                    dimensionNode.addElement("gmd:dimensionName/gmd:MD_DimensionNameTypeCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
+                    .addAttribute("codeListValue", nameDim);                	
+                } else {
+                    dimensionNode.addElement("gmd:dimensionName").addAttribute("gco:nilReason", "unknown");
+                }
+                if (hasValue(sizeDim)) {
+                	dimensionNode.addElement("gmd:dimensionSize/gco:Integer").addText(sizeDim);
+                } else {
+                    dimensionNode.addElement("gmd:dimensionSize").addAttribute("gco:nilReason", "unknown");
+                }
+            }
 
             /* cellGeometry */
-            gridSpatialRepr.addElement("gmd:cellGeometry/gmd:MD_CellGeometryCode")
+            if (hasValue(cellGeo)) {
+                gridSpatialRepr.addElement("gmd:cellGeometry/gmd:MD_CellGeometryCode")
                 .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
                 .addAttribute("codeListValue", cellGeo);
+            } else {
+            	gridSpatialRepr.addElement("gmd:cellGeometry").addAttribute("gco:nilReason", "unknown");
+            }
             
             /* transformationParameterAvailability */
             gridSpatialRepr.addElement("gmd:transformationParameterAvailability/gco:Boolean").addText("Y".equals(transformParam));
@@ -276,12 +304,18 @@ for (i=0; i<objRows.size(); i++) {
                 var rectPointInPixel = objGeoRow.get("geo_rect_point_in_pixel");
                 
                 gridSpatialRepr.addElement("gmd:checkPointAvailability/gco:Boolean").addText("Y".equals(rectCheckpoint));
-                gridSpatialRepr.addElement("gmd:checkPointDescription/gco:CharacterString").addText(rectDescription);
-                gridSpatialRepr.addElement("gmd:cornerPoints/gml:Point").addAttribute("gml:id", "cornerPointId1").addElement("gml:coordinates").addText(rectCornerPoint);
+                if (hasValue(rectDescription)) {
+                	gridSpatialRepr.addElement("gmd:checkPointDescription/gco:CharacterString").addText(rectDescription);
+                }
+                if (hasValue(rectCornerPoint)) {
+                    gridSpatialRepr.addElement("gmd:cornerPoints/gml:Point").addAttribute("gml:id", "cornerPointId1").addElement("gml:coordinates").addText(rectCornerPoint);
+                }
                 //gridSpatialRepr.addElement("gmd:centerPoint")
-                if (rectPointInPixel) {
+                if (hasValue(rectPointInPixel)) {
                     var pixelOrientCodeList = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(2100, rectPointInPixel);
                     gridSpatialRepr.addElement("gmd:pointInPixel/gmd:MD_PixelOrientationCode").addText(pixelOrientCodeList);
+                } else {
+                	gridSpatialRepr.addElement("gmd:pointInPixel").addAttribute("gco:nilReason", "unknown");
                 }
                 //gridSpatialRepr.addElement("gmd:transformationDimensionDescription")
                 //gridSpatialRepr.addElement("gmd:transformationDimensionMapping")
@@ -294,7 +328,11 @@ for (i=0; i<objRows.size(); i++) {
                 gridSpatialRepr.addElement("gmd:controlPointAvailability/gco:Boolean").addText("Y".equals(refControlPoint));
                 gridSpatialRepr.addElement("gmd:orientationParameterAvailability/gco:Boolean").addText("Y".equals(refOrientationParameter));
                 //gridSpatialRepr.addElement("gmd:orientationParameterDescription")
-                gridSpatialRepr.addElement("gmd:georeferencedParameters/gco:Record/gco:CharacterString").addText(refParameter);
+                if (hasValue(refParameter)) {
+                	gridSpatialRepr.addElement("gmd:georeferencedParameters/gco:Record/gco:CharacterString").addText(refParameter);
+                } else {
+                	gridSpatialRepr.addElement("gmd:georeferencedParameters").addAttribute("gco:nilReason", "unknown");
+                }
                 //gridSpatialRepr.addElement("gmd:parameterCitation")
             }
         }
@@ -746,7 +784,7 @@ for (i=0; i<objRows.size(); i++) {
     // ATTENTION: since LGV Hamburg wants their categories always displayed, they also want
     //            these mapped to IDF even if open data is not checked (REDMINE-395)
     mdKeywords = DOM.createElement("gmd:MD_Keywords");
-    rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=?", [+objId])
+    rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=?", [+objId]);
     for (i=0; i<rows.size(); i++) {
         mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(rows.get(i).get("category_value"));
     }
@@ -1398,7 +1436,7 @@ function getFirstVisibleAddress(addrUuid, useWorkingVersion) {
         }
         addrIdToFetch = "addr_id";      
     }
-    sqlQuery = sqlQuery + addrIdToFetch + " IS NOT NULL"
+    sqlQuery = sqlQuery + addrIdToFetch + " IS NOT NULL";
     var addrNodeRows = SQL.all(sqlQuery, [addrUuid]);
     for (k=0; k<addrNodeRows.size(); k++) {
         var parentAddrUuid = addrNodeRows.get(k).get("fk_addr_uuid");
@@ -1943,7 +1981,17 @@ function addResourceConstraints(identificationInfo, objRow) {
 
             var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
             if (hasValue(licenseJSON)) {
-                mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(licenseJSON);            	
+                var licenseSource = row.get("source");
+                log.debug("licenseSource: " + licenseSource);
+                if (licenseSource) {
+                    var licenseJSONParsed = JSON.parse(licenseJSON);
+                    licenseJSONParsed.quelle = licenseSource;
+                    licenseJSON = JSON.stringify(licenseJSONParsed);
+
+                    // add license source also as additional otherConstraint (#1066)
+                    mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText("Quellenvermerk: " + licenseSource);
+                }
+                mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(licenseJSON);
             }
         }
     }

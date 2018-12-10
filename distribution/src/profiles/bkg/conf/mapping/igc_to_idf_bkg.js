@@ -57,7 +57,7 @@ for (i=0; i<objRows.size(); i++) {
     
     handleBKGAccessConstraints();
     handleBKGUseConstraints();
-    
+    handleBKGUseLimitation();
 }
 
 function handleBKGAccessConstraints() {
@@ -99,7 +99,7 @@ function handleBKGUseConstraints() {
         var bkgUseConstraintSelectListItem = getAdditionalFieldFromObject(null, bkgUseConstraintId, 'bkg_useConstraints_select', 'list_item_id');
             
         if (log.isDebugEnabled()) {
-            log.debug("BKG use constraint field contains value: " + bkgUseConstraintSelectListItem);
+            log.debug("BKG use constraint select field contains value: " + bkgUseConstraintSelectListItem);
         }
         
         // get value from free text field
@@ -183,14 +183,10 @@ function addAccessConstraints(legalConstraint, codelistEntryId, valueFree) {
         return;
     }
     
+	// codelist 10001/10002
     switch (codelistEntryId) {
     case "1":
         addAccessConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10002, codelistEntryId), valueFree]);
-        break;
-    case "2":
-    case "3":
-    case "4":
-        addAccessConstraintElements(legalConstraint, ["copyright"], [TRANSF.getIGCSyslistEntryName(10002, codelistEntryId), valueFree]);
         break;
     case "5":
         addAccessConstraintElements(legalConstraint, ["copyright"], [valueFree]);
@@ -208,7 +204,7 @@ function addAccessConstraints(legalConstraint, codelistEntryId, valueFree) {
         addAccessConstraintElements(legalConstraint, ["restricted"], [valueFree]);
         break;
     default:
-        log.warn("Codelist entry not supported for list 10001: " + codelistEntryId);
+        addAccessConstraintElements(legalConstraint, ["copyright"], [TRANSF.getIGCSyslistEntryName(10002, codelistEntryId), valueFree]);
     }
 }
 
@@ -218,48 +214,55 @@ function addUseConstraints(legalConstraint, codelistEntryId, valueFree) {
         addUseConstraintElements(legalConstraint, [], [valueFree]);
         return;
     }
-    
-    switch (codelistEntryId) {
-    case "1":
-    case "2":
-    case "3":
-    case "4":
-    case "5":
-    case "6":
-    case "7":
-    case "8":
-    case "9":
-        
-        // if opendata and other codelist was used, then add JSON as other constraint
-        if (isOpenData()) {
+
+
+    if (isOpenData()) {
+    	// codelist 10005/10006
+        switch (codelistEntryId) {
+        case "2":
+            addUseConstraintElements(legalConstraint, ["copyright"], [valueFree]);
+            break;
+        case "3":
+            addUseConstraintElements(legalConstraint, ["license"], [valueFree]);
+            break;
+        case "4":
+            addUseConstraintElements(legalConstraint, ["copyright", "license"], [valueFree]);
+            break;
+        case "5":
+            addUseConstraintElements(legalConstraint, ["intellectualPropertyRights"], [valueFree]);
+            break;
+        case "6":
+            addUseConstraintElements(legalConstraint, ["restricted"], [valueFree]);
+            break;
+        default:
+            // if opendata other codelist was used, then add JSON as other constraint
             var codelistEntryName = TRANSF.getIGCSyslistEntryName(10006, codelistEntryId);
-            var codelistDataEntryName = TRANSF.getIGCSyslistEntryName(10005, codelistEntryId);
-            var json = TRANSF.getISOCodeListEntryData(10005, codelistDataEntryName);
-            
-            addUseConstraintElements(legalConstraint, ["license"], [codelistEntryName, json, valueFree]);
-            
-        } else {
-            addUseConstraintElements(legalConstraint, ["license"], [TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), valueFree]);
-            
+        	var codelistDataEntryName = TRANSF.getIGCSyslistEntryName(10005, codelistEntryId);
+        	var json = TRANSF.getISOCodeListEntryData(10005, codelistDataEntryName);
+        	addUseConstraintElements(legalConstraint, ["license"], [codelistEntryName, json, valueFree]);
         }
-        break;
-    case "10":
-        addUseConstraintElements(legalConstraint, ["copyright"], [valueFree]);
-        break;
-    case "11":
-        addUseConstraintElements(legalConstraint, ["license"], [valueFree]);
-        break;
-    case "12":
-        addUseConstraintElements(legalConstraint, ["copyright", "license"], [valueFree]);
-        break;
-    case "13":
-        addUseConstraintElements(legalConstraint, ["intellectualPropertyRights"], [valueFree]);
-        break;
-    case "14":
-        addUseConstraintElements(legalConstraint, ["restricted"], null, [valueFree]);
-        break;
-    default:
-        log.warn("Codelist entry not supported for list 10003: " + codelistEntryId);
+    	
+    } else {
+    	// codelist 10003/10004
+        switch (codelistEntryId) {
+        case "10":
+            addUseConstraintElements(legalConstraint, ["copyright"], [valueFree]);
+            break;
+        case "11":
+            addUseConstraintElements(legalConstraint, ["license"], [valueFree]);
+            break;
+        case "12":
+            addUseConstraintElements(legalConstraint, ["copyright", "license"], [valueFree]);
+            break;
+        case "13":
+            addUseConstraintElements(legalConstraint, ["intellectualPropertyRights"], [valueFree]);
+            break;
+        case "14":
+            addUseConstraintElements(legalConstraint, ["restricted"], [valueFree]);
+            break;
+        default:
+            addUseConstraintElements(legalConstraint, ["license"], [TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), valueFree]);
+        }
     }
 }
 
@@ -279,11 +282,11 @@ function addAccessConstraintElements(legalConstraint, restrictionCodeValues, oth
     }
     
     legalConstraint.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
-        .addAttribute("codeListValue", "otherRestrictions")
-        .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-        .addText("otherRestrictions");
-    
-    if (otherConstraints) {
+    .addAttribute("codeListValue", "otherRestrictions")
+    .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
+    .addText("otherRestrictions");
+
+    if (hasValue(otherConstraints)) {
         for (var j=0; j<otherConstraints.length; j++) {
             if (otherConstraints[j]) {
                 legalConstraint
@@ -310,11 +313,11 @@ function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherC
     }
     
     legalConstraint.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
-        .addAttribute("codeListValue", "otherRestrictions")
-        .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-        .addText("otherRestrictions");
-    
-    if (otherConstraints) {
+    .addAttribute("codeListValue", "otherRestrictions")
+    .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
+    .addText("otherRestrictions");
+
+    if (hasValue(otherConstraints)) {
         for (var j=0; j<otherConstraints.length; j++) {
             if (otherConstraints[j]) {
                 legalConstraint
@@ -333,4 +336,34 @@ function isOpenData() {
 function isInspireRelevant() {
     var value = objRow.get("is_inspire_relevant");
     return hasValue(value) && value.equals('Y');
+}
+
+function handleBKGUseLimitation() {
+    // remove "Nutzungseinschränkungen" from useLimitation
+    var useLimitationCharNodes = XPATH.getNodeList(body.getElement(), "//gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString");
+    
+    if (hasValue(useLimitationCharNodes)) {
+        for (var i=0; i < useLimitationCharNodes.getLength(); i++) {
+            var myCharNode = useLimitationCharNodes.item(i);
+            var myText = XPATH.getString(myCharNode, ".");
+            var myNewText = removeConstraintPraefixBkg(myText);
+            myCharNode.setTextContent(myNewText);
+        }
+    }
+}
+
+function removeConstraintPraefixBkg(val) {
+ 	if (hasValue(val)) {
+//    	log.warn("MM IN constraint : " + val);
+
+    	val = val.trim();
+
+    	// remove GDI-DE prefix
+    	val = val.replace("Nutzungseinschränkungen: ", "");
+    	// keep "Nutzungsbedingungen", this one marks fake useLimitations ! 
+//    	val = val.replace("Nutzungsbedingungen: ", "");
+
+//    	log.warn("MM OUT constraint : " + val);
+	}
+	return val;
 }

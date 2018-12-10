@@ -152,7 +152,7 @@ public abstract class MdekIdcJob extends MdekJob {
                 ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
                 if (doc != null && !doc.isEmpty()) {
                     indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
-                    indexManager.update( docProducer.getIndexInfo(), doc, true );
+                    indexManager.update( docProducer.getIndexInfo(), doc, false );
                     indexManager.flush();
                 }
 

@@ -492,7 +492,7 @@ public class MdekObjectService {
 	 * Publish the object represented by the passed doc.<br>
 	 * NOTICE: pass PARENT_UUID in doc when new object !
 	 * @param oDocIn doc representing object
-	 * @param forcePublicationCondition apply restricted PubCondition to subnodes (true)
+	 * @param forcePubCondition apply restricted PubCondition to subnodes (true)
 	 * 		or receive Error when subnodes PubCondition conflicts (false)
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
