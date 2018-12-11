@@ -81,6 +81,14 @@ function createExtras(objId, objRow) {
     extrasArray.push( '"license_url": "' + getAdditionalFieldData(objId, 'mcloudLicenseUrl') + '"' );
     extrasArray.push( '"realtime": ' + (objRow.get('time_period') === '1' ? 'true' : 'false') );
 
+    var orgs = JSON.parse(getOrganizations(objId));
+    if (orgs && orgs[0]) {
+        var name = orgs[0].organization;
+        var url = orgs[0].homepage;
+
+        extrasArray.push('"displayContact": { "name": "' + name + '", "url": "' + url + '" }');
+    }
+
     return extrasArray.join(',');
 }
 
