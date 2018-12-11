@@ -303,6 +303,7 @@
           },
           "mfund_project_title": {
             "type": "string",
+            "analyzer": "decomp",
             "fields": {
               "raw": {
                 "type": "string",
@@ -321,6 +322,10 @@
                 "analyzer": "decomp"
               }
             }
+          },
+          "all": {
+            "type": "string",
+            "analyzer": "decomp"
           }
         }
       }
