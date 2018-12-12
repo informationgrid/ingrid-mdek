@@ -63,7 +63,10 @@ for (var i=0; i<objRows.size(); i++) {
     // issued (created) and modified dates
     IDX.add('issued', toMilliseconds(objRow.get('create_time')));
     IDX.add('modified', toMilliseconds(objRow.get('mod_time')));
-    IDX.addAllFromJSON( JSON.stringify({accessRights: [ getAdditionalFieldData(objId, 'mcloudTermsOfUse')] }) );
+    var termsOfUse = getAdditionalFieldData(objId, 'mcloudTermsOfUse');
+    if (termsOfUse !== '') {
+        IDX.addAllFromJSON( JSON.stringify({accessRights: [ termsOfUse ] }) );
+    }
 
     var extras = createExtras(objId, objRow);
     IDX.addAllFromJSON('{ "extras": { ' + extras + ' } }');
@@ -77,9 +80,22 @@ for (var i=0; i<objRows.size(); i++) {
 function createExtras(objId, objRow) {
     var extrasArray = [];
     extrasArray.push( '"subgroups": ' + getCategories(objId) );
+
+    var licenseText = getAdditionalFieldData(objId, 'mcloudLicense');
     extrasArray.push( '"license_id": "' + getAdditionalFieldData(objId, 'mcloudLicense') + '"' );
-    extrasArray.push( '"license_url": "' + getAdditionalFieldData(objId, 'mcloudLicenseUrl') + '"' );
+
+    var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
+    log.debug("LicenseJSON: " + licenseJSON);
+    if (hasValue(licenseJSON)) {
+        log.debug("LicenseJSON-URL: " + JSON.parse(licenseJSON).url);
+        extrasArray.push( '"license_url": "' + JSON.parse(licenseJSON).url + '"' );
+    }
+
     extrasArray.push( '"realtime": ' + (objRow.get('time_period') === '1' ? 'true' : 'false') );
+    var from = TRANSF.getISODateFromIGCDate(objRow.get('time_from'));
+    var to = TRANSF.getISODateFromIGCDate(objRow.get('time_to'));
+    extrasArray.push( '"temporal_start": "' + from.substr(0, 10) + '"' );
+    extrasArray.push( '"temporal_end": "' + to.substr(0, 10) + '"' );
 
     var orgs = JSON.parse(getOrganizations(objId));
     if (orgs && orgs[0]) {
@@ -112,7 +128,8 @@ function getDistributions(objId) {
             distributions.push(JSON.stringify({
                 format: row['dateFormat'],
                 accessURL: row['link'],
-                description: row['title']
+                description: row['title'],
+                type: row['sourceType']
             }));
         }
     }
