@@ -94,8 +94,12 @@ function createExtras(objId, objRow) {
     extrasArray.push( '"realtime": ' + (objRow.get('time_period') === '1' ? 'true' : 'false') );
     var from = TRANSF.getISODateFromIGCDate(objRow.get('time_from'));
     var to = TRANSF.getISODateFromIGCDate(objRow.get('time_to'));
-    extrasArray.push( '"temporal_start": "' + from.substr(0, 10) + '"' );
-    extrasArray.push( '"temporal_end": "' + to.substr(0, 10) + '"' );
+    if (hasValue(from)) {
+        extrasArray.push( '"temporal_start": "' + from.substr(0, 10) + '"' );
+    }
+    if (hasValue(to)) {
+        extrasArray.push('"temporal_end": "' + to.substr(0, 10) + '"');
+    }
 
     var orgs = JSON.parse(getOrganizations(objId));
     if (orgs && orgs[0]) {
