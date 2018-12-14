@@ -17,11 +17,11 @@
                 <ref bean="idfProducerIndexMapper"/>
             </list>
         </property>
-        <property name="indexInfo" ref="indexInfo"></property>
+        <property name="indexInfo" ref="indexInfo"/>
     </bean>
     
     <bean id="indexInfo" class="de.ingrid.elasticsearch.IndexInfo">
-        <property name="toIndex" value="ige-test" />
+        <property name="toIndex" value="ige-test-object" />
         <property name="toType" value="object" />
         <property name="docIdField" value="t01_object.obj_id" />
     </bean>
