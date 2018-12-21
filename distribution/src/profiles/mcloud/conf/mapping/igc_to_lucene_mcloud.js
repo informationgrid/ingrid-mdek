@@ -109,6 +109,9 @@ function createExtras(objId, objRow) {
         extrasArray.push('"displayContact": { "name": "' + name + '", "url": "' + url + '" }');
     }
 
+    extrasArray.push('"mfund_fkz": "' + getAdditionalField(objId, 'mcloudMFundFKZ').data + '"');
+    extrasArray.push('"mfund_project_title": "' + getAdditionalField(objId, 'mcloudMFundProject').data + '"');
+
     return extrasArray.join(',');
 }
 
