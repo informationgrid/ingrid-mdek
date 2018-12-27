@@ -181,10 +181,12 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             @SuppressWarnings("unchecked")
             Map<String, Object> map = (Map<String, Object>) info.getParameter();
             doc = cswTransaction( (String) map.get( DATA_PARAMETER ) );
+            break;
         case "index":
             indexScheduler.triggerManually();
             doc = new IngridDocument();
             doc.put( "success", true );
+            break;
         default:
             log.warn( "The following method is not supported: " + info.getMethod() );
         }
