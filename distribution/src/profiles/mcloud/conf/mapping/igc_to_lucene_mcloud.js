@@ -109,8 +109,14 @@ function createExtras(objId, objRow) {
         extrasArray.push('"displayContact": { "name": "' + name + '", "url": "' + url + '" }');
     }
 
-    extrasArray.push('"mfund_fkz": "' + getAdditionalField(objId, 'mcloudMFundFKZ').data + '"');
-    extrasArray.push('"mfund_project_title": "' + getAdditionalField(objId, 'mcloudMFundProject').data + '"');
+    var mfundFkz = getAdditionalField(objId, 'mcloudMFundFKZ');
+    if (mfundFkz) {
+        extrasArray.push('"mfund_fkz": "' + mfundFkz.data + '"');
+    }
+    var mfundProject = getAdditionalField(objId, 'mcloudMFundProject');
+    if (mfundProject) {
+        extrasArray.push('"mfund_project_title": "' + mfundProject.data + '"');
+    }
 
     return extrasArray.join(',');
 }
