@@ -139,10 +139,12 @@ function getDistributions(objId) {
         for (var i=0; i<table.length; i++) {
             var row = table[i];
             distributions.push(JSON.stringify({
-                format: row['dateFormat'],
+                // Attention: we map sourceType to format, since this will be used as facet!
+                format: row['sourceType'],
                 accessURL: row['link'],
                 description: row['title'],
-                type: row['sourceType']
+                // Attention: type, which is the format of the download will be used as extra information for the download
+                type: row['dateFormat']
             }));
         }
     }
