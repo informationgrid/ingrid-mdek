@@ -79,7 +79,6 @@ mapToTarget(mappingDescriptionBkg, source, target.getDocumentElement());
 function mapAccessConstraintsBkg(source, target) {
     var legalConstraints = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:resourceConstraints/gmd:MD_LegalConstraints");
     if (hasValue(legalConstraints)) {
-        // get only first element where bkg specific info should be found
         var entryId = null;
         var freeTextValue = null;
         var accessConstraintNodes = null;
@@ -196,7 +195,6 @@ function mapAccessConstraintsBkg(source, target) {
 function mapUseConstraintsBkg(source, target) {
     var legalConstraints = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:resourceConstraints/gmd:MD_LegalConstraints");
     if (hasValue(legalConstraints)) {
-        // get only first element where bkg specific info should be found
         var entryId = null;
         var freeTextValue = null;
         var useConstraintNodes = null;
@@ -343,9 +341,8 @@ function mapUseConstraintsBkg(source, target) {
 
 function getSysListEntryKey(codelistId, entryName) {
 	if (hasValue(entryName)) {
-		entryName = entryName.trim();
-	    // remove praefix, defined in regular csw import mapper
-		entryName = removeConstraintPraefixBkg(entryName);
+	    // trim and remove praefix, defined in regular csw import mapper
+		entryName = removeConstraintPraefix(entryName);
 	}
 
 	log.debug("BKG: getSysListEntryKey -> codelistId='" + codelistId + "', entryName='" + entryName +"'");
@@ -396,7 +393,7 @@ function addUseValuesToDoc(target, codelistEntryId, freeText) {
     addAdditionalValue(additionalFieldsNode, "bkg_useConstraints", "bkg_useConstraints_select", codelistEntryId, null);
 
     // remove praefix, defined in regular csw import mapper
-    freeText = removeConstraintPraefixBkg(freeText);
+    freeText = removeConstraintPraefix(freeText);
     addAdditionalValue(additionalFieldsNode, "bkg_useConstraints", "bkg_useConstraints_freeText", null, freeText);
     
     return true;
@@ -440,12 +437,8 @@ function removeUseConstraint(target, name) {
     if (hasValue(name)) {
         var nodes = XPATH.getNodeList(target, "//use-constraint/license");
         if (hasValue(nodes)) {
+            name = removeConstraintPraefix(name);
             removeConstraint(target, name, nodes);
-            // also check version without prafix, defined in regular csw import mapper
-            var nameWithoutPraefix = removeConstraintPraefixBkg(name);
-            if (nameWithoutPraefix != name) {
-                removeConstraint(target, nameWithoutPraefix, nodes);            	
-            }
         }
     }
 }
@@ -474,20 +467,4 @@ function checkJSON(val) {
 		return true;
 	}
 	return false;
-}
-
-function removeConstraintPraefixBkg(val) {
-	if (hasValue(val)) {
-//    	log.warn("MM IN constraint : " + val);
-
-    	val = val.trim();
-
-    	// remove GDI-DE prefix
-    	// we don't handle useLimitations here
-//    	val = val.replace("Nutzungseinschränkungen: ", "");
-    	val = val.replace("Nutzungsbedingungen: ", "");
-
-//    	log.warn("MM OUT constraint : " + val);
-	}
-	return val;
 }

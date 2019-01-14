@@ -9,15 +9,15 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>4.5.0</version>
+  <version>4.6.0</version>
   <name>ingrid-iplug-ige</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.</description>
 
   <!-- REDEFINE version from base pom IF NEEDED !!! THIS VARIABLE IS ALSO USED BY INSTALLER ! -->
 
   <properties>
-    <ingrid-udk-importer.version>4.5.0</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>4.5.0</ingrid-codelist-service.version>
+    <ingrid-udk-importer.version>4.6.0</ingrid-udk-importer.version>
+    <ingrid-codelist-service.version>4.5.2</ingrid-codelist-service.version>
     <ingrid-utils.version>4.2.2</ingrid-utils.version>
     <ingrid-iplug-dsc.version>4.5.0</ingrid-iplug-dsc.version>
     <ingrid-base-webapp.version>4.5.0</ingrid-base-webapp.version>
