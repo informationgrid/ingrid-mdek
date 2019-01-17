@@ -61,6 +61,7 @@
         <property name="mappingScripts">
             <list>
                 <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/mcloud_mapper.js</value>
                 <value>classpath:mapping/igc_to_lucene_mcloud.js</value>
             </list>
         </property> 

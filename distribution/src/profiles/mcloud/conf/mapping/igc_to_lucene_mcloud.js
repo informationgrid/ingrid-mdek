@@ -45,6 +45,52 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 // add default boost value
 IDX.addDocumentBoost(1.0);
 
+// **********************************************
+// The following mapping object must be equal to:
+//     https://gitlab.wemove.com/mcloud/mcloud-ckan-importer/tree/develop/server/model/index-document.ts
+// **********************************************
+function map(mapper) {
+    return {
+        title: mapper.getTitle(),
+        description: mapper.getDescription(),
+        theme: mapper.getThemes(),
+        issued: mapper.getIssued(),
+        modified: mapper.getModifiedDate(),
+        accrualPeriodicity: mapper.getAccrualPeriodicity(),
+        keywords: mapper.getKeywords(),
+        creator: mapper.getCreator(),
+        publisher: mapper.getPublisher(),
+        accessRights: mapper.getAccessRights(),
+        distribution: mapper.getDistributions(),
+        extras: {
+            metadata: {
+                source: mapper.getMetadataSource(),
+                issued: mapper.getMetadataIssued(),
+                modified: mapper.getMetadataModified(),
+                harvested: mapper.getMetadataHarvested(),
+                harvesting_errors: null // get errors after all operations been done
+            },
+            generated_id: mapper.getGeneratedId(),
+            subgroups: mapper.getCategories(),
+            license_id: mapper.getLicenseId(),
+            license_title: mapper.getLicenseTitle(),
+            license_url: mapper.getLicenseURL(),
+            harvested_data: mapper.getHarvestedData(),
+            subsection: mapper.getSubSections(),
+            temporal: mapper.getTemporal(),
+            groups: mapper.getGroups(),
+            displayContact: mapper.getDisplayContacts(),
+            all: mapper.getExtrasAllData(),
+            temporal_start: mapper.getTemporalStart(),
+            temporal_end: mapper.getTemporalEnd(),
+            realtime: mapper.isRealtime(),
+            citation: mapper.getCitation(),
+            mfund_fkz: mapper.getMFundFKZ(),
+            mfund_project_title: mapper.getMFundProjectTitle()
+        }
+    };
+}
+
 // ---------- t01_object ----------
 var objId = +sourceRecord.get('id');
 var objRows = SQL.all('SELECT * FROM t01_object WHERE id=?', [objId]);
@@ -52,239 +98,19 @@ for (var i=0; i<objRows.size(); i++) {
 
     var objRow = objRows.get(i);
     var objClass = objRow.get('obj_class');
+    var objUuid = objRow.get('obj_uuid')
 
-    IDX.add('id', objRow.get('id'));
-    IDX.add('uuid', objRow.get('obj_uuid'));
+    log.info("Map ID: " + objId);
+    var mapper = new McloudMapper({
+        objId: objId,
+        objUuid: objUuid,
+        objRow: objRow
+    });
+    var doc = map(mapper);
 
-    // title, description, addresses, termsOfUse, category, downloads, license, quellenvermerk, mFund, geothesaurus, Zeitberzug, Zeitspanne, Periodizität
-    IDX.add('title', objRow.get('obj_name'));
-    IDX.add('description', objRow.get('obj_descr'));
-
-    // issued (created) and modified dates
-    IDX.add('issued', toMilliseconds(objRow.get('create_time')));
-    IDX.add('modified', toMilliseconds(objRow.get('mod_time')));
-    var termsOfUse = getAdditionalFieldData(objId, 'mcloudTermsOfUse');
-    if (termsOfUse !== '') {
-        IDX.addAllFromJSON( JSON.stringify({accessRights: [ termsOfUse ] }) );
-    }
-
-    var extras = createExtras(objId, objRow);
-    IDX.addAllFromJSON('{ "extras": { ' + extras + ' } }');
-
-    var dists = getDistributions(objId);
-    IDX.addAllFromJSON('{ "distribution": [' + dists.join(',') + ']}');
-    IDX.addAllFromJSON('{ "publisher": ' + getOrganizations(objId) + '}');
+    log.info("add doc to index");
+    IDX.addAllFromJSON(JSON.stringify(doc));
 
 }
 
-function createExtras(objId, objRow) {
-    var extrasArray = [];
-    extrasArray.push( '"subgroups": ' + getCategories(objId) );
-
-    var licenseText = getAdditionalFieldData(objId, 'mcloudLicense');
-    extrasArray.push( '"license_id": "' + getAdditionalFieldData(objId, 'mcloudLicense') + '"' );
-
-    var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
-    log.debug("LicenseJSON: " + licenseJSON);
-    if (hasValue(licenseJSON)) {
-        log.debug("LicenseJSON-URL: " + JSON.parse(licenseJSON).url);
-        extrasArray.push( '"license_url": "' + JSON.parse(licenseJSON).url + '"' );
-    }
-
-    extrasArray.push( '"realtime": ' + (objRow.get('time_period') === '1' ? 'true' : 'false') );
-    var from = TRANSF.getISODateFromIGCDate(objRow.get('time_from'));
-    var to = TRANSF.getISODateFromIGCDate(objRow.get('time_to'));
-    if (hasValue(from)) {
-        extrasArray.push( '"temporal_start": "' + from.substr(0, 10) + '"' );
-    }
-    if (hasValue(to)) {
-        extrasArray.push('"temporal_end": "' + to.substr(0, 10) + '"');
-    }
-
-    var orgs = JSON.parse(getOrganizations(objId));
-    if (orgs && orgs[0]) {
-        var name = orgs[0].organization;
-        var url = orgs[0].homepage;
-
-        extrasArray.push('"displayContact": { "name": "' + name + '", "url": "' + url + '" }');
-    }
-
-    var mfundFkz = getAdditionalField(objId, 'mcloudMFundFKZ');
-    if (mfundFkz) {
-        extrasArray.push('"mfund_fkz": "' + mfundFkz.data + '"');
-    }
-    var mfundProject = getAdditionalField(objId, 'mcloudMFundProject');
-    if (mfundProject) {
-        extrasArray.push('"mfund_project_title": "' + mfundProject.data + '"');
-    }
-
-    return extrasArray.join(',');
-}
-
-function getCategories(objId) {
-    var categories = [];
-    var rows = getAdditionalFieldChildren(objId, 'mcloudCategory');
-    if (rows) {
-        for(var i=0; i<rows.size(); i++) {
-            categories.push(rows.get(i).get('list_item_id'));
-        }
-    }
-    return JSON.stringify(categories);
-}
-
-function getDistributions(objId) {
-    var distributions = [];
-    var table = getAdditionalFieldTable(objId, 'mcloudDownloads');
-    if (table) {
-        for (var i=0; i<table.length; i++) {
-            var row = table[i];
-            distributions.push(JSON.stringify({
-                // Attention: we map sourceType to format, since this will be used as facet!
-                format: row['sourceType'],
-                accessURL: row['link'],
-                description: row['title'],
-                // Attention: type, which is the format of the download will be used as extra information for the download
-                type: row['dateFormat']
-            }));
-        }
-    }
-    return distributions;
-}
-
-function getOrganizations(objId) {
-    var publisher = [];
-
-    var rows = SQL.all("SELECT * FROM t012_obj_adr WHERE obj_id=? AND type=10", [+objId]); // type 10 is Publisher/Herausgeber
-    for (j=0; j<rows.size(); j++) {
-        var addrUuid = rows.get(j).get("adr_uuid");
-
-        var addrNodeRows = SQL.all("SELECT * FROM address_node WHERE addr_uuid=? AND addr_id_published IS NOT NULL", [addrUuid]);
-        for (k=0; k<addrNodeRows.size(); k++) {
-            var parentAddrUuid = addrNodeRows.get(k).get("fk_addr_uuid");
-            var addrIdPublished = addrNodeRows.get(k).get("addr_id_published");
-
-            var addrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [+addrIdPublished]);
-            if (hasValue(addrRow)) {
-                var homepage = "";
-                var commRows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=? AND commtype_key = 4", [+addrIdPublished]); // commtype_4 is url
-                if (commRows && commRows.size() > 0) {
-                    // Use the first available value
-                    homepage = commRows.get(0).get('comm_value');
-                }
-
-                publisher.push({
-                    "organization": getOrganization(addrRow),
-                    "homepage": homepage
-                });
-
-            }
-        }
-    }
-    return JSON.stringify(publisher);
-}
-
-function getOrganization(addrRow) {
-    var organization = getIndividualNameFromAddressRow(addrRow);
-
-    if (!organization) {
-        organization = addrRow.get('institution');
-    }
-
-    return organization;
-}
-
-/**
- * Get the individual name from a address record.
- *
- * @param addressRow
- * @return The individual name.
- */
-function getIndividualNameFromAddressRow(addressRow) {
-    var individualName = "";
-    var addressing = addressRow.get("address_value");
-    var title = addressRow.get("title_value");
-    var firstName = addressRow.get("firstname");
-    var lastName = addressRow.get("lastname");
-
-    var name = "";
-
-    if (hasValue(title) && !hasValue(addressing)) {
-        name = title + " ";
-    } else if (!hasValue(title) && hasValue(addressing)) {
-        name = addressing + " ";
-    } else if (hasValue(title) && hasValue(addressing)) {
-        name = addressing + " " + title + " ";
-    }
-
-    if (hasValue(firstName)) {
-        name = name + "" + firstName +  " ";
-    }
-
-    if (hasValue(lastName)) {
-        name = name + "" + lastName;
-    }
-
-    return name;
-}
-
-function getAdditionalField(objId, additionalFieldId) {
-    var row = SQL.first('SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?', [objId, additionalFieldId]);
-    if (hasValue(row) && hasValue(row.get('id'))) {
-        return row;
-    }
-    return null;
-}
-
-function getAdditionalFieldChildren(objId, additionalFieldId) {
-    var rows = SQL.all('SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?', [+objId, additionalFieldId]);
-    if (rows) {
-        var children = [];
-        for (var i=0; i<rows.size(); i++) {
-            var row = rows.get(i);
-            var childRows = SQL.all('SELECT * FROM additional_field_data WHERE parent_field_id=?', [+row.get('id')]);
-            if (childRows) {
-                return childRows;
-            }
-        }
-    }
-    return [];
-}
-
-function getAdditionalFieldData(objId, additionalFieldId) {
-    var field = getAdditionalField(objId, additionalFieldId);
-    return (field === null) ? '' : field.get('data');
-}
-
-function getAdditionalFieldTable(objId, additionalFieldId) {
-    var rows = [];
-    var table = getAdditionalField(objId, additionalFieldId);
-    var tableResult = SQL.all('SELECT * FROM additional_field_data WHERE parent_field_id=? ORDER BY sort', [+table.get('id')]);
-
-    var i = 0;
-    var sort = '1';
-    var row = {};
-    var processing = true;
-    while (processing) {
-        var column = tableResult.get(i);
-        if (column.get('sort') === sort) {
-            row[column.get('field_key')] = column.get('data');
-            i++;
-        } else {
-            sort = column.get('sort');
-            rows.push(row);
-            row = {};
-        }
-        if (i === tableResult.size()) {
-            rows.push(row);
-            processing = false;
-        }
-    }
-    return rows;
-}
-
-function toMilliseconds(igcTimestamp) {
-    var millis = TRANSF.getISODateFromIGCDate(igcTimestamp);
-    var date = Date.parse(millis);
-    return date;
-}
 
