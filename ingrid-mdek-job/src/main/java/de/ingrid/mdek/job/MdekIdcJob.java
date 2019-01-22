@@ -24,6 +24,7 @@ package de.ingrid.mdek.job;
 
 import de.ingrid.admin.Config;
 import de.ingrid.elasticsearch.IIndexManager;
+import de.ingrid.elasticsearch.IndexInfo;
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
@@ -42,6 +43,7 @@ import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -151,13 +153,25 @@ public abstract class MdekIdcJob extends MdekJob {
                 // update search index
                 ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
                 if (doc != null && !doc.isEmpty()) {
-                    doc.put( "datatype", config.datatypes.toArray(new String[0]) );
+
+                    IndexInfo indexInfo = docProducer.getIndexInfo();
+                    String[] datatypes = null;
+                    try {
+                        String datatypesString = (String) config.getOverrideProperties().get( "plugdescription.dataType." + indexInfo.getIdentifier()  );
+                        if (datatypesString != null) {
+                            datatypes = datatypesString.split(",");
+                        }
+                    } catch (IOException e) {
+                        log.error("Could not get override properties", e);
+                    }
+
+                    doc.put( "datatype", datatypes );
                     doc.put( "partner", config.partner );
                     doc.put( "provider", config.provider );
-                    doc.put( "dataSourceName", config.datasourceName);
+                    doc.put( "dataSourceName", config.datasourceName );
                     doc.put( "organisation", config.organisation );
                     doc.put( "iPlugId", config.communicationProxyUrl );
-                    indexManager.update( docProducer.getIndexInfo(), doc, true );
+                    indexManager.update( indexInfo, doc, true );
                     indexManager.flush();
                 }
 
