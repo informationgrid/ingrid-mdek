@@ -27,6 +27,37 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+
+    <release version="4.6.0" date="2019-01-14" description="Release InGrid 4.6.0">
+      <action type="add" dev="wemove" issue="1202">
+        Add docs for migrating from Oracle to MySQL (MetaVer).
+      </action>
+      <action type="update" dev="wemove" issue="1099">
+        Remove ISO themes from non Geo-Datasets.
+      </action>
+      <action type="update" dev="wemove" issue="1212">
+        Update Oracle driver to ojdbc7 for Oracle 12.
+      </action>
+      <action type="fix" dev="wemove" issue="1270">
+        Fix indexing in wrong index.
+      </action>
+      <action type="fix" dev="wemove" issue="1105">
+        Also add keyword advmis to index if adv checkbox selected so can be found in portal search.
+      </action>
+      <action type="fix" dev="wemove" issue="1193">
+        Fix initial codelists (1320, 6005, 6100), data was lost when codelists were separated.
+      </action>
+      <action type="fix" dev="wemove" issue="1199">
+        BKG: Fix import of useConstraints. 
+      </action>
+    </release>
+
+    <release version="4.5.1" date="2018-10-18" description="Release 4.5.1">
+      <action type="fix" dev="wemove" issue="1199">
+        BKG: Fix import of useConstraints.
+      </action>
+    </release>
+
     <release version="4.5.0" date="2018-10-11" description="Release InGrid 4.5.0">
       <action type="add" dev="wemove" issue="REDMINE-826">
         BKG: Remove praefix from useLimitation when exporting to ISO.

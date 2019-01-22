@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -138,7 +138,7 @@ public abstract class MdekIdcJob extends MdekJob {
 	 * @param changedEntities List of maps containing data about changed entities.
 	 * NOTICE: May also contain unpublished entities, this is checked, only published ones are processed ! 
 	 */
-	@SuppressWarnings("rawtypes") 
+	@SuppressWarnings("rawtypes")
 	protected void updateSearchIndexAndAudit(List<HashMap> changedEntities) {
         for (Map entity : changedEntities) {
 
@@ -171,7 +171,7 @@ public abstract class MdekIdcJob extends MdekJob {
                     doc.put( "dataSourceName", config.datasourceName );
                     doc.put( "organisation", config.organisation );
                     doc.put( "iPlugId", config.communicationProxyUrl );
-                    indexManager.update( indexInfo, doc, true );
+                    indexManager.update( indexInfo, doc, false );
                     indexManager.flush();
                 }
 
