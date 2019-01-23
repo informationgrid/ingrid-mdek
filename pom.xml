@@ -20,8 +20,7 @@
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
-    <!-- TODO: use 4.6.0 -->
-    <ingrid-udk-importer.version>4.5.0</ingrid-udk-importer.version>
+    <ingrid-udk-importer.version>4.6.0</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>5.0.0-SNAPSHOT</ingrid-codelist-service.version>
     <ingrid-utils.version>5.0.0-SNAPSHOT</ingrid-utils.version>
     <ingrid-iplug-dsc.version>5.0.0-SNAPSHOT</ingrid-iplug-dsc.version>
