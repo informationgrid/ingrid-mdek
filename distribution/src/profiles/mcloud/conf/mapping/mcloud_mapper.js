@@ -27,8 +27,7 @@ var McloudMapper = /** @class */ (function () {
         return null;
     };
     McloudMapper.prototype.getDistributions = function () {
-        var dists = getDistributions(this.objId);
-        return dists;
+        return getDistributions(this.objId);
     };
     McloudMapper.prototype.getLicenseId = function () {
         return getAdditionalFieldData(this.objId, 'mcloudLicense');
@@ -45,7 +44,7 @@ var McloudMapper = /** @class */ (function () {
         return null;
     };
     McloudMapper.prototype.getModifiedDate = function () {
-        return toMilliseconds(this.objRow.get('mod_time'));
+        return new Date(toMilliseconds(this.objRow.get('mod_time')));
     };
     McloudMapper.prototype.getGeneratedId = function () {
         return this.objUuid;
@@ -120,7 +119,7 @@ var McloudMapper = /** @class */ (function () {
         return null;
     };
     McloudMapper.prototype.getIssued = function () {
-        return toMilliseconds(this.objRow.get('create_time'));
+        return new Date(toMilliseconds(this.objRow.get('create_time')));
     };
     McloudMapper.prototype.getMetadataHarvested = function () {
         return null;
@@ -173,12 +172,11 @@ var McloudMapper = /** @class */ (function () {
         var publisher = [];
 
         var rows = SQL.all("SELECT * FROM t012_obj_adr WHERE obj_id=? AND type=10", [+objId]); // type 10 is Publisher/Herausgeber
-        for (j = 0; j < rows.size(); j++) {
+        for (var j = 0; j < rows.size(); j++) {
             var addrUuid = rows.get(j).get("adr_uuid");
 
             var addrNodeRows = SQL.all("SELECT * FROM address_node WHERE addr_uuid=? AND addr_id_published IS NOT NULL", [addrUuid]);
-            for (k = 0; k < addrNodeRows.size(); k++) {
-                var parentAddrUuid = addrNodeRows.get(k).get("fk_addr_uuid");
+            for (var k = 0; k < addrNodeRows.size(); k++) {
                 var addrIdPublished = addrNodeRows.get(k).get("addr_id_published");
 
                 var addrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [+addrIdPublished]);
@@ -218,7 +216,6 @@ var McloudMapper = /** @class */ (function () {
      * @return The individual name.
      */
     function getIndividualNameFromAddressRow(addressRow) {
-        var individualName = "";
         var addressing = addressRow.get("address_value");
         var title = addressRow.get("title_value");
         var firstName = addressRow.get("firstname");
@@ -262,7 +259,6 @@ var McloudMapper = /** @class */ (function () {
     function getAdditionalFieldChildren(objId, additionalFieldId) {
         var rows = SQL.all('SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?', [+objId, additionalFieldId]);
         if (rows) {
-            var children = [];
             for (var i = 0; i < rows.size(); i++) {
                 var row = rows.get(i);
                 var childRows = SQL.all('SELECT * FROM additional_field_data WHERE parent_field_id=?', [+row.get('id')]);
@@ -311,8 +307,7 @@ var McloudMapper = /** @class */ (function () {
 
     function toMilliseconds(igcTimestamp) {
         var millis = TRANSF.getISODateFromIGCDate(igcTimestamp);
-        var date = Date.parse(millis);
-        return date;
+        return Date.parse(millis);
     }
 
     return McloudMapper;
