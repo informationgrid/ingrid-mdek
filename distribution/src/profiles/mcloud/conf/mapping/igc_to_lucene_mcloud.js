@@ -51,6 +51,10 @@ IDX.addDocumentBoost(1.0);
 // **********************************************
 function map(mapper) {
     return {
+        // this is an additional field we need for updating a document
+        // we cannot use "extras.generated_id" since nesting is not supported
+        // in our update function (IndexManager::update)
+        uuid: mapper.getGeneratedId(),
         title: mapper.getTitle(),
         description: mapper.getDescription(),
         theme: mapper.getThemes(),
