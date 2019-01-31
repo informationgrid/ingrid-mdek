@@ -61,6 +61,7 @@ function map(mapper) {
         issued: mapper.getIssued(),
         modified: mapper.getModifiedDate(),
         accrualPeriodicity: mapper.getAccrualPeriodicity(),
+        contactPoint: mapper.getContactPoint(),
         keywords: mapper.getKeywords(),
         creator: mapper.getCreator(),
         publisher: mapper.getPublisher(),
@@ -72,7 +73,8 @@ function map(mapper) {
                 issued: mapper.getMetadataIssued(),
                 modified: mapper.getMetadataModified(),
                 harvested: mapper.getMetadataHarvested(),
-                harvesting_errors: null // get errors after all operations been done
+                harvesting_errors: null, // get errors after all operations been done
+                isValid: mapper.isValid(), // checks validity after all operations been done
             },
             generated_id: mapper.getGeneratedId(),
             subgroups: mapper.getCategories(),

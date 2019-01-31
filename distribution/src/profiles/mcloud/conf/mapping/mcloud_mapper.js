@@ -50,7 +50,7 @@ var McloudMapper = /** @class */ (function () {
         return this.objUuid;
     };
     McloudMapper.prototype.getMetadataIssued = function () {
-        return this.issuedExisting ? this.issuedExisting : new Date(Date.now());
+        return null; // this.issuedExisting ? this.issuedExisting : new Date(Date.now());
     };
     McloudMapper.prototype.getMetadataSource = function () {
         return null;
@@ -132,6 +132,14 @@ var McloudMapper = /** @class */ (function () {
     };
     McloudMapper.prototype.getExtrasAllData = function () {
         return null;
+    };
+    McloudMapper.prototype.getContactPoint = function () {
+        return null;
+    };
+    McloudMapper.prototype.isValid = function () {
+        var description = this.getDescription();
+        var distributions = this.getDistributions();
+        return description.trim().length !== 0 && distributions.length !== 0;
     };
 
     // ************************
