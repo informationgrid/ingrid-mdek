@@ -1798,7 +1798,8 @@ function mapAddresses(source, target) {
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "city"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:city/gco:CharacterString"));
             mapCommunicationData(isoAddressNode, igcAddressNode);
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "function"), XPATH.getString(isoAddressNode, "gmd:positionName/gco:CharacterString"));
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "hours-of-service"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:hoursOfService/gco:CharacterString"));
+            // add hours of service (REDMINE-380, REDMINE-1284) 
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "hours-of-service"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:hoursOfService/gco:CharacterString"));
 
             // add related addresses
             var igcRelatedAddressNode = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/related-address");
