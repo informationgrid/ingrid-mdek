@@ -28,6 +28,12 @@
   </properties>
   <body>
 
+    <release version="4.6.2-SNAPSHOT" date="2019-xx-xx" description="Release InGrid 4.6.2">
+      <action type="fix" dev="wemove" issue="1284">
+        Fix mapping of gmd:hoursOfService.
+      </action>
+    </release>  
+
     <release version="4.6.0" date="2019-01-14" description="Release InGrid 4.6.0">
       <action type="add" dev="wemove" issue="1202">
         Add docs for migrating from Oracle to MySQL (MetaVer).
