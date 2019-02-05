@@ -24,24 +24,32 @@ var McloudMapper = /** @class */ (function () {
         if (termsOfUse !== '') {
             return [termsOfUse];
         }
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getDistributions = function () {
         return getDistributions(this.objId);
     };
-    McloudMapper.prototype.getLicenseId = function () {
-        return getAdditionalFieldData(this.objId, 'mcloudLicense');
-    };
-    McloudMapper.prototype.getLicenseURL = function () {
+    McloudMapper.prototype.getLicense = function () {
+
+        var id = getAdditionalFieldData(this.objId, 'mcloudLicense');
         var licenseText = getAdditionalFieldData(this.objId, 'mcloudLicense');
+        var url = undefined;
 
         var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
-        log.debug("LicenseJSON: " + licenseJSON);
         if (hasValue(licenseJSON)) {
-            log.debug("LicenseJSON-URL: " + JSON.parse(licenseJSON).url);
-            return JSON.parse(licenseJSON).url;
+             url = JSON.parse(licenseJSON).url;
         }
-        return null;
+        if (id) {
+            return {
+                id: id,
+                title: licenseText,
+                url: url
+            };
+        } else {
+            return {
+                title: "Unbekannt"
+            };
+        }
     };
     McloudMapper.prototype.getModifiedDate = function () {
         return new Date(toMilliseconds(this.objRow.get('mod_time')));
@@ -50,22 +58,22 @@ var McloudMapper = /** @class */ (function () {
         return this.objUuid;
     };
     McloudMapper.prototype.getMetadataIssued = function () {
-        return null; // this.issuedExisting ? this.issuedExisting : new Date(Date.now());
+        return undefined; // this.issuedExisting ? this.issuedExisting : new Date(Date.now());
     };
     McloudMapper.prototype.getMetadataSource = function () {
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.isRealtime = function () {
         return this.objRow.get('time_period') === '1';
     };
     McloudMapper.prototype.getTemporal = function () {
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getCategories = function () {
         return getCategories(this.objId);
     };
     McloudMapper.prototype.getCitation = function () {
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getDisplayContacts = function () {
         var orgs = getOrganizations(this.objId);
@@ -75,66 +83,72 @@ var McloudMapper = /** @class */ (function () {
                 url: orgs[0].homepage
             };
         }
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getMFundFKZ = function () {
         var mfundFkz = getAdditionalField(this.objId, 'mcloudMFundFKZ');
         if (mfundFkz) {
             return mfundFkz.data;
         }
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getMFundProjectTitle = function () {
         var mfundProject = getAdditionalField(this.objId, 'mcloudMFundProject');
         if (mfundProject) {
             return mfundProject.data;
         }
-        return null;
+        return undefined;
     };
 
     McloudMapper.prototype.getAccrualPeriodicity = function () {
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getKeywords = function () {
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getCreator = function () {
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getHarvestedData = function () {
-        return null;
-    };
-    McloudMapper.prototype.getLicenseTitle = function () {
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getTemporalStart = function () {
         var from = TRANSF.getISODateFromIGCDate(this.objRow.get('time_from'));
-        return hasValue(from) ? from.substr(0, 10) : null;
+        return hasValue(from) ? from.substr(0, 10) : undefined;
     };
     McloudMapper.prototype.getTemporalEnd = function () {
         var to = TRANSF.getISODateFromIGCDate(this.objRow.get('time_to'));
-        return hasValue(to) ? to.substr(0, 10) : null;
+        return hasValue(to) ? to.substr(0, 10) : undefined;
     };
     McloudMapper.prototype.getGroups = function () {
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getIssued = function () {
         return new Date(toMilliseconds(this.objRow.get('create_time')));
     };
     McloudMapper.prototype.getMetadataHarvested = function () {
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getMetadataModified = function () {
         return new Date();
     };
     McloudMapper.prototype.getSubSections = function () {
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getExtrasAllData = function () {
-        return null;
+        return undefined;
     };
     McloudMapper.prototype.getContactPoint = function () {
-        return null;
+        return undefined;
+    };
+    McloudMapper.prototype.getOriginator = function () {
+        var sourceNote = getAdditionalField(this.objId, 'mcloudSourceNote');
+        if (sourceNote) {
+            return {
+                organization: sourceNote.data
+            };
+        }
+        return undefined;
     };
     McloudMapper.prototype.isValid = function () {
         var description = this.getDescription();
