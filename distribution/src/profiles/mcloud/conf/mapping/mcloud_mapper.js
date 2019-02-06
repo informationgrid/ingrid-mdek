@@ -47,6 +47,7 @@ var McloudMapper = /** @class */ (function () {
             };
         } else {
             return {
+                id: "unknown",
                 title: "Unbekannt"
             };
         }
@@ -75,13 +76,17 @@ var McloudMapper = /** @class */ (function () {
     McloudMapper.prototype.getCitation = function () {
         return undefined;
     };
+    /**
+     *
+     * @return {{name: (*|string), homepage: *}[]|undefined}
+     */
     McloudMapper.prototype.getDisplayContacts = function () {
         var orgs = getOrganizations(this.objId);
         if (orgs && orgs[0]) {
-            return {
+            return [{
                 name: orgs[0].organization,
-                url: orgs[0].homepage
-            };
+                homepage: orgs[0].homepage
+            }];
         }
         return undefined;
     };
