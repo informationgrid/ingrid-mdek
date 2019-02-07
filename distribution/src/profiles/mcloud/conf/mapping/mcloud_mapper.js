@@ -146,12 +146,16 @@ var McloudMapper = /** @class */ (function () {
     McloudMapper.prototype.getContactPoint = function () {
         return undefined;
     };
+    /**
+     *
+     * @return {undefined|{organization: *}[]}
+     */
     McloudMapper.prototype.getOriginator = function () {
         var sourceNote = getAdditionalField(this.objId, 'mcloudSourceNote');
         if (sourceNote) {
-            return {
+            return [{
                 organization: sourceNote.data
-            };
+            }];
         }
         return undefined;
     };
