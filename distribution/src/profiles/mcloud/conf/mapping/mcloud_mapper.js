@@ -17,7 +17,19 @@ var McloudMapper = /** @class */ (function () {
         return getOrganizations(this.objId);
     };
     McloudMapper.prototype.getThemes = function () {
-        return ['http://publications.europa.eu/resource/authority/data-theme/TRAN']; // see https://joinup.ec.europa.eu/release/dcat-ap-how-use-mdr-data-themes-vocabulary
+
+        // see https://joinup.ec.europa.eu/release/dcat-ap-how-use-mdr-data-themes-vocabulary
+        var rows = getAdditionalFieldChildren(objId, 'mcloudDcatCategory');
+        if (hasValue(rows)) {
+            var cats = [];
+            for (var i = 0; i < rows.size(); i++) {
+                cats.push('http://publications.europa.eu/resource/authority/data-theme/' + rows.get(i).get('list_item_id'));
+            }
+            return cats;
+        } else {
+            return undefined;
+        }
+
     };
     McloudMapper.prototype.getAccessRights = function () {
         var termsOfUse = getAdditionalFieldData(this.objId, 'mcloudTermsOfUse');
