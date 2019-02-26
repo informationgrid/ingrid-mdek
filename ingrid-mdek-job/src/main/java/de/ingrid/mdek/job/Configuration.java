@@ -56,6 +56,9 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     
     @Value("${iplug.database.dialect:org.hibernate.dialect.MySQLInnoDBDialect}")
     public String databaseDialect;
+
+    @Value("${iplug.database.debugSQL:false}")
+    public boolean databaseShowSQL;
     
     @Value("${igc.name:}")
     public String igcName;
@@ -130,13 +133,22 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
         Properties p = new Properties();
         p.put("hibernate.cache.provider_class", "org.hibernate.cache.NoCacheProvider");
         p.put("hibernate.dialect", databaseDialect);
-        p.put("hibernate.default_schema", databaseSchema);
         p.put("hibernate.transaction.factory_class", "org.hibernate.transaction.JDBCTransactionFactory");
         p.put("hibernate.cache.use_query_cache", false);
         p.put("hibernate.jdbc.batch_size", 0);
         p.put("hibernate.current_session_context_class", "thread");
         // p.put("hibernate.hbm2ddl.auto", "update");
-        p.put("hibernate.show_sql", false);
+        p.put("hibernate.show_sql", databaseShowSQL);
+
+        String myDatabaseSchema = databaseSchema;
+        if (databaseSchema == null || databaseSchema.trim().length() == 0) {
+            // no schema set, we have to set default schema for hibernate !
+            // e.g. empty schema crashes on postgres/oracle cause schema now set in springapp-servlet.xml hibernateProperties
+            myDatabaseSchema = DatabaseConnectionUtils.getDefaultSchema( this.getDatabaseConnection() );
+        }
+        log.info( "Setting hibernate.schema: " + myDatabaseSchema );
+        p.put( "hibernate.default_schema", myDatabaseSchema );
+
         props.setProperties(p);
 
         return props;
