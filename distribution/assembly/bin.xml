@@ -66,10 +66,6 @@
       </excludes>
     </fileSet>
     <fileSet>
-      <directory>../ingrid-mdek-job/src/main/release/conf</directory>
-      <outputDirectory>${project.build.finalName}/conf</outputDirectory>
-    </fileSet>
-    <fileSet>
       <directory>../ingrid-mdek-api/src/docs/migration2postgres</directory>
       <outputDirectory>${project.build.finalName}/conf/sql/migration2postgres</outputDirectory>
     </fileSet>
