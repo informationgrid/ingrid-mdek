@@ -192,6 +192,8 @@
     },
     "title": {
       "type": "text",
+      "analyzer": "decomp",
+      "search_analyzer": "no_decomp",
       "store": true
     },
     "title2": {
@@ -204,10 +206,14 @@
     },
     "summary": {
       "type": "text",
+      "analyzer": "decomp",
+      "search_analyzer": "no_decomp",
       "store": true
     },
     "content": {
       "type": "text",
+      "analyzer": "decomp",
+      "search_analyzer": "no_decomp",
       "store": true
     },
     "x1": {
