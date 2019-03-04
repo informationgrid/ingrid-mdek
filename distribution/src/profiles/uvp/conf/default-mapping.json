@@ -87,13 +87,16 @@
       "type": "keyword"
     },
     "t02_address.adr_id": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
     },
     "t02_address2.adr_id": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
     },
     "t02_address3.adr_id": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
     },
     "t02_address4.adr_id": {
       "type": "keyword"
@@ -148,32 +151,40 @@
     "title": {
       "analyzer": "decomp",
       "search_analyzer": "no_decomp",
-      "type": "text"
+      "type": "text",
+      "store": true
     },
     "summary": {
       "analyzer": "decomp",
       "search_analyzer": "no_decomp",
-      "type": "text"
+      "type": "text",
+      "store": true
     },
     "content": {
       "analyzer": "decomp",
       "search_analyzer": "no_decomp",
-      "type": "text"
+      "type": "text",
+      "store": true
     },
     "x1": {
-      "type": "double"
+      "type": "double",
+      "store": true
     },
     "x2": {
-      "type": "double"
+      "type": "double",
+      "store": true
     },
     "y1": {
-      "type": "double"
+      "type": "double",
+      "store": true
     },
     "y2": {
-      "type": "double"
+      "type": "double",
+      "store": true
     },
     "idf": {
       "type": "text",
+      "store": true,
       "index": false
     }
   }
