@@ -86,6 +86,10 @@
     "refering.object_reference.obj_uuid": {
       "type": "keyword"
     },
+    "t02_address.id": {
+      "type": "keyword",
+      "store": true
+    },
     "t02_address.adr_id": {
       "type": "keyword",
       "store": true
@@ -103,6 +107,50 @@
     },
     "t02_address5.adr_id": {
       "type": "keyword"
+    },
+    "t02_address.parents.title": {
+      "type": "keyword",
+      "store": true
+    },
+    "children.address_node.addr_type": {
+      "type": "keyword",
+      "store": true
+    },
+    "t021_communication.comm_value": {
+      "type": "keyword",
+      "store": true
+    },
+    "t021_communication.commtype_value": {
+      "type": "keyword",
+      "store": true
+    },
+    "t021_communication.commtype_key": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address.title": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address.title_key": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address.address_value": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address.address_key": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address.firstname": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address.lastname": {
+      "type": "keyword",
+      "store": true
     },
     "t02_address.org_adr_id": {
       "type": "keyword"
