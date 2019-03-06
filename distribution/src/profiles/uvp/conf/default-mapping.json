@@ -39,22 +39,35 @@
       "type": "double"
     },
     "lon_center": {
-      "type": "double"
+      "type": "double",
+      "store": true
     },
     "lat_center": {
-      "type": "double"
+      "type": "double",
+      "store": true
     },
     "uvp_category": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
     },
     "uvp_number": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
+    },
+    "uvp_steps": {
+      "type": "keyword",
+      "store": true
     },
     "t01_object.mod_time": {
       "type": "text"
     },
     "t01_object.obj_id": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
+    },
+    "t01_object.obj_class": {
+      "type": "keyword",
+      "store": true
     },
     "t01_object.org_obj_id": {
       "type": "keyword"
