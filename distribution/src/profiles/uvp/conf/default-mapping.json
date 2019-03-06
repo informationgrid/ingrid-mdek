@@ -58,6 +58,10 @@
       "type": "keyword",
       "store": true
     },
+    "uvp_address": {
+      "type": "text",
+      "store": true
+    },
     "t01_object.mod_time": {
       "type": "text"
     },
