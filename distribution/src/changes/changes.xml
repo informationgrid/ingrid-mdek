@@ -28,6 +28,9 @@
   </properties>
   <body>
 
+    <release version="4.6.3-SNAPSHOT" date="2019-03-xx" description="Release InGrid 4.6.3">
+    </release>  
+
     <release version="4.6.2" date="2019-03-11" description="Release InGrid 4.6.2">
       <action type="fix" dev="wemove" issue="1284">
         Fix mapping of gmd:hoursOfService.
