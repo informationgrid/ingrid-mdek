@@ -24,7 +24,7 @@
 
 <profile xmlns="http://www.portalu.de/igc-profile"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://www.portalu.de/igc-profile file:/C:/wemove/ingrid/dev/svn/ingrid-mdek/trunk/ingrid-mdek-api/src/main/resources/igc_profile.xsd" version="1.0.0">
+ xsi:schemaLocation="http://www.portalu.de/igc-profile ../main/resources/igc_profile.xsd">
     <name>name0</name>
     <supportedLanguages>supportedLanguages0</supportedLanguages>
     <layoutRubric isLegacy="false">
@@ -118,7 +118,7 @@
                                         <layoutWidth>100</layoutWidth>
                                     <layoutNumLines>1</layoutNumLines>
                             </textControl>
-<!--                            <selectControl isExtendable="false">
+                            <selectControl isExtendable="false">
                                         <id>id8</id>
                                         <isMandatory>false</isMandatory>
                                         <isVisible>optional</isVisible>
@@ -146,8 +146,8 @@
                                     <scriptedCswMapping>scriptedCswMapping7</scriptedCswMapping>
                                     <indexName>indexName7</indexName>
                                     <layoutWidth>100</layoutWidth>
-                            </numberControl>-->
-<!--                            <dateControl>
+                            </numberControl>
+                            <dateControl>
                                     <id>id10</id>
                                     <isMandatory>false</isMandatory>
                                     <isVisible>optional</isVisible>
@@ -158,7 +158,7 @@
                                     <scriptedCswMapping>scriptedCswMapping8</scriptedCswMapping>
                                     <indexName>indexName8</indexName>
                                     <layoutWidth>100</layoutWidth>
-                            </dateControl>-->
+                            </dateControl>
                         </columns>
                 </tableControl>-->
         </controls>

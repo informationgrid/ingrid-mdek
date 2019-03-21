@@ -22,22 +22,6 @@
  */
 package de.ingrid.mdek;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Component;
-
-import com.tngtech.configbuilder.ConfigBuilder;
-
 import de.ingrid.admin.JettyStarter;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.job.Configuration;
@@ -50,6 +34,18 @@ import net.weta.components.communication.ICommunication;
 import net.weta.components.communication.reflect.ProxyService;
 import net.weta.components.communication.tcp.StartCommunication;
 import net.weta.components.communication.tcp.TcpCommunication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class MdekServer {
@@ -61,17 +57,23 @@ public class MdekServer {
     private final IJobRepositoryFacade _jobRepositoryFacade;
 
     private ICommunication _communication;
-    
+
     private static volatile boolean _shutdown = false;
 
     public static Configuration conf;
-
+    private Configuration igeConfig;
 
     @Autowired
-    public MdekServer(IJobRepositoryFacade jobRepositoryFacade) throws IOException {
+    public MdekServer(IJobRepositoryFacade jobRepositoryFacade, Configuration igeConfig) {
         _jobRepositoryFacade = jobRepositoryFacade;
+        this.igeConfig = igeConfig;
+
+        // backwards compatibility for UVP Mappig to IDF
+        // (/distribution/src/profiles/uvp/conf/mapping/igc_to_idf_uvp.js)
+        MdekServer.conf = igeConfig;
+
         IngridDocument response = callJob(jobRepositoryFacade, MdekCallerCatalog.MDEK_IDC_CATALOG_JOB_ID, "getCatalog", new IngridDocument());
-        _intervall = conf.reconnectInterval;
+        _intervall = igeConfig.reconnectInterval;
         _communicationProperties = new File("conf/communication-ige.xml");
         // check response, throws Exception if wrong version !
         checkResponse(response);
@@ -80,7 +82,7 @@ public class MdekServer {
     @PostConstruct
     public Thread runBackend() throws IOException {
         Thread thread = new CommunicationThread();
-        if(conf.igcEnableIBusCommunication){
+        if (igeConfig.igcEnableIBusCommunication){
             thread.start();
         }
         return thread;
@@ -184,12 +186,10 @@ public class MdekServer {
     public static void main(String[] args) throws Exception {
         Map<String, String> map = readParameters(args);
         
-        // read configuration
-        conf = new ConfigBuilder<Configuration>(Configuration.class).build();
         // start the Webserver for admin-page and iplug initialization for search and index
         // this also initializes all spring services and does autowiring
-        new JettyStarter( conf );
-        
+        new JettyStarter(Configuration.class);
+
         _communicationProperties = getCommunicationFile((String) map.get("--descriptor"));
         
         // shutdown the server normally

@@ -34,8 +34,9 @@ import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import de.ingrid.admin.elasticsearch.IndexManager;
-import de.ingrid.iplug.dsc.index.DscDocumentProducer;
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.IBusIndexManager;
+import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -109,7 +110,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 	public MdekIdcObjectJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService,
-			IndexManager indexManager) {
+			ElasticConfig elasticConfig,
+			IndexManager indexManager,
+			IBusIndexManager iBusIndexManager) {
 		super(logService.getLogger(MdekIdcObjectJob.class), daoFactory);
 
 		catalogService = MdekCatalogService.getInstance(daoFactory);
@@ -122,7 +125,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
 		daoT01Object = daoFactory.getT01ObjectDao();
-        this.indexManager = indexManager;
+		
+        this.indexManager = elasticConfig.esCommunicationThroughIBus ? iBusIndexManager : indexManager;
 
 		beanToDocMapperSecurity = BeanToDocMapperSecurity.getInstance(daoFactory, permissionService);
 		

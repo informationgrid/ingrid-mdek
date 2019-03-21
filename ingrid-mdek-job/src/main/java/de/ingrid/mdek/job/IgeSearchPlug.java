@@ -44,7 +44,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import de.ingrid.admin.elasticsearch.IndexImpl;
+import de.ingrid.admin.elasticsearch.IndexScheduler;
+import de.ingrid.elasticsearch.search.IndexImpl;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import de.ingrid.iplug.PlugDescriptionFieldFilters;
@@ -89,6 +90,9 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     @Autowired
     private MdekIdcObjectJob objectJob = null;
+    
+    @Autowired
+    private IndexScheduler indexScheduler;
 
     private final IndexImpl _indexSearcher;
 
@@ -177,6 +181,14 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             @SuppressWarnings("unchecked")
             Map<String, Object> map = (Map<String, Object>) info.getParameter();
             doc = cswTransaction( (String) map.get( DATA_PARAMETER ) );
+            break;
+        case "index":
+            indexScheduler.triggerManually();
+            doc = new IngridDocument();
+            doc.put( "success", true );
+            break;
+        default:
+            log.warn( "The following method is not supported: " + info.getMethod() );
         }
 
         return doc;
