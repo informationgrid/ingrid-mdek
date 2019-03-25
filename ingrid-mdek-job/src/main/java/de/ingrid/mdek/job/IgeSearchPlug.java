@@ -22,18 +22,27 @@
  */
 package de.ingrid.mdek.job;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import de.ingrid.admin.elasticsearch.IndexScheduler;
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.IBusIndexManager;
+import de.ingrid.elasticsearch.search.IndexImpl;
+import de.ingrid.iplug.HeartBeatPlug;
+import de.ingrid.iplug.IPlugdescriptionFieldFilter;
+import de.ingrid.iplug.PlugDescriptionFieldFilters;
+import de.ingrid.iplug.dsc.record.DscRecordCreator;
+import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.job.validation.iso.bawdmqs.IsoValidationException;
+import de.ingrid.utils.*;
+import de.ingrid.utils.dsc.Record;
+import de.ingrid.utils.metadata.IMetadataInjector;
+import de.ingrid.utils.processor.IPostProcessor;
+import de.ingrid.utils.processor.IPreProcessor;
+import de.ingrid.utils.query.ClauseQuery;
+import de.ingrid.utils.query.FieldQuery;
+import de.ingrid.utils.query.IngridQuery;
+import de.ingrid.utils.xml.Csw202NamespaceContext;
+import de.ingrid.utils.xml.XMLUtils;
+import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,29 +53,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import de.ingrid.admin.elasticsearch.IndexScheduler;
-import de.ingrid.elasticsearch.search.IndexImpl;
-import de.ingrid.iplug.HeartBeatPlug;
-import de.ingrid.iplug.IPlugdescriptionFieldFilter;
-import de.ingrid.iplug.PlugDescriptionFieldFilters;
-import de.ingrid.iplug.dsc.record.DscRecordCreator;
-import de.ingrid.mdek.MdekKeys;
-import de.ingrid.utils.ElasticDocument;
-import de.ingrid.utils.IRecordLoader;
-import de.ingrid.utils.IngridCall;
-import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.IngridHit;
-import de.ingrid.utils.IngridHitDetail;
-import de.ingrid.utils.IngridHits;
-import de.ingrid.mdek.job.validation.iso.bawdmqs.IsoValidationException;
-import de.ingrid.utils.dsc.Record;
-import de.ingrid.utils.metadata.IMetadataInjector;
-import de.ingrid.utils.processor.IPostProcessor;
-import de.ingrid.utils.processor.IPreProcessor;
-import de.ingrid.utils.query.IngridQuery;
-import de.ingrid.utils.xml.Csw202NamespaceContext;
-import de.ingrid.utils.xml.XMLUtils;
-import de.ingrid.utils.xpath.XPathUtils;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 @Service("ige")
 public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
@@ -90,9 +86,15 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     @Autowired
     private MdekIdcObjectJob objectJob = null;
-    
+
     @Autowired
     private IndexScheduler indexScheduler;
+
+    @Autowired
+    private ElasticConfig elasticConfig;
+
+    @Autowired
+    private IBusIndexManager iBusIndexManager;
 
     private final IndexImpl _indexSearcher;
 
@@ -119,6 +121,18 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             log.debug( "Incoming query: " + query.toString() + ", start=" + start + ", length=" + length );
         }
         preProcess( query );
+
+        // request iBus directly to get search results from within this iPlug
+        // adapt query to only get results coming from this iPlug and activated in iBus
+        // But when not connected to an iBus then use direct connection to Elasticsearch
+        if (elasticConfig.esCommunicationThroughIBus) {
+
+            ClauseQuery cq = new ClauseQuery(true, false);
+            cq.addField(new FieldQuery(true, false, "iPlugId", elasticConfig.communicationProxyUrl));
+            query.addClause(cq);
+            return this.iBusIndexManager.search(query, start, length);
+        }
+
         return _indexSearcher.search( query, start, length );
     }
 
@@ -158,8 +172,14 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     @Override
     public IngridHitDetail getDetail(IngridHit hit, IngridQuery query, String[] fields) throws Exception {
-        final IngridHitDetail detail = _indexSearcher.getDetail( hit, query, fields );
-        return detail;
+        // request iBus directly to get search results from within this iPlug
+        // adapt query to only get results coming from this iPlug and activated in iBus
+        // But when not connected to an iBus then use direct connection to Elasticsearch
+        if (elasticConfig.esCommunicationThroughIBus) {
+            return this.iBusIndexManager.getDetail(hit, query, fields);
+        }
+
+        return _indexSearcher.getDetail( hit, query, fields );
     }
 
     /*
@@ -169,8 +189,14 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     @Override
     public IngridHitDetail[] getDetails(IngridHit[] hits, IngridQuery query, String[] fields) throws Exception {
-        final IngridHitDetail[] details = _indexSearcher.getDetails( hits, query, fields );
-        return details;
+        // request iBus directly to get search results from within this iPlug
+        // adapt query to only get results coming from this iPlug and activated in iBus
+        // But when not connected to an iBus then use direct connection to Elasticsearch
+        if (elasticConfig.esCommunicationThroughIBus) {
+            return this.iBusIndexManager.getDetails(hits, query, fields);
+        }
+
+        return _indexSearcher.getDetails( hits, query, fields );
     }
 
     public IngridDocument call(IngridCall info) {
