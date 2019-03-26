@@ -22,6 +22,7 @@
  */
 package de.ingrid.mdek.job;
 
+import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IBusIndexManager;
@@ -128,7 +129,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         if (elasticConfig.esCommunicationThroughIBus) {
 
             ClauseQuery cq = new ClauseQuery(true, false);
-            cq.addField(new FieldQuery(true, false, "iPlugId", elasticConfig.communicationProxyUrl));
+            cq.addField(new FieldQuery(true, false, "iPlugId", JettyStarter.baseConfig.communicationProxyUrl));
             query.addClause(cq);
             return this.iBusIndexManager.search(query, start, length);
         }
