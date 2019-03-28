@@ -26,6 +26,7 @@ import de.ingrid.admin.JettyStarter;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IBusIndexManager;
+import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.elasticsearch.search.IndexImpl;
 import de.ingrid.iplug.HeartBeatPlug;
 import de.ingrid.iplug.IPlugdescriptionFieldFilter;
@@ -97,6 +98,9 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     @Autowired
     private IBusIndexManager iBusIndexManager;
 
+    @Autowired
+    private IndexManager indexManager;
+
     private final IndexImpl _indexSearcher;
 
     private XPathUtils utils = new XPathUtils( new Csw202NamespaceContext() );
@@ -144,7 +148,14 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
      */
     @Override
     public Record getRecord(IngridHit hit) throws Exception {
-        ElasticDocument document = _indexSearcher.getDocById( hit.getDocumentId() );
+
+        ElasticDocument document;
+        if (elasticConfig.esCommunicationThroughIBus) {
+            document = this.iBusIndexManager.getDocById(hit.getDocumentId());
+        } else {
+            document = indexManager.getDocById(hit.getDocumentId());
+        }
+
         // TODO: choose between different mapping types
         if (document != null) {
             if (document.get( "t01_object.id" ) != null) {
@@ -154,6 +165,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             }
         }
         return null;
+
     }
 
     /*
