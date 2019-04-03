@@ -1102,7 +1102,7 @@ var mappingDescription = {"mappings":[
 	  				{
 			  			"srcXpath":"gmd:fileDescription/gco:CharacterString",
 			  			"defaultValue":"grafische Darstellung",
-			  			"targetNode":"linkage-name"
+			  			"targetNode":"linkage-description"
 			  		},
 	  				{
 			  			"srcXpath":"gmd:fileName/gco:CharacterString",
