@@ -682,11 +682,12 @@ for (i=0; i<objRows.size(); i++) {
     }
     
     // ---------- <gmd:identificationInfo/gmd:graphicOverview> ----------
-    row = SQL.first("SELECT url_link,descr FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [+objId]);
-    if (hasValue(row)) {
+    var previewRows = SQL.all("SELECT url_link,descr FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [+objId]);
+    for (var i=0; i<previewRows.length; i++) {
+        var preview = previewRows.get(i);
         var graphic = identificationInfo.addElement("gmd:graphicOverview/gmd:MD_BrowseGraphic");
-        graphic.addElement("gmd:fileName/gco:CharacterString").addText(row.get("url_link"));
-        var description = row.get("descr");
+        graphic.addElement("gmd:fileName/gco:CharacterString").addText(preview.get("url_link"));
+        var description = preview.get("descr");
         if (hasValue(description)) {
             graphic.addElement("gmd:fileDescription/gco:CharacterString").addText(description);
         }
