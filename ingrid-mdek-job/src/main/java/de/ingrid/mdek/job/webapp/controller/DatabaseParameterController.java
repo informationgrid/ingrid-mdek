@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,6 +22,11 @@
  */
 package de.ingrid.mdek.job.webapp.controller;
 
+import de.ingrid.admin.command.PlugdescriptionCommandObject;
+import de.ingrid.admin.controller.AbstractController;
+import de.ingrid.iplug.dsc.index.DatabaseConnection;
+import de.ingrid.iplug.dsc.webapp.controller.AdminViews;
+import de.ingrid.iplug.dsc.webapp.validation.DatabaseConnectionValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -30,14 +35,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
-
-import de.ingrid.admin.command.PlugdescriptionCommandObject;
-import de.ingrid.admin.controller.AbstractController;
-import de.ingrid.iplug.dsc.Configuration;
-import de.ingrid.iplug.dsc.index.DatabaseConnection;
-import de.ingrid.iplug.dsc.webapp.controller.AdminViews;
-import de.ingrid.iplug.dsc.webapp.validation.DatabaseConnectionValidator;
-import de.ingrid.mdek.MdekServer;
 
 /**
  * Control the database parameter page.
@@ -51,6 +48,9 @@ public class DatabaseParameterController extends AbstractController {
     private final DatabaseConnectionValidator _validator;
 
     @Autowired
+    private de.ingrid.mdek.job.Configuration igeConfig;
+
+    @Autowired
     public DatabaseParameterController(DatabaseConnectionValidator validator) {
         _validator = validator;
     }
@@ -60,7 +60,7 @@ public class DatabaseParameterController extends AbstractController {
             final ModelMap modelMap,
             @ModelAttribute("plugDescription") final PlugdescriptionCommandObject commandObject) {
 
-        DatabaseConnection dbConfig = MdekServer.conf.getDatabaseConnection();
+        DatabaseConnection dbConfig = igeConfig.getDatabaseConnection();
 
         // write object into session
         modelMap.addAttribute("dbConfig", dbConfig);
@@ -81,16 +81,15 @@ public class DatabaseParameterController extends AbstractController {
         // put values into plugdescription
         mapParamsToPD(commandObject, pdCommandObject);
         
-        Configuration config = MdekServer.conf;
-        if (!commandObject.getConnectionURL().equals( config.databaseUrl )) {
+        if (!commandObject.getConnectionURL().equals( igeConfig.databaseUrl )) {
             pdCommandObject.putBoolean( "needsRestart", true );
         }
         // save in config object
-        config.databaseDriver = commandObject.getDataBaseDriver();
-        config.databaseUrl = commandObject.getConnectionURL();
-        config.databaseUsername = commandObject.getUser();
-        config.databasePassword = commandObject.getPassword();
-        config.databaseSchema = commandObject.getSchema();
+        igeConfig.databaseDriver = commandObject.getDataBaseDriver();
+        igeConfig.databaseUrl = commandObject.getConnectionURL();
+        igeConfig.databaseUsername = commandObject.getUser();
+        igeConfig.databasePassword = commandObject.getPassword();
+        igeConfig.databaseSchema = commandObject.getSchema();
         
         return redirect( MdekUris.EDITOR );
     }

@@ -16,11 +16,11 @@
                 <ref bean="idfProducerIndexMapperAddress"/>
             </list>
         </property>
-        <property name="indexInfo" ref="indexInfoAddress"></property>
+        <property name="indexInfo" ref="indexInfoAddress"/>
     </bean>
     
-    <bean id="indexInfoAddress" class="de.ingrid.admin.elasticsearch.IndexInfo">
-        <property name="toIndex" value="ige-test" />
+    <bean id="indexInfoAddress" class="de.ingrid.elasticsearch.IndexInfo">
+        <property name="toIndex" value="ige-test-address" />
         <property name="toType" value="address" />
         <property name="docIdField" value="t02_address.adr_id" />
     </bean>

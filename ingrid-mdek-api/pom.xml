@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>4.6.0.1236-SNAPSHOT</version>
+    <version>5.0.0.1236-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-mdek-api</artifactId>
   <packaging>jar</packaging>
   <name>InGrid mdek-api</name>
+
+  <!-- ==================== Source Code Management ==================== -->
   <scm>
     <connection>scm:git:git@github.com:informationgrid/ingrid-mdek.git/ingrid-mdek-api</connection>
     <developerConnection>scm:git:git@github.com:informationgrid/ingrid-mdek.git/ingrid-mdek-api</developerConnection>
     <tag>HEAD</tag>
   </scm>
-  <repositories>
-    <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
-    <repository>
-      <id>de.ingrid.all</id>
-      <name>Maven Repo InGrid</name>
-      <url>https://dev.informationgrid.eu/archiva/repository/ingrid-all</url>
-    </repository>
-  </repositories>
+
+  <!-- ==================== DEPENDENCIES ==================== -->
   <dependencies>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
@@ -29,6 +26,8 @@
       <version>1.4.1</version>
     </dependency>
   </dependencies>
+
+  <!-- ==================== Build Configuration ==================== -->
   <build>
     <plugins>
       <plugin>
@@ -41,18 +40,5 @@
         </configuration>
       </plugin>
     </plugins>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>mdek-api-version.properties</include>
-          <include>ehcache-ige-api.xml</include>
-          <include>IGC_Semantisches-XML.xsd</include>
-          <!-- Enable for temporary debugging in mdek-api classes, disable for release ! -->
-          <!--include>log4j.properties</include-->
-        </includes>
-      </resource>
-    </resources>
   </build>
 </project>

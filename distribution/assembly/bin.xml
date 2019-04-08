@@ -22,9 +22,9 @@
   **************************************************#
   -->
 
-<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
   <id>installer</id>
   <formats>
     <format>jar</format>
@@ -50,6 +50,7 @@
               <exclude>de.ingrid.mdek:ingrid-mdek-services</exclude>
               <exclude>de.ingrid.mdek:ingrid-mdek-api</exclude>
               <exclude>de.ingrid.mdek:ingrid-import-export</exclude>
+              <exclude>de.ingrid:ingrid-base-webapp:zip:res</exclude>
             </excludes>
           </dependencySet>
         </dependencySets>
@@ -65,10 +66,6 @@
       </excludes>
     </fileSet>
     <fileSet>
-      <directory>../ingrid-mdek-job/src/main/release/conf</directory>
-      <outputDirectory>${project.build.finalName}/conf</outputDirectory>
-    </fileSet>
-    <fileSet>
       <directory>../ingrid-mdek-api/src/docs/migration2postgres</directory>
       <outputDirectory>${project.build.finalName}/conf/sql/migration2postgres</outputDirectory>
     </fileSet>
@@ -82,7 +79,7 @@
     </fileSet>
     <fileSet>
       <directory>ant-installer</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory/>
       <filtered>true</filtered>
     </fileSet>
     <fileSet>
@@ -102,7 +99,7 @@
     </fileSet>
     <fileSet>
       <directory>../target/installer</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory/>
     </fileSet>
     <fileSet>
       <directory>../target/installer/resources/scripts</directory>

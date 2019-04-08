@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -172,9 +172,9 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
         ciContact.addElement("gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(urls[0]);
     }
     
-    // add hours of service (REDMINE-380)
+    // add hours of service (REDMINE-380, REDMINE-1284) 
     if (hasValue(addressRow.get("hours_of_service"))) {
-    	ciAddress.addElement("gmd:hoursOfService/gco:CharacterString").addText(addressRow.get("hours_of_service"));
+    	ciContact.addElement("gmd:hoursOfService/gco:CharacterString").addText(addressRow.get("hours_of_service"));
     }
 
     if (hasValue(role)) {

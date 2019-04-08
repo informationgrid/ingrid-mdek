@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-base-webapp
  * ==================================================
- * Copyright (C) 2014 - 2018 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -45,6 +45,9 @@ public class EditorController extends AbstractController {
     private final EditorValidator _validator;
 
     @Autowired
+    private Configuration igeConfig;
+
+    @Autowired
     public EditorController(final EditorValidator validator) {
         _validator = validator;
     }
@@ -55,7 +58,7 @@ public class EditorController extends AbstractController {
         
         Editor e = new Editor();
         // check if the forced parameter (for ranking) was set before
-        e.setIgcEnableIBusCommunication(MdekServer.conf.igcEnableIBusCommunication);
+        e.setIgcEnableIBusCommunication(igeConfig.igcEnableIBusCommunication);
         
         // write object into model
         modelMap.addAttribute("editorConfig", e);
@@ -71,11 +74,10 @@ public class EditorController extends AbstractController {
             return MdekViews.EDITOR;
         }
         
-        Configuration config = MdekServer.conf;
-        if(config.igcEnableIBusCommunication != commandObject.getIgcEnableIBusCommunication()){
+        if(igeConfig.igcEnableIBusCommunication != commandObject.getIgcEnableIBusCommunication()){
             pdCommandObject.putBoolean( "needsRestart", true );
         }
-        config.igcEnableIBusCommunication = commandObject.getIgcEnableIBusCommunication();
+        igeConfig.igcEnableIBusCommunication = commandObject.getIgcEnableIBusCommunication();
         
         return MdekViews.SAVE;
     }
