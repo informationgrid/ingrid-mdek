@@ -29,6 +29,12 @@
   <body>
 
     <release version="4.7.0-SNAPSHOT" date="2019-xx-xx" description="Release InGrid 4.7.0">
+      <action type="add" dev="wemove" issue="835">
+        Add central index functionality.
+      </action>
+      <action type="fix" dev="wemove" issue="564">
+        Remove codelist 6020.
+      </action>
       <action type="fix" dev="wemove" issue="1284">
         Fix mapping of gmd:hoursOfService.
       </action>
