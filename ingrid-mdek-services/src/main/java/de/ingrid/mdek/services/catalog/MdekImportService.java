@@ -1604,8 +1604,9 @@ public class MdekImportService implements IImporterCallback {
 				hasPublishedVersion = addressService.hasPublishedVersion((AddressNode) parentNode);
 			}
 
-			if (!hasPublishedVersion) {
+			if (!hasPublishedVersion && !objectService.isFolder((ObjectNode) parentNode)) {
 				// parent not published -> store working version !
+				// However, folders are handled differently because they are never published. Don't perform this check for folders
 				String msg = MSG_WARN + tag + "Parent not published";
 				updateImportJobInfoMessages(msg, userUuid);
 				updateImportJobInfoFrontendMessages(
