@@ -423,12 +423,12 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     }
 
     private IngridDocument prepareImportAnalyzeDocument(DocumentBuilder builder, Node doc) throws Exception {
-        // find first child of type NODE.DOCUMENT_POSITION_DISCONNECTED
+        // find first child of doc that is an Element i.e. has type Node.ELEMENT_NODE
         Node nodeToImport = null;
         NodeList importCandidates = doc.getChildNodes();
         for(int i=0; i<importCandidates.getLength() && nodeToImport == null; i++) {
             Node candidate = importCandidates.item(i);
-            if (candidate.getNodeType() == Node.DOCUMENT_POSITION_DISCONNECTED) {
+            if (candidate.getNodeType() == Node.ELEMENT_NODE) {
                 nodeToImport = candidate;
             }
         }
