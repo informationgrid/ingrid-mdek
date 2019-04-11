@@ -43,4 +43,14 @@
         <property name="compile" value="false" />
     </bean>
 
+    <bean id="csw202ScriptImportDataMapper" class="de.ingrid.mdek.job.mapping.ScriptImportDataMapper">
+        <property name="mapperScript">
+            <list>
+                <value>classpath:import/mapper/csw202_to_ingrid_igc.js</value>
+                <value>classpath:import/mapper/csw202_to_ingrid_igc_hzg.js</value>
+            </list>
+        </property>
+        <property name="template" value="classpath:import/templates/igc_template_csw202.xml" />
+    </bean>
+
 </beans>
