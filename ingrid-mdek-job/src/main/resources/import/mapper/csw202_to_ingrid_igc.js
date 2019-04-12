@@ -99,12 +99,16 @@ var mappingDescription = {"mappings":[
 				"funct":transformDateIso8601ToIndex
 			}
 		},
-  		{	
-  			
+		{
+
 			"srcXpath":"//gmd:fileIdentifier/gco:CharacterString",
-			// make sure we always have a UUID 
+			// make sure we always have a UUID
 			"defaultValue":createUUID,
-  			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/original-control-identifier"
+			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/original-control-identifier"
+		},
+  		{
+			"srcXpath":"//gmd:parentIdentifier/gco:CharacterString",
+  			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/parent-identifier-extern"
   		},
   		{	
   			"srcXpath":"//gmd:metadataStandardName/gco:CharacterString",
