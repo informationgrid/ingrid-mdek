@@ -38,14 +38,14 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.elasticsearch.IBusIndexManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import de.ingrid.admin.elasticsearch.IndexManager;
-import de.ingrid.iplug.dsc.index.DscDocumentProducer;
+import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -140,7 +140,9 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	public MdekIdcCatalogJob(ILogService logService,
 			DaoFactory daoFactory,
 			IPermissionService permissionService,
-            IndexManager indexManager) {
+		 	ElasticConfig elasticConfig,
+		 	IndexManager indexManager,
+		 	IBusIndexManager iBusIndexManager) {
 		super(logService.getLogger(MdekIdcCatalogJob.class), daoFactory);
 		
 		catalogService = MdekCatalogService.getInstance(daoFactory);
@@ -160,7 +162,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		daoHQL = daoFactory.getHQLDao();
 		daoSearchtermValue = daoFactory.getSearchtermValueDao();
 		daoSpatialRefValue = daoFactory.getSpatialRefValueDao();
-        this.indexManager = indexManager;
+		this.indexManager = elasticConfig.esCommunicationThroughIBus ? iBusIndexManager : indexManager;
 	}
 
 	public IngridDocument getVersion(IngridDocument params) {

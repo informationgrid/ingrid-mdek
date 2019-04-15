@@ -3,25 +3,39 @@
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>4.6.0</version>
+    <version>5.0.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-import-export</artifactId>
   <packaging>jar</packaging>
   <name>InGrid Import Export</name>
+
+  <!-- ==================== Source Code Management ==================== -->
   <scm>
     <connection>scm:git:git@github.com:informationgrid/ingrid-mdek.git/ingrid-import-export</connection>
     <developerConnection>scm:git:git@github.com:informationgrid/ingrid-mdek.git/ingrid-import-export</developerConnection>
     <tag>HEAD</tag>
   </scm>
-  <repositories>
-    <!-- Repo of parent pom needed, parent pom may not be installed locally yet -->
-    <repository>
-      <id>de.ingrid.all</id>
-      <name>Maven Repo InGrid</name>
-      <url>https://dev.informationgrid.eu/archiva/repository/ingrid-all</url>
-    </repository>
-  </repositories>
+
+  <!-- ==================== DEPENDENCIES ==================== -->
+  <dependencies>
+    <dependency>
+      <groupId>de.ingrid.mdek</groupId>
+      <artifactId>ingrid-mdek-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.5</version>
+    </dependency>
+  </dependencies>
+
+  <!-- ==================== Build Configuration ==================== -->
   <build>
     <resources>
       <resource>
@@ -44,21 +58,4 @@
       </plugin>
     </plugins>
   </build>
-  <!-- ==================== DEPENDENCIES ==================== -->
-  <dependencies>
-    <dependency>
-      <groupId>de.ingrid.mdek</groupId>
-      <artifactId>ingrid-mdek-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.6</version>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.5</version>
-    </dependency>
-  </dependencies>
 </project>

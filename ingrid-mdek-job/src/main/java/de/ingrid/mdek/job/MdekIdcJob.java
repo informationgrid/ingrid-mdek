@@ -22,18 +22,9 @@
  */
 package de.ingrid.mdek.job;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-
-import org.apache.logging.log4j.Logger;
-import org.json.simple.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import de.ingrid.admin.elasticsearch.IndexManager;
+import de.ingrid.admin.Config;
+import de.ingrid.elasticsearch.IIndexManager;
+import de.ingrid.elasticsearch.IndexInfo;
 import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
@@ -47,6 +38,13 @@ import de.ingrid.mdek.services.persistence.db.mapper.BeanToDocMapper;
 import de.ingrid.mdek.services.persistence.db.mapper.DocToBeanMapper;
 import de.ingrid.utils.ElasticDocument;
 import de.ingrid.utils.IngridDocument;
+import org.apache.logging.log4j.Logger;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Abstract base class of all idc jobs encapsulating common idc stuff.
@@ -62,7 +60,10 @@ public abstract class MdekIdcJob extends MdekJob {
 
     protected DscDocumentProducer docProducerObject;
     protected DscDocumentProducer docProducerAddress;
-    protected IndexManager indexManager;
+    protected IIndexManager indexManager;
+
+    @Autowired
+    private Config config;
 
 	public MdekIdcJob(Logger log, DaoFactory daoFactory) {
 		super(log, daoFactory);
@@ -137,6 +138,7 @@ public abstract class MdekIdcJob extends MdekJob {
 	 * @param changedEntities List of maps containing data about changed entities.
 	 * NOTICE: May also contain unpublished entities, this is checked, only published ones are processed ! 
 	 */
+	@SuppressWarnings("rawtypes")
 	protected void updateSearchIndexAndAudit(List<HashMap> changedEntities) {
         for (Map entity : changedEntities) {
 
@@ -151,8 +153,25 @@ public abstract class MdekIdcJob extends MdekJob {
                 // update search index
                 ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
                 if (doc != null && !doc.isEmpty()) {
-                    indexManager.addBasicFields( doc, docProducer.getIndexInfo() );
-                    indexManager.update( docProducer.getIndexInfo(), doc, false );
+
+                    IndexInfo indexInfo = docProducer.getIndexInfo();
+                    String[] datatypes = null;
+                    try {
+                        String datatypesString = (String) config.getOverrideProperties().get( "plugdescription.dataType." + indexInfo.getIdentifier()  );
+                        if (datatypesString != null) {
+                            datatypes = datatypesString.split(",");
+                        }
+                    } catch (IOException e) {
+                        log.error("Could not get override properties", e);
+                    }
+
+                    doc.put( "datatype", datatypes );
+                    doc.put( "partner", config.partner );
+                    doc.put( "provider", config.provider );
+                    doc.put( "dataSourceName", config.datasourceName );
+                    doc.put( "organisation", config.organisation );
+                    doc.put( "iPlugId", config.communicationProxyUrl );
+                    indexManager.update( indexInfo, doc, false );
                     indexManager.flush();
                 }
 

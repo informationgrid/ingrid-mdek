@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
+import de.ingrid.elasticsearch.ElasticConfig;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.powermock.api.mockito.PowerMockito;
@@ -47,7 +48,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.w3c.dom.Document;
 
-import de.ingrid.admin.elasticsearch.IndexManager;
+import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.mdek.MdekKeys;
@@ -128,6 +129,8 @@ public class TestSetup {
 
     @Mock
     IndexManager indexManager;
+    @Mock
+    ElasticConfig elasticConfig;
 
     ScriptImportDataMapper cswMapper;
     
@@ -143,6 +146,8 @@ public class TestSetup {
     
     protected void beforeSetup(String[] mappingScripts) throws Exception {
         plug = new IgeSearchPlug( null, null, null, null, null );
+
+        when( elasticConfig.esCommunicationThroughIBus).thenReturn( false );
 
         when( daoFactory.getDao( IEntity.class ) ).thenReturn( genericDao );
         HashMap<String, List<byte[]>> analyzedDataMap = new HashMap<String, List<byte[]>>();
@@ -178,7 +183,7 @@ public class TestSetup {
         cswMapper = new ScriptImportDataMapper( daoFactory );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
-        catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService, indexManager );
+        catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService, elasticConfig, indexManager, null );
         DataMapperFactory dataMapperFactory = new DataMapperFactory();
         HashMap<String, ImportDataMapper> mapper = new HashMap<String, ImportDataMapper>();
         

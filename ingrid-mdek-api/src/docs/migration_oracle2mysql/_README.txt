@@ -51,7 +51,7 @@ Es gibt kein IGE iPlug Release in der Version 4.2.1 !
         - Performance Options: 1 (damit log chronologisch abläuft)
     - click auf "Transfer"
     - in Tab "Raw Log" detaillierte Ausgaben, auch in log Dateien im sqllines Verzeichnis
-    - click auf "Validate" überprüft Anzahl Zeilen in Tabellen
+    - click auf "Validate" überprüft Anzahl Zeilen in Tabellen, ACHTUNG: überschreibt log Datei, vorher sichern
 
 - für SL Kataloge nach der Datenmigration in MySQL alte Spalten löschen, hier sind in Oracle noch Überbleibsel, die nicht mehr benötigt werden (aber migriert wurden):
     421_igc_mysql_schema_post_migration_SL.sql

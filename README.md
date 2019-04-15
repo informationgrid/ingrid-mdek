@@ -19,11 +19,11 @@ Requirements
 Installation
 ------------
 
-Download from https://dev.informationgrid.eu/ingrid-distributions/ingrid-iplug-ige/
+Download from https://distributions.informationgrid.eu/ingrid-iplug-ige/
  
 or
 
-build from source with `mvn package`.
+build from source with `mvn clean package`.
 
 Execute
 

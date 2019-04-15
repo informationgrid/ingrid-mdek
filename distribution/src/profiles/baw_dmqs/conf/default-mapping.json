@@ -1,203 +1,228 @@
 {
-    "_default_" : {
-        "_source" : { "enabled" : true },
-        "properties": {
-            "simparamname": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "simparaminfo": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "simparamvalue": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "simparamtype": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "simparammdinfo": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "simparamunit": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "simparamtype": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "simmodeltype": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "bawauftragsnummer": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "simprocess": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "simspatialdimension": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t01_object.mod_time": {
-                "type": "string"
-            },
-            "t01_object.obj_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t01_object.org_obj_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t012_obj_adr.adr_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t01_object.mod_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t01_object.responsible_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t011_obj_geo.datasource_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t022_adr_adr.adr_from_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t022_adr_adr.adr_to_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "object_reference.obj_to_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "refering_service_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "refering.object_reference.obj_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t02_address.adr_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t02_address2.adr_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t02_address3.adr_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t02_address4.adr_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t02_address5.adr_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t02_address.org_adr_id": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t02_address.mod_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t02_address.responsible_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t03_catalogue.cat_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "t03_catalogue.mod_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "parent.object_node.obj_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "children.object_node.obj_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "parent.address_node.addr_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "parent2.address_node.addr_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "parent3.address_node.addr_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "parent4.address_node.addr_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "parent5.address_node.addr_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "children.address_node.addr_uuid": {
-                "type": "string",
-                "index" : "not_analyzed"
-            },
-            "boost": {
-                "type": "float",
-                "store": true,
-                "null_value" : 0.0
-            },
-            "title": {
-                "analyzer": "german",
-                "type": "string"
-            },
-            "summary": {
-                "analyzer": "german",
-                "type": "string"
-            },
-            "content": {
-                "analyzer": "german",
-                "type": "string"
-            },
-            "x1": {
-                "type": "double"
-            },
-            "x2": {
-                "type": "double"
-            },
-            "y1": {
-                "type": "double"
-            },
-            "y2": {
-                "type": "double"
-            },
-             "idf": {
-                "type": "string",
-                "index": "no"
-            }
-        }
+  "_source": {
+    "enabled": true
+  },
+  "properties": {
+    "iPlugId": {
+      "type": "keyword",
+      "store": true
+    },
+    "partner": {
+      "type": "keyword",
+      "store": true
+    },
+    "provider": {
+      "type": "keyword",
+      "store": true
+    },
+    "datatype": {
+      "type": "keyword",
+      "store": true
+    },
+    "dataSourceName": {
+      "type": "keyword",
+      "store": true
+    },
+    "simparamname": {
+      "type": "keyword"
+    },
+    "simparaminfo": {
+      "type": "keyword"
+    },
+    "simparamvalue": {
+      "type": "keyword"
+    },
+    "simparamtype": {
+      "type": "keyword"
+    },
+    "simparammdinfo": {
+      "type": "keyword"
+    },
+    "simparamunit": {
+      "type": "keyword"
+    },
+    "simmodeltype": {
+      "type": "keyword"
+    },
+    "bawauftragsnummer": {
+      "type": "keyword"
+    },
+    "simprocess": {
+      "type": "keyword"
+    },
+    "simspatialdimension": {
+      "type": "keyword"
+    },
+    "t01_object.mod_time": {
+      "type": "text"
+    },
+    "t01_object.obj_id": {
+      "type": "keyword"
+    },
+    "t01_object.org_obj_id": {
+      "type": "keyword"
+    },
+    "t012_obj_adr.adr_id": {
+      "type": "keyword"
+    },
+    "t01_object.mod_uuid": {
+      "type": "keyword"
+    },
+    "t01_object.responsible_uuid": {
+      "type": "keyword"
+    },
+    "t011_obj_geo.datasource_uuid": {
+      "type": "keyword"
+    },
+    "t022_adr_adr.adr_to_id": {
+      "type": "keyword"
+    },
+    "object_reference.obj_to_uuid": {
+      "type": "keyword"
+    },
+    "refering_service_uuid": {
+      "type": "keyword"
+    },
+    "refering.object_reference.obj_uuid": {
+      "type": "keyword"
+    },
+    "t02_address.adr_id": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address.typ": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address2.adr_id": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address2.typ": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address3.adr_id": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address3.typ": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address4.adr_id": {
+      "type": "keyword"
+    },
+    "t02_address5.adr_id": {
+      "type": "keyword"
+    },
+    "t02_address.org_adr_id": {
+      "type": "keyword"
+    },
+    "t02_address.mod_uuid": {
+      "type": "keyword"
+    },
+    "t02_address.responsible_uuid": {
+      "type": "keyword"
+    },
+    "t02_address.firstname": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address.lastname": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address.title": {
+      "type": "keyword",
+      "store": true
+    },
+    "t02_address.address": {
+      "type": "keyword",
+      "store": true
+    },
+    "t022_adr_adr.adr_from_id": {
+      "type": "keyword",
+      "store": true
+    },
+    "t022_adr_adr3.adr_from_id": {
+      "type": "keyword",
+      "store": true
+    },
+    "t011_obj_serv_op_connpoint.connect_point": {
+      "type": "keyword",
+      "store": true
+    },
+    "t03_catalogue.cat_uuid": {
+      "type": "keyword"
+    },
+    "t03_catalogue.mod_uuid": {
+      "type": "keyword"
+    },
+    "parent.object_node.obj_uuid": {
+      "type": "keyword"
+    },
+    "children.object_node.obj_uuid": {
+      "type": "keyword"
+    },
+    "parent.address_node.addr_uuid": {
+      "type": "keyword"
+    },
+    "parent2.address_node.addr_uuid": {
+      "type": "keyword"
+    },
+    "parent3.address_node.addr_uuid": {
+      "type": "keyword"
+    },
+    "parent4.address_node.addr_uuid": {
+      "type": "keyword"
+    },
+    "parent5.address_node.addr_uuid": {
+      "type": "keyword"
+    },
+    "children.address_node.addr_uuid": {
+      "type": "keyword"
+    },
+    "boost": {
+      "type": "float",
+      "store": true,
+      "null_value": 0.0
+    },
+    "title": {
+      "analyzer": "german",
+      "type": "text",
+      "store": true
+    },
+    "summary": {
+      "analyzer": "german",
+      "type": "text",
+      "store": true
+    },
+    "content": {
+      "analyzer": "german",
+      "type": "text",
+      "store": true
+    },
+    "x1": {
+      "type": "double",
+      "store": true
+    },
+    "x2": {
+      "type": "double",
+      "store": true
+    },
+    "y1": {
+      "type": "double",
+      "store": true
+    },
+    "y2": {
+      "type": "double",
+      "store": true
+    },
+    "idf": {
+      "type": "text",
+      "index": false,
+      "store": true
     }
+  }
 }

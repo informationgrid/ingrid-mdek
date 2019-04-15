@@ -1489,17 +1489,18 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
         ciAddress.addElement("gmd:electronicMailAddress/gco:CharacterString").addText(emailAddresses[j]);
     }
     
-    // add hours of service (REDMINE-380)
-    if (hasValue(addressRow.get("hours_of_service"))) {
-    	ciAddress.addElement("gmd:hoursOfService/gco:CharacterString").addText(addressRow.get("hours_of_service"));
-    }
-
     if (!mapOnlyEmails) {
         // ISO only supports ONE url per contact
         if (urls.length > 0) {
             ciContact.addElement("gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(urls[0]);
         }
     }
+
+    // add hours of service (REDMINE-380, REDMINE-1284) 
+    if (hasValue(addressRow.get("hours_of_service"))) {
+    	ciContact.addElement("gmd:hoursOfService/gco:CharacterString").addText(addressRow.get("hours_of_service"));
+    }
+
     if (hasValue(role)) {
         idfResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
             .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
