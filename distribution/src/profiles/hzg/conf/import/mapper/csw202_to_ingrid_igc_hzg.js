@@ -32,6 +32,11 @@ var mappingDescriptionHzg = {
             "execute": {
                 "funct": mapObservedProperties
             }
+        },
+        {
+            "execute": {
+                "funct": setFolderForImport
+            }
         }
     ]
 };
@@ -87,5 +92,27 @@ function mapObservedProperties(source, target) {
         XMLUtils.createOrReplaceTextNode(fieldKeyParentNode, "observedPropertiesDataGrid");
     }
 
+}
+
+function setFolderForImport(source, target) {
+    // Use first two characters of the file identifier as folder name
+    var fileIdentifier = XPATH.getString(source, "/gmd:MD_Metadata/gmd:fileIdentifier/gco:CharacterString");
+    var folderName = fileIdentifier.substring(0, 2).toLowerCase();
+    log.debug("Found file identifier: " + fileIdentifier + ". Using folder name: " + folderName);
+
+    // Get the uuid of the catalogue adminsistrator
+    var row = SQL.first("SELECT addr_uuid FROM idc_user WHERE parent_id IS NULL");
+    var userUuid = row.get("addr_uuid");
+    log.debug("Found UUID of catalogue admin: " + userUuid);
+
+    var folderUuid = igeCswFolderUtil.getParentUuidForCswTImportFolder(folderName, userUuid);
+
+    var xpath = "/igc/data-sources/data-source/data-source-instance/parent-data-source/object-identifier";
+    if (XPATH.nodeExists(source, xpath)) {
+        var node = XPATH.getNode(source, xpath);
+        node.getParentNode().removeChild(node);
+    }
+    var parentObjectNode = XPATH.createElementFromXPath(target, xpath);
+    parentObjectNode.setTextContent(folderUuid);
 }
 

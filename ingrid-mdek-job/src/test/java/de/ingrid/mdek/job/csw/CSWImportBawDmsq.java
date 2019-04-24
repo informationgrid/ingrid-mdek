@@ -48,6 +48,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -155,6 +156,8 @@ public class CSWImportBawDmsq {
     @Mock
     ElasticConfig elasticConfig;
 
+    @Mock private IgeCswFolderUtil igeCswFolderUtil;
+
     private IngridXMLMapper importMapper;
 
     @Before
@@ -201,7 +204,7 @@ public class CSWImportBawDmsq {
         when( daoT03Catalogue.findFirst() ).thenReturn( t03Catalogue );
         when( catJobMock.getCatalogAdminUserUuid() ).thenReturn( "TEST_USER_ID" );
 
-        cswMapper = new ScriptImportDataMapper( daoFactory );
+        cswMapper = new ScriptImportDataMapper( daoFactory, igeCswFolderUtil );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
         catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService, elasticConfig, indexManager, null );

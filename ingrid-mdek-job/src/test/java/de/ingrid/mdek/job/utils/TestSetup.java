@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.powermock.api.mockito.PowerMockito;
@@ -132,6 +133,9 @@ public class TestSetup {
     @Mock
     ElasticConfig elasticConfig;
 
+    @Mock
+    private IgeCswFolderUtil igeCswFolderUtil;
+
     ScriptImportDataMapper cswMapper;
     
     private IgeSearchPlug plug;
@@ -180,7 +184,7 @@ public class TestSetup {
         when( daoT03Catalogue.findFirst() ).thenReturn( t03Catalogue );
         when( catJobMock.getCatalogAdminUserUuid() ).thenReturn( "TEST_USER_ID" );
 
-        cswMapper = new ScriptImportDataMapper( daoFactory );
+        cswMapper = new ScriptImportDataMapper( daoFactory, igeCswFolderUtil );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
         catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService, elasticConfig, indexManager, null );

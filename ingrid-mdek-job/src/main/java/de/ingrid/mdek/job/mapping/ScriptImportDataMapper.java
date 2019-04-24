@@ -39,6 +39,7 @@ import javax.script.ScriptException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,8 +91,10 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 
     private DatabaseConnection internalDatabaseConnection;
 
+    private IgeCswFolderUtil igeCswFolderUtil;
+
     @Autowired
-	public ScriptImportDataMapper(DaoFactory daoFactory) {
+    public ScriptImportDataMapper(DaoFactory daoFactory, IgeCswFolderUtil igeCswFolderUtil) {
         catalogService = MdekCatalogService.getInstance(daoFactory);
         
         ConfigurableNamespaceContext cnc = new ConfigurableNamespaceContext();
@@ -140,6 +143,7 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 		    parameters.put("XPATH", xpathUtils);
 		    parameters.put("TRANSF", trafoUtils);
 		    parameters.put("DOM", domUtils);
+			parameters.put("igeCswFolderUtil", igeCswFolderUtil);
 		    parameters.put("log", log);
 
 		    // the template represents only one object!
@@ -160,7 +164,7 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 			throw new MdekException(new MdekError(MdekErrorType.IMPORT_PROBLEM, msg));
 		}
 	}
-	
+
 	private void mapAdditionalFields(Document docTarget) throws Exception {
         PreparedStatement ps = this.dbConnection.prepareStatement( "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" );
         ResultSet rs = ps.executeQuery();
