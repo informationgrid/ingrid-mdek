@@ -171,4 +171,21 @@
       <version>1.1.1</version>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/register/*.java</exclude>
+            <exclude>**/repository/*.java</exclude>
+            <exclude>**/utils/*.java</exclude>
+            <exclude>**/validation//*.java</exclude>
+            <exclude>**/MdekClientTest.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

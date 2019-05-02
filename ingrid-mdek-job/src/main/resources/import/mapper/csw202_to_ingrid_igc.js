@@ -841,7 +841,7 @@ var mappingDescription = {"mappings":[
         },
         {
             "srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:description/gco:CharacterString",
-            "targetNode":"/igc/data-sources/data-source/data-source-instane/spatial-domain/description-of-spatial-domain"
+            "targetNode":"/igc/data-sources/data-source/data-source-instance/spatial-domain/description-of-spatial-domain"
         },
   		{
   			"srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:geographicElement",
@@ -1671,6 +1671,9 @@ function mapUseConstraints(source, target) {
             if (hasValue(otherConstraints)) {
                 for (j=0; j<otherConstraints.getLength(); j++ ) {
                     var otherConstraint = XPATH.getString(otherConstraints.item(j), "./gco:CharacterString");
+                    if (!otherConstraint) {
+                    	otherConstraint = XPATH.getString(otherConstraints.item(j), "./gmx:Anchor");
+					}
                     addUseConstraint(otherConstraint, target);
                 }
             }

@@ -43,6 +43,7 @@ DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
 DOM.addNS("gco", "http://www.isotc211.org/2005/gco");
 DOM.addNS("srv", "http://www.isotc211.org/2005/srv");
 DOM.addNS("gml", "http://www.opengis.net/gml");
+DOM.addNS("gmx", "http://www.isotc211.org/2005/gmx");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
@@ -63,6 +64,7 @@ mdMetadata.addAttribute("xmlns:gmd", DOM.getNS("gmd"));
 mdMetadata.addAttribute("xmlns:gco", DOM.getNS("gco"));
 mdMetadata.addAttribute("xmlns:srv", DOM.getNS("srv"));
 mdMetadata.addAttribute("xmlns:gml", DOM.getNS("gml"));
+mdMetadata.addAttribute("xmlns:gmx", DOM.getNS("gmx"));
 mdMetadata.addAttribute("xmlns:gts", DOM.getNS("gts"));
 mdMetadata.addAttribute("xmlns:xlink", DOM.getNS("xlink"));
 // and schema references
@@ -1977,7 +1979,11 @@ function addResourceConstraints(identificationInfo, objRow) {
             	.addAttribute("codeListValue", "otherRestrictions");
             // i.S.v. ISO 19115
         	// also add "Nutzungsbedingungen: " according to GDI-DE Konventionen page 17 !
-            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText("Nutzungsbedingungen: " + licenseText);
+            // Use gmx:Anchor element for more information (https://redmine.informationgrid.eu/issues/1218)
+            // and remove additional text "Nutzungsbedingungen: " as described in the ticket
+            mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor")
+                .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
+                .addText(licenseText);
 
             var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
             if (hasValue(licenseJSON)) {
