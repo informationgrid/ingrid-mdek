@@ -1958,7 +1958,8 @@ function addResourceConstraints(identificationInfo, objRow) {
     for (var i=0; i<rows.size(); i++) {
         row = rows.get(i);
 
-        var licenseText = TRANSF.getIGCSyslistEntryName(6500, row.get("license_key"));
+        var licenseKey = row.get("license_key");
+        var licenseText = TRANSF.getIGCSyslistEntryName(6500, licenseKey);
         if (!hasValue(licenseText)) {
         	licenseText = row.get("license_value");
         }
@@ -1980,10 +1981,18 @@ function addResourceConstraints(identificationInfo, objRow) {
             // i.S.v. ISO 19115
         	// also add "Nutzungsbedingungen: " according to GDI-DE Konventionen page 17 !
             // Use gmx:Anchor element for more information (https://redmine.informationgrid.eu/issues/1218)
-            // and remove additional text "Nutzungsbedingungen: " as described in the ticket
-            mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor")
-                .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
-                .addText(licenseText);
+            // and remove additional text "Nutzungsbedingungen: " as described in the ticket if license is
+            // "Es gelten keine Bedingungen"
+            log.info("LicenseKey=" + licenseKey);
+            if (licenseKey === "26") {
+                mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor")
+                    .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
+                    .addText(licenseText);
+            } else {
+                mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString")
+                    .addText("Nutzungsbedingungen: " + licenseText);
+
+            }
 
             var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
             if (hasValue(licenseJSON)) {
