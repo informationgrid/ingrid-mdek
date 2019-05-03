@@ -53,6 +53,8 @@
             <exclude>**/TestXMLExporter.java</exclude>
             <exclude>**/TestXMLImporter.java</exclude>
             <exclude>**/TestXMLStreamReader.java</exclude>
+            <exclude>**/TestXPath.java</exclude>
+            <exclude>**/TestXMLFilterReader.java</exclude>
           </excludes>
         </configuration>
       </plugin>
