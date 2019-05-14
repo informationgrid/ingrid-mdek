@@ -512,6 +512,8 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 
 			// set specific data to transfer to working copy and store !
 			workflowHandler.processDocOnStore(oDocIn);
+			// Set default values for the metadata standard name and version
+			setDefaultMetadataStandardProperties(oDocIn);
 			String uuid = objectService.storeWorkingCopy(oDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !
@@ -728,7 +730,9 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			Boolean forcePubCondition = (Boolean) oDocIn.get(MdekKeys.REQUESTINFO_FORCE_PUBLICATION_CONDITION);
 
 			daoObjectNode.beginTransaction();
-			
+
+			// Set default values for the metadata standard name and version
+			setDefaultMetadataStandardProperties(oDocIn);
 			String uuid = objectService.publishObject(oDocIn, forcePubCondition, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data !?

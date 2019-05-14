@@ -211,6 +211,36 @@ public abstract class MdekIdcJob extends MdekJob {
         }
     }
 
+    protected void setDefaultMetadataStandardProperties(IngridDocument doc) {
+        final int geodatensatz = 1;
+        final int geodatendienst = 3;
+
+        int objClass = doc.getInt(MdekKeys.CLASS);
+        if (objClass == geodatensatz) {
+            String name = config.mdStandardNameGeodata;
+            String version = config.mdStandardNameVersionGeodata;
+
+            if (name != null && !name.trim().isEmpty()) {
+                doc.put(MdekKeys.METADATA_STANDARD_NAME, name);
+            }
+            if (version != null && !name.trim().isEmpty()) {
+                doc.put(MdekKeys.METADATA_STANDARD_VERSION, version);
+            }
+        }
+
+        if (objClass == geodatendienst) {
+            String name = config.mdStandardNameGeoservice;
+            String version = config.mdStandardNameVersionGeoservice;
+
+            if (name != null && !name.trim().isEmpty()) {
+                doc.put(MdekKeys.METADATA_STANDARD_NAME, name);
+            }
+            if (version != null && !name.trim().isEmpty()) {
+                doc.put(MdekKeys.METADATA_STANDARD_VERSION, version);
+            }
+        }
+    }
+
     @Autowired
     @Qualifier("dscDocumentProducer")
     private void setDocProducerObject(DscDocumentProducer docProducer) {
