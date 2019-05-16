@@ -28,6 +28,7 @@ importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);
 importPackage(Packages.de.ingrid.iplug.dsc.index.mapper);
+importPackage(Packages.de.ingrid.mdek);
 
 // constant to punish the rank of a service/data object, which has no coupled resource
 var BOOST_NO_COUPLED_RESOURCE  = 0.9;
