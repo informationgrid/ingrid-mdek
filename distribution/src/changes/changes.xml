@@ -29,7 +29,7 @@
   <body>
 
     <release version="5.0.2-SNAPSHOT" date="2019-xx-xx" description="Release InGrid 5.0.2">
-      <action type="fix" dev="wemove" issue="835">
+      <action type="fix" dev="wemove" issue="1380">
         BAW: Fix metadata markers in map view
       </action>
     </release>  
