@@ -220,10 +220,16 @@ var McloudMapper = /** @class */ (function () {
         if (table) {
             for (var i = 0; i < table.length; i++) {
                 var row = table[i];
+                var link = row['link'];
+                // if link has no protocol, then it's an uploaded document
+                // and we prepend the base URL
+                if (!link.match(/^[a-zA-Z]+:\/\//)) {
+                    link = MdekServer.conf.profileUvpDocumentStoreBaseUrl + link;
+                }
                 distributions.push({
                     // Attention: we map sourceType to format, since this will be used as facet!
                     format: row['sourceType'],
-                    accessURL: row['link'],
+                    accessURL: link,
                     description: row['title'],
                     // Attention: type, which is the format of the download will be used as extra information for the download
                     type: row['dateFormat']
