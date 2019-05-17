@@ -47,7 +47,7 @@ DOM.addNS("gmx", "http://www.isotc211.org/2005/gmx");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
-var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml";
+var globalCodeListAttrURL = "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml";
 var globalCodeListLanguageAttrURL = "http://www.loc.gov/standards/iso639-2/";
 
 // ---------- <idf:html> ----------
@@ -2024,7 +2024,18 @@ function addResourceConstraints(identificationInfo, objRow) {
             value = TRANSF.getIGCSyslistEntryName(6010, row.get("restriction_key"));
             if (hasValue(value)) {
                 // value from IGC syslist, map as gmd:otherConstraints
-                otherConstraints.push(value);
+                var data = TRANSF.getISOCodeListEntryData(6010, value);
+                log.info("accessConstraints Data: " + data);
+
+                if (data) {
+                    var parsedData = JSON.parse(data);
+                    otherConstraints.push({
+                        text: parsedData["de"],
+                        link: parsedData["url"]
+                    });
+                } else {
+                    otherConstraints.push(value);
+                }
             } else {
                 // free entry, check whether ISO entry
                 value = row.get("restriction_value");
@@ -2056,7 +2067,18 @@ function addResourceConstraints(identificationInfo, objRow) {
                 .addAttribute("codeListValue", "otherRestrictions")
                 .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
                 .addText("otherRestrictions");
-            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(otherConstraints[i]);
+
+
+            var constraint = otherConstraints[i];
+            var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor");
+
+            if (constraint instanceof Object) {
+                accessAnchor
+                    .addAttribute("xlink:href", constraint.link)
+                    .addText(constraint.text);
+            } else {
+                accessAnchor.addText(otherConstraints[i]);
+            }
         }
     }
 
