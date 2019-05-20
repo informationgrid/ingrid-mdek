@@ -90,7 +90,6 @@ for (i=0; i<objRows.size(); i++) {
     var row = null;
     var rows = null;
     var value = null;
-    var elem = null;
 /*
     // Example iterating all columns !
     var colNames = objRow.keySet().toArray();
@@ -110,7 +109,7 @@ for (i=0; i<objRows.size(); i++) {
     value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
     if (hasValue(value)) {
         mdMetadata.addElement("gmd:language/gmd:LanguageCode")
-            .addAttribute("codeList", globalCodeListLanguageAttrURL)
+            .addAttribute("codeList", globalCodeListAttrURL + "#LanguageCode")
             .addAttribute("codeListValue", value).addText(value);
     }
 // ---------- <gmd:characterSet> ----------
@@ -156,7 +155,7 @@ for (i=0; i<objRows.size(); i++) {
     // special contact for metadata from IMPORT
     // select only adresses associated with syslist 505 entry 12 ("pointOfContactMd")
     // this is the contact from ISO Import which should not be lost (CSW-T), if set, we do NOT map "responsible user" (see below)
-    var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, 12, 505]);
+    var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', +objId, 12, 505]);
     if (hasValue(addressRow)) {
         // address may be hidden ! then get first visible parent in hierarchy !
         addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
@@ -201,15 +200,15 @@ for (i=0; i<objRows.size(); i++) {
     mdMetadata.addElement("gmd:metadataStandardName/gco:CharacterString").addText(mdStandardName);
 
     // ---------- <gmd:metadataStandardVersion> ----------
-    var mdStandardName;
+    var mdStandardVersion;
     if (hasValue(objRow.get("metadata_standard_version"))) {
-        mdStandardName=objRow.get("metadata_standard_version");
+        mdStandardVersion=objRow.get("metadata_standard_version");
     } else if (objClass.equals("3")) {
-        mdStandardName="2005/PDAM 1";
+        mdStandardVersion="2005/PDAM 1";
     } else {
-        mdStandardName="2003/Cor.1:2006";
+        mdStandardVersion="2003/Cor.1:2006";
     }
-    mdMetadata.addElement("gmd:metadataStandardVersion/gco:CharacterString").addText(mdStandardName);
+    mdMetadata.addElement("gmd:metadataStandardVersion/gco:CharacterString").addText(mdStandardVersion);
 
     // ---------- <gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation> ----------
     var objGeoRow = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [+objId]);
@@ -384,7 +383,7 @@ for (i=0; i<objRows.size(); i++) {
     }
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
     var referenceDateRows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [+objId]);
-    for (j=0; j<referenceDateRows.size(); j++) {
+    for (var j=0; j<referenceDateRows.size(); j++) {
         var referenceDateRow = referenceDateRows.get(j); 
         var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
         ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(referenceDateRow.get("reference_date"))));
@@ -394,7 +393,7 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("codeListValue", dateType);
     }
     // date needed, we add dummy if no date !
-    if (referenceDateRows.size() == 0) {
+    if (referenceDateRows.size() === 0) {
         ciCitation.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
         // or add gco:nilReason underneath gmd:CI_Date ???
 /*
@@ -981,8 +980,8 @@ for (i=0; i<objRows.size(); i++) {
 
             // remember resourceIdentifiers for later use (see below).
             // BUT ONLY ONCE ! Every operation causes new row with same referenced UUID ! We add identifier only once !
-            if (resourceIdentifiers.length == 0 ||
-                refObjUuid != resourceIdentifiers[resourceIdentifiers.length-1][1])
+            if (resourceIdentifiers.length === 0 ||
+                refObjUuid !== resourceIdentifiers[resourceIdentifiers.length-1][1])
             {
                 resourceIdentifiers.push([getCitationIdentifier(rows.get(i), refObjId), refObjUuid]);
             }
@@ -1006,8 +1005,8 @@ for (i=0; i<objRows.size(); i++) {
 
             // remember resourceIdentifiers for later use (see below).
             // BUT ONLY ONCE ! Every operation causes new row with same referenced UUID ! We add identifier only once !
-            if (resourceIdentifiers.length == 0 ||
-                moreInfo[1] != resourceIdentifiers[resourceIdentifiers.length-1][1])
+            if (resourceIdentifiers.length === 0 ||
+                moreInfo[1] !== resourceIdentifiers[resourceIdentifiers.length-1][1])
             {
                 resourceIdentifiers.push([moreInfo[0], moreInfo[1]]);
             }
@@ -1247,7 +1246,7 @@ for (i=0; i<objRows.size(); i++) {
         for (i=0; i<rows.size(); i++) {
             var formatKey = rows.get(i).get("format_key");
             // if "Protected Sites - Simple GML Application Schema" or "Protected Sites - Full GML Application Schema"
-            if (formatKey == 13 || formatKey == 14) {
+            if (formatKey === 13 || formatKey === 14) {
                 var appSchemaNode = mdMetadata.addElement("gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation");
                 appSchemaNode.addElement("gmd:name/gmd:CI_Citation/gmd:title/gco:CharacterString").addText(rows.get(i).get("format_value"))
                              .getParent(2)
@@ -1388,7 +1387,6 @@ function getCitationIdentifier(objRow, otherObjId) {
     }
     
     // analyze namespace, add default if not set
-    var myNamespace = "";
     var idTokens = id.split("/");
     if (idTokens.length > 1 && hasValue(idTokens[0])) {
         // namespace already part of id, ok ! 
@@ -1397,7 +1395,7 @@ function getCitationIdentifier(objRow, otherObjId) {
 
     // no namespace
     // namespace set in catalog ?
-    myNamespace = catRow.get("cat_namespace");
+    var myNamespace = catRow.get("cat_namespace");
 
     var myNamespaceLength = 0;
     if (!hasValue(myNamespace)) {
@@ -1484,27 +1482,27 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
 
     // first extract communication values
     var communicationsRows = SQL.all("SELECT t021_communication.* FROM t021_communication WHERE t021_communication.adr_id=? order by line", [+addressRow.get("id")]);
-    var phones = new Array();
-    var faxes = new Array;
-    var emailAddresses = new Array();
-    var emailAddressesToShow = new Array();
-    var urls = new Array();
+    var phones = [];
+    var faxes = [];
+    var emailAddresses = [];
+    var emailAddressesToShow = [];
+    var urls = [];
     for (var j=0; j< communicationsRows.size(); j++) {
         var communicationsRow = communicationsRows.get(j);
         var commTypeKey = communicationsRow.get("commtype_key");
         var commTypeValue = communicationsRow.get("commtype_value");
         var commValue = communicationsRow.get("comm_value");
-        if (commTypeKey == 1) {
+        if (commTypeKey === 1) {
             phones.push(commValue);
-        } else if (commTypeKey == 2) {
+        } else if (commTypeKey === 2) {
             faxes.push(commValue);
-        } else if (commTypeKey == 3) {
+        } else if (commTypeKey === 3) {
             emailAddresses.push(commValue);
-        } else if (commTypeKey == 4) {
+        } else if (commTypeKey === 4) {
             urls.push(commValue);
 
         // special values saved as free entries !
-        } else if (commTypeKey == -1) {
+        } else if (commTypeKey === -1) {
             // users email to be shown instead of other emails !
             if (commTypeValue == "emailPointOfContact") {
                 emailAddressesToShow.push(commValue);
@@ -1548,7 +1546,7 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
             var administrativeAreaKey = addressRow.get("administrative_area_key");
             if (hasValue(administrativeAreaKey)) {
                 
-                if (administrativeAreaKey == -1) {
+                if (administrativeAreaKey === -1) {
                     ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
                 } else {
                     ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, addressRow.get("administrative_area_key")));
@@ -1650,7 +1648,7 @@ function filterUserPostfix(name) {
         }
 
         if (log.isDebugEnabled()) {
-            if (name.length != filteredName.length) {
+            if (name.length !== filteredName.length) {
                 log.debug("Filtered name '" + name + "' to '" + filteredName + "' !");
             }
         }
@@ -1700,15 +1698,15 @@ function getIndividualNameFromAddressRow(addressRow) {
     }
     
     if (hasValue(firstName)) {
-        individualName = hasValue(individualName) ? individualName += ", " + firstName : firstName;
+        individualName = hasValue(individualName) ? individualName + ", " + firstName : firstName;
     }
     
     if (hasValue(title) && !hasValue(addressing)) {
-        individualName = hasValue(individualName) ? individualName += ", " + title : title;
+        individualName = hasValue(individualName) ? individualName + ", " + title : title;
     } else if (!hasValue(title) && hasValue(addressing)) {
-        individualName = hasValue(individualName) ? individualName += ", " + addressing : addressing;
+        individualName = hasValue(individualName) ? individualName + ", " + addressing : addressing;
     } else if (hasValue(title) && hasValue(addressing)) {
-        individualName = hasValue(individualName) ? individualName += ", " + addressing + " " + title : addressing + " " + title;
+        individualName = hasValue(individualName) ? individualName + ", " + addressing + " " + title : addressing + " " + title;
     }
     
     if (log.isDebugEnabled()) {
@@ -1737,7 +1735,7 @@ function getOrganisationNameFromAddressRow(addressRow) {
  * @return The array with all parent address rows.
  */
 function getAddressRowPathArray(addressRow) {
-    var results = new Array();
+    var results = [];
     if (log.isDebugEnabled()) {
         log.debug("Add address with uuid '" + addressRow.get("adr_uuid") + "' to address path:" + parentAdressRow);
     }
@@ -1781,7 +1779,7 @@ function getPurpose(objRow) {
  * Returns null if no keywords added (no rows found or type of keywords cannot be determined ...) !
  */
 function getMdKeywords(rows) {
-    if (rows == null || rows.size() == 0) {
+    if (rows == null || rows.size() === 0) {
         return null;
     }
 
@@ -1938,8 +1936,8 @@ function getServiceType(objClass, objServRow) {
 
 function addResourceConstraints(identificationInfo, objRow) {
     var objId = objRow.get("id");
-    var isOpenData = objRow.get("is_open_data");
-    isOpenData = hasValue(isOpenData) && isOpenData.equals('Y');
+    //var isOpenData = objRow.get("is_open_data");
+    //isOpenData = hasValue(isOpenData) && isOpenData.equals('Y');
 
     rows = SQL.all("SELECT * FROM object_use WHERE obj_id=?", [+objId]);
     for (var i=0; i<rows.size(); i++) {
@@ -2542,7 +2540,7 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                         .addAttribute("codeList", globalCodeListAttrURL + "#CSW_DCPCodeType")
                         .addAttribute("codeListValue", platfRows.get(j).get("platform_value"));
                 }
-                if (platfRows.size() == 0) {
+                if (platfRows.size() === 0) {
                     // mandatory !
                     svOperationMetadata.addElement("srv:DCP").addAttribute("gco:nilReason", "unknown");
                 }
