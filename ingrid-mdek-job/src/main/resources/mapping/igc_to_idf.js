@@ -2068,15 +2068,15 @@ function addResourceConstraints(identificationInfo, objRow) {
                 .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
                 .addText("otherRestrictions");
 
-
             var constraint = otherConstraints[i];
-            var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor");
 
             if (constraint instanceof Object) {
+                var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor");
                 accessAnchor
                     .addAttribute("xlink:href", constraint.link)
                     .addText(constraint.text);
             } else {
+                var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString");
                 accessAnchor.addText(otherConstraints[i]);
             }
         }
