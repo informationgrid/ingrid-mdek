@@ -28,7 +28,10 @@
   </properties>
   <body>
 
-    <release version="4.6.3-SNAPSHOT" date="2019-03-xx" description="Release InGrid 4.6.3">
+    <release version="4.6.5" date="2019-05-21" description="Release InGrid 4.6.5">
+      <action type="fix" dev="wemove" issue="1166">
+        Migrate MetaVer codelists to default codelists and migrate "Quellenvermerk".
+      </action>
     </release>  
 
     <release version="4.6.2" date="2019-03-11" description="Release InGrid 4.6.2">
