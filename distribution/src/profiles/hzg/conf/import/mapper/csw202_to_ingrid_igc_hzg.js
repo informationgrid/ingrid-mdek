@@ -35,6 +35,11 @@ var mappingDescriptionHzg = {
         },
         {
             "execute": {
+                "funct": mapPlatformReferences
+            }
+        },
+        {
+            "execute": {
                 "funct": setFolderForImport
             }
         }
@@ -45,6 +50,7 @@ log.debug("HZG: mapping CSW 2.0.2 AP ISO 1.0 document to IGC import document.");
 mapToTarget(mappingDescriptionHzg, source, target.getDocumentElement());
 
 function mapObservedProperties(source, target) {
+    log.debug("Mapping observed properties for HZG profile.");
     /*
      * Observed properties are mapped as featureCatalogueDescription elements.
      * HZG doesn't use this elements for any other purpose so delete them from
@@ -92,6 +98,28 @@ function mapObservedProperties(source, target) {
         XMLUtils.createOrReplaceTextNode(fieldKeyParentNode, "observedPropertiesDataGrid");
     }
 
+}
+
+function mapPlatformReferences(source, target) {
+    log.debug("Mapping platform references for HZG profile");
+
+    var xpath = "//gmd:MD_DataIdentification/gmd:aggregationInfo/gmd:MD_AggregateInformation[./gmd:associationType/gmd:DS_AssociationTypeCode/@codeListValue='crossReference']";
+    var aggregationInfoNodes = XPATH.getNodeList(source, xpath);
+    for(var i=0; i<aggregationInfoNodes.getLength(); i++) {
+        var aggInfoNode = aggregationInfoNodes.item(i);
+        var uuidNode = XPATH.getNode(aggInfoNode, "gmd:aggregateDataSetIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString");
+        var uuid = uuidNode.getTextContent();
+
+        log.debug("Found Platform reference. Adding reference for platform with UUID: " + uuid);
+
+        var dataSourceParent = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/link-data-source");
+
+        var linkTypeNode = XPATH.createElementFromXPath(dataSourceParent, "object-link-type");
+        XMLUtils.createOrReplaceAttribute(linkTypeNode, "id", "8001");
+
+        var linkIdentifierNode = XPATH.createElementFromXPath(dataSourceParent, "object-identifier");
+        XMLUtils.createOrReplaceTextNode(linkIdentifierNode, uuid);
+    }
 }
 
 function setFolderForImport(source, target) {

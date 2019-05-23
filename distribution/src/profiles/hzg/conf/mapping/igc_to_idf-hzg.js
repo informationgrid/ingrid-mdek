@@ -63,12 +63,38 @@ var mdMetadataChildrenReverseOrder = [
     "gmd:fileIdentifier"
 ];
 
+var mdDataIdentificationChildrenReverseOrder = [
+    "gmd:supplementalInformation",
+    "gmd:extent",
+    "gmd:environmentDescription",
+    "gmd:topicCategory",
+    "gmd:characterSet",
+    "gmd:language",
+    "gmd:spatialResolution",
+    "gmd:spatialRepresentationType",
+    "gmd:aggregationInfo",
+    "gmd:resourceConstraints",
+    "gmd:resourceSpecificUsage",
+    "gmd:descriptiveKeywords",
+    "gmd:resourceFormat",
+    "gmd:graphicOverview",
+    "gmd:resourceMaintenance",
+    "gmd:pointOfContact",
+    "gmd:status",
+    "gmd:credit",
+    "gmd:purpose",
+    "gmd:abstract",
+    "gmd:citation"
+];
+
 // Start mapping
 log.debug("Starting mapping for HZG");
 
 var mdMetadata = XPATH.getNode(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata");
 
 var objId = parseInt(sourceRecord.get("id"));
+
+// ========== Observed Properties ==========
 var query = "SELECT DISTINCT fdc.sort AS sort FROM additional_field_data fdp " +
     "JOIN additional_field_data fdc ON fdc.parent_field_id = fdp.id " +
     "WHERE fdp.obj_id=? AND fdp.field_key=? " +
@@ -114,6 +140,38 @@ for (var i=0; sortRows && i<sortRows.length; i++) {
         .addText(name);
     citation.addElement("gmd:date")
         .addAttribute("gco:nilreason", "inapplicable");
+}
+
+// ========== Platform references ==========
+var mdDataIdentification = XPATH.getNode(mdMetadata, "gmd:identificationInfo/gmd:MD_DataIdentification");
+if (!mdDataIdentification) {
+    log.error("Could not locate the gmd:MD_DataIdentification node for adding platform information");
+}
+
+log.debug("Looking for references to platforms.");
+query = "SELECT obj_to_uuid FROM object_reference WHERE obj_from_id=? AND special_ref=8001";
+var referenceRows = SQL.all(query, [objId]);
+for(var i=0; mdDataIdentification && referenceRows && i<referenceRows.length; i++) {
+    var objToUuid = referenceRows[i].get("obj_to_uuid");
+
+    log.debug("Found reference to platform with UUID: " + objToUuid);
+
+    var nextSibling = searchNextSiblingTag(mdDataIdentification, mdDataIdentificationChildrenReverseOrder, "gmd:aggregationInfo");
+    var mdAggregateInformation;
+    if (nextSibling) {
+        mdAggregateInformation = nextSibling.addElementAsSibling("gmd:aggregationInfo/gmd:MD_AggregateInformation");
+    } else {
+        mdAggregateInformation = mdDataIdentification.addElement("gmd:aggregationInfo/gmd:MD_AggregateInformation");
+    }
+
+    mdAggregateInformation.addElement("gmd:aggregateDataSetIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString")
+        .addText(objToUuid);
+
+    var value = "crossReference";
+    mdAggregateInformation.addElement("gmd:associationType/gmd:DS_AssociationTypeCode")
+        .addAttribute("codeList", globalCodeListAttrURL + "#DS_AssociationTypeCode")
+        .addAttribute("codeListValue", value)
+        .addText(value);
 }
 
 function searchNextSiblingTag(parentNode, siblingNamesReverseOrder, tagName) {
