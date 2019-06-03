@@ -38,6 +38,9 @@
       <action type="fix" dev="wemove" issue="1218">
         Use anchor element for use constraints if "no conditions apply".
       </action>
+      <action type="fix" dev="wemove" issue="1397">
+        Remove old Oracle JDBC lib to prevent conflict.
+      </action>
     </release>
 
     <release version="5.0.0" date="2019-04-15" description="Release InGrid 5.0.0">
