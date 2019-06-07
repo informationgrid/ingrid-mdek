@@ -28,6 +28,12 @@
   </properties>
   <body>
 
+    <release version="4.4.1.mCLOUD" date="2019-06-07" description="Release 4.4.1.mCLOUD">
+      <action type="add" dev="wemove" issue="">
+        Modify links for uploaded documents in index
+      </action>
+    </release>
+
     <release version="4.4.0.mCLOUD" date="2019-04-02" description="Release 4.4.0.mCLOUD">
       <action type="add" dev="wemove" issue="1590">
         Profile for mCLOUD
