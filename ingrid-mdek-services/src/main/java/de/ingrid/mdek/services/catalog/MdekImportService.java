@@ -749,9 +749,13 @@ public class MdekImportService implements IImporterCallback {
 		// create tag for messages !
 		String tag = createEntityTag(whichType, inDoc);
 
+		/*
+		// Disabled check to allow publication of Nokis Platform data.
+		// TODO: make checks configurable through a config file
 		if (EnumUtil.mapDatabaseToEnumConst(ObjectType.class, inDoc.get(MdekKeys.CLASS)) == null) {
 			MdekUtils.appendWithSeparator(missingFields, separator, MdekKeys.CLASS);
 		}
+		*/
 		if (docToBeanMapper.extractResponsibleUserUuid(inDoc) == null) {
 			MdekUtils.appendWithSeparator(missingFields, separator, MdekKeys.RESPONSIBLE_USER);
 		}
