@@ -102,7 +102,16 @@ var McloudMapper = /** @class */ (function () {
         return this.objRow.get('time_period') === '1';
     };
     McloudMapper.prototype.getTemporal = function () {
-        return undefined;
+        var from = TRANSF.getISODateFromIGCDate(this.objRow.get('time_from'));
+        var fromValue = hasValue(from) ? from.substr(0, 10) : undefined;
+        
+        var to = TRANSF.getISODateFromIGCDate(this.objRow.get('time_to'));
+        var toValue = hasValue(to) ? to.substr(0, 10) : fromValue;
+
+        return {
+            start: from,
+            end: to
+        };
     };
     McloudMapper.prototype.getCategories = function () {
         return getCategories(this.objId);
@@ -150,14 +159,6 @@ var McloudMapper = /** @class */ (function () {
     };
     McloudMapper.prototype.getHarvestedData = function () {
         return undefined;
-    };
-    McloudMapper.prototype.getTemporalStart = function () {
-        var from = TRANSF.getISODateFromIGCDate(this.objRow.get('time_from'));
-        return hasValue(from) ? from.substr(0, 10) : undefined;
-    };
-    McloudMapper.prototype.getTemporalEnd = function () {
-        var to = TRANSF.getISODateFromIGCDate(this.objRow.get('time_to'));
-        return hasValue(to) ? to.substr(0, 10) : undefined;
     };
     McloudMapper.prototype.getGroups = function () {
         return undefined;
