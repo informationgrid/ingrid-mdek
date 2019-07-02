@@ -2249,7 +2249,7 @@ function transformAlternateNameAndProductGroup(source, target) {
                     var entry = splitted[j].trim();
                     var codelistItem = codeListService.getSysListEntryKey(8010, entry, "de");
                     // TODO: what about english entries
-                    if (codelistItem) {
+                    if (codelistItem !== undefined && codelistItem != null) {
                         // add to product group
                         productGroups.push(entry);
                     } else {
