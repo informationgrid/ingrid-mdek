@@ -44,6 +44,9 @@
       <action type="fix" dev="wemove" issue="1397">
         Remove old Oracle JDBC lib to prevent conflict.
       </action>
+      <action type="fix" dev="wemove" issue="1427">
+        Regression: ParentIdentifier must not be shown for datasets under folders unless specified.
+      </action>
     </release>
 
     <release version="5.0.0" date="2019-04-15" description="Release InGrid 5.0.0">
