@@ -28,6 +28,12 @@
   </properties>
   <body>
 
+    <release version="4.4.2.mCLOUD" date="2019-07-10" description="Release 4.4.2.mCLOUD">
+      <action type="update" dev="wemove">
+        Change mapping of temporal field.
+      </action>
+    </release>
+
     <release version="4.4.1.mCLOUD" date="2019-06-07" description="Release 4.4.1.mCLOUD">
       <action type="add" dev="wemove" issue="">
         Modify links for uploaded documents in index
