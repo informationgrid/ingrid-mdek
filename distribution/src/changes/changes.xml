@@ -28,7 +28,7 @@
   </properties>
   <body>
 
-    <release version="5.1.0-SNAPSHOT" date="2019-xx-xx" description="Release InGrid 5.1.0">
+    <release version="5.1.0-SNAPSHOT" date="2019-07-11" description="Release InGrid 5.1.0">
       <action type="add" dev="wemove" issue="1425">
         Store mod_time in index for later retrieval.
       </action>
@@ -46,6 +46,9 @@
       </action>
       <action type="fix" dev="wemove" issue="1427">
         Regression: ParentIdentifier must not be shown for datasets under folders unless specified.
+      </action>
+      <action type="fix" dev="wemove" issue="1128">
+        Fix import of AdV product group
       </action>
     </release>
 
