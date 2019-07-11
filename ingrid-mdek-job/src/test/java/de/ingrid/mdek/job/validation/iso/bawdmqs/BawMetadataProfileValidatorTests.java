@@ -23,6 +23,7 @@
 package de.ingrid.mdek.job.validation.iso.bawdmqs;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -135,6 +136,7 @@ public class BawMetadataProfileValidatorTests {
     }
 
     @Test
+    @Ignore("Validation of parent identifier disabled")
     public void testParentIdentifierAuftragUndefined0() throws ParserConfigurationException, SAXException, IOException {
         Document doc = documentWithReplacedValues(IDX_MD_HIERARCHY_LEVEL_NAME_VALUE, "Auftrag");
 
@@ -143,6 +145,7 @@ public class BawMetadataProfileValidatorTests {
     }
 
     @Test
+    @Ignore("Validation of parent identifier disabled")
     public void testParentIdentifierAuftragUndefined1() throws IOException, ParserConfigurationException, SAXException {
         String template = fetchTemplateString();
 
@@ -164,12 +167,14 @@ public class BawMetadataProfileValidatorTests {
     }
 
     @Test
+    @Ignore("Validation of parent identifier disabled")
     public void testParentIdentifierNotAuftragDefined() throws ParserConfigurationException, SAXException, IOException {
         Document doc = documentWithReplacedValues(IDX_MD_HIERARCHY_LEVEL_NAME_VALUE, "Simulationslauf");
         assertTrue(isValid(doc));
     }
 
     @Test
+    @Ignore("Validation of parent identifier disabled")
     public void testParentIdentifierIsValidUuid() throws ParserConfigurationException, SAXException, IOException {
         // Parent ID should be a valid UUID
         Document doc = documentWithReplacedValues(IDX_PARENT_IDENTIFIER, "Invalid UUID");

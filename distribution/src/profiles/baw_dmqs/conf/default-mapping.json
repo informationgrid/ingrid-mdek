@@ -23,6 +23,14 @@
       "type": "keyword",
       "store": true
     },
+    "bwstr-center-lat": {
+      "type": "keyword",
+      "store": true
+    },
+    "bwstr-center-lon": {
+      "type": "keyword",
+      "store": true
+    },
     "simparamname": {
       "type": "keyword"
     },
@@ -42,13 +50,16 @@
       "type": "keyword"
     },
     "simmodeltype": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
     },
     "bawauftragsnummer": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
     },
     "simprocess": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
     },
     "simspatialdimension": {
       "type": "keyword"
@@ -57,7 +68,8 @@
       "type": "text"
     },
     "t01_object.obj_id": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
     },
     "t01_object.org_obj_id": {
       "type": "keyword"

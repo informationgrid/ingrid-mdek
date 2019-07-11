@@ -42,25 +42,29 @@ Contribute
 - Issue Tracker: https://github.com/informationgrid/ingrid-mdek/issues
 - Source Code: https://github.com/informationgrid/ingrid-mdek
  
-### Set up eclipse project
+### Setup Eclipse project
 
-```
-mvn eclipse:eclipse
-```
+* import project as Maven-Project
+* right click on project and select Maven -> Select Maven Profiles ... (Ctrl+Alt+P)
+* choose profile "development"
+* run "mvn compile" from Commandline (unpacks base-webapp) 
+* run de.ingrid.mdek.MdekServer as Java Application
+* in browser call "http://localhost:10017" with login "admin/admin"
 
-and import projects into eclipse.
-NOTICE: This is a multi module project resulting in multiple eclipse projects.
+### Setup IntelliJ IDEA project
 
-### Start and Debug IGE iPlug under eclipse
+* choose action "Add Maven Projects" and select pom.xml
+* in Maven panel expand "Profiles" and make sure "development" is checked
+* run compile task from Maven panel or run "mvn compile -Pdevelopment" from Commandline (unpacks base-webapp)
+* run de.ingrid.mdek.MdekServer
+* in browser call "http://localhost:10017" with login "admin/admin"
 
-- the connection to your IGC database maintained by this iPlug is set in `ingrid-mdek-job/src/test/resources/config.override.properties`
-- set up a java application Run Configuration with main class `de.ingrid.mdek.MdekServer` in the project `ingrid-mdek-job`
-- go to tab "Dependencies" and add with "Advanced"->"Add Folder" the directories
-- `ingrid-mdek-job/src/test/resources` to class path under "User Entries"
-- `ingrid-mdek-job/src/main/resources` to class path under "User Entries"
-- make sure that src/test/resources is on top!
-- call 'mvn compile' inside 'ingrid-mdek-job'-project to extract admin gui
-- optionally: to debug generated SQL from Hibernate activate output in `ingrid-mdek-job/src/main/webapp/WEB-INF/springapp-servlet.xml`: `<prop key="hibernate.show_sql">true</prop>`
+### Run with a profile
+
+In order to run the configuration for a specific profile to create the correct index documents, you need to do the following steps:
+
+* uncomment profile directory from `baseResource` in `ingrid-mdek-job\src\main\webapp\WEB-INF\jetty-web.xml`
+* add `distribution/src/profiles/<profile>/conf` as `Resources Root` (IntelliJ) or as Classpath (Eclipse)
 
 ### Start various test examples simulating a frontend server calling various interfaces of IGE iPlug
 

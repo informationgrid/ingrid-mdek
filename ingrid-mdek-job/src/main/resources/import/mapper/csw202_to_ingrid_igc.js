@@ -841,7 +841,7 @@ var mappingDescription = {"mappings":[
         },
         {
             "srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:description/gco:CharacterString",
-            "targetNode":"/igc/data-sources/data-source/data-source-instane/spatial-domain/description-of-spatial-domain"
+            "targetNode":"/igc/data-sources/data-source/data-source-instance/spatial-domain/description-of-spatial-domain"
         },
   		{
   			"srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:geographicElement",
@@ -1671,6 +1671,9 @@ function mapUseConstraints(source, target) {
             if (hasValue(otherConstraints)) {
                 for (j=0; j<otherConstraints.getLength(); j++ ) {
                     var otherConstraint = XPATH.getString(otherConstraints.item(j), "./gco:CharacterString");
+                    if (!otherConstraint) {
+                    	otherConstraint = XPATH.getString(otherConstraints.item(j), "./gmx:Anchor");
+					}
                     addUseConstraint(otherConstraint, target);
                 }
             }
@@ -1713,11 +1716,22 @@ function mapAccessConstraints(source, target) {
     if (hasValue(accConstraints)) {
         for (i=0; i<accConstraints.size(); i++ ) {
             var accConstraint = XPATH.getString(accConstraints.get(i), "./gco:CharacterString");
+			if (!accConstraint) {
+				accConstraint = XPATH.getString(accConstraints.get(i), "./gmx:Anchor");
+			}
             var idcCode = codeListService.getSysListEntryKey(1350, accConstraint, "", false);
             log.debug("result from legal constraint: " + idcCode);
             if (hasValue(idcCode)) {
                 addLegalConstraint(accConstraint, target);
             } else {
+            	// since #1219 access constraints are mapped differently and we have to check
+				// in the data field for the text
+				// the following lines are an adapter to check first in the data field before
+				// the regular check by the official short name used in IGE
+            	var accConstraintId = TRANSF.getISOCodeListEntryIdByDataFilter(6010, "\"de\":\"" + accConstraint + "\"");
+            	if (accConstraintId) {
+					accConstraint = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(6010, accConstraintId);
+				}
                 addAccessConstraint(accConstraint, target);
             }
         }
@@ -2235,7 +2249,7 @@ function transformAlternateNameAndProductGroup(source, target) {
                     var entry = splitted[j].trim();
                     var codelistItem = codeListService.getSysListEntryKey(8010, entry, "de");
                     // TODO: what about english entries
-                    if (codelistItem) {
+                    if (codelistItem !== undefined && codelistItem != null) {
                         // add to product group
                         productGroups.push(entry);
                     } else {

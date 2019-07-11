@@ -22,44 +22,28 @@
  */
 package de.ingrid.mdek.job.csw;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.GZIPInputStream;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
+import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.job.IJob.JobType;
+import de.ingrid.mdek.job.MdekIdcCatalogJob;
+import de.ingrid.mdek.job.protocol.ProtocolHandler;
+import de.ingrid.mdek.job.protocol.ProtocolHandler.Type;
+import de.ingrid.mdek.job.utils.TestSetup;
+import de.ingrid.mdek.services.catalog.MdekObjectService;
+import de.ingrid.mdek.services.persistence.db.model.SysList;
+import de.ingrid.mdek.services.utils.MdekJobHandler;
+import de.ingrid.mdek.xml.importer.IngridXMLStreamReader;
+import de.ingrid.utils.IngridDocument;
+import de.ingrid.utils.xml.XMLUtils;
+import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -69,109 +53,58 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import de.ingrid.elasticsearch.IndexManager;
-import de.ingrid.iplug.dsc.index.DatabaseConnection;
-import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
-import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.job.IJob.JobType;
-import de.ingrid.mdek.job.IgeSearchPlug;
-import de.ingrid.mdek.job.MdekIdcCatalogJob;
-import de.ingrid.mdek.job.MdekIdcObjectJob;
-import de.ingrid.mdek.job.mapping.DataMapperFactory;
-import de.ingrid.mdek.job.mapping.ImportDataMapper;
-import de.ingrid.mdek.job.mapping.ScriptImportDataMapper;
-import de.ingrid.mdek.job.protocol.ProtocolHandler;
-import de.ingrid.mdek.job.protocol.ProtocolHandler.Type;
-import de.ingrid.mdek.services.catalog.MdekCatalogService;
-import de.ingrid.mdek.services.catalog.MdekObjectService;
-import de.ingrid.mdek.services.log.ILogService;
-import de.ingrid.mdek.services.persistence.db.DaoFactory;
-import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
-import de.ingrid.mdek.services.persistence.db.IEntity;
-import de.ingrid.mdek.services.persistence.db.IGenericDao;
-import de.ingrid.mdek.services.persistence.db.dao.ISysListDao;
-import de.ingrid.mdek.services.persistence.db.model.SysList;
-import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
-import de.ingrid.mdek.services.security.IPermissionService;
-import de.ingrid.mdek.services.utils.MdekJobHandler;
-import de.ingrid.mdek.xml.importer.IImporterCallback;
-import de.ingrid.mdek.xml.importer.IngridXMLStreamReader;
-import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapper;
-import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapperFactory;
-import de.ingrid.utils.IngridDocument;
-import de.ingrid.utils.xml.XMLUtils;
-import de.ingrid.utils.xpath.XPathUtils;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 
 @PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DatabaseConnectionUtils.class, MdekObjectService.class, MdekJobHandler.class})
-public class CSWImport {
+public class CSWImportTest extends TestSetup {
 
-    // @InjectMocks
-    // RelDatabaseCSWPersister databasePersister;
+    //private IgeSearchPlug plug;
 
-    private IgeSearchPlug plug;
+    // @Mock private ResultSet resultSet;
 
-    // @Mock
-    // MdekIdcObjectJob objectJob;
-
-    // @BeforeClass
-    // public static void setUpBeforeClass() throws Exception {}
-    @Mock
-    IPermissionService permissionService;
-    @Mock
-    DaoFactory daoFactory;
-    @Mock
-    ILogService logService;
-
-    @Mock
-    MdekJobHandler jobHandler;
-
-    @Mock
-    GenericHibernateDao<IEntity> genericDao;
-
-    @Mock
-    IImporterCallback importerCallback;
-
-    // @InjectMocks
-    ScriptImportDataMapper cswMapper;
-    // @Mock
-    // MdekCatalogService catalogService;
-    @Mock
-    ISysListDao daoSysList;
-    @Mock
-    IGenericDao<IEntity> daoT03Catalogue;
-
-    private MdekIdcCatalogJob catJob;
-    
-    @Mock
-    private MdekIdcCatalogJob catJobMock;
-    
-    @Mock
-    private MdekIdcObjectJob objectJobMock;
-    
-    @Mock private DatabaseConnectionUtils dcUtils;
-    @Mock private Connection connectionMock;
-    @Mock private PreparedStatement ps;
-    @Mock private ResultSet resultSet;
-
-    @Mock private MdekObjectService mdekObjectService;
-
-    @Mock
-    IndexManager indexManager;
-
-    @Mock ElasticConfig elasticConfig;
-
-    private IngridXMLMapper importMapper;
 
     @Before
+    public void before() throws Exception {
+        String[] mappingScripts = new String[] {
+                "ingrid-mdek-job/src/main/resources/import/mapper/csw202_to_ingrid_igc.js"
+        };
+
+        /*plug = new IgeSearchPlug( null, null, null, null, null );
+        plug.setCatalogJob( catJobMock );
+        plug.setObjectJob( objectJobMock );*/
+
+        /*ClassPathResource inputResource = new ClassPathResource( "csw/importAdditionalField.xml" );
+        File file = inputResource.getFile();
+        String xml = FileUtils.readFileToString( file );
+        when( resultSet.getString( any(String.class) )).thenReturn( xml );
+*/
+        beforeSetup(mappingScripts);
+    }
+
+    /*@Before
     public void before() throws Exception {
         // CswTransaction trans = new CswTransaction();
         // trans.setPersist( databasePersister );
 
         plug = new IgeSearchPlug( null, null, null, null, null );
 
-        when( elasticConfig.esCommunicationThroughIBus).thenReturn( false );
+        when( elasticConfig.esCommunicationThroughIBus).thenReturnsupported( false );
 
         when( daoFactory.getDao( IEntity.class ) ).thenReturn( genericDao );
         HashMap<String, List<byte[]>> analyzedDataMap = new HashMap<String, List<byte[]>>();
@@ -228,9 +161,9 @@ public class CSWImport {
         plug.setObjectJob( objectJobMock );
 
         importMapper = IngridXMLMapperFactory.getIngridXMLMapper( "4.0.3" );
-    }
+    }*/
 
-    private void mockSyslists() {
+   /* private void mockSyslists() {
         List<SysList> syslist100 = createSyslist( 100, 3068, "EPSG 3068: DHDN / Soldner Berlin" );
         extendSyslist( syslist100, 25832, "EPSG 25832: ETRS89 / UTM Zone 32N" );
         List<SysList> syslist101 = createSyslist( 101, 90008, "DE_DHHN92_NH" );
@@ -293,7 +226,7 @@ public class CSWImport {
         when( daoSysList.getSysList( 6020, "iso" ) ).thenReturn( syslist6020 );
         when( daoSysList.getSysList( 6100, "iso" ) ).thenReturn( syslist6100 );
         when( daoSysList.getSysList( 6400, "de" ) ).thenReturn( syslist6400 );
-    }
+    }*/
 
     private List<SysList> createSyslist(int listId, int entryId, String value) {
         List<SysList> syslist = new ArrayList<SysList>();
@@ -346,7 +279,7 @@ public class CSWImport {
                 }
                 return null;
             }
-        } ).when( jobHandler ).updateJobInfoDB( (JobType) any(), (HashMap) any(), anyString() );
+        } ).when( jobHandler ).updateJobInfoDB(any(), any(), anyString() );
 
         IngridDocument docIn = prepareInsertDocument( "csw/insert_nonGeographicDataset.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
@@ -430,7 +363,7 @@ public class CSWImport {
                     // NOT mapped in ISO!?
                     // TODO: assertThat( docOut.getString( MdekKeys.IS_CATALOG_DATA ), is( "Y" ) );
                     assertThat( docOut.getArrayList( MdekKeys.ENV_TOPICS ).size(), is( 1 ) );
-                    assertThat( (int)docOut.getArrayList( MdekKeys.ENV_TOPICS ).get(0), is( 6 ) );
+                    assertThat(docOut.getArrayList( MdekKeys.ENV_TOPICS ).get(0), is( 6 ) );
 
                     IngridDocument serviceMap = (IngridDocument) docOut.get( MdekKeys.TECHNICAL_DOMAIN_SERVICE );
                     // check classification of service: Dauerauftragsdienst (211)
@@ -485,8 +418,8 @@ public class CSWImport {
                     assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.SPATIAL_SYSTEM_LIST ).get( 0 )).getString( MdekKeys.COORDINATE_SYSTEM ), is( "EPSG 3068: DHDN / Soldner Berlin" ) );
 
                     // height
-                    assertThat( (Double) docOut.get( MdekKeys.VERTICAL_EXTENT_MINIMUM ), is( 4.0 ) );
-                    assertThat( (Double) docOut.get( MdekKeys.VERTICAL_EXTENT_MAXIMUM ), is( 6.0 ) );
+                    assertThat(docOut.get( MdekKeys.VERTICAL_EXTENT_MINIMUM ), is( 4.0 ) );
+                    assertThat(docOut.get( MdekKeys.VERTICAL_EXTENT_MAXIMUM ), is( 6.0 ) );
                     assertThat( docOut.getInt( MdekKeys.VERTICAL_EXTENT_UNIT ), is( 9001 ) ); // "Meter"
                     assertThat( docOut.getString( MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE ), is( "DE_DHHN92_NH" ) );
 
@@ -593,7 +526,7 @@ public class CSWImport {
                 return null;
             }
 
-        } ).when( jobHandler ).updateJobInfoDB( (JobType) any(), (HashMap) any(), anyString() );
+        } ).when( jobHandler ).updateJobInfoDB(any(), any(), anyString() );
 
         IngridDocument docIn = prepareInsertDocument( "csw/insert_class3_service.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
@@ -669,7 +602,7 @@ public class CSWImport {
                     
                     // ISO topics
                     assertThat( docOut.getArrayList( MdekKeys.TOPIC_CATEGORIES ).size(), is( 1 ) );
-                    assertThat( (Integer)docOut.getArrayList( MdekKeys.TOPIC_CATEGORIES).get( 0 ), is( 15 ) );
+                    assertThat(docOut.getArrayList( MdekKeys.TOPIC_CATEGORIES).get( 0 ), is( 15 ) );
                     
                     // check metadata language: Deutsch
                     assertThat( docOut.getString( MdekKeys.METADATA_LANGUAGE_NAME ), is( "Deutsch" ) );
@@ -744,7 +677,7 @@ public class CSWImport {
             }
 
 
-        } ).when( jobHandler ).updateJobInfoDB( (JobType) any(), (HashMap) any(), anyString() );
+        } ).when( jobHandler ).updateJobInfoDB(any(), any(), anyString() );
 
         IngridDocument docIn = prepareInsertDocument( "csw/insert_class1_dataset.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
@@ -765,7 +698,7 @@ public class CSWImport {
 
     private void assertMedia(IngridDocument doc, int nameId, double transferSize, String note) {
         assertThat( doc.getInt( MdekKeys.MEDIUM_NAME ), is( nameId ) );
-        assertThat( (Double)doc.get( MdekKeys.MEDIUM_TRANSFER_SIZE ), is( transferSize ) );
+        assertThat(doc.get( MdekKeys.MEDIUM_TRANSFER_SIZE ), is( transferSize ) );
         assertThat( doc.getString( MdekKeys.MEDIUM_NOTE ), is( note ) );
         
     }
@@ -780,7 +713,7 @@ public class CSWImport {
     
     private void assertOperation(Object operation, String type, String url, String platform, String description, String invocationUrl) {
         IngridDocument doc = (IngridDocument) operation;
-        assertThat( (String) doc.getArrayList( MdekKeys.CONNECT_POINT_LIST ).get( 0 ), is( url ) );
+        assertThat(doc.getArrayList( MdekKeys.CONNECT_POINT_LIST ).get( 0 ), is( url ) );
         assertThat( doc.getString( MdekKeys.SERVICE_OPERATION_DESCRIPTION ), is( description ) );
         assertThat( doc.getString( MdekKeys.SERVICE_OPERATION_NAME ), is( type ) );
         assertThat( ((IngridDocument) doc.getArrayList( MdekKeys.PLATFORM_LIST ).get( 0 )).getString( MdekKeys.PLATFORM_VALUE ), is( platform ) );
@@ -860,7 +793,7 @@ public class CSWImport {
                 assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( false ));
                 return null;                
             }
-        }).when( objectJobMock ).storeObject( (IngridDocument) any() );
+        }).when( objectJobMock ).storeObject(any());
         
         doAnswer( new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) throws Exception {
@@ -881,7 +814,7 @@ public class CSWImport {
         
         IngridDocument result = catJob.importEntities( doc );
         
-        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).storeObject( (IngridDocument) any() );
+        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).storeObject(any());
 
         assertThat( result, is( not( nullValue() ) ) );
         assertThat( result.getBoolean( "success" ), is( true ) );
@@ -893,22 +826,22 @@ public class CSWImport {
         File file = inputResource.getFile();
         
         doAnswer( new Answer<IngridDocument>() {
-            public IngridDocument answer(InvocationOnMock invocation) throws Exception {
+            public IngridDocument answer(InvocationOnMock invocation) {
                 IngridDocument doc = (IngridDocument) invocation.getArgumentAt( 0, Map.class );
                 assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ));
                 assertThat( doc.getString( MdekKeys.UUID ), is( "1234-5678-abcd-efgh" ));
-                assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( false ));
+                assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( true ));
                 IngridDocument resultDelete = new IngridDocument();
                 resultDelete.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
                 return resultDelete;                
             }
-        }).when( objectJobMock ).deleteObject( (IngridDocument) any() );
+        }).when( objectJobMock ).deleteObject(any());
         
         
         String xml = FileUtils.readFileToString( file );
         IngridDocument result = plug.cswTransaction( xml );
         
-        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).deleteObject( (IngridDocument) any() );
+        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).deleteObject(any());
 
         assertThat( result, is( not( nullValue() ) ) );
         assertThat( result.getBoolean( "success" ), is( true ) );
@@ -921,21 +854,21 @@ public class CSWImport {
         
         
         doAnswer( new Answer<IngridDocument>() {
-            public IngridDocument answer(InvocationOnMock invocation) throws Exception {
+            public IngridDocument answer(InvocationOnMock invocation) {
                 IngridDocument doc = (IngridDocument) invocation.getArgumentAt( 0, Map.class );
                 assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ));
                 assertThat( doc.getString( MdekKeys.UUID ), is( "1234-5678-abcd-efgh" ));
-                assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( false ));
+                assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( true ));
                 IngridDocument resultDelete = new IngridDocument();
                 resultDelete.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, false);
                 return resultDelete;
             }
-        }).when( objectJobMock ).deleteObject( (IngridDocument) any() );
+        }).when( objectJobMock ).deleteObject(any());
         
         String xml = FileUtils.readFileToString( file );
         IngridDocument result = plug.cswTransaction( xml );
         
-        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).deleteObject( (IngridDocument) any() );
+        Mockito.verify( objectJobMock, Mockito.times( 1 ) ).deleteObject(any());
         
         assertThat( result, is( not( nullValue() ) ) );
         assertThat( "The CSW-T transaction should not have succeeded.", result.getBoolean( "success" ), is( false ) );
@@ -966,13 +899,32 @@ public class CSWImport {
                 assertThat( hasOpenDataSupport, is(true) );
                 return null;
             }
-        } ).when( jobHandler ).updateJobInfoDB( (JobType) any(), (HashMap) any(), anyString() );
+        } ).when( jobHandler ).updateJobInfoDB(any(), any(), anyString() );
         
         IngridDocument docIn = prepareInsertDocument( "csw/importAdditionalFieldDoc.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
         
         //Mockito.verify( catJob, Mockito.times( 1 ) ).analyzeImportData( (IngridDocument) any() );
         
+        assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
+    }
+
+    @Test
+    public void importUseConstraints() throws Exception {
+        doAnswer((Answer<Void>) invocation -> {
+
+            IngridDocument docOut = getDocument( invocation, "4915275a-733a-47cd-b1a6-1a3f1e976948" );
+
+            List<IngridDocument> useList = (List<IngridDocument>) docOut.get( MdekKeys.USE_CONSTRAINTS );
+            assertThat(useList.size(), is(2));
+            assertThat( useList.get(1).get( MdekKeys.USE_LICENSE_VALUE), is( "Es gelten keine Bedingungen" ) );
+            assertThat( useList.get(1).get( MdekKeys.USE_LICENSE_KEY), is( 26 ) );
+            return null;
+        }).when( jobHandler ).updateJobInfoDB(any(), any(), anyString() );
+
+        IngridDocument docIn = prepareInsertDocument( "csw/importUseConstraints.xml" );
+        IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+
         assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
     }
     
@@ -999,10 +951,10 @@ public class CSWImport {
     private void assertLocation(Object location, String name, Double longWest, Double longEast, Double latSouth, Double latNorth) {
         IngridDocument locationDoc = (IngridDocument) location;
         assertThat( locationDoc.getString( MdekKeys.LOCATION_NAME ), is( name ) );
-        assertThat( (Double) locationDoc.get( MdekKeys.NORTH_BOUNDING_COORDINATE ), is( latNorth ) );
-        assertThat( (Double) locationDoc.get( MdekKeys.SOUTH_BOUNDING_COORDINATE ), is( latSouth ) );
-        assertThat( (Double) locationDoc.get( MdekKeys.EAST_BOUNDING_COORDINATE ), is( longEast ) );
-        assertThat( (Double) locationDoc.get( MdekKeys.WEST_BOUNDING_COORDINATE ), is( longWest ) );
+        assertThat(locationDoc.get( MdekKeys.NORTH_BOUNDING_COORDINATE ), is( latNorth ) );
+        assertThat(locationDoc.get( MdekKeys.SOUTH_BOUNDING_COORDINATE ), is( latSouth ) );
+        assertThat(locationDoc.get( MdekKeys.EAST_BOUNDING_COORDINATE ), is( longEast ) );
+        assertThat(locationDoc.get( MdekKeys.WEST_BOUNDING_COORDINATE ), is( longWest ) );
 
     }
 }

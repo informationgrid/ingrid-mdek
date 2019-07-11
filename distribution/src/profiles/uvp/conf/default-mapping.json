@@ -63,7 +63,9 @@
       "store": true
     },
     "t01_object.mod_time": {
-      "type": "text"
+      "type": "text",
+      "store": true,
+      "fielddata": true
     },
     "t01_object.obj_id": {
       "type": "keyword",

@@ -28,6 +28,30 @@
   </properties>
   <body>
 
+    <release version="5.1.0" date="2019-07-11" description="Release InGrid 5.1.0">
+      <action type="add" dev="wemove" issue="1425">
+        Store mod_time in index for later retrieval.
+      </action>
+      <action type="fix" dev="wemove" issue="1380">
+        BAW: Fix metadata markers in map view
+      </action>
+      <action type="update" dev="wemove" issue="1219">
+        Use anchor element for access constraints if codelist value.
+      </action>
+      <action type="fix" dev="wemove" issue="1218">
+        Use anchor element for use constraints if "no conditions apply".
+      </action>
+      <action type="fix" dev="wemove" issue="1397">
+        Remove old Oracle JDBC lib to prevent conflict.
+      </action>
+      <action type="fix" dev="wemove" issue="1427">
+        Regression: ParentIdentifier must not be shown for datasets under folders unless specified.
+      </action>
+      <action type="fix" dev="wemove" issue="1128">
+        Fix import of AdV product group
+      </action>
+    </release>
+
     <release version="5.0.0" date="2019-04-15" description="Release InGrid 5.0.0">
       <action type="add" dev="wemove" issue="835">
         Add central index functionality.
