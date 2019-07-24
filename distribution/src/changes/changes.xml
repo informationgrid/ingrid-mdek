@@ -28,6 +28,12 @@
   </properties>
   <body>
 
+    <release version="5.2.0-SNAPSHOT" date="????-??-??" description="??">
+      <action type="fix" dev="wemove" issue="976">
+        Fix extended search with URL as search term.
+      </action>
+    </release>
+
     <release version="5.1.0" date="2019-07-11" description="Release InGrid 5.1.0">
       <action type="add" dev="wemove" issue="1425">
         Store mod_time in index for later retrieval.
