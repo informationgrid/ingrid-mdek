@@ -2030,7 +2030,7 @@ function addResourceConstraints(identificationInfo, objRow) {
             if (hasValue(value)) {
                 // value from IGC syslist, map as gmd:otherConstraints
                 var data = TRANSF.getISOCodeListEntryData(6010, value);
-                log.info("accessConstraints Data: " + data);
+                // log.debug("accessConstraints Data: " + data);
 
                 if (data) {
                     var parsedData = JSON.parse(data);
