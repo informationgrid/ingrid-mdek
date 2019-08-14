@@ -96,7 +96,11 @@ var McloudMapper = /** @class */ (function () {
         return undefined; // this.issuedExisting ? this.issuedExisting : new Date(Date.now());
     };
     McloudMapper.prototype.getMetadataSource = function () {
-        return undefined;
+        return {
+            // raw_data_source: undefined,
+            // portal_link: undefined,
+            attribution: "mCLOUD IGE"
+        };
     };
     McloudMapper.prototype.isRealtime = function () {
         return this.objRow.get('time_period') === '1';
