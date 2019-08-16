@@ -236,6 +236,10 @@
     "idf": {
       "type": "text",
       "store": true
+    },
+    "topic": {
+      "type": "keyword",
+      "store": true
     }
   }
 }

@@ -32,6 +32,9 @@
       <action type="fix" dev="wemove" issue="976">
         Fix extended search with URL as search term.
       </action>
+      <action type="fix" dev="wemove" issue="2219">
+        Fix facet mapping into index for topics.
+      </action>
     </release>
 
     <release version="5.1.0" date="2019-07-11" description="Release InGrid 5.1.0">
