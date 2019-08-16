@@ -42,9 +42,8 @@ import org.springframework.core.io.Resource;
 
 import java.beans.PropertyVetoException;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @org.springframework.context.annotation.Configuration
 public class Configuration extends de.ingrid.iplug.dsc.Configuration {
