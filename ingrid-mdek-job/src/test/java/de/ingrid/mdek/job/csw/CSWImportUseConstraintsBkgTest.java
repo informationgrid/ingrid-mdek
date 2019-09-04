@@ -70,7 +70,7 @@ import de.ingrid.utils.xml.XMLUtils;
 //@PowerMockIgnore({"javax.management.*", "javax.script.*"})
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ DatabaseConnectionUtils.class, MdekObjectService.class, MdekJobHandler.class })
-public class CSWImportUseConstraintsBkg extends TestSetup {
+public class CSWImportUseConstraintsBkgTest extends TestSetup {
     
     @Before
     public void before() throws Exception {

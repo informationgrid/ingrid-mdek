@@ -13,17 +13,10 @@
             <gmd:MD_LegalConstraints>
               <gmd:accessConstraints>
                 <gmd:MD_RestrictionCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml#MD_RestrictionCode"
-                  codeListValue="copyright">copyright</gmd:MD_RestrictionCode>
-              </gmd:accessConstraints>
-              <gmd:accessConstraints>
-                <gmd:MD_RestrictionCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml#MD_RestrictionCode"
                   codeListValue="otherRestrictions">otherRestrictions</gmd:MD_RestrictionCode>
               </gmd:accessConstraints>
               <gmd:otherConstraints>
-                <gco:CharacterString>Diese Daten oder dieser Dienst stehen/steht nur ausgewählten Bundesbehörden zur Verfügung.</gco:CharacterString>
-              </gmd:otherConstraints>
-              <gmd:otherConstraints>
-                <gco:CharacterString>mein freier Text</gco:CharacterString>
+                <gco:CharacterString>aufgrund des Schutzes einer Person</gco:CharacterString>
               </gmd:otherConstraints>
             </gmd:MD_LegalConstraints>
           </gmd:resourceConstraints>
@@ -31,10 +24,17 @@
             <gmd:MD_LegalConstraints>
               <gmd:accessConstraints>
                 <gmd:MD_RestrictionCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml#MD_RestrictionCode"
-                  codeListValue="otherRestrictions">otherRestrictions</gmd:MD_RestrictionCode>
+                                        codeListValue="copyright">copyright</gmd:MD_RestrictionCode>
+              </gmd:accessConstraints>
+              <gmd:accessConstraints>
+                <gmd:MD_RestrictionCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml#MD_RestrictionCode"
+                                        codeListValue="otherRestrictions">otherRestrictions</gmd:MD_RestrictionCode>
               </gmd:accessConstraints>
               <gmd:otherConstraints>
-                <gco:CharacterString>aufgrund des Schutzes einer Person</gco:CharacterString>
+                <gco:CharacterString>Diese Daten oder dieser Dienst stehen/steht nur ausgewählten Bundesbehörden zur Verfügung.</gco:CharacterString>
+              </gmd:otherConstraints>
+              <gmd:otherConstraints>
+                <gco:CharacterString>mein freier Text</gco:CharacterString>
               </gmd:otherConstraints>
             </gmd:MD_LegalConstraints>
           </gmd:resourceConstraints>

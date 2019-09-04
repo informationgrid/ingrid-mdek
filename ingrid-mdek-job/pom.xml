@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>5.0.0.1236-SNAPSHOT</version>
+    <version>5.2.0.1236-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-mdek-job</artifactId>
@@ -30,26 +29,6 @@
   </properties>
 
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-core</artifactId>
-        <version>1.3</version>
-      </dependency>
-      <dependency>
-        <groupId>org.javassist</groupId>
-        <artifactId>javassist</artifactId>
-        <version>3.21.0-GA</version>
-      </dependency>
-      <!-- Library conflict with latest version 1.6.0!!! -->
-      <dependency>
-        <groupId>com.tngtech.java</groupId>
-        <artifactId>config-builder</artifactId>
-        <version>1.5.1</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <!-- ==================== DEPENDENCIES ==================== -->
   <dependencies>
@@ -115,6 +94,10 @@
         <exclusion>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>ojdbc</groupId>
+          <artifactId>ojdbc</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -192,4 +175,21 @@
       <version>1.1.1</version>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/register/*.java</exclude>
+            <exclude>**/repository/*.java</exclude>
+            <exclude>**/utils/*.java</exclude>
+            <exclude>**/validation//*.java</exclude>
+            <exclude>**/MdekClientTest.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

@@ -423,8 +423,21 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     }
 
     private IngridDocument prepareImportAnalyzeDocument(DocumentBuilder builder, Node doc) throws Exception {
+        // find first child of doc that is an Element i.e. has type Node.ELEMENT_NODE
+        Node nodeToImport = null;
+        NodeList importCandidates = doc.getChildNodes();
+        for(int i=0; i<importCandidates.getLength() && nodeToImport == null; i++) {
+            Node candidate = importCandidates.item(i);
+            if (candidate.getNodeType() == Node.ELEMENT_NODE) {
+                nodeToImport = candidate;
+            }
+        }
+        if (nodeToImport == null) {
+            throw new IllegalArgumentException("No valid node for import found.");
+        }
+
         Document singleInsertDocument = builder.newDocument();
-        Node importedNode = singleInsertDocument.importNode( doc.getFirstChild().getNextSibling(), true );
+        Node importedNode = singleInsertDocument.importNode( nodeToImport, true );
         singleInsertDocument.appendChild( importedNode );
         String insertDoc = XMLUtils.toString( singleInsertDocument );
 

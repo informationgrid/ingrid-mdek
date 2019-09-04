@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
@@ -10,7 +9,7 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>5.0.0.1236-SNAPSHOT</version>
+  <version>5.2.0.1236-SNAPSHOT</version>
   <name>InGrid iPlug IGE</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.
   </description>
@@ -20,11 +19,11 @@
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
-    <ingrid-udk-importer.version>5.0.0.1236-SNAPSHOT</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>5.0.0.1236-SNAPSHOT</ingrid-codelist-service.version>
-    <ingrid-utils.version>5.0.0-SNAPSHOT</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>5.0.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>5.0.0</ingrid-base-webapp.version>
+    <ingrid-udk-importer.version>5.2.0-SNAPSHOT</ingrid-udk-importer.version>
+    <ingrid-codelist-service.version>5.2.0-SNAPSHOT</ingrid-codelist-service.version>
+    <ingrid-utils.version>5.2.0-SNAPSHOT</ingrid-utils.version>
+    <ingrid-iplug-dsc.version>5.2.0-SNAPSHOT</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>5.2.0-SNAPSHOT</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
 
@@ -210,12 +209,7 @@
           <target>1.8</target>
         </configuration>
       </plugin>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
+
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <inherited>true</inherited>
@@ -268,35 +262,6 @@
       </plugin>
     </plugins>
   </build>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>dependencies</report>
-              <report>project-team</report>
-              <report>mailing-list</report>
-              <report>license</report>
-              <report>surefire</report>
-              <report>cobertura</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jxr-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>cobertura-maven-plugin</artifactId>
-        <version>2.0</version>
-      </plugin>
-    </plugins>
-  </reporting>
 
   <profiles>
     <profile>

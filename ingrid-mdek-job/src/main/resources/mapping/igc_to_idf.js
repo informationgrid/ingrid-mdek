@@ -43,10 +43,11 @@ DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
 DOM.addNS("gco", "http://www.isotc211.org/2005/gco");
 DOM.addNS("srv", "http://www.isotc211.org/2005/srv");
 DOM.addNS("gml", "http://www.opengis.net/gml");
+DOM.addNS("gmx", "http://www.isotc211.org/2005/gmx");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
-var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml";
+var globalCodeListAttrURL = "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml";
 var globalCodeListLanguageAttrURL = "http://www.loc.gov/standards/iso639-2/";
 
 // ---------- <idf:html> ----------
@@ -63,6 +64,7 @@ mdMetadata.addAttribute("xmlns:gmd", DOM.getNS("gmd"));
 mdMetadata.addAttribute("xmlns:gco", DOM.getNS("gco"));
 mdMetadata.addAttribute("xmlns:srv", DOM.getNS("srv"));
 mdMetadata.addAttribute("xmlns:gml", DOM.getNS("gml"));
+mdMetadata.addAttribute("xmlns:gmx", DOM.getNS("gmx"));
 mdMetadata.addAttribute("xmlns:gts", DOM.getNS("gts"));
 mdMetadata.addAttribute("xmlns:xlink", DOM.getNS("xlink"));
 // and schema references
@@ -1962,7 +1964,8 @@ function addResourceConstraints(identificationInfo, objRow) {
     for (var i=0; i<rows.size(); i++) {
         row = rows.get(i);
 
-        var licenseText = TRANSF.getIGCSyslistEntryName(6500, row.get("license_key"));
+        var licenseKey = row.get("license_key");
+        var licenseText = TRANSF.getIGCSyslistEntryName(6500, licenseKey);
         if (!hasValue(licenseText)) {
         	licenseText = row.get("license_value");
         }
@@ -1983,7 +1986,19 @@ function addResourceConstraints(identificationInfo, objRow) {
             	.addAttribute("codeListValue", "otherRestrictions");
             // i.S.v. ISO 19115
         	// also add "Nutzungsbedingungen: " according to GDI-DE Konventionen page 17 !
-            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText("Nutzungsbedingungen: " + licenseText);
+            // Use gmx:Anchor element for more information (https://redmine.informationgrid.eu/issues/1218)
+            // and remove additional text "Nutzungsbedingungen: " as described in the ticket if license is
+            // "Es gelten keine Bedingungen"
+            log.debug("LicenseKey=" + licenseKey);
+            if (licenseKey === "26") {
+                mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor")
+                    .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
+                    .addText(licenseText);
+            } else {
+                mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString")
+                    .addText("Nutzungsbedingungen: " + licenseText);
+
+            }
 
             var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
             if (hasValue(licenseJSON)) {
@@ -2015,7 +2030,18 @@ function addResourceConstraints(identificationInfo, objRow) {
             value = TRANSF.getIGCSyslistEntryName(6010, row.get("restriction_key"));
             if (hasValue(value)) {
                 // value from IGC syslist, map as gmd:otherConstraints
-                otherConstraints.push(value);
+                var data = TRANSF.getISOCodeListEntryData(6010, value);
+                // log.debug("accessConstraints Data: " + data);
+
+                if (data) {
+                    var parsedData = JSON.parse(data);
+                    otherConstraints.push({
+                        text: parsedData["de"],
+                        link: parsedData["url"]
+                    });
+                } else {
+                    otherConstraints.push(value);
+                }
             } else {
                 // free entry, check whether ISO entry
                 value = row.get("restriction_value");
@@ -2047,7 +2073,18 @@ function addResourceConstraints(identificationInfo, objRow) {
                 .addAttribute("codeListValue", "otherRestrictions")
                 .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
                 .addText("otherRestrictions");
-            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(otherConstraints[i]);
+
+            var constraint = otherConstraints[i];
+
+            if (constraint instanceof Object) {
+                var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor");
+                accessAnchor
+                    .addAttribute("xlink:href", constraint.link)
+                    .addText(constraint.text);
+            } else {
+                var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString");
+                accessAnchor.addText(otherConstraints[i]);
+            }
         }
     }
 

@@ -27,9 +27,10 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,7 +42,9 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import de.ingrid.elasticsearch.ElasticConfig;
-import de.ingrid.mdek.job.util.IgeCswFolderUtil;
+import de.ingrid.mdek.xml.Versioning;
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.Logger;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.powermock.api.mockito.PowerMockito;
@@ -116,10 +119,10 @@ public class TestSetup {
 
 
     @Mock
-    private MdekIdcCatalogJob catJobMock;
+    protected MdekIdcCatalogJob catJobMock;
 
     @Mock
-    private MdekIdcObjectJob objectJobMock;
+    protected MdekIdcObjectJob objectJobMock;
 
     
     @Mock
@@ -128,30 +131,28 @@ public class TestSetup {
     @Mock
     private MdekObjectService mdekObjectService;
 
-    @Mock
-    IndexManager indexManager;
-    @Mock
-    ElasticConfig elasticConfig;
+    @Mock IndexManager indexManager;
 
-    @Mock
-    private IgeCswFolderUtil igeCswFolderUtil;
+    @Mock ElasticConfig elasticConfig;
 
     ScriptImportDataMapper cswMapper;
     
-    private IgeSearchPlug plug;
+    protected IgeSearchPlug plug;
     
     
-    private IngridXMLMapper importMapper;
+    protected IngridXMLMapper importMapper;
     
     public TestSetup() {
-//        importMapper = IngridXMLMapperFactory.getIngridXMLMapper( "4.0.3" );
-        importMapper = IngridXMLMapperFactory.getIngridXMLMapper( "4.5.0" );
+        importMapper = IngridXMLMapperFactory.getIngridXMLMapper( Versioning.CURRENT_IMPORT_EXPORT_VERSION );
     }
     
     protected void beforeSetup(String[] mappingScripts) throws Exception {
         plug = new IgeSearchPlug( null, null, null, null, null );
 
-        when( elasticConfig.esCommunicationThroughIBus).thenReturn( false );
+        elasticConfig.esCommunicationThroughIBus = false;
+        /*Boolean spyEsThroughIBus = spy(elasticConfig.esCommunicationThroughIBus);
+        //when( elasticConfig.esCommunicationThroughIBus).thenReturn( Boolean.getBoolean("false") );
+        doReturn(false).when(spyEsThroughIBus);*/
 
         when( daoFactory.getDao( IEntity.class ) ).thenReturn( genericDao );
         HashMap<String, List<byte[]>> analyzedDataMap = new HashMap<String, List<byte[]>>();
@@ -184,8 +185,11 @@ public class TestSetup {
         when( daoT03Catalogue.findFirst() ).thenReturn( t03Catalogue );
         when( catJobMock.getCatalogAdminUserUuid() ).thenReturn( "TEST_USER_ID" );
 
-        cswMapper = new ScriptImportDataMapper( daoFactory, igeCswFolderUtil );
+        cswMapper = new ScriptImportDataMapper( daoFactory );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
+
+        Logger mockLogger = mock(Logger.class);
+        when(logService.getLogger(any())).thenReturn(mockLogger);
 
         catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService, elasticConfig, indexManager, null );
         DataMapperFactory dataMapperFactory = new DataMapperFactory();
@@ -193,6 +197,10 @@ public class TestSetup {
         
         FileSystemResource[] resources = new FileSystemResource[mappingScripts.length];
         ClassPathResource inputResource = new ClassPathResource( "csw/importAdditionalField.xml" );
+        File file = inputResource.getFile();
+        String xml = FileUtils.readFileToString( file );
+        when( resultSet.getString( any(String.class) )).thenReturn( xml );
+
         String absPath = inputResource.getFile().getAbsolutePath();
         int pos = absPath.indexOf( "ingrid-mdek-job" );
         
@@ -201,7 +209,7 @@ public class TestSetup {
         }
         cswMapper.setMapperScript( resources );
         
-        cswMapper.setTemplate( new ClassPathResource( "ingrid-mdek-job/src/main/resources/import/templates/igc_template_csw202.xml" ) );
+        cswMapper.setTemplate( new ClassPathResource( "/import/templates/igc_template_csw202.xml" ) );
         mapper.put( "csw202", cswMapper );
         dataMapperFactory.setMapperClasses( mapper );
         catJob.setDataMapperFactory( dataMapperFactory );
@@ -250,6 +258,7 @@ public class TestSetup {
         extendSyslist( syslist6100, 304, "Land use" );
         List<SysList> syslist6400 = createSyslist( 6400, 5, "Gesundheit" );
         extendSyslist( syslist6400, 11, "Umwelt und Klima" );
+        List<SysList> syslist6500 = createSyslist( 6500, 26, "Es gelten keine Bedingungen" );
         List<SysList> syslist10002 = createSyslist( 10002, 4, "Diese Daten oder dieser Dienst stehen/steht nur ausgewählten Bundesbehörden zur Verfügung." );
         extendSyslist( syslist10002, 1, "Es gelten keine Zugriffsbeschränkungen" );
         List<SysList> syslist10004 = createSyslist( 10004, 1, "Diese Daten können geldleistungsfrei gemäß der Verordnung zur Festlegung der Nutzungsbestimmungen für die Bereitstellung von Geodaten des Bundes (GeoNutzV) vom 19. März 2013 (Bundesgesetzblatt Jahrgang 2013 Teil I Nr. 14) genutzt werden, siehe http://www.geodatenzentrum.de/docpdf/geonutzv.pdf. Der Quellenvermerk ist zu beachten." );
@@ -279,6 +288,7 @@ public class TestSetup {
         when( daoSysList.getSysList( 6020, "iso" ) ).thenReturn( syslist6020 );
         when( daoSysList.getSysList( 6100, "iso" ) ).thenReturn( syslist6100 );
         when( daoSysList.getSysList( 6400, "de" ) ).thenReturn( syslist6400 );
+        when( daoSysList.getSysList( 6500, "de" ) ).thenReturn( syslist6500 );
         when( daoSysList.getSysList( 10002, "de" ) ).thenReturn( syslist10002 );
         when( daoSysList.getSysList( 10004, "de" ) ).thenReturn( syslist10004 );
     }

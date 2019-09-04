@@ -49,8 +49,11 @@ if (BWST_LOC_TOOL.isBwstrIdAndKm(bwstrIdAndKm)) {
 	var parts = BWST_LOC_TOOL.parseCenterSectionFromBwstrIdAndKm(bwstrIdAndKm);
 	var parsedResponse = BWST_LOC_TOOL.parse(BWST_LOC_TOOL.getResponse(parts[0], parts[1], parts[2]));
 	var center = BWST_LOC_TOOL.getCenter(parsedResponse);
-	if (center && center.length==2) {
+	log.debug("Parsed centre from BWaStr. Locator tool is: " + center[0] + ", " + center[1]);
+	if (!isNaN(center[0])) {
 		IDX.addNumeric("bwstr-center-lon", center[0]);
+	}
+	if (!isNaN(center[1])) {
 		IDX.addNumeric("bwstr-center-lat", center[1]);
 	}
 	var locNames = BWST_LOC_TOOL.getLocationNames(parsedResponse);
@@ -59,3 +62,4 @@ if (BWST_LOC_TOOL.isBwstrIdAndKm(bwstrIdAndKm)) {
 		IDX.add("bwstr-strecken_name", locNames[1]);
 	}
 }
+
