@@ -65,7 +65,13 @@
     "t01_object.mod_time": {
       "type": "text",
       "store": true,
-      "fielddata": true
+      "fielddata": true,
+      "fields": {
+        "sort": {
+          "type": "keyword",
+          "ignore_above": 256
+        }
+      }
     },
     "t01_object.obj_id": {
       "type": "keyword",
