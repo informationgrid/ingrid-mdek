@@ -117,6 +117,8 @@ function addT02Address(row) {
     IDX.add("t02_address.work_state", row.get("work_state"));
     IDX.add("t02_address.create_time", row.get("create_time"));
     IDX.add("t02_address.mod_time", row.get("mod_time"));
+    IDX.add("created", TRANSF.getISODateFromIGCDate(row.get("create_time")));
+    IDX.add("modified", TRANSF.getISODateFromIGCDate(row.get("mod_time")));
     IDX.add("t02_address.mod_uuid", row.get("mod_uuid"));
     IDX.add("t02_address.responsible_uuid", row.get("responsible_uuid"));
     IDX.add("t02_address.publish_id", row.get("publish_id"));
