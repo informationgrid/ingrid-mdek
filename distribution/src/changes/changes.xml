@@ -29,6 +29,9 @@
   <body>
 
     <release version="5.2.0-SNAPSHOT" date="????-??-??" description="??">
+      <action type="fix" dev="wemove" issue="1467">
+        Sortierung nach Datum funktioniert nicht.
+      </action>
       <action type="fix" dev="wemove" issue="976">
         Fix extended search with URL as search term.
       </action>
