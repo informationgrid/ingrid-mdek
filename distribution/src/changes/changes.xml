@@ -28,6 +28,12 @@
   </properties>
   <body>
 
+    <release version="5.1.1-SNAPSHOT" date="2019-xx-xx" description="Release 5.1.1">
+      <action type="fix" dev="wemove" issue="1467">
+        Sortierung nach Datum funktioniert nicht.
+      </action>
+    </release>
+
     <release version="5.1.0" date="2019-07-11" description="Release InGrid 5.1.0">
       <action type="add" dev="wemove" issue="1425">
         Store mod_time in index for later retrieval.
