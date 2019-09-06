@@ -446,8 +446,14 @@ function addT01Object(row) {
     IDX.add("t01_object.is_catalog_data", row.get("is_catalog_data"));
     IDX.add("t01_object.create_time", row.get("create_time"));
     IDX.add("t01_object.mod_time", row.get("mod_time"));
-    IDX.add("created", TRANSF.getISODateFromIGCDate(row.get("create_time")));
-    IDX.add("modified", TRANSF.getISODateFromIGCDate(row.get("mod_time")));
+    var created = TRANSF.getISODateFromIGCDate(row.get("create_time"));
+    if (created) {
+        IDX.add("created", created);
+    }
+    var modified = TRANSF.getISODateFromIGCDate(row.get("mod_time"));
+    if (modified) {
+        IDX.add("modified", modified);
+    }
     IDX.add("t01_object.mod_uuid", row.get("mod_uuid"));
     IDX.add("t01_object.responsible_uuid", row.get("responsible_uuid"));
     if (hasValue(row.get("is_inspire_relevant")) && row.get("is_inspire_relevant")=='Y') {
