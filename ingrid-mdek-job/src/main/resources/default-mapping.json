@@ -236,6 +236,14 @@
     "idf": {
       "type": "text",
       "store": true
+    },
+    "created": {
+      "type": "date",
+      "store": true
+    },
+    "modified": {
+      "type": "date",
+      "store": true
     }
   }
 }

@@ -65,12 +65,7 @@
     "t01_object.mod_time": {
       "type": "text",
       "store": true,
-      "fielddata": true,
-      "fields": {
-        "sort": {
-          "type": "keyword",
-          "ignore_above": 256
-        }
+      "fielddata": true
       }
     },
     "t01_object.obj_id": {
@@ -259,6 +254,14 @@
       "type": "text",
       "store": true,
       "index": false
+    },
+    "created": {
+      "type": "date",
+      "store": true
+    },
+    "modified": {
+      "type": "date",
+      "store": true
     }
   }
 }
