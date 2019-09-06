@@ -470,6 +470,10 @@ function addT01Object(row) {
         // add as FREIER term, no alternate value
         addSearchtermValue("F", "AdVMIS", "");
     }
+    // if this document has topics then add the datatype topics to be found
+    if (hasValue(row.get("is_catalog_data")) && row.get("is_catalog_data")=='Y') {
+        IDX.add("datatype", "topics");
+    }
 }
 function addT0110AvailFormat(row) {
     IDX.add("t0110_avail_format.line", row.get("line"));
@@ -904,8 +908,10 @@ function addT0114EnvTopic(row) {
     IDX.add("t0114_env_topic.line", row.get("line"));
     IDX.add("t0114_env_topic.topic_key", row.get("topic_key"));
     // get the query value of the topic, this one has to be in the "topic" index field (queried by portal)
-    var specificLangId = TRANSF.LANG_ID_INGRID_QUERY_VALUE;
-    IDX.add("topic", TRANSF.getCodeListEntryFromIGCSyslistEntry(1410, row.get("topic_key"), specificLangId));
+    var TransformationUtils = Java.type("de.ingrid.iplug.dsc.utils.TransformationUtils")
+    var specificLangId = TransformationUtils.LANG_ID_INGRID_QUERY_VALUE;
+    var value = TRANSF.getCodeListEntryFromIGCSyslistEntry(1410, row.get("topic_key"), specificLangId);
+    IDX.add("topic", value ? value.toLocaleLowerCase() : null);
     // we also index the displayed value of the topic
     IDX.add("t0114_env_topic.topic_value", TRANSF.getIGCSyslistEntryName(1410, row.get("topic_key")));
 }

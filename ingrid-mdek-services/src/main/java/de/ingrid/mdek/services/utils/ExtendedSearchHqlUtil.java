@@ -37,6 +37,7 @@ import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.IFullIndexAccess;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.query.ClauseQuery;
+import de.ingrid.utils.query.FieldQuery;
 import de.ingrid.utils.query.IngridQuery;
 import de.ingrid.utils.query.TermQuery;
 import de.ingrid.utils.queryparser.QueryStringParser;
@@ -397,6 +398,13 @@ public class ExtendedSearchHqlUtil implements IFullIndexAccess {
         ClauseQuery[] clauses = q.getClauses();
         for (int i = 0; i < clauses.length; i++) {
             result.addAll(Arrays.asList(getAllTerms(clauses[i])));
+        }
+
+        // also add terms with ":" as regular terms e.g. URLs like "http://..." are interpreted as fields !
+        FieldQuery[] fields = q.getFields();
+        for (int i = 0; i < fields.length; i++) {
+            String myTerm = fields[i].getFieldName() + ":" + fields[i].getFieldValue();
+            result.add( new TermQuery(false, false, myTerm) );
         }
 
         return ((TermQuery[]) result.toArray(new TermQuery[result.size()]));

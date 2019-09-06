@@ -47,7 +47,7 @@ DOM.addNS("gmx", "http://www.isotc211.org/2005/gmx");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
-var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml";
+var globalCodeListAttrURL = "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml";
 var globalCodeListLanguageAttrURL = "http://www.loc.gov/standards/iso639-2/";
 
 // ---------- <idf:html> ----------
@@ -133,7 +133,12 @@ for (i=0; i<objRows.size(); i++) {
         // Should be only one row !
         objParentUuid = rows.get(0).get("fk_obj_uuid");
         if (hasValue(objParentUuid)) {
-            mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
+            // check if parent is a folder
+            // this query normally shoud return no value if parent is a folder, since they are never published ("V")
+            var parentObjRow = SQL.first("SELECT obj_class FROM t01_object WHERE obj_uuid=? and work_state=?", [objParentUuid, "V"]);
+            if (hasValue(parentObjRow) && !parentObjRow.get("obj_class").equals("1000")) {
+                mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
+            }
         }
     }
 // ---------- <gmd:hierarchyLevel> ----------
@@ -1981,7 +1986,7 @@ function addResourceConstraints(identificationInfo, objRow) {
             // Use gmx:Anchor element for more information (https://redmine.informationgrid.eu/issues/1218)
             // and remove additional text "Nutzungsbedingungen: " as described in the ticket if license is
             // "Es gelten keine Bedingungen"
-            log.info("LicenseKey=" + licenseKey);
+            log.debug("LicenseKey=" + licenseKey);
             if (licenseKey === "26") {
                 mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor")
                     .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
@@ -2022,7 +2027,18 @@ function addResourceConstraints(identificationInfo, objRow) {
             value = TRANSF.getIGCSyslistEntryName(6010, row.get("restriction_key"));
             if (hasValue(value)) {
                 // value from IGC syslist, map as gmd:otherConstraints
-                otherConstraints.push(value);
+                var data = TRANSF.getISOCodeListEntryData(6010, value);
+                // log.debug("accessConstraints Data: " + data);
+
+                if (data) {
+                    var parsedData = JSON.parse(data);
+                    otherConstraints.push({
+                        text: parsedData["de"],
+                        link: parsedData["url"]
+                    });
+                } else {
+                    otherConstraints.push(value);
+                }
             } else {
                 // free entry, check whether ISO entry
                 value = row.get("restriction_value");
@@ -2054,7 +2070,18 @@ function addResourceConstraints(identificationInfo, objRow) {
                 .addAttribute("codeListValue", "otherRestrictions")
                 .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
                 .addText("otherRestrictions");
-            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(otherConstraints[i]);
+
+            var constraint = otherConstraints[i];
+
+            if (constraint instanceof Object) {
+                var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor");
+                accessAnchor
+                    .addAttribute("xlink:href", constraint.link)
+                    .addText(constraint.text);
+            } else {
+                var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString");
+                accessAnchor.addText(otherConstraints[i]);
+            }
         }
     }
 

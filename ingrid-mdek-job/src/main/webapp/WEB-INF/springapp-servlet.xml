@@ -163,21 +163,6 @@
         </property>
     </bean>
     
-    <!-- Defines a facet definition filter. Will be applied before a facet definition is analyzed. This construct is used in igc dsc iPlug to map incompatible queries to compatible. See also de.ingrid.iplug.dsc.IGCTopicsSearchPreProcessor.
-        This is IGC DB specific. Please comment for other databases. -->
-    <bean id="configurableFacetDefinitionProcessors"
-        class="de.ingrid.elasticsearch.search.facets.ConfigurableFacetClassProcessor" >
-        <property name="facetFilterDefinitions">
-            <map>
-                <entry key="type:topic" value-ref="topicFilterDef"/>
-            </map>
-        </property>
-    </bean>
-    
-    <util:map id="topicFilterDef" key-type="java.lang.String">
-        <entry key="datatype:topics" value="t01_object.is_catalog_data:y" />
-    </util:map>
-    
     <context:component-scan base-package="de.ingrid">
         <context:exclude-filter type="regex" expression="de.ingrid.admin.object.DefaultDataType"/>
         <context:exclude-filter type="regex" expression="de.ingrid.admin.object.BasePlug"/>
