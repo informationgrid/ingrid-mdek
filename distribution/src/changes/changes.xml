@@ -29,6 +29,9 @@
   <body>
 
     <release version="5.2.0-SNAPSHOT" date="????-??-??" description="??">
+      <action type="fix" dev="wemove" issue="1485">
+        IGE: Ein eingetragenes "gültig bis" Datum wirkt sich auf alle nachfolgenden Dokumente innerhalb der Dokumententabelle aus.
+      </action>
       <action type="fix" dev="wemove" issue="1467">
         Sortierung nach Datum funktioniert nicht.
       </action>
