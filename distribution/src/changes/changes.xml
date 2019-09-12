@@ -28,6 +28,12 @@
   </properties>
   <body>
 
+    <release version="5.0.3-SNAPSHOT" date="2019-xx-xx" description="Release InGrid 5.0.3">
+      <action type="fix" dev="wemove" issue="1485">
+        IGE: Ein eingetragenes "gültig bis" Datum wirkt sich auf alle nachfolgenden Dokumente innerhalb der Dokumententabelle aus.
+      </action>
+    </release>
+
     <release version="5.0.2" date="2019-06-28" description="Release InGrid 5.0.2">
       <action type="add" dev="wemove" issue="1425">
         Store mod_time in index for later retrieval.
