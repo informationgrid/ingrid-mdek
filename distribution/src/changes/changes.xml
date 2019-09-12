@@ -28,7 +28,7 @@
   </properties>
   <body>
 
-    <release version="5.0.3-SNAPSHOT" date="2019-xx-xx" description="Release InGrid 5.0.3">
+    <release version="5.0.3" date="2019-09-12" description="Release InGrid 5.0.3">
       <action type="fix" dev="wemove" issue="1485">
         IGE: Ein eingetragenes "gültig bis" Datum wirkt sich auf alle nachfolgenden Dokumente innerhalb der Dokumententabelle aus.
       </action>
