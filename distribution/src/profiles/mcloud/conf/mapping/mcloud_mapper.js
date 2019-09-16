@@ -26,7 +26,7 @@ var McloudMapper = /** @class */ (function () {
         this.objId = settings.objId;
         this.objUuid = settings.objUuid;
         this.objRow = settings.objRow;
-        log.info("ID received: " + this.objId);
+        log.debug("ID received: " + this.objId);
     }
 
     McloudMapper.prototype.getTitle = function () {
@@ -353,7 +353,6 @@ var McloudMapper = /** @class */ (function () {
 
     function getAdditionalFieldTable(objId, additionalFieldId) {
         var rows = [];
-        log.info("get additional field");
         var table = getAdditionalField(objId, additionalFieldId);
         if (hasValue(table)) {
             var tableResult = SQL.all('SELECT * FROM additional_field_data WHERE parent_field_id=? ORDER BY sort', [+table.get('id')]);

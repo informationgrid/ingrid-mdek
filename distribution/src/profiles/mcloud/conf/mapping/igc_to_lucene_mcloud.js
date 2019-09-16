@@ -105,7 +105,7 @@ for (var i=0; i<objRows.size(); i++) {
     var objClass = objRow.get('obj_class');
     var objUuid = objRow.get('obj_uuid')
 
-    log.info("Map ID: " + objId);
+    log.debug("Map ID: " + objId);
     var mapper = new McloudMapper({
         objId: objId,
         objUuid: objUuid,
@@ -113,7 +113,7 @@ for (var i=0; i<objRows.size(); i++) {
     });
     var doc = map(mapper);
 
-    log.info("add doc to index");
+    log.debug("add doc to index");
     IDX.addAllFromJSON(JSON.stringify(doc));
 
 }
