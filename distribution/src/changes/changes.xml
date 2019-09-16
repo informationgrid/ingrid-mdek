@@ -28,6 +28,13 @@
   </properties>
   <body>
 
+
+    <release version="4.4.3.mCLOUD" date="2019-09-16" description="Release 4.4.3.mCLOUD">
+      <action type="add" dev="wemove">
+        Add default attribution to easily filter data in portal.
+      </action>
+    </release>
+
     <release version="4.4.2.mCLOUD" date="2019-07-10" description="Release 4.4.2.mCLOUD">
       <action type="update" dev="wemove">
         Change mapping of temporal field.
