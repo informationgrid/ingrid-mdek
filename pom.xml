@@ -19,7 +19,7 @@
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
-    <ingrid-udk-importer.version>5.1.0</ingrid-udk-importer.version>
+    <ingrid-udk-importer.version>5.1.1-SNAPSHOT</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>5.1.0</ingrid-codelist-service.version>
     <ingrid-utils.version>5.1.0</ingrid-utils.version>
     <ingrid-iplug-dsc.version>5.1.0</ingrid-iplug-dsc.version>
