@@ -103,6 +103,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             }
 
             addSimSpatialDimensionKeyword(mdMetadata, objId);
+            addSimModelMethodKeyword(mdMetadata, objId);
             changeMetadataDateAsDateTime(mdMetadata, objRow.get("mod_time"));
         } catch (Exception e) {
             LOG.error("Error mapping source record to idf document.", e);
@@ -122,6 +123,22 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
         LOG.debug("Adding BAW simulation spatial dimensionality keyword. Value found is: " + value);
         String thesaurusTitle = BAW_MODEL_THESAURUS_TITLE_PREFIX + "dimensionality";
+
+        addKeyword(
+                mdMetadata,
+                value,
+                BAW_MODEL_KEYWORD_TYPE,
+                thesaurusTitle,
+                BAW_MODEL_THESAURUS_DATE,
+                BAW_MODEL_THESAURUS_DATE_TYPE);
+    }
+
+    private void addSimModelMethodKeyword(Element mdMetadata, Long objId) throws SQLException {
+        String value = getAdditionalFieldValue(objId, "simProcess");
+        if (value == null) return; // There's nothing to do if there is no value
+
+        LOG.debug("Adding BAW simulation modelling method keyword. Value found is: " + value);
+        String thesaurusTitle = BAW_MODEL_THESAURUS_TITLE_PREFIX + "method";
 
         addKeyword(
                 mdMetadata,
