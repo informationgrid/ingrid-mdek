@@ -17,6 +17,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @Order(2)
@@ -26,9 +30,39 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
     private static final XPathUtils XPATH = new XPathUtils(new IDFNamespaceContext());
 
+    private static final String CODELIST_URL = "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#";
+    private static final String BAW_MODEL_KEYWORD_TYPE = "discipline";
+    private static final String BAW_MODEL_THESAURUS_TITLE_PREFIX = "de.baw.codelist.model.";
+    private static final String BAW_MODEL_THESAURUS_DATE = "2017-01-17";
+    private static final String BAW_MODEL_THESAURUS_DATE_TYPE = "publication";
+
     private DOMUtils domUtil;
     private SQLUtils sqlUtils;
     private TransformationUtils trafoUtil;
+
+    private static final List<String> mdIdentificationChildren = Arrays.asList(
+            "gmd:citation",
+            "gmd:abstract",
+            "gmd:purpose",
+            "gmd:credit",
+            "gmd:status",
+            "gmd:pointOfContact",
+            "gmd:resourceMaintenance",
+            "gmd:graphicOverview",
+            "gmd:resourceFormat",
+            "gmd:descriptiveKeywords",
+            "gmd:resourceSpecificUsage",
+            "gmd:resourceConstraints",
+            "gmd:aggregationInfo",
+            "gmd:spatialRepresentationType",
+            "gmd:spatialResolution",
+            "gmd:language",
+            "gmd:characterSet",
+            "gmd:topicCategory",
+            "gmd:environmentDescription",
+            "gmd:extent",
+            "gmd:supplementalInformation"
+    );
 
     @Override
     public void map(SourceRecord sourceRecord, Document target) throws Exception {
@@ -50,6 +84,8 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
             // Fetch elements for use later on
             Element mdMetadata = (Element) XPATH.getNode(target, "/idf:html/idf:body/idf:idfMdMetadata");
+
+            @SuppressWarnings("unchecked")
             Map<String, String> idxDoc = (Map<String, String>) sourceRecord.get("idxDoc");
 
             // ===== Operations that don't require a database data =====
@@ -66,6 +102,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 return;
             }
 
+            addSimSpatialDimensionKeyword(mdMetadata, objId);
             changeMetadataDateAsDateTime(mdMetadata, objRow.get("mod_time"));
         } catch (Exception e) {
             LOG.error("Error mapping source record to idf document.", e);
@@ -77,6 +114,22 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         if (!XPATH.nodeExists(mdMetadata, "gmd:contact")) {
             LOG.error("No responsible party for metadata found!");
         }
+    }
+
+    private void addSimSpatialDimensionKeyword(Element mdMetadata, Long objId) throws SQLException {
+        String value = getAdditionalFieldValue(objId, "simSpatialDimension");
+        if (value == null) return; // There's nothing to do if there is no value
+
+        LOG.debug("Adding BAW simulation spatial dimensionality keyword. Value found is: " + value);
+        String thesaurusTitle = BAW_MODEL_THESAURUS_TITLE_PREFIX + "dimensionality";
+
+        addKeyword(
+                mdMetadata,
+                value,
+                BAW_MODEL_KEYWORD_TYPE,
+                thesaurusTitle,
+                BAW_MODEL_THESAURUS_DATE,
+                BAW_MODEL_THESAURUS_DATE_TYPE);
     }
 
     private void changeMetadataDateAsDateTime(Node mdMetadata, String dateString) {
@@ -136,6 +189,60 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 .addText("Latitude des Zentrums des Abschnitts");
         field.addElement("idf:data")
                 .addText(idxDoc.get("bwstr-center-lat"));
+    }
+
+    private void addKeyword(
+            Element mdMetadata,
+            String keyword,
+            String keywordType,
+            String thesuarusName,
+            String thesaurusDate,
+            String thesaurusDateType) {
+        String keywordQname = "gmd:descriptiveKeywords";
+
+        String xpath = "./gmd:identificationInfo/gmd:MD_DataIdentification|./gmd:identificationInfo/srv:SV_ServiceIdentification";
+        IdfElement mdIdentification = domUtil.getElement(mdMetadata, xpath);
+
+        int idxStart = mdIdentificationChildren.indexOf(keywordQname);
+        IdfElement previousSibling = null;
+        for(int i=idxStart; i>=0 && previousSibling == null; i--) { // breaks as soon as previousSibling is found (!= null)
+            previousSibling = domUtil.getElement(mdIdentification, mdIdentificationChildren.get(i) + "[last()]");
+        }
+
+        IdfElement keywordElement;
+        if (previousSibling == null) {
+            keywordElement = mdIdentification.addElement(keywordQname);
+        } else {
+            keywordElement = previousSibling.addElementAsSibling(keywordQname);
+        }
+
+        IdfElement mdKeywordElement = keywordElement.addElement("gmd:MD_Keywords");
+        mdKeywordElement.addElement("gmd:keyword/gco:CharacterString")
+                .addText(keyword);
+        mdKeywordElement.addElement("gmd:type/gmd:MD_KeywordTypeCode")
+                .addAttribute("codeList", CODELIST_URL + "MD_KeywordTypeCode")
+                .addAttribute("codeListValue", keywordType);
+
+        IdfElement thesaurusElement = keywordElement.addElement("gmd:thesaurusName/gmd:CI_Citation");
+        thesaurusElement.addElement("gmd:title/gco:CharacterString")
+                .addText(thesuarusName);
+
+        IdfElement thesaurusDateElement = thesaurusElement.addElement("gmd:date/gmd:CI_Date");
+        thesaurusDateElement.addElement("gmd:date/gco:Date")
+                .addText(thesaurusDate);
+        thesaurusDateElement.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                .addAttribute("codeList", CODELIST_URL + "CI_DateTypeCode")
+                .addAttribute("codeListValue", thesaurusDateType);
+    }
+
+    private String getAdditionalFieldValue(Long objId, String fieldKey) throws SQLException {
+        String query = "SELECT obj.data FROM additional_field_data obj WHERE obj.obj_id=? AND obj.field_key=?";
+        Map<String, String> row = sqlUtils.first(query, new Object[]{objId, fieldKey});
+        if (row == null) {
+            return null;
+        } else {
+            return row.get("data");
+        }
     }
 }
 
