@@ -18,10 +18,7 @@ import org.w3c.dom.Node;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Order(2)
 public class IgcToIdfMapperBaw implements IIdfMapper {
@@ -32,10 +29,14 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
     private static final String CODELIST_URL = "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#";
     private static final String UDUNITS_CODESPACE_VALUE = "https://www.unidata.ucar.edu/software/udunits/";
+
     private static final String BAW_MODEL_KEYWORD_TYPE = "discipline";
     private static final String BAW_MODEL_THESAURUS_TITLE_PREFIX = "de.baw.codelist.model.";
     private static final String BAW_MODEL_THESAURUS_DATE = "2017-01-17";
     private static final String BAW_MODEL_THESAURUS_DATE_TYPE = "publication";
+
+    private static final int BAW_MODEL_TYPE_CODELIST_ID = 3950003;
+
     private static final String VALUE_UNIT_ID_PREFIX = "valueUnit_";
 
     private DOMUtils domUtil;
@@ -138,6 +139,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
             addSimSpatialDimensionKeyword(mdMetadata, objId);
             addSimModelMethodKeyword(mdMetadata, objId);
+            addSimModelTypeKeywords(mdMetadata, objId);
             addTimestepSizeElement(mdMetadata, objId);
             changeMetadataDateAsDateTime(mdMetadata, objRow.get("mod_time"));
         } catch (Exception e) {
@@ -161,11 +163,11 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
         addKeyword(
                 mdMetadata,
-                value,
                 BAW_MODEL_KEYWORD_TYPE,
                 thesaurusTitle,
                 BAW_MODEL_THESAURUS_DATE,
-                BAW_MODEL_THESAURUS_DATE_TYPE);
+                BAW_MODEL_THESAURUS_DATE_TYPE,
+                value);
     }
 
     private void addSimModelMethodKeyword(Element mdMetadata, Long objId) throws SQLException {
@@ -177,11 +179,35 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
         addKeyword(
                 mdMetadata,
-                value,
                 BAW_MODEL_KEYWORD_TYPE,
                 thesaurusTitle,
                 BAW_MODEL_THESAURUS_DATE,
-                BAW_MODEL_THESAURUS_DATE_TYPE);
+                BAW_MODEL_THESAURUS_DATE_TYPE,
+                value);
+    }
+
+    private void addSimModelTypeKeywords(Element mdMetadata, Long objId) throws SQLException {
+        List<Map<String, String>> rows = getL2AdditionalFieldDataRows(objId, "simModelType");
+        if (rows.isEmpty()) return;
+
+        String thesaurusTitle = BAW_MODEL_THESAURUS_TITLE_PREFIX + "type";
+        List<String> allValues = new ArrayList<>(rows.size());
+        for(Map<String, String> row: rows) {
+            String entryId = row.get("data");
+            if (entryId == null) continue;
+
+            String value = trafoUtil.getIGCSyslistEntryName(BAW_MODEL_TYPE_CODELIST_ID, Integer.parseInt(entryId));
+            LOG.debug("Adding BAW simulation model type keyword. Value found is: " + value);
+
+            allValues.add(value);
+        }
+        addKeyword(
+                mdMetadata,
+                BAW_MODEL_KEYWORD_TYPE,
+                thesaurusTitle,
+                BAW_MODEL_THESAURUS_DATE,
+                BAW_MODEL_THESAURUS_DATE_TYPE,
+                allValues.toArray(new String[allValues.size()]));
     }
 
     private void changeMetadataDateAsDateTime(Node mdMetadata, String dateString) {
@@ -276,11 +302,11 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
     private void addKeyword(
             Element mdMetadata,
-            String keyword,
             String keywordType,
             String thesuarusName,
             String thesaurusDate,
-            String thesaurusDateType) {
+            String thesaurusDateType,
+            String... keywords) {
         String keywordQname = "gmd:descriptiveKeywords";
 
         String xpath = "./gmd:identificationInfo/gmd:MD_DataIdentification|./gmd:identificationInfo/srv:SV_ServiceIdentification";
@@ -296,8 +322,10 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         }
 
         IdfElement mdKeywordElement = keywordElement.addElement("gmd:MD_Keywords");
-        mdKeywordElement.addElement("gmd:keyword/gco:CharacterString")
-                .addText(keyword);
+        for(String keyword: keywords) {
+            mdKeywordElement.addElement("gmd:keyword/gco:CharacterString")
+                    .addText(keyword);
+        }
         mdKeywordElement.addElement("gmd:type/gmd:MD_KeywordTypeCode")
                 .addAttribute("codeList", CODELIST_URL + "MD_KeywordTypeCode")
                 .addAttribute("codeListValue", keywordType);
@@ -322,6 +350,14 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         } else {
             return row.get("data");
         }
+    }
+
+    private List<Map<String, String>> getL2AdditionalFieldDataRows(Long objId, String fieldKey) throws SQLException {
+        String query = "SELECT obj.data FROM additional_field_data obj " +
+                "JOIN additional_field_data obj_parent ON obj_parent.id = obj.parent_field_id " +
+                "WHERE obj_parent.obj_id=? AND obj.field_key=?";
+        List<Map<String, String>> result = sqlUtils.all(query, new Object[]{objId, fieldKey});
+        return result == null ? Collections.emptyList() : result;
     }
 
     private void addElementWithUnits(Element mdMetadata, IdfElement parent, String qname, String units) {
