@@ -120,6 +120,9 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             // Fetch elements for use later on
             Element mdMetadata = (Element) XPATH.getNode(target, "/idf:html/idf:body/idf:idfMdMetadata");
 
+            String xpath = "./gmd:identificationInfo/gmd:MD_DataIdentification|./gmd:identificationInfo/srv:SV_ServiceIdentification";
+            IdfElement mdIdentification = domUtil.getElement(mdMetadata, xpath);
+
             @SuppressWarnings("unchecked")
             Map<String, String> idxDoc = (Map<String, String>) sourceRecord.get("idxDoc");
 
@@ -137,9 +140,10 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 return;
             }
 
-            addSimSpatialDimensionKeyword(mdMetadata, objId);
-            addSimModelMethodKeyword(mdMetadata, objId);
-            addSimModelTypeKeywords(mdMetadata, objId);
+            addAuftragsInfos(mdIdentification, objId);
+            addSimSpatialDimensionKeyword(mdIdentification, objId);
+            addSimModelMethodKeyword(mdIdentification, objId);
+            addSimModelTypeKeywords(mdIdentification, objId);
             addTimestepSizeElement(mdMetadata, objId);
             changeMetadataDateAsDateTime(mdMetadata, objRow.get("mod_time"));
         } catch (Exception e) {
@@ -154,7 +158,39 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         }
     }
 
-    private void addSimSpatialDimensionKeyword(Element mdMetadata, Long objId) throws SQLException {
+    private void addAuftragsInfos(IdfElement mdIdentification, Long objId) throws SQLException {
+        String number = getAdditionalFieldValue(objId, "bawAuftragsnummer");
+        String title = getAdditionalFieldValue(objId, "bawAuftragstitel");
+
+
+        if (number == null && title != null) {
+            LOG.error("Auftragstitel is defined but no Auftragsnummer found for object with id: " + objId);
+        }
+        if (number != null && title == null) {
+            LOG.error("Auftragsnummer is defined but no Auftragstitel found for object with id: " + objId);
+        }
+        if (number == null || title == null) return;
+
+        String aggInfoQname = "gmd:aggregationInfo";
+        IdfElement previousSibling = findPreviousSibling(aggInfoQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
+
+        String aggInfoCitationPath = aggInfoQname + "/gmd:MD_AggregateInformation/gmd:aggregateDataSetName/gmd:CI_Citation";
+        IdfElement aggInfoCitationElement;
+        if (previousSibling == null) {
+            aggInfoCitationElement = mdIdentification.addElement(aggInfoCitationPath);
+        } else {
+            aggInfoCitationElement = previousSibling.addElementAsSibling(aggInfoCitationPath);
+        }
+
+        aggInfoCitationElement.addElement("gmd:title/gco:CharacterString")
+                .addText(title);
+        aggInfoCitationElement.addElement("gmd:date")
+                .addAttribute("gco:nilReason", "unknown");
+        aggInfoCitationElement.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code")
+                .addText(number);
+    }
+
+    private void addSimSpatialDimensionKeyword(IdfElement mdIdentification, Long objId) throws SQLException {
         String value = getAdditionalFieldValue(objId, "simSpatialDimension");
         if (value == null) return; // There's nothing to do if there is no value
 
@@ -162,7 +198,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         String thesaurusTitle = BAW_MODEL_THESAURUS_TITLE_PREFIX + "dimensionality";
 
         addKeyword(
-                mdMetadata,
+                mdIdentification,
                 BAW_MODEL_KEYWORD_TYPE,
                 thesaurusTitle,
                 BAW_MODEL_THESAURUS_DATE,
@@ -170,7 +206,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 value);
     }
 
-    private void addSimModelMethodKeyword(Element mdMetadata, Long objId) throws SQLException {
+    private void addSimModelMethodKeyword(IdfElement mdIdentification, Long objId) throws SQLException {
         String value = getAdditionalFieldValue(objId, "simProcess");
         if (value == null) return; // There's nothing to do if there is no value
 
@@ -178,7 +214,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         String thesaurusTitle = BAW_MODEL_THESAURUS_TITLE_PREFIX + "method";
 
         addKeyword(
-                mdMetadata,
+                mdIdentification,
                 BAW_MODEL_KEYWORD_TYPE,
                 thesaurusTitle,
                 BAW_MODEL_THESAURUS_DATE,
@@ -186,7 +222,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 value);
     }
 
-    private void addSimModelTypeKeywords(Element mdMetadata, Long objId) throws SQLException {
+    private void addSimModelTypeKeywords(IdfElement mdIdentification, Long objId) throws SQLException {
         List<Map<String, String>> rows = getL2AdditionalFieldDataRows(objId, "simModelType");
         if (rows.isEmpty()) return;
 
@@ -202,7 +238,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             allValues.add(value);
         }
         addKeyword(
-                mdMetadata,
+                mdIdentification,
                 BAW_MODEL_KEYWORD_TYPE,
                 thesaurusTitle,
                 BAW_MODEL_THESAURUS_DATE,
@@ -301,16 +337,13 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     }
 
     private void addKeyword(
-            Element mdMetadata,
+            IdfElement mdIdentification,
             String keywordType,
             String thesuarusName,
             String thesaurusDate,
             String thesaurusDateType,
             String... keywords) {
         String keywordQname = "gmd:descriptiveKeywords";
-
-        String xpath = "./gmd:identificationInfo/gmd:MD_DataIdentification|./gmd:identificationInfo/srv:SV_ServiceIdentification";
-        IdfElement mdIdentification = domUtil.getElement(mdMetadata, xpath);
 
         IdfElement previousSibling = findPreviousSibling(keywordQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
 
