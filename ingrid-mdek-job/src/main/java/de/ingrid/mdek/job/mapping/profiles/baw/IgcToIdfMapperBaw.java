@@ -31,16 +31,48 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private static final XPathUtils XPATH = new XPathUtils(new IDFNamespaceContext());
 
     private static final String CODELIST_URL = "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#";
+    private static final String UDUNITS_CODESPACE_VALUE = "https://www.unidata.ucar.edu/software/udunits/";
     private static final String BAW_MODEL_KEYWORD_TYPE = "discipline";
     private static final String BAW_MODEL_THESAURUS_TITLE_PREFIX = "de.baw.codelist.model.";
     private static final String BAW_MODEL_THESAURUS_DATE = "2017-01-17";
     private static final String BAW_MODEL_THESAURUS_DATE_TYPE = "publication";
+    private static final String VALUE_UNIT_ID_PREFIX = "valueUnit_";
 
     private DOMUtils domUtil;
     private SQLUtils sqlUtils;
     private TransformationUtils trafoUtil;
 
-    private static final List<String> mdIdentificationChildren = Arrays.asList(
+    private static final List<String> MD_METADATA_CHILDREN = Arrays.asList(
+            "gmd:fileIdentifier",
+            "gmd:language",
+            "gmd:characterSet",
+            "gmd:parentIdentifier",
+            "gmd:hierarchyLevel",
+            "gmd:hierarchyLevelName",
+            "gmd:contact",
+            "gmd:dateStamp",
+            "gmd:metadataStandardName",
+            "gmd:metadataStandardVersion",
+            "gmd:dataSetURI",
+            "gmd:locale",
+            "gmd:spatialRepresentationInfo",
+            "gmd:referenceSystemInfo",
+            "gmd:metadataExtensionInfo",
+            "gmd:identificationInfo",
+            "gmd:contentInfo",
+            "gmd:distributionInfo",
+            "gmd:dataQualityInfo",
+            "gmd:portrayalCatalogueInfo",
+            "gmd:metadataConstraints",
+            "gmd:applicationSchemaInfo",
+            "gmd:metadataMaintenance",
+            "gmd:series",
+            "gmd:describes",
+            "gmd:propertyType",
+            "gmd:featureType",
+            "gmd:featureAttribute"
+    );
+    private static final List<String> MD_IDENTIFICATION_CHILDREN = Arrays.asList(
             "gmd:citation",
             "gmd:abstract",
             "gmd:purpose",
@@ -76,6 +108,8 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         domUtil.addNS("idf", "http://www.portalu.de/IDF/1.0");
         domUtil.addNS("gmd", Csw202NamespaceContext.NAMESPACE_URI_GMD);
         domUtil.addNS("gco", Csw202NamespaceContext.NAMESPACE_URI_GCO);
+        domUtil.addNS("gml", Csw202NamespaceContext.NAMESPACE_URI_GML);
+        domUtil.addNS("xlink", Csw202NamespaceContext.NAMESPACE_URI_XLINK);
 
         try {
             Connection connection = (Connection) sourceRecord.get(DatabaseSourceRecord.CONNECTION);
@@ -104,6 +138,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
             addSimSpatialDimensionKeyword(mdMetadata, objId);
             addSimModelMethodKeyword(mdMetadata, objId);
+            addTimestepSizeElement(mdMetadata, objId);
             changeMetadataDateAsDateTime(mdMetadata, objRow.get("mod_time"));
         } catch (Exception e) {
             LOG.error("Error mapping source record to idf document.", e);
@@ -165,6 +200,37 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         }
     }
 
+    private void addTimestepSizeElement(Element mdMetadata, Long objId) throws SQLException {
+        String value = getAdditionalFieldValue(objId, "dqAccTimeMeas");
+        if (value == null) return; // There's nothing to do if there is no value
+
+        if (domUtil.getNS("xs") == null) {
+            domUtil.addNS("xs", "http://www.w3.org/2001/XMLSchema");
+        }
+
+        String dqInfoQname = "gmd:dataQualityInfo";
+
+        IdfElement previousSibling = findPreviousSibling(dqInfoQname, mdMetadata, MD_METADATA_CHILDREN);
+
+        IdfElement dqInfoElement;
+        if (previousSibling == null) {
+            dqInfoElement = domUtil.addElement(mdMetadata, dqInfoQname);
+        } else {
+            dqInfoElement = previousSibling.addElementAsSibling(dqInfoQname);
+        }
+        IdfElement dqElement = dqInfoElement.addElement("gmd:DQ_DataQuality");
+        dqElement.addElement("gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode")
+                .addAttribute("codeList", CODELIST_URL + "MD_ScopeCode")
+                .addAttribute("codeListValue", "model");
+
+        IdfElement dqQuantitativeResult = dqElement.addElement("gmd:report/gmd:DQ_AccuracyOfATimeMeasurement/gmd:result/gmd:DQ_QuantitativeResult");
+        addElementWithUnits(mdMetadata, dqQuantitativeResult, "gmd:valueUnit", "s");
+
+        dqQuantitativeResult.addElement("gmd:value/gco:Record")
+                .addAttribute("xsi:type", "xs:double")
+                .addText(String.format("%.1f", Double.parseDouble(value)));
+    }
+
     private void addWaterwayInformation(Element mdMetadata, Map<String, String> idxDoc) {
         IdfElement additionalDataSection = domUtil.addElement(mdMetadata, "idf:additionalDataSection")
                 .addAttribute("id", "bawDmqsAdditionalFields");
@@ -220,11 +286,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         String xpath = "./gmd:identificationInfo/gmd:MD_DataIdentification|./gmd:identificationInfo/srv:SV_ServiceIdentification";
         IdfElement mdIdentification = domUtil.getElement(mdMetadata, xpath);
 
-        int idxStart = mdIdentificationChildren.indexOf(keywordQname);
-        IdfElement previousSibling = null;
-        for(int i=idxStart; i>=0 && previousSibling == null; i--) { // breaks as soon as previousSibling is found (!= null)
-            previousSibling = domUtil.getElement(mdIdentification, mdIdentificationChildren.get(i) + "[last()]");
-        }
+        IdfElement previousSibling = findPreviousSibling(keywordQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
 
         IdfElement keywordElement;
         if (previousSibling == null) {
@@ -260,6 +322,34 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         } else {
             return row.get("data");
         }
+    }
+
+    private void addElementWithUnits(Element mdMetadata, IdfElement parent, String qname, String units) {
+        String unitsId = VALUE_UNIT_ID_PREFIX + units.replaceAll(" +", "_");
+        boolean nodeExists = XPATH.nodeExists(mdMetadata, ".//*[@gml:id='" + unitsId + "']");
+
+        if (nodeExists) {
+            parent.addElement(qname)
+                    .addAttribute("xlink:href", "#" + unitsId);
+        } else {
+            IdfElement unitDefinitionElement = parent.addElement(qname + "/gml:UnitDefinition");
+            unitDefinitionElement.addAttribute("gml:id", unitsId);
+
+            unitDefinitionElement.addElement("gml:identifier")
+                    .addAttribute("codeSpace", UDUNITS_CODESPACE_VALUE)
+                    .addText(units);
+            unitDefinitionElement.addElement("gml:catalogSymbol")
+                    .addText(units);
+        }
+    }
+
+    private IdfElement findPreviousSibling(String qname, Element parent, List<String> allSiblingQnames) {
+        int idxStart = allSiblingQnames.indexOf(qname);
+        IdfElement previousSibling = null;
+        for(int i=idxStart; i>=0 && previousSibling == null; i--) { // breaks as soon as previousSibling is found (!= null)
+            previousSibling = domUtil.getElement(parent, allSiblingQnames.get(i) + "[last()]");
+        }
+        return previousSibling;
     }
 }
 
