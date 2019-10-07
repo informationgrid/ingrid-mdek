@@ -180,7 +180,7 @@ function addUseConstraints(legalConstraint, codelistEntryId, valueFree, sourceNo
         addUseConstraintElements(legalConstraint, ["restricted"], [valueFree, sourceNote]);
         break;
     default:
-        addUseConstraintElements(legalConstraint, ["license"], [TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), sourceNote, valueFree]);
+        addUseConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), sourceNote, valueFree]);
     }
 }
 
