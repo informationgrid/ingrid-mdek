@@ -1978,10 +1978,6 @@ function addResourceConstraints(identificationInfo, objRow) {
             // i.S.v. ISO 19115
             mdLegalConstraints.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
             	.addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-            	.addAttribute("codeListValue", "license");
-            // i.S.v. ISO 19115
-            mdLegalConstraints.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
-            	.addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
             	.addAttribute("codeListValue", "otherRestrictions");
             // i.S.v. ISO 19115
         	// also add "Nutzungsbedingungen: " according to GDI-DE Konventionen page 17 !
