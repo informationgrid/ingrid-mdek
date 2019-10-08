@@ -168,10 +168,10 @@ function addUseConstraints(legalConstraint, codelistEntryId, valueFree, sourceNo
         addUseConstraintElements(legalConstraint, ["copyright"], [valueFree, sourceNote]);
         break;
     case "11":
-        addUseConstraintElements(legalConstraint, ["license"], [valueFree, sourceNote]);
+        addUseConstraintElements(legalConstraint, [], [valueFree, sourceNote]);
         break;
     case "12":
-        addUseConstraintElements(legalConstraint, ["copyright", "license"], [valueFree, sourceNote]);
+        addUseConstraintElements(legalConstraint, ["copyright"], [valueFree, sourceNote]);
         break;
     case "13":
         addUseConstraintElements(legalConstraint, ["intellectualPropertyRights"], [valueFree, sourceNote]);
