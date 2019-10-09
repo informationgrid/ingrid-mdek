@@ -65,6 +65,9 @@ public abstract class MdekIdcJob extends MdekJob {
     @Autowired
     private Config config;
 
+    @Autowired
+    private Configuration igeConfig;
+
 	public MdekIdcJob(Logger log, DaoFactory daoFactory) {
 		super(log, daoFactory);
 
@@ -217,8 +220,8 @@ public abstract class MdekIdcJob extends MdekJob {
 
         int objClass = doc.getInt(MdekKeys.CLASS);
         if (objClass == geodatensatz) {
-            String name = config.mdStandardNameGeodata;
-            String version = config.mdStandardNameVersionGeodata;
+            String name = igeConfig.defaultMdStandardNameGeodata;
+            String version = igeConfig.defaultMdStandardNameVersionGeodata;
 
             if (name != null && !name.trim().isEmpty()) {
                 doc.put(MdekKeys.METADATA_STANDARD_NAME, name);
@@ -229,8 +232,8 @@ public abstract class MdekIdcJob extends MdekJob {
         }
 
         if (objClass == geodatendienst) {
-            String name = config.mdStandardNameGeoservice;
-            String version = config.mdStandardNameVersionGeoservice;
+            String name = igeConfig.defaultMdStandardNameGeoservice;
+            String version = igeConfig.defaultMdStandardNameVersionGeoservice;
 
             if (name != null && !name.trim().isEmpty()) {
                 doc.put(MdekKeys.METADATA_STANDARD_NAME, name);
