@@ -19,6 +19,7 @@ import org.w3c.dom.Node;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Order(2)
 public class IgcToIdfMapperBaw implements IIdfMapper {
@@ -36,6 +37,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private static final String BAW_MODEL_THESAURUS_DATE_TYPE = "publication";
 
     private static final int BAW_MODEL_TYPE_CODELIST_ID = 3950003;
+    private static final int BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID = 3950004;
 
     private static final String VALUE_UNIT_ID_PREFIX = "valueUnit_";
 
@@ -145,6 +147,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             addSimModelMethodKeyword(mdIdentification, objId);
             addSimModelTypeKeywords(mdIdentification, objId);
             addTimestepSizeElement(mdMetadata, objId);
+            addDgsValues(mdMetadata, objId);
             changeMetadataDateAsDateTime(mdMetadata, objRow.get("mod_time"));
         } catch (Exception e) {
             LOG.error("Error mapping source record to idf document.", e);
@@ -159,8 +162,8 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     }
 
     private void addAuftragsInfos(IdfElement mdIdentification, Long objId) throws SQLException {
-        String number = getAdditionalFieldValue(objId, "bawAuftragsnummer");
-        String title = getAdditionalFieldValue(objId, "bawAuftragstitel");
+        String number = getFirstAdditionalFieldValue(objId, "bawAuftragsnummer");
+        String title = getFirstAdditionalFieldValue(objId, "bawAuftragstitel");
 
 
         if (number == null && title != null) {
@@ -191,7 +194,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     }
 
     private void addSimSpatialDimensionKeyword(IdfElement mdIdentification, Long objId) throws SQLException {
-        String value = getAdditionalFieldValue(objId, "simSpatialDimension");
+        String value = getFirstAdditionalFieldValue(objId, "simSpatialDimension");
         if (value == null) return; // There's nothing to do if there is no value
 
         LOG.debug("Adding BAW simulation spatial dimensionality keyword. Value found is: " + value);
@@ -207,7 +210,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     }
 
     private void addSimModelMethodKeyword(IdfElement mdIdentification, Long objId) throws SQLException {
-        String value = getAdditionalFieldValue(objId, "simProcess");
+        String value = getFirstAdditionalFieldValue(objId, "simProcess");
         if (value == null) return; // There's nothing to do if there is no value
 
         LOG.debug("Adding BAW simulation modelling method keyword. Value found is: " + value);
@@ -263,27 +266,10 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     }
 
     private void addTimestepSizeElement(Element mdMetadata, Long objId) throws SQLException {
-        String value = getAdditionalFieldValue(objId, "dqAccTimeMeas");
+        String value = getFirstAdditionalFieldValue(objId, "dqAccTimeMeas");
         if (value == null) return; // There's nothing to do if there is no value
 
-        if (domUtil.getNS("xs") == null) {
-            domUtil.addNS("xs", "http://www.w3.org/2001/XMLSchema");
-        }
-
-        String dqInfoQname = "gmd:dataQualityInfo";
-
-        IdfElement previousSibling = findPreviousSibling(dqInfoQname, mdMetadata, MD_METADATA_CHILDREN);
-
-        IdfElement dqInfoElement;
-        if (previousSibling == null) {
-            dqInfoElement = domUtil.addElement(mdMetadata, dqInfoQname);
-        } else {
-            dqInfoElement = previousSibling.addElementAsSibling(dqInfoQname);
-        }
-        IdfElement dqElement = dqInfoElement.addElement("gmd:DQ_DataQuality");
-        dqElement.addElement("gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode")
-                .addAttribute("codeList", CODELIST_URL + "MD_ScopeCode")
-                .addAttribute("codeListValue", "model");
+        IdfElement dqElement = modelScopedDqDataQualityElement(mdMetadata);
 
         IdfElement dqQuantitativeResult = dqElement.addElement("gmd:report/gmd:DQ_AccuracyOfATimeMeasurement/gmd:result/gmd:DQ_QuantitativeResult");
         addElementWithUnits(mdMetadata, dqQuantitativeResult, "gmd:valueUnit", "s");
@@ -291,6 +277,131 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         dqQuantitativeResult.addElement("gmd:value/gco:Record")
                 .addAttribute("xsi:type", "xs:double")
                 .addText(String.format("%.1f", Double.parseDouble(value)));
+    }
+
+    private void addDgsValues(Element mdMetadata, Long objId) throws SQLException {
+        String query;
+        query = "SELECT obj.sort, obj.field_key, obj.data FROM additional_field_data obj " +
+                "JOIN additional_field_data obj_parent ON obj_parent.id = obj.parent_field_id " +
+                "WHERE obj_parent.obj_id=? AND obj_parent.field_key=? " +
+                "ORDER BY obj.sort";
+        List<Map<String, String>> allRows = sqlUtils.all(query, new Object[]{objId, "simParamTable"});
+        if (allRows == null) return; // No rows, nothing to do
+
+        Map<Integer, Map<String, String>> groupedRows = new TreeMap<>(); // Keys are sorted
+        for(Map<String, String> row: allRows) {
+            Integer sort = Integer.valueOf(row.get("sort"));
+            groupedRows.putIfAbsent(sort, new HashMap<>());
+            groupedRows.get(sort).put(row.get("field_key"), row.get("data"));
+        }
+
+        for(Integer sort: groupedRows.keySet()) {
+            Map<String, String> row = groupedRows.get(sort);
+            boolean areValuesDiscrete = Boolean.parseBoolean(row.get("simParamHasDiscreteValues"));
+            String name = row.get("simParamName");
+            String type = trafoUtil.getIGCSyslistEntryName(BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID, Integer.parseInt(row.get("simParamType")));
+            String units = row.get("simParamUnit");
+
+            query = "SELECT obj.data FROM additional_field_data obj " +
+                    "JOIN additional_field_data obj_p ON obj_p.id = obj.parent_field_id " +
+                    "JOIN additional_field_data obj_gp ON obj_gp.id = obj_p.parent_field_id " +
+                    "WHERE obj_gp.obj_id=? AND obj_p.sort=? AND obj.field_key=? " +
+                    "ORDER BY obj.sort";
+            List<Map<String, String>> valueRows = sqlUtils.all(query, new Object[]{objId, sort, "simParamValue"});
+
+            List<String> values = valueRows.stream()
+                    .map(e -> e.get("data"))
+                    .collect(Collectors.toList());
+
+            IdfElement dqElement = modelScopedDqDataQualityElement(mdMetadata);
+            IdfElement resultElement = dqElement.addElement("gmd:report/gmd:DQ_QuantitativeAttributeAccuracy/gmd:result");
+
+            resultElement.addElement("gmd:DQ_QuantitativeResult/gmd:valueType/gco:TypeName/gco:aName/gco:CharacterString")
+                    .addText(name);
+
+            addElementWithUnits(mdMetadata, resultElement, "gmd:valueUnit", units);
+
+            boolean valuesAreDoubles = false;
+            if (areValuesDiscrete) {
+                String typeAttr;
+                if (areValuesIntegers(values)) {
+                    typeAttr = "xs:integer";
+                } else if (areValuesDoubles(values)) {
+                    typeAttr = "xs:double";
+                    valuesAreDoubles = true;
+                } else {
+                    typeAttr = "xs:string";
+                }
+                for(String val: values) {
+                    if (valuesAreDoubles) {
+                        val = String.format("%.1f", Double.parseDouble(val));
+                    }
+                    resultElement.addElement("gmd:value/gco:Record")
+                            .addAttribute("xsi:type", typeAttr)
+                            .addText(val);
+                }
+            } else {
+                String typeAttr;
+                if (areValuesIntegers(values)) {
+                    typeAttr = "gml:integerList";
+                } else {
+                    typeAttr = "gml:doubleList";
+                }
+                String val = String.format("%s %s", values.get(0), values.get(1));
+                resultElement.addElement("gmd:value/gco:Record")
+                        .addAttribute("xsi:type", typeAttr)
+                        .addText(val);
+            }
+
+            dqElement.addElement("gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description")
+                    .addText(type);
+        }
+    }
+
+    private IdfElement modelScopedDqDataQualityElement(Element mdMetadata) {
+        if (domUtil.getNS("xs") == null) {
+            domUtil.addNS("xs", "http://www.w3.org/2001/XMLSchema");
+        }
+
+        String dqInfoQname = "gmd:dataQualityInfo";
+        String dqInfoPath = dqInfoQname + "/gmd:DQ_DataQuality";
+
+        IdfElement previousSibling = findPreviousSibling(dqInfoQname, mdMetadata, MD_METADATA_CHILDREN);
+
+        IdfElement dqElement;
+        if (previousSibling == null) {
+            dqElement = domUtil.addElement(mdMetadata, dqInfoPath);
+        } else {
+            dqElement = previousSibling.addElementAsSibling(dqInfoPath);
+        }
+
+        dqElement.addElement("gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode")
+                .addAttribute("codeList", CODELIST_URL + "MD_ScopeCode")
+                .addAttribute("codeListValue", "model");
+
+        return dqElement;
+    }
+
+    private boolean areValuesIntegers(List<String> values) {
+        for(String val: values) {
+            try {
+                Integer.parseInt(val);
+            } catch (NumberFormatException unused) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean areValuesDoubles(List<String> values) {
+        for(String val: values) {
+            try {
+                Double.parseDouble(val);
+            } catch (NumberFormatException unused) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void addWaterwayInformation(Element mdMetadata, Map<String, String> idxDoc) {
@@ -375,7 +486,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 .addAttribute("codeListValue", thesaurusDateType);
     }
 
-    private String getAdditionalFieldValue(Long objId, String fieldKey) throws SQLException {
+    private String getFirstAdditionalFieldValue(Long objId, String fieldKey) throws SQLException {
         String query = "SELECT obj.data FROM additional_field_data obj WHERE obj.obj_id=? AND obj.field_key=?";
         Map<String, String> row = sqlUtils.first(query, new Object[]{objId, fieldKey});
         if (row == null) {
@@ -388,25 +499,41 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private List<Map<String, String>> getL2AdditionalFieldDataRows(Long objId, String fieldKey) throws SQLException {
         String query = "SELECT obj.data FROM additional_field_data obj " +
                 "JOIN additional_field_data obj_parent ON obj_parent.id = obj.parent_field_id " +
-                "WHERE obj_parent.obj_id=? AND obj.field_key=?";
+                "WHERE obj_parent.obj_id=? AND obj.field_key=? " +
+                "ORDER BY obj_parent.sort";
         List<Map<String, String>> result = sqlUtils.all(query, new Object[]{objId, fieldKey});
         return result == null ? Collections.emptyList() : result;
     }
 
     private void addElementWithUnits(Element mdMetadata, IdfElement parent, String qname, String units) {
-        String unitsId = VALUE_UNIT_ID_PREFIX + units.replaceAll(" +", "_");
-        boolean nodeExists = XPATH.nodeExists(mdMetadata, ".//*[@gml:id='" + unitsId + "']");
+        if (units == null || units.trim().isEmpty()) {
+            parent.addElement(qname)
+                    .addAttribute("gco:nilReason", "inapplicable");
+            return;
+        }
+
+        String unitsIdentifierText = units
+                .replaceAll("μ", "mu")
+                .replaceAll("Ω", "OMEGA")
+                .replaceAll("°", "degrees")
+                .replaceAll("′", "arc_minutes")
+                .replaceAll("″", "arc_seconds")
+                .replaceAll("%", "percent")
+                .replaceAll("‰", "per_mille")
+                .replaceAll(" +", "_");
+        String unitsGmlId = VALUE_UNIT_ID_PREFIX + unitsIdentifierText;
+        boolean nodeExists = XPATH.nodeExists(mdMetadata, "//*[@id='" + unitsGmlId + "']");
 
         if (nodeExists) {
             parent.addElement(qname)
-                    .addAttribute("xlink:href", "#" + unitsId);
+                    .addAttribute("xlink:href", "#" + unitsGmlId);
         } else {
             IdfElement unitDefinitionElement = parent.addElement(qname + "/gml:UnitDefinition");
-            unitDefinitionElement.addAttribute("gml:id", unitsId);
+            unitDefinitionElement.addAttribute("gml:id", unitsGmlId);
 
             unitDefinitionElement.addElement("gml:identifier")
                     .addAttribute("codeSpace", UDUNITS_CODESPACE_VALUE)
-                    .addText(units);
+                    .addText(unitsIdentifierText);
             unitDefinitionElement.addElement("gml:catalogSymbol")
                     .addText(units);
         }
