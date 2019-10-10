@@ -39,6 +39,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private static final int BAW_MODEL_TYPE_CODELIST_ID = 3950003;
     private static final int BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID = 3950004;
 
+    private static final String GCO_CHARACTER_STRING_QNAME = "gco:CharacterString";
     private static final String VALUE_UNIT_ID_PREFIX = "valueUnit_";
 
     private DOMUtils domUtil;
@@ -142,6 +143,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 return;
             }
 
+            setHierarchyLevelName(mdMetadata, objId);
             addAuftragsInfos(mdIdentification, objId);
             addSimSpatialDimensionKeyword(mdIdentification, objId);
             addSimModelMethodKeyword(mdIdentification, objId);
@@ -158,6 +160,28 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private void logMissingMetadataContact(Node mdMetadata) {
         if (!XPATH.nodeExists(mdMetadata, "gmd:contact")) {
             LOG.error("No responsible party for metadata found!");
+        }
+    }
+
+    private void setHierarchyLevelName(Element mdMetadata, Long objId) throws SQLException {
+        String hlName = getFirstAdditionalFieldValue(objId, "bawHierarchyLevelName");
+        if (hlName == null || hlName.trim().isEmpty()) return;
+
+        String hlNameQname = "gmd:hierarchyLevelName";
+        String hlNamePath = hlNameQname + '/' + GCO_CHARACTER_STRING_QNAME;
+
+        Element existingNode = (Element) XPATH.getNode(mdMetadata, hlNameQname);
+        if (existingNode == null) {
+            IdfElement previousSibling = findPreviousSibling(hlNameQname, mdMetadata, MD_METADATA_CHILDREN);
+            IdfElement hlNameElement;
+            if (previousSibling == null) {
+                hlNameElement = domUtil.addElement(mdMetadata, hlNamePath);
+            } else {
+                hlNameElement = previousSibling.addElementAsSibling(hlNamePath);
+            }
+            hlNameElement.addText(hlName);
+        } else {
+            domUtil.addText(existingNode, hlName);
         }
     }
 
