@@ -22,18 +22,21 @@
  */
 package de.ingrid.mdek.job.validation.iso.bawdmqs;
 
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
 import static de.ingrid.mdek.job.validation.iso.bawdmqs.ValidatorTestsTemplateHelper.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -42,6 +45,16 @@ import static org.junit.Assert.assertTrue;
 public class BawMetadataProfileValidatorTests {
 
     private BawMetadataProfileValidator validator;
+    private Document defaultDocument;
+    private static final Logger LOG = Logger.getLogger(BawMetadataProfileValidatorTests.class);
+
+    public BawMetadataProfileValidatorTests() {
+        try {
+            defaultDocument = ValidatorTestsTemplateHelper.defaultDocument();
+        } catch (SAXException | ParserConfigurationException | IOException e) {
+            LOG.error("Error while reading and creating default template document for validation.", e);
+        }
+    }
 
     @Before
     public void init() {
@@ -49,104 +62,78 @@ public class BawMetadataProfileValidatorTests {
     }
 
     @Test
-    public void testControlDocumentValidity() throws ParserConfigurationException, SAXException, IOException {
-        Document validDoc = defaultDocument();
-        assertTrue(isValid(validDoc));
+    public void testControlDocumentValidity() {
+        assertTrue(isValid(defaultDocument));
     }
 
     @Test
-    public void testFileIdentifier() throws Exception {
-        Document invalid = documentWithReplacedValues(IDX_FILE_IDENTIFIER, "Not a valid UUID");
-        assertFalse(isValid(invalid));
-    }
-
-    @Test
-    public void testMissingFileIdentifier() throws Exception {
-        String element = String.format(
-                "<gmd:fileIdentifier>\n"
-                        + "\t\t<gco:CharacterString>{%d}</gco:CharacterString>\n"
-                        + "\t</gmd:fileIdentifier>\n",
-                IDX_FILE_IDENTIFIER);
-        String template = fetchTemplateString()
-                .replace(element, "");
-        Document invalid = documentFromTemplate(template);
-        assertFalse(isValid(invalid));
-    }
-
-    @Test
-    public void testMissingMetadataLanguageElement() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:language>\n\t\t<gmd:LanguageCode codeList=\"{%d}\" codeListValue=\"{%d}\">{%d}</gmd:LanguageCode>\n\t</gmd:language>",
-                IDX_MD_LANG_CODELIST,
-                IDX_MD_LANG_VALUE,
-                IDX_MD_LANG_VALUE);
-        checkFailureForDeletedElement(element);
-    }
-
-    @Test
-    public void testMissingMdIdentifierInfoLanguageElement() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:language>\n"
-                        + "\t\t\t\t<gmd:LanguageCode codeList=\"{%d}\" codeListValue=\"{%d}\">{%d}</gmd:LanguageCode>\n"
-                        + "\t\t\t</gmd:language>",
-                IDX_DS_LANG_CODELIST,
-                IDX_DS_LANG_VALUE,
-                IDX_DS_LANG_VALUE);
-        checkFailureForDeletedElement(element);
-    }
-
-    @Test
-    public void testMissingMetadataCharsetValue() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:characterSet>\n"
-                        + "\t\t<gmd:MD_CharacterSetCode codeList=\"{%d}\" codeListValue=\"{%d}\"/>\n"
-                        + "\t</gmd:characterSet>",
-                IDX_MD_CHARSET_CODELIST,
-                IDX_MD_CHARSET_VALUE);
-        checkFailureForDeletedElement(element);
-    }
-
-    @Test
-    public void testMissingMdIdentifierInfoCharsetElement() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:characterSet>\n"
-                        + "\t\t\t\t<gmd:MD_CharacterSetCode codeList=\"{%d}\" codeListValue=\"{%d}\"/>\n"
-                        + "\t\t\t</gmd:characterSet>",
-                IDX_DS_CHARSET_CODELIST,
-                IDX_DS_CHARSET_VALUE);
-        checkFailureForDeletedElement(element);
-    }
-
-    @Test
-    public void testHierarchyLevelValue() throws ParserConfigurationException, SAXException, IOException {
-        Document invalidDoc = documentWithReplacedValues(IDX_MD_HIERARCHY_LEVEL_VALUE, "collectionHardware");
-        assertFalse(isValid(invalidDoc));
-    }
-    
-    @Test
-    public void testMissingHierarchyLevelElement() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:hierarchyLevel>\n"
-                        + "\t\t<gmd:MD_ScopeCode codeList=\"{%d}\" codeListValue=\"{%d}\">{%d}</gmd:MD_ScopeCode>\n"
-                        + "\t</gmd:hierarchyLevel>",
-                IDX_MD_HIERARCHY_LEVEL_CODELIST,
-                IDX_MD_HIERARCHY_LEVEL_VALUE,
-                IDX_MD_HIERARCHY_LEVEL_VALUE);
-        checkFailureForDeletedElement(element);
-    }
-
-    @Test
-    @Ignore("Validation of parent identifier disabled")
-    public void testParentIdentifierAuftragUndefined0() throws ParserConfigurationException, SAXException, IOException {
-        Document doc = documentWithReplacedValues(IDX_MD_HIERARCHY_LEVEL_NAME_VALUE, "Auftrag");
-
-        // Type "Auftrag" shouldn't have a parent
+    public void testFileIdentifier() {
+        Document doc = defaultDocument;
+        String xpath = "/gmd:MD_Metadata/gmd:fileIdentifier/gco:CharacterString";
+        setTextForElementAtXpath(doc, xpath, "Not a valid UUID");
         assertFalse(isValid(doc));
     }
 
     @Test
+    public void testMissingFileIdentifier() {
+        String xpath = "/gmd:MD_Metadata/gmd:fileIdentifier";
+        checkFailureForDeletedElement(xpath);
+    }
+
+    @Test
+    public void testMissingMetadataLanguageElement() {
+        String xpath = "/gmd:MD_Metadata/gmd:language";
+        checkFailureForDeletedElement(xpath);
+    }
+
+    @Test
+    public void testMissingMdIdentifierInfoLanguageElement() {
+        String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:language";
+        checkFailureForDeletedElement(xpath);
+    }
+
+    @Test
+    public void testMissingMetadataCharsetValue() {
+        String xpath = "/gmd:MD_Metadata/gmd:characterSet";
+        checkFailureForDeletedElement(xpath);
+    }
+
+    @Test
+    public void testMissingMdIdentifierInfoCharsetElement() {
+        String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:characterSet";
+        checkFailureForDeletedElement(xpath);
+    }
+
+    @Test
+    public void testHierarchyLevelValue() {
+        Document doc = defaultDocument;
+        String xpath = "/gmd:MD_Metadata/gmd:hierarchyLevel/gmd:MD_ScopeCode";
+        String newVal = "collectionHardware";
+        setAttributeForElementAtXpath(doc, xpath, "codeListValue", newVal);
+        assertFalse(isValid(doc));
+    }
+    
+    @Test
+    public void testMissingHierarchyLevelElement() {
+        String xpath = "/gmd:MD_Metadata/gmd:hierarchyLevel/gmd:MD_ScopeCode";
+        checkFailureForDeletedElement(xpath);
+    }
+
+    @Test
     @Ignore("Validation of parent identifier disabled")
-    public void testParentIdentifierAuftragUndefined1() throws IOException, ParserConfigurationException, SAXException {
+    public void testParentIdentifierAuftragUndefined0() {
+        /*
+        Document doc = documentWithReplacedValues(IDX_MD_HIERARCHY_LEVEL_NAME_VALUE, "Auftrag");
+
+        // Type "Auftrag" shouldn't have a parent
+        assertFalse(isValid(doc));
+        */
+    }
+
+    @Test
+    @Ignore("Validation of parent identifier disabled")
+    public void testParentIdentifierAuftragUndefined1() {
+        /*
         String template = fetchTemplateString();
 
         // Delete the parent id element
@@ -160,275 +147,194 @@ public class BawMetadataProfileValidatorTests {
         assertTrue(isValid(doc));
 
         // For all others, a parent identifier should be defined in v 1.3
-        /*
+        / *
         vals[IDX_MD_HIERARCHY_LEVEL_NAME_VALUE] = "Simulationslauf";
         assertFalse(validator.isValid(doc));
+        * /
+         */
+    }
+
+    @Test
+    @Ignore("Validation of parent identifier disabled")
+    public void testParentIdentifierNotAuftragDefined() {
+        /*
+        Document doc = documentWithReplacedValues(IDX_MD_HIERARCHY_LEVEL_NAME_VALUE, "Simulationslauf");
+        assertTrue(isValid(doc));
         */
     }
 
     @Test
     @Ignore("Validation of parent identifier disabled")
-    public void testParentIdentifierNotAuftragDefined() throws ParserConfigurationException, SAXException, IOException {
-        Document doc = documentWithReplacedValues(IDX_MD_HIERARCHY_LEVEL_NAME_VALUE, "Simulationslauf");
-        assertTrue(isValid(doc));
-    }
-
-    @Test
-    @Ignore("Validation of parent identifier disabled")
-    public void testParentIdentifierIsValidUuid() throws ParserConfigurationException, SAXException, IOException {
+    public void testParentIdentifierIsValidUuid() {
+        /*
         // Parent ID should be a valid UUID
         Document doc = documentWithReplacedValues(IDX_PARENT_IDENTIFIER, "Invalid UUID");
         assertFalse(isValid(doc));
+        */
     }
 
     @Test
-    public void testMetadataContactUuidIsValid() throws ParserConfigurationException, SAXException, IOException {
-        Document doc = documentWithReplacedValues(IDX_MD_CONTACT_UUID, "An invalid UUID");
+    public void testMetadataContactUuidIsValid() {
+        Document doc = defaultDocument;
+        String xpath = "/gmd:MD_Metadata/gmd:contact/gmd:CI_ResponsibleParty";
+        setAttributeForElementAtXpath(doc, xpath, "uuid", "An invalid UUID");
         assertFalse(isValid(doc));
     }
 
     @Test
-    public void testMetadataContactHasEmail() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:electronicMailAddress>\n"
-                        + "\t\t\t\t\t\t\t\t\t\t<gco:CharacterString>{%d}</gco:CharacterString>\n"
-                        + "\t\t\t\t\t\t\t\t\t</gmd:electronicMailAddress>\n",
-                IDX_DS_CONTACT_ORG_EMAIL);
-        checkFailureForDeletedElement(element);
+    public void testMetadataContactHasEmail() {
+        String xpath = "/gmd:MD_Metadata/gmd:contact//gmd:electronicMailAddress";
+        checkFailureForDeletedElement(xpath);
     }
 
     @Test
-    public void testMdContactHasOrganisationName() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:organisationName>\n"
-                        + "\t\t\t\t<gco:CharacterString>{%d}</gco:CharacterString>\n"
-                        + "\t\t\t</gmd:organisationName>\n",
-               IDX_MD_CONTACT_ORG_NAME);
-        checkFailureForDeletedElement(element);
+    public void testMdContactHasOrganisationName() {
+        String xpath = "/gmd:MD_Metadata/gmd:contact/*/gmd:organisationName";
+        checkFailureForDeletedElement(xpath);
     }
 
     @Test
-    public void testMetadataContactHasUrl() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:onlineResource>\n"
-                        + "\t\t\t\t\t\t<gmd:CI_OnlineResource>\n"
-                        + "\t\t\t\t\t\t\t<gmd:linkage>\n"
-                        + "\t\t\t\t\t\t\t\t<gmd:URL>{%d}</gmd:URL>\n"
-                        + "\t\t\t\t\t\t\t</gmd:linkage>\n"
-                        + "\t\t\t\t\t\t</gmd:CI_OnlineResource>\n"
-                        + "\t\t\t\t\t</gmd:onlineResource>\n",
-                IDX_MD_CONTACT_ORG_URL);
-        checkFailureForDeletedElement(element);
+    public void testMetadataContactHasUrl() {
+        String xpath = "/gmd:MD_Metadata/gmd:contact//gmd:onlineResource";
+        checkFailureForDeletedElement(xpath);
     }
 
     @Test
-    public void testMetadataStandardNameExists() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:metadataStandardName>\n"
-                        + "\t\t<gco:CharacterString>{%d}</gco:CharacterString>\n"
-                        + "\t</gmd:metadataStandardName>\n",
-                IDX_MD_STANDARD_NAME);
-        checkFailureForDeletedElement(element);
+    public void testMetadataStandardNameExists() {
+        String xpath = "/gmd:MD_Metadata/gmd:metadataStandardName";
+        checkFailureForDeletedElement(xpath);
     }
 
     @Test
-    public void testMetadataStandardNameIsValid() throws ParserConfigurationException, SAXException, IOException {
-        checkFailureForInvalidValue(IDX_MD_STANDARD_NAME, "invalid standard name");
+    public void testMetadataStandardNameIsValid() {
+        Document doc = defaultDocument;
+        String xpath = "/gmd:MD_Metadata/gmd:metadataStandardName";
+        setTextForElementAtXpath(doc, xpath, "invalid standard name");
+        assertFalse(isValid(doc));
     }
 
     @Test
-    public void testMetadataStandardVersionExists() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:metadataStandardVersion>\n"
-                        + "\t\t<gco:CharacterString>{%d}</gco:CharacterString>\n"
-                        + "\t</gmd:metadataStandardVersion>\n",
-                IDX_MD_STANDARD_VERSION);
-        checkFailureForDeletedElement(element);
+    public void testMetadataStandardVersionExists() {
+        String xpath = "/gmd:MD_Metadata/gmd:metadataStandardVersion";
+        checkFailureForDeletedElement(xpath);
     }
 
     @Test
-    public void testMetadataStandardVersionIsValid() throws ParserConfigurationException, SAXException, IOException {
-        checkFailureForInvalidValue(IDX_MD_STANDARD_VERSION, "invalid standard version");
+    public void testMetadataStandardVersionIsValid() {
+        String xpath = "/gmd:MD_Metadata/gmd:metadataStandardVersion";
+        checkFailureForDeletedElement(xpath);
     }
 
     @Test
     public void testIdInfoContactUuidIsValid() throws ParserConfigurationException, SAXException, IOException {
-        Document doc = documentWithReplacedValues(IDX_DS_CONTACT_UUID, "An invalid UUID");
+        Document doc = defaultDocument;
+        String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:pointOfContact/gmd:CI_ResponsibleParty";
+        setAttributeForElementAtXpath(doc, xpath, "uuid", "An invalid UUID");
         assertFalse(isValid(doc));
     }
 
     @Test
-    public void testIdInfoContactHasOrganisationName() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:organisationName>\n"
-                        + "\t\t\t\t\t\t<gco:CharacterString>{%d}</gco:CharacterString>\n"
-                        + "\t\t\t\t\t</gmd:organisationName>\n",
-                IDX_DS_CONTACT_ORG_NAME);
-        checkFailureForDeletedElement(element);
+    public void testIdInfoContactHasOrganisationName() {
+        String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:pointOfContact/*/gmd:organisationName";
+        checkFailureForDeletedElement(xpath);
     }
 
     @Test
-    public void testIdInfoContactHasEmail() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:electronicMailAddress>\n"
-                        + "\t\t\t\t\t\t\t\t\t\t<gco:CharacterString>{%d}</gco:CharacterString>\n"
-                        + "\t\t\t\t\t\t\t\t\t</gmd:electronicMailAddress>\n",
-                IDX_DS_CONTACT_ORG_EMAIL);
-        checkFailureForDeletedElement(element);
+    public void testIdInfoContactHasEmail() {
+        String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:pointOfContact//gmd:electronicMailAddress";
+        checkFailureForDeletedElement(xpath);
     }
 
     @Test
-    public void testIdInfoContactHasUrl() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format(
-                "<gmd:onlineResource>\n"
-                        + "\t\t\t\t\t\t\t\t<gmd:CI_OnlineResource>\n"
-                        + "\t\t\t\t\t\t\t\t\t<gmd:linkage>\n"
-                        + "\t\t\t\t\t\t\t\t\t\t<gmd:URL>{%d}</gmd:URL>\n"
-                        + "\t\t\t\t\t\t\t\t\t</gmd:linkage>\n"
-                        + "\t\t\t\t\t\t\t\t</gmd:CI_OnlineResource>\n"
-                        + "\t\t\t\t\t\t\t</gmd:onlineResource>\n",
-                IDX_DS_CONTACT_ORG_URL);
-        checkFailureForDeletedElement(element);
+    public void testIdInfoContactHasUrl() {
+        String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:pointOfContact//gmd:onlineResource";
+        checkFailureForDeletedElement(xpath);
     }
 
     @Test
-    public void testMissingAuftragsNummer() throws IOException, ParserConfigurationException, SAXException {
+    @Ignore("Needs to be updated according to new requirements")
+    public void testMissingAuftragsNummer() {
+        /*
         String template = fetchTemplateString();
         template = template.replaceFirst("(?s)<gmd:descriptiveKeywords>.*?DEBUNDBAWAUFTRAGNR.*?</gmd:descriptiveKeywords>", "");
 
         Document document = documentFromTemplate(template);
         assertFalse(isValid(document));
+        */
     }
 
     @Test
-    public void testInvalidAuftragsNummer() throws IOException, SAXException, ParserConfigurationException {
-        checkFailureForInvalidValue(IDX_BAW_AUFTRAGS_NR, "B3950.");
+    @Ignore("Needs to be updated according to new requirements")
+    public void testInvalidAuftragsNummer() {
+        //checkFailureForInvalidValue(IDX_BAW_AUFTRAGS_NR, "B3950.");
     }
 
     @Test
-    public void testMissingGeographicIdentifier() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format("<gmd:geographicElement>\n"
-                        + "\t\t\t\t\t\t<gmd:EX_GeographicDescription>\n"
-                        + "\t\t\t\t\t\t\t<gmd:extentTypeCode>\n"
-                        + "\t\t\t\t\t\t\t\t<gco:Boolean>true</gco:Boolean>\n"
-                        + "\t\t\t\t\t\t\t</gmd:extentTypeCode>\n"
-                        + "\t\t\t\t\t\t\t<gmd:geographicIdentifier>\n"
-                        + "\t\t\t\t\t\t\t\t<gmd:MD_Identifier>\n"
-                        + "\t\t\t\t\t\t\t\t\t<gmd:code>\n"
-                        + "\t\t\t\t\t\t\t\t\t\t<gco:CharacterString>{%d}</gco:CharacterString>\n"
-                        + "\t\t\t\t\t\t\t\t\t</gmd:code>\n"
-                        + "\t\t\t\t\t\t\t\t</gmd:MD_Identifier>\n"
-                        + "\t\t\t\t\t\t\t</gmd:geographicIdentifier>\n"
-                        + "\t\t\t\t\t\t</gmd:EX_GeographicDescription>\n"
-                        + "\t\t\t\t\t</gmd:geographicElement>\n",
-                IDX_DS_GEOGRAPHIC_IDENTIFIER);
-        checkFailureForDeletedElement(element);
+    public void testMissingGeographicIdentifier() {
+        String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:extent/*/gmd:geographicElement[./gmd:EX_GeographicDescription]";
+        checkFailureForDeletedElement(xpath);
     }
 
     @Test
-    public void testMissingBoundingBox() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format("<gmd:geographicElement>\n"
-                        + "\t\t\t\t\t\t<gmd:EX_GeographicBoundingBox>\n"
-                        + "\t\t\t\t\t\t\t<gmd:extentTypeCode>\n"
-                        + "\t\t\t\t\t\t\t\t<gco:Boolean>true</gco:Boolean>\n"
-                        + "\t\t\t\t\t\t\t</gmd:extentTypeCode>\n"
-                        + "\t\t\t\t\t\t\t<gmd:westBoundLongitude>\n"
-                        + "\t\t\t\t\t\t\t\t<gco:Decimal>6.70249535409269</gco:Decimal>\n"
-                        + "\t\t\t\t\t\t\t</gmd:westBoundLongitude>\n"
-                        + "\t\t\t\t\t\t\t<gmd:eastBoundLongitude>\n"
-                        + "\t\t\t\t\t\t\t\t<gco:Decimal>{%d}</gco:Decimal>\n"
-                        + "\t\t\t\t\t\t\t</gmd:eastBoundLongitude>\n"
-                        + "\t\t\t\t\t\t\t<gmd:southBoundLatitude>\n"
-                        + "\t\t\t\t\t\t\t\t<gco:Decimal>{%d}</gco:Decimal>\n"
-                        + "\t\t\t\t\t\t\t</gmd:southBoundLatitude>\n"
-                        + "\t\t\t\t\t\t\t<gmd:northBoundLatitude>\n"
-                        + "\t\t\t\t\t\t\t\t<gco:Decimal>51.3270606108592</gco:Decimal>\n"
-                        + "\t\t\t\t\t\t\t</gmd:northBoundLatitude>\n"
-                        + "\t\t\t\t\t\t</gmd:EX_GeographicBoundingBox>\n"
-                        + "\t\t\t\t\t</gmd:geographicElement>\n",
-                IDX_DS_EAST_BOUND,
-                IDX_DS_SOUTH_BOUND);
-        checkFailureForDeletedElement(element);
+    public void testMissingBoundingBox() {
+        String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:extent/*/gmd:geographicElement[./gmd:EX_GeographicBoundingBox]";
+        checkFailureForDeletedElement(xpath);
     }
 
     @Test
     public void testInvalidBoundingBoxWorld0() throws IOException, SAXException, ParserConfigurationException {
-        checkFailureForInvalidValue(IDX_DS_EAST_BOUND, "200");
+        Document doc = defaultDocument;
+        String xpath = "//gmd:eastBoundLongitude/gco:Decimal";
+        setTextForElementAtXpath(doc, xpath, "200");
+        assertFalse(isValid(doc));
     }
 
     @Test
     public void testInvalidBoundingBoxWorld1() throws IOException, SAXException, ParserConfigurationException {
-        checkFailureForInvalidValue(IDX_DS_SOUTH_BOUND, "200");
-    }
-
-    @Test
-    public void testMissingTemporalResolution() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format("<gmd:report>\n"
-                        + "\t\t\t\t<gmd:DQ_AccuracyOfATimeMeasurement>\n"
-                        + "\t\t\t\t\t<gmd:result>\n"
-                        + "\t\t\t\t\t\t<gmd:DQ_QuantitativeResult>\n"
-                        + "\t\t\t\t\t\t\t<gmd:valueUnit>\n"
-                        + "\t\t\t\t\t\t\t\t<gml:UnitDefinition gml:id=\"seconds\">\n"
-                        + "\t\t\t\t\t\t\t\t\t<gml:identifier codeSpace=\"\"/>\n"
-                        + "\t\t\t\t\t\t\t\t\t<gml:catalogSymbol>{%d}</gml:catalogSymbol>\n"
-                        + "\t\t\t\t\t\t\t\t</gml:UnitDefinition>\n"
-                        + "\t\t\t\t\t\t\t</gmd:valueUnit>\n"
-                        + "\t\t\t\t\t\t\t<gmd:value>\n"
-                        + "\t\t\t\t\t\t\t\t<gco:Record>1.0</gco:Record>\n"
-                        + "\t\t\t\t\t\t\t</gmd:value>\n"
-                        + "\t\t\t\t\t\t</gmd:DQ_QuantitativeResult>\n"
-                        + "\t\t\t\t\t</gmd:result>\n"
-                        + "\t\t\t\t</gmd:DQ_AccuracyOfATimeMeasurement>\n"
-                        + "\t\t\t</gmd:report>",
-                IDX_TEMPORAL_RESOLUTION_UNITS);
-        checkFailureForDeletedElement(element);
-    }
-
-    @Test
-    public void testInvalidTemporalResolutionUnits() throws IOException, SAXException, ParserConfigurationException {
-        checkFailureForInvalidValue(IDX_TEMPORAL_RESOLUTION_UNITS, "m");
-    }
-
-    @Test
-    public void testDGSMissingParameterName() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format("<!-- Parametername -->\n"
-                        + "\t\t\t\t\t\t\t<gmd:valueType>\n"
-                        + "\t\t\t\t\t\t\t\t<gco:RecordType>{%d}</gco:RecordType>\n"
-                        + "\t\t\t\t\t\t\t</gmd:valueType>",
-                IDX_BAW_DGS_PARAMETER_NAME);
-        checkFailureForDeletedElement(element);
-    }
-
-    @Test
-    public void testDGSMissingRole() throws ParserConfigurationException, SAXException, IOException {
-        String element = String.format("<!--Rolle-->\n"
-                        + "\t\t\t<gmd:lineage>\n"
-                        + "\t\t\t\t<gmd:LI_Lineage>\n"
-                        + "\t\t\t\t\t<gmd:source xlink:href=\"http://wserv6x.baw.de/downloads/dummy-md-reference\">\n"
-                        + "\t\t\t\t\t\t<gmd:LI_Source>\n"
-                        + "\t\t\t\t\t\t\t<gmd:description>\n"
-                        + "\t\t\t\t\t\t\t\t<gco:CharacterString>{%d}</gco:CharacterString>\n"
-                        + "\t\t\t\t\t\t\t</gmd:description>\n"
-                        + "\t\t\t\t\t\t</gmd:LI_Source>\n"
-                        + "\t\t\t\t\t</gmd:source>\n"
-                        + "\t\t\t\t</gmd:LI_Lineage>\n"
-                        + "\t\t\t</gmd:lineage>",
-                IDX_BAW_DGS_ROLE);
-        checkFailureForDeletedElement(element);
-    }
-
-    private void checkFailureForDeletedElement(String element) throws IOException, ParserConfigurationException, SAXException {
-        String template = fetchTemplateString();
-        template = template.replace(element, "");
-
-        Document doc = documentFromTemplate(template);
+        Document doc = defaultDocument;
+        String xpath = "//gmd:southBoundLatitude/gco:Decimal";
+        setTextForElementAtXpath(doc, xpath, "200");
         assertFalse(isValid(doc));
     }
 
+    @Test
+    public void testMissingTemporalResolution() {
+        String xpath = "//gmd:report[./gmd:DQ_AccuracyOfATimeMeasurement]";
+        checkFailureForDeletedElement(xpath);
+    }
+
+    @Test
+    @Ignore("Needs to be updated for xlink:href")
+    public void testInvalidTemporalResolutionUnits() throws IOException, SAXException, ParserConfigurationException {
+        //checkFailureForInvalidValue(IDX_TEMPORAL_RESOLUTION_UNITS, "m");
+    }
+
+    @Test
+    public void testDGSMissingParameterName() {
+        String xpath = "//gmd:valueType";
+        checkFailureForDeletedElement(xpath);
+    }
+
+    @Test
+    public void testDGSMissingRole() {
+        String xpath = "//gmd:DQ_DataQuality[./gmd:report/gmd:DQ_QuantitativeAttributeAccuracy]/gmd:lineage";
+        checkFailureForDeletedElement(xpath);
+    }
+
+    private void checkFailureForDeletedElement(String xpath) {
+        Document doc = defaultDocument;
+        Node removed = removeElementAtXpath(doc, xpath);
+
+        assertThat(removed, is(notNullValue())); // Check that a node was really removed
+        assertFalse(isValid(doc)); // Check that the document is no longer valid
+    }
+
+    /*
     private void checkFailureForInvalidValue(int index, String value) throws ParserConfigurationException, SAXException, IOException {
         Document doc = documentWithReplacedValues(index, value);
         assertFalse(isValid(doc));
     }
+    */
 
     private boolean isValid(Document document) {
         return validator.validate(document)

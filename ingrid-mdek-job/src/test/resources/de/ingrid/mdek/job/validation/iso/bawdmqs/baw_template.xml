@@ -1,74 +1,74 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <gmd:MD_Metadata xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gml="http://www.opengis.net/gml" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:srv="http://www.isotc211.org/2005/srv" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.isotc211.org/2005/gmd http://schemas.opengis.net/csw/2.0.2/profiles/apiso/1.0.0/apiso.xsd">
 	<gmd:fileIdentifier>
-		<gco:CharacterString>{0}</gco:CharacterString>
+		<gco:CharacterString>01234567-89ab-cdef-0123-456789abcdef</gco:CharacterString>
 	</gmd:fileIdentifier>
 	<gmd:language>
-		<gmd:LanguageCode codeList="{1}" codeListValue="{2}">{2}</gmd:LanguageCode>
+		<gmd:LanguageCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#LanguageCode" codeListValue="ger">ger</gmd:LanguageCode>
 	</gmd:language>
 	<gmd:characterSet>
-		<gmd:MD_CharacterSetCode codeList="{3}" codeListValue="{4}"/>
+		<gmd:MD_CharacterSetCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8"/>
 	</gmd:characterSet>
 	<gmd:parentIdentifier>
-		<gco:CharacterString>{5}</gco:CharacterString>
+		<gco:CharacterString>01234567-89ab-cdef-0123-456789abcdef</gco:CharacterString>
 	</gmd:parentIdentifier>
 	<gmd:hierarchyLevel>
-		<gmd:MD_ScopeCode codeList="{6}" codeListValue="{7}">{7}</gmd:MD_ScopeCode>
+		<gmd:MD_ScopeCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_ScopeCode" codeListValue="dataset">dataset</gmd:MD_ScopeCode>
 	</gmd:hierarchyLevel>
 	<gmd:hierarchyLevelName>
-		<gco:CharacterString>{8}</gco:CharacterString>
+		<gco:CharacterString>Simulationslauf</gco:CharacterString>
 	</gmd:hierarchyLevelName>
 	<gmd:contact>
-		<gmd:CI_ResponsibleParty uuid="{9}">
+		<gmd:CI_ResponsibleParty uuid="2b412ef9-b566-35ec-a31f-12c310a897c0">
 			<gmd:organisationName>
-				<gco:CharacterString>{10}</gco:CharacterString>
+				<gco:CharacterString>Bundesanstalt für Wasserbau</gco:CharacterString>
 			</gmd:organisationName>
 			<gmd:contactInfo>
 				<gmd:CI_Contact>
 					<gmd:address>
 						<gmd:CI_Address>
 							<gmd:electronicMailAddress>
-								<gco:CharacterString>{11}</gco:CharacterString>
+								<gco:CharacterString>info@baw.de</gco:CharacterString>
 							</gmd:electronicMailAddress>
 						</gmd:CI_Address>
 					</gmd:address>
 					<gmd:onlineResource>
 						<gmd:CI_OnlineResource>
 							<gmd:linkage>
-								<gmd:URL>{12}</gmd:URL>
+								<gmd:URL>http://www.baw.de/</gmd:URL>
 							</gmd:linkage>
 						</gmd:CI_OnlineResource>
 					</gmd:onlineResource>
 				</gmd:CI_Contact>
 			</gmd:contactInfo>
 			<gmd:role>
-				<gmd:CI_RoleCode codeList="{13}" codeListValue="{14}"/>
+				<gmd:CI_RoleCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_ScopeCode" codeListValue="pointOfContact"/>
 			</gmd:role>
 		</gmd:CI_ResponsibleParty>
 	</gmd:contact>
 	<gmd:dateStamp>
-		<gco:DateTime>{15}</gco:DateTime>
+		<gco:DateTime>2017-01-01T03:15:00+01:00</gco:DateTime>
 	</gmd:dateStamp>
 	<gmd:metadataStandardName>
-		<gco:CharacterString>{16}</gco:CharacterString>
+		<gco:CharacterString>ISO 19115; GDI-BAW</gco:CharacterString>
 	</gmd:metadataStandardName>
 	<gmd:metadataStandardVersion>
-		<gco:CharacterString>{17}</gco:CharacterString>
+		<gco:CharacterString>2003(E)/Cor.1:2006(E); 1.3:2019</gco:CharacterString>
 	</gmd:metadataStandardVersion>
 	<gmd:identificationInfo>
 		<gmd:MD_DataIdentification uuid="fedcba98-7654-3210-fedc-ba9876543210">
 			<gmd:citation>
 				<gmd:CI_Citation>
 					<gmd:title>
-						<gco:CharacterString>{18}</gco:CharacterString>
+						<gco:CharacterString>Test title for simulation</gco:CharacterString>
 					</gmd:title>
 					<gmd:date>
 						<gmd:CI_Date>
 							<gmd:date>
-								<gco:DateTime>{19}</gco:DateTime>
+								<gco:DateTime>2016-07-01T03:15:00+02:00</gco:DateTime>
 							</gmd:date>
 							<gmd:dateType>
-								<gmd:CI_DateTypeCode codeList="{20}" codeListValue="{21}"/>
+								<gmd:CI_DateTypeCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_DateTypeCode" codeListValue="creation"/>
 							</gmd:dateType>
 						</gmd:CI_Date>
 					</gmd:date>
@@ -82,40 +82,40 @@
 				</gmd:CI_Citation>
 			</gmd:citation>
 			<gmd:abstract>
-				<gco:CharacterString>{22}</gco:CharacterString>
+				<gco:CharacterString>Test abstract for simulation</gco:CharacterString>
 			</gmd:abstract>
 			<gmd:pointOfContact>
-				<gmd:CI_ResponsibleParty uuid="{23}">
+				<gmd:CI_ResponsibleParty uuid="2b412ef9-b566-35ec-a31f-12c310a897c0">
 					<gmd:organisationName>
-						<gco:CharacterString>{24}</gco:CharacterString>
+						<gco:CharacterString>Bundesanstalt für Wasserbau</gco:CharacterString>
 					</gmd:organisationName>
 					<gmd:contactInfo>
 						<gmd:CI_Contact>
 							<gmd:address>
 								<gmd:CI_Address>
 									<gmd:electronicMailAddress>
-										<gco:CharacterString>{25}</gco:CharacterString>
+										<gco:CharacterString>info@baw.de</gco:CharacterString>
 									</gmd:electronicMailAddress>
 								</gmd:CI_Address>
 							</gmd:address>
 							<gmd:onlineResource>
 								<gmd:CI_OnlineResource>
 									<gmd:linkage>
-										<gmd:URL>{26}</gmd:URL>
+										<gmd:URL>http://www.baw.de/</gmd:URL>
 									</gmd:linkage>
 								</gmd:CI_OnlineResource>
 							</gmd:onlineResource>
 						</gmd:CI_Contact>
 					</gmd:contactInfo>
 					<gmd:role>
-						<gmd:CI_RoleCode codeList="{27}" codeListValue="{28}"/>
+						<gmd:CI_RoleCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_RoleCode" codeListValue="pointOfContact"/>
 					</gmd:role>
 				</gmd:CI_ResponsibleParty>
 			</gmd:pointOfContact>
 			<gmd:descriptiveKeywords>
 				<gmd:MD_Keywords>
 					<gmd:keyword>
-						<gco:CharacterString>{29}</gco:CharacterString>
+						<gco:CharacterString>B3953.05.30.10018</gco:CharacterString>
 					</gmd:keyword>
 					<gmd:type>
 						<gmd:MD_KeywordTypeCode codeList="http://www.isotc211.org/2005/resources/Codelist/ML_gmxCodelists.xml#MD_KeywordTypeCode" codeListValue="discipline"/>
@@ -140,10 +140,10 @@
 				</gmd:MD_Keywords>
 			</gmd:descriptiveKeywords>
 			<gmd:language>
-				<gmd:LanguageCode codeList="{30}" codeListValue="{31}">{31}</gmd:LanguageCode>
+				<gmd:LanguageCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#LanguageCode" codeListValue="ger">ger</gmd:LanguageCode>
 			</gmd:language>
 			<gmd:characterSet>
-				<gmd:MD_CharacterSetCode codeList="{32}" codeListValue="{33}"/>
+				<gmd:MD_CharacterSetCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8"/>
 			</gmd:characterSet>
 			<gmd:extent>
 				<gmd:EX_Extent>
@@ -155,7 +155,7 @@
 							<gmd:geographicIdentifier>
 								<gmd:MD_Identifier>
 									<gmd:code>
-										<gco:CharacterString>{34}</gco:CharacterString>
+										<gco:CharacterString>3901-729-776</gco:CharacterString>
 									</gmd:code>
 								</gmd:MD_Identifier>
 							</gmd:geographicIdentifier>
@@ -170,10 +170,10 @@
 								<gco:Decimal>6.70249535409269</gco:Decimal>
 							</gmd:westBoundLongitude>
 							<gmd:eastBoundLongitude>
-								<gco:Decimal>{35}</gco:Decimal>
+								<gco:Decimal>6.79836627101571</gco:Decimal>
 							</gmd:eastBoundLongitude>
 							<gmd:southBoundLatitude>
-								<gco:Decimal>{36}</gco:Decimal>
+								<gco:Decimal>51.1662831753112</gco:Decimal>
 							</gmd:southBoundLatitude>
 							<gmd:northBoundLatitude>
 								<gco:Decimal>51.3270606108592</gco:Decimal>
@@ -197,7 +197,7 @@
 			<gmd:lineage>
 				<gmd:LI_Lineage>
 					<gmd:statement>
-						<gco:CharacterString>{37}</gco:CharacterString>
+						<gco:CharacterString>Some lineage statement</gco:CharacterString>
 					</gmd:statement>
 					<gmd:source>
 						<gmd:LI_Source>
@@ -226,7 +226,7 @@
 							<gmd:valueUnit>
 								<gml:UnitDefinition gml:id="seconds">
 									<gml:identifier codeSpace=""/>
-									<gml:catalogSymbol>{38}</gml:catalogSymbol>
+									<gml:catalogSymbol>s</gml:catalogSymbol>
 								</gml:UnitDefinition>
 							</gmd:valueUnit>
 							<gmd:value>
@@ -253,7 +253,7 @@
 						<gmd:DQ_QuantitativeResult>
 							<!-- Parametername -->
 							<gmd:valueType>
-								<gco:RecordType>{39}</gco:RecordType>
+								<gco:RecordType>Durchfluss</gco:RecordType>
 							</gmd:valueType>
 							<gmd:valueUnit>
 								<gml:UnitDefinition gml:id="unitDefinition_ID_f9d675d6-1c37-48b8-bdc4-4cd24a41bdfb">
@@ -280,7 +280,7 @@
 					<gmd:source xlink:href="http://wserv6x.baw.de/downloads/dummy-md-reference">
 						<gmd:LI_Source>
 							<gmd:description>
-								<gco:CharacterString>{40}</gco:CharacterString>
+								<gco:CharacterString>Randbedingung</gco:CharacterString>
 							</gmd:description>
 						</gmd:LI_Source>
 					</gmd:source>

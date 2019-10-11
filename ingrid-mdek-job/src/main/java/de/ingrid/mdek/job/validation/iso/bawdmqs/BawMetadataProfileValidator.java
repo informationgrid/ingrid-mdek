@@ -46,15 +46,13 @@ public final class BawMetadataProfileValidator extends  AbstractIsoValidator {
 
     private static final Logger LOG = Logger.getLogger(BawMetadataProfileValidator.class);
 
-    private static final String LANG_CODELIST = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#LanguageCode";
-    private static final String CHARSET_CODELIST = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_CharacterSetCode";
-    private static final String HIERARCHY_LEVEL_CODELIST = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_ScopeCode";
+    private static final String CODELIST_BASE_URL = "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml";
 
     private static final String BAW_EMAIL = "info@baw.de";
     private static final String BAW_URL = "(?:https?://)?(?:www.)?baw.de/?";
     private static final String BAW_NAME = "Bundesanstalt für Wasserbau";
-    private static final String BAW_MD_STANDARD_NAME = "ISO19115:2003; ?GDI-BAW";
-    private static final String BAW_MD_STANDARD_VERSION = "2003\\(E\\)/Cor.1:2006\\(E\\); ?1.2:2016";
+    private static final String BAW_MD_STANDARD_NAME = "ISO 19115; ?GDI-BAW";
+    private static final String BAW_MD_STANDARD_VERSION = "2003\\(E\\)/Cor.1:2006\\(E\\); ?1.3:2019";
     private static final String BAW_AUFTRAGSNR = "(?:B\\d{4}\\.\\d{2}\\.\\d{2}\\.\\d{5}|A\\d{11})";
     private static final String BWASTR_KM_KM = "\\d{4}-\\d{1,4}-\\d{1,4}";
 
@@ -134,9 +132,10 @@ public final class BawMetadataProfileValidator extends  AbstractIsoValidator {
 
     private void validateLanguageCode(Document dom4jDoc, String xpath, ValidationReportHelper reportHelper) {
         String tagKey = "validation.iso.tag.language";
+        String langCodelist = CODELIST_BASE_URL + "#LanguageCode";
         new CodelistValidator(tagKey, dom4jDoc, xpath, reportHelper)
                 .reportAs(ValidationReportItem.ReportLevel.WARN)
-                .validCodelistLocation(LANG_CODELIST)
+                .validCodelistLocation(langCodelist)
                 .validCodelistValuePattern("(ger|eng)")
                 .validate();
     }
@@ -153,9 +152,10 @@ public final class BawMetadataProfileValidator extends  AbstractIsoValidator {
 
     private void validateCharset(Document dom4jDoc, String xpath, ValidationReportHelper reportHelper) {
         String tagKey = "validation.iso.tag.charset";
+        String charsetCodelist = CODELIST_BASE_URL + "#MD_CharacterSetCode";
         new CodelistValidator(tagKey, dom4jDoc, xpath, reportHelper)
                 .reportAs(ValidationReportItem.ReportLevel.WARN)
-                .validCodelistLocation(CHARSET_CODELIST)
+                .validCodelistLocation(charsetCodelist)
                 .validCodelistValuePattern("(?i:utf-?8)")
                 .validate();
     }
@@ -163,9 +163,10 @@ public final class BawMetadataProfileValidator extends  AbstractIsoValidator {
     private void validateHierarchyLevel(Document dom4jDoc, ValidationReportHelper reportHelper) {
         String xpath = "/gmd:MD_Metadata/gmd:hierarchyLevel/gmd:MD_ScopeCode";
         String tagKey = "validation.iso.tag.hierarchy_level";
+        String hierarchyLevelCodelist = CODELIST_BASE_URL + "#MD_ScopeCode";
         new CodelistValidator(tagKey, dom4jDoc, xpath, reportHelper)
                 .reportAs(ValidationReportItem.ReportLevel.FAIL)
-                .validCodelistLocation(HIERARCHY_LEVEL_CODELIST)
+                .validCodelistLocation(hierarchyLevelCodelist)
                 .validCodelistValuePattern("(dataset|model)")
                 .validate();
     }

@@ -22,6 +22,7 @@
  */
 package de.ingrid.mdek.job.validation.iso.bawdmqs;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,13 +44,24 @@ import static org.junit.Assert.assertTrue;
  * @author Vikram Notay
  */
 public class ISO_19115_2003_ValidatorTests {
+    private static final Logger LOG = Logger.getLogger(ISO_19115_2003_ValidatorTests.class);
+
     private static final String FILE_PATH = "src/test/resources/de/ingrid/mdek/job/validation/iso/bawdmqs/";
 
     private ISO_19115_2003_ConditionsValidator validator;
+    private Document defaultDocument;
+
+    public ISO_19115_2003_ValidatorTests() {
+        validator = new ISO_19115_2003_ConditionsValidator();
+    }
 
     @Before
     public void init() {
-        validator = new ISO_19115_2003_ConditionsValidator();
+        try {
+            defaultDocument = ValidatorTestsTemplateHelper.defaultDocument();
+        } catch (SAXException | ParserConfigurationException | IOException e) {
+            LOG.error("Error while reading and creating default template document for validation.", e);
+        }
     }
 
     @After
@@ -58,8 +70,7 @@ public class ISO_19115_2003_ValidatorTests {
 
     @Test
     public void testReferenceDocumentValidity() throws Exception {
-        Document validDoc = defaultDocument();
-        assertTrue(isValid(validDoc));
+        assertTrue(isValid(defaultDocument));
     }
 
     @Test
@@ -73,47 +84,26 @@ public class ISO_19115_2003_ValidatorTests {
     }
 
     @Test
-    public void testMissingDataQualityForScopeEqualsDataset() throws IOException, ParserConfigurationException, SAXException {
-        String element = String.format("<!-- scope code test -->\n"
-                        + "\t\t\t<gmd:lineage>\n"
-                        + "\t\t\t\t<gmd:LI_Lineage>\n"
-                        + "\t\t\t\t\t<gmd:statement>\n"
-                        + "\t\t\t\t\t\t<gco:CharacterString>{%d}</gco:CharacterString>\n"
-                        + "\t\t\t\t\t</gmd:statement>\n"
-                        + "\t\t\t\t\t<gmd:source>\n"
-                        + "\t\t\t\t\t\t<gmd:LI_Source>\n"
-                        + "\t\t\t\t\t\t\t<gmd:description>\n"
-                        + "\t\t\t\t\t\t\t\t<gco:CharacterString>Description</gco:CharacterString>\n"
-                        + "\t\t\t\t\t\t\t</gmd:description>\n"
-                        + "\t\t\t\t\t\t</gmd:LI_Source>\n"
-                        + "\t\t\t\t\t</gmd:source>\n"
-                        + "\t\t\t\t</gmd:LI_Lineage>\n"
-                        + "\t\t\t</gmd:lineage>",
-                IDX_LINEAGE_STATEMENT);
-        String template = fetchTemplateString();
-        template = template.replace(element, "");
-        Document doc = documentFromTemplate(template);
+    public void testMissingDataQualityForScopeEqualsDataset() {
+        Document doc = defaultDocument;
+        String xpath = "/gmd:MD_Metadata/*/gmd:DQ_DataQuality[.//gmd:MD_ScopeCode/@codeListValue='dataset']/gmd:lineage";
+        removeElementAtXpath(doc, xpath);
         assertFalse(isValid(doc));
     }
 
     @Test
-    public void testHierarchyDatasetHasGeographicElement() throws IOException, ParserConfigurationException, SAXException {
-        String template = fetchTemplateString();
-        template = template.replaceFirst("(?s)<gmd:extent>.*?</gmd:extent>", "");
-
-        Document document = documentFromTemplate(template);
-        assertFalse(isValid(document));
+    public void testHierarchyDatasetHasGeographicElement() {
+        Document doc = defaultDocument;
+        String xpath = "/gmd:MD_Metadata/*/gmd:MD_DataIdentification/gmd:extent";
+        removeElementAtXpath(doc, xpath);
+        assertFalse(isValid(doc));
     }
 
     @Test
-    public void testDataQualityWithScopeDatasetOrSeriesHasStatement() throws IOException, ParserConfigurationException, SAXException {
-        String element = String.format("<gmd:statement>\n"
-                        + "\t\t\t\t\t\t<gco:CharacterString>{%d}</gco:CharacterString>\n"
-                        + "\t\t\t\t\t</gmd:statement>\n",
-                IDX_LINEAGE_STATEMENT);
-        String template = fetchTemplateString();
-        template = template.replace(element, "");
-        Document doc = documentFromTemplate(template);
+    public void testDataQualityWithScopeDatasetOrSeriesHasStatement() {
+        Document doc = defaultDocument;
+        String xpath = "/gmd:MD_Metadata/*/gmd:DQ_DataQuality[.//gmd:MD_ScopeCode/@codeListValue='dataset']/gmd:lineage/*/gmd:statement";
+        removeElementAtXpath(doc, xpath);
         assertFalse(isValid(doc));
     }
 
@@ -129,16 +119,9 @@ public class ISO_19115_2003_ValidatorTests {
 
     @Test
     public void testLineageChildren() throws ParserConfigurationException, SAXException, IOException {
-        String element = "<gmd:source>\n"
-                        + "\t\t\t\t\t\t<gmd:LI_Source>\n"
-                        + "\t\t\t\t\t\t\t<gmd:description>\n"
-                        + "\t\t\t\t\t\t\t\t<gco:CharacterString>Lineage Test</gco:CharacterString>\n"
-                        + "\t\t\t\t\t\t\t</gmd:description>\n"
-                        + "\t\t\t\t\t\t</gmd:LI_Source>\n"
-                        + "\t\t\t\t\t</gmd:source>";
-        String template = fetchTemplateString();
-        template = template.replace(element, "");
-        Document doc = documentFromTemplate(template);
+        Document doc = defaultDocument;
+        String xpath = "/gmd:MD_Metadata/gmd:dataQualityInfo[last()]/*/gmd:lineage/*/gmd:source";
+        removeElementAtXpath(doc, xpath);
         assertFalse(isValid(doc));
     }
 
