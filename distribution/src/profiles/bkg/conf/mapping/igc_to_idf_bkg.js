@@ -180,7 +180,7 @@ function addUseConstraints(legalConstraint, codelistEntryId, valueFree, sourceNo
         addUseConstraintElements(legalConstraint, ["restricted"], [valueFree, sourceNote]);
         break;
     default:
-        addUseConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), sourceNote, valueFree]);
+        addUseConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), valueFree, sourceNote]);
     }
 }
 
@@ -200,16 +200,24 @@ function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherC
     }
     
     legalConstraint.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
-    .addAttribute("codeListValue", "otherRestrictions")
-    .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-    .addText("otherRestrictions");
+        .addAttribute("codeListValue", "otherRestrictions")
+        .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
+        .addText("otherRestrictions");
 
     if (hasValue(otherConstraints)) {
         for (var j=0; j<otherConstraints.length; j++) {
             if (otherConstraints[j]) {
-                legalConstraint
-                    .addElement("gmd:otherConstraints/gco:CharacterString")
-                    .addText(otherConstraints[j]);
+                if (otherConstraints[j] === "Es gelten keine Bedingungen") {
+                    legalConstraint
+                        .addElement("gmd:otherConstraints/gmx:Anchor")
+                        .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
+                        .addText(otherConstraints[j]);
+                } else {
+                    legalConstraint
+                        .addElement("gmd:otherConstraints/gco:CharacterString")
+                        .addText(otherConstraints[j]);
+                }
+
             }
         }
     }
