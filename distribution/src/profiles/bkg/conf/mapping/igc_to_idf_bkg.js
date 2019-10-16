@@ -92,7 +92,7 @@ function handleBKGUseConstraints() {
         if ((bkgUseConstraintSelectListItem && bkgUseConstraintSelectListItem !== "") || bkgUseConstraintFreeText !== "") {
             var legalConstraint = getFirstNodeInIdentificationBefore("gmd:useConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
             addUseConstraints(legalConstraint, bkgUseConstraintSelectListItem, bkgUseConstraintFreeText,
-                "Quellenvermerk: " + bkgSourceNoteText);
+                bkgSourceNoteText ? "Quellenvermerk: " + bkgSourceNoteText : null);
         }
     }
 }
