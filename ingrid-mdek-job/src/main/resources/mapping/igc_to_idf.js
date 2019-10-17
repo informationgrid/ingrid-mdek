@@ -355,9 +355,13 @@ for (i=0; i<objRows.size(); i++) {
         }
         if (hasValue(referenceSystem)) {
             var rsIdentifier = mdMetadata.addElement("gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier/gmd:RS_Identifier");
-            rsIdentifier.addElement("gmd:code").addElement("gco:CharacterString").addText(referenceSystem);
             if (referenceSystem.startsWith("EPSG")) {
-                rsIdentifier.addElement("gmd:codeSpace/gco:CharacterString").addText("EPSG");
+                var EPSGCode = referenceSystem.substring(5, referenceSystem.indexOf(':'));
+                rsIdentifier.addElement("gmd:code").addElement("gmx:Anchor")
+                    .addAttribute("xlink:href", "http://www.opengis.net/def/crs/EPSG/0/" + EPSGCode)
+                    .addText(referenceSystem);
+            } else {
+                rsIdentifier.addElement("gmd:code").addElement("gco:CharacterString").addText(referenceSystem);
             }
         }
     }
