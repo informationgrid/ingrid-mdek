@@ -355,9 +355,13 @@ for (i=0; i<objRows.size(); i++) {
         }
         if (hasValue(referenceSystem)) {
             var rsIdentifier = mdMetadata.addElement("gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier/gmd:RS_Identifier");
-            rsIdentifier.addElement("gmd:code").addElement("gco:CharacterString").addText(referenceSystem);
             if (referenceSystem.startsWith("EPSG")) {
-                rsIdentifier.addElement("gmd:codeSpace/gco:CharacterString").addText("EPSG");
+                var EPSGCode = referenceSystem.substring(5, referenceSystem.indexOf(':'));
+                rsIdentifier.addElement("gmd:code").addElement("gmx:Anchor")
+                    .addAttribute("xlink:href", "http://www.opengis.net/def/crs/EPSG/0/" + EPSGCode)
+                    .addText(referenceSystem);
+            } else {
+                rsIdentifier.addElement("gmd:code").addElement("gco:CharacterString").addText(referenceSystem);
             }
         }
     }
@@ -1978,17 +1982,13 @@ function addResourceConstraints(identificationInfo, objRow) {
             // i.S.v. ISO 19115
             mdLegalConstraints.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
             	.addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-            	.addAttribute("codeListValue", "license");
-            // i.S.v. ISO 19115
-            mdLegalConstraints.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
-            	.addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
             	.addAttribute("codeListValue", "otherRestrictions");
             // i.S.v. ISO 19115
         	// also add "Nutzungsbedingungen: " according to GDI-DE Konventionen page 17 !
             // Use gmx:Anchor element for more information (https://redmine.informationgrid.eu/issues/1218)
             // and remove additional text "Nutzungsbedingungen: " as described in the ticket if license is
             // "Es gelten keine Bedingungen"
-            log.info("LicenseKey=" + licenseKey);
+            log.debug("LicenseKey=" + licenseKey);
             if (licenseKey === "26") {
                 mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor")
                     .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
@@ -2030,7 +2030,7 @@ function addResourceConstraints(identificationInfo, objRow) {
             if (hasValue(value)) {
                 // value from IGC syslist, map as gmd:otherConstraints
                 var data = TRANSF.getISOCodeListEntryData(6010, value);
-                log.info("accessConstraints Data: " + data);
+                // log.debug("accessConstraints Data: " + data);
 
                 if (data) {
                     var parsedData = JSON.parse(data);

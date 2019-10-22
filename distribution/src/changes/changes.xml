@@ -28,6 +28,36 @@
   </properties>
   <body>
 
+    <release version="5.2.0" date="2019-10-22" description="Release 5.2.0">
+      <action type="fix" dev="wemove" issue="1485">
+        IGE: Ein eingetragenes "gültig bis" Datum wirkt sich auf alle nachfolgenden Dokumente innerhalb der Dokumententabelle aus.
+      </action>
+      <action type="fix" dev="wemove" issue="1467">
+        Sortierung nach Datum funktioniert nicht.
+      </action>
+      <action type="fix" dev="wemove" issue="976">
+        Fix extended search with URL as search term.
+      </action>
+      <action type="fix" dev="wemove" issue="2219">
+        Fix facet mapping into index for topics.
+      </action>
+      <action type="update" dev="wemove" issue="1221">
+        BKG: Use gmx:Anchor element in CRS for INSPIRE datasets.
+      </action>
+      <action type="update" dev="wemove" issue="1363">
+        BKG: Use gmx-Anchor element for special use constraint.
+      </action>
+      <action type="update" dev="wemove" issue="1409">
+        BKG: Remove license entry for other use constraint.
+      </action>
+      <action type="update" dev="wemove" issue="1218">
+        Remove license entry for use constraint.
+      </action>
+      <action type="update" dev="wemove" issue="1066">
+        Update mapping.xls with "Quellenvermerk"
+      </action>
+    </release>
+
     <release version="5.1.0" date="2019-07-11" description="Release InGrid 5.1.0">
       <action type="add" dev="wemove" issue="1425">
         Store mod_time in index for later retrieval.

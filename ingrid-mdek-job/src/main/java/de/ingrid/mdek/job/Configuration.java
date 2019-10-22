@@ -42,9 +42,8 @@ import org.springframework.core.io.Resource;
 
 import java.beans.PropertyVetoException;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @org.springframework.context.annotation.Configuration
 public class Configuration extends de.ingrid.iplug.dsc.Configuration {
@@ -169,6 +168,29 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
         if (Importer.importSuccess == null || !Importer.importSuccess) {
             log.error("Error during database migration. Please check out the logs.");
             System.exit(1);
+        }
+
+        // since 5.2.0 the topics datatype has to be removed from the configuration, since it is determined
+        // dynamically during indexing
+        try {
+            Properties overrideProperties = this.config.getOverrideProperties();
+            List<String> selectedProps = overrideProperties.stringPropertyNames().stream()
+                    .filter(prop -> prop.startsWith("plugdescription.dataType"))
+                    .collect(Collectors.toList());
+
+            for (String name : selectedProps) {
+                String datatypes = overrideProperties.getProperty(name);
+                String datatypesWithoutTopics = Arrays.stream(datatypes.split(","))
+                        .filter(propValue -> !propValue.equals("topics"))
+                        .collect(Collectors.joining(","));
+                overrideProperties.put(name, datatypesWithoutTopics);
+            }
+
+            try (OutputStream os = new FileOutputStream( getPropertyResource("config.override.properties").getFile().getAbsolutePath() )) {
+                overrideProperties.store( os, "Override configuration written by the application" );
+            }
+        } catch (Exception e) {
+            log.error("Could not filter topics from datatypes");
         }
     }
 

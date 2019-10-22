@@ -1,6 +1,6 @@
 /*
  * **************************************************-
- * InGrid-iPlug DSC
+ * ingrid-import-export
  * ==================================================
  * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
  * ==================================================
@@ -20,17 +20,27 @@
  * limitations under the Licence.
  * **************************************************#
  */
-package de.ingrid.mdek.job.webapp.datatypes;
+package de.ingrid.mdek.xml.importer.mapper.version520;
 
-import org.springframework.stereotype.Service;
+import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapper;
+import de.ingrid.mdek.xml.importer.mapper.version401.XMLAddressToDocMapper;
+import de.ingrid.utils.IngridDocument;
+import org.w3c.dom.Document;
 
-import de.ingrid.admin.object.AbstractDataType;
+public class IngridXMLMapperImpl implements IngridXMLMapper {
 
-@Service
-public class TopicsDataType extends AbstractDataType {
+	@Override
+	public IngridDocument mapAddress(Document document) {
+		return XMLAddressToDocMapper.map(document);
+	}
 
-    public TopicsDataType() {
-        super("topics");
-    }
+	@Override
+	public IngridDocument mapDataSource(Document document) {
+		return XMLDatasourceToDocMapper.map(document);
+	}
 
+	@Override
+	public boolean canReadVersion(String version) {
+		return "5.2.0".equals(version);
+	}
 }

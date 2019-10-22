@@ -819,6 +819,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	private XMLElement createLicense(IngridDocument useConstraintContext) {
 		XMLElement license = new XMLElement(LICENSE, getStringForKey(MdekKeys.USE_LICENSE_VALUE, useConstraintContext));
 		license.addAttribute(ID, getIntegerForKey(MdekKeys.USE_LICENSE_KEY, useConstraintContext));
+		license.addAttribute(SOURCE_NOTE, getStringForKey(MdekKeys.USE_LICENSE_SOURCE, useConstraintContext));
 		return license;
 	}
 

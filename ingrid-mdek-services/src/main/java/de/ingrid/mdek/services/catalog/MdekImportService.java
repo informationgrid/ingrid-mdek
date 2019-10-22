@@ -1029,6 +1029,7 @@ public class MdekImportService implements IImporterCallback {
 				
 				// also check UUID if no object with orig uuid exists
 				// i.e. if we import an exported IGE document, which didn't have an orig id
+				// see #531
 				if (existingNode == null) existingNode = objectService.loadByUuid(inOrigId, IdcEntityVersion.WORKING_VERSION);
 				
 				// OBJECTS: if found keep existing UUID AND existing PARENT !
