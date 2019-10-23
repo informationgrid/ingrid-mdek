@@ -36,7 +36,7 @@ public class Versioning {
 	public static final String NEEDED_IGC_VERSION = "5.2";
     /** This is the version the catalog has to be updated to when the iPlug is started !<br>
      * This normally is the most current version of the catalog (the strategy of the udk importer executed). */
-    public static final String UPDATE_TO_IGC_VERSION = "5.2.0";
+    public static final String UPDATE_TO_IGC_VERSION = "5.2.1_a";
 
 	/** Key for fetching IGC Version from backend from SysGenericKey table */
 	public static final String BACKEND_IGC_VERSION_KEY = "IDC_VERSION";
