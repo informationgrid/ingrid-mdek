@@ -2182,6 +2182,7 @@ public class BeanToDocMapper implements IMapper {
 
 		refDoc.put(MdekKeys.FORMAT_KEY, ref.getFormatKey());
 		refDoc.put(MdekKeys.FORMAT_VALUE, ref.getFormatValue());
+		refDoc.put(MdekKeys.FORMAT_DATE, ref.getDate());
 
 		return refDoc;
 	}

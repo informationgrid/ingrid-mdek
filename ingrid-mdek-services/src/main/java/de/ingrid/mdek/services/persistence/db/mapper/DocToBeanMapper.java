@@ -2868,6 +2868,7 @@ public class DocToBeanMapper implements IMapper {
 		ref.setObjId(oFrom.getId());
 		ref.setFormatKey((Integer)refDoc.get(MdekKeys.FORMAT_KEY));
 		ref.setFormatValue(refDoc.getString(MdekKeys.FORMAT_VALUE));
+		ref.setDate((Date) refDoc.get(MdekKeys.FORMAT_DATE));
 		ref.setLine(line);
 		keyValueService.processKeyValue(ref);
 

@@ -1306,6 +1306,8 @@ public class MdekKeys {
     public final static String FORMAT_KEY = "format-key";
     /** Value: String */
     public final static String FORMAT_VALUE = "format-value";
+    /** Value: Date */
+    public final static String FORMAT_DATE = "date";
 
     // SPATIAL SYSTEMS
     /** Value: List< IngridDocument >  */

@@ -2255,32 +2255,35 @@ function addDistributionInfo(mdMetadata, objId) {
         rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
         for (i=0; i<rows.size(); i++) {
             if (!mdDistribution) {
-                mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+                mdDistribution = mdMetadata.addElement("gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation/gmd:name/gmd:CI_Citation");
             }
             // ---------- <gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format> ----------
-            var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
+            var mdCitation = mdDistribution.addElement("gmd:CI_Citation");
             formatWritten = true;
-            // ---------- <gmd:MD_Format/gmd:name> ----------
+            // ---------- <gmd:title/gco:CharacterString> ----------
             // ISO: first iso value, see INGRID-2337
-            var formatValue = TRANSF.getCodeListEntryFromIGCSyslistEntry(6300, rows.get(i).get("format_key"), "iso");
+            // With #1273 the field 'Kodierungsschema' changed to a free text field!
+
+            // var formatValue = TRANSF.getCodeListEntryFromIGCSyslistEntry(6300, rows.get(i).get("format_key"), "iso");
             // if no iso then as usual
-            if (!hasValue(formatValue)) {
-                formatValue = rows.get(i).get("format_value");
-            }
-            mdFormat.addElement("gmd:name/gco:CharacterString").addText(formatValue);
+            // if (!hasValue(formatValue)) {
+            formatValue = rows.get(i).get("format_value");
+            // }
+            mdCitation.addElement("gmd:title/gco:CharacterString").addText(formatValue);
+
             // ---------- <gmd:MD_Format/gmd:version> ----------
-            var data = TRANSF.getISOCodeListEntryData(6300, formatValue);
-            var version = getParameterWithin(data, '"', 1);
-            if (!version || version.trim() === "")
-                mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
-            else
-                mdFormat.addElement("gmd:version/gco:CharacterString").addText(version);
-            // ---------- <gmd:MD_Format/gmd:specification> ----------
-            var specification = getParameterWithin(data, '"', 2);
-            if (!specification || specification.trim() === "")
-                mdFormat.addElement("gmd:specification").addAttribute("gco:nilReason", "unknown");
-            else
-                mdFormat.addElement("gmd:specification/gco:CharacterString").addText(specification);
+            var date = rows.get(i).get("date");
+            if (hasValue(date)) {
+
+                var mdDate = mdCitation.addElement("gmd:date/gmd:CI_Date");
+                mdDate.addElement("gmd:date/gco:Date").addText(date);
+
+                mdDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                    .addAttribute("codeList", "http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode")
+                    .addAttribute("codeListValue", "publication")
+                    .addAttribute("codeSpace", "Domain Code");
+
+            }
         }
     }
     

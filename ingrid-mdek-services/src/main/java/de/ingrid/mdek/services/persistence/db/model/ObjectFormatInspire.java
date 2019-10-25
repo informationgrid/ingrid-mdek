@@ -24,6 +24,8 @@ package de.ingrid.mdek.services.persistence.db.model;
 
 import de.ingrid.mdek.services.persistence.db.IEntity;
 
+import java.util.Date;
+
 public class ObjectFormatInspire implements IEntity {
 
 	private Long id;
@@ -32,6 +34,7 @@ public class ObjectFormatInspire implements IEntity {
 	private Integer line;
 	private Integer formatKey;
 	private String formatValue;
+	private Date date;
 
 
 	public ObjectFormatInspire() {}
@@ -85,4 +88,11 @@ public class ObjectFormatInspire implements IEntity {
 	}
 
 
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
 }
