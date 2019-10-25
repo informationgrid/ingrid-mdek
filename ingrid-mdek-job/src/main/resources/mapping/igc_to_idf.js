@@ -2251,42 +2251,6 @@ function addDistributionInfo(mdMetadata, objId) {
     nilMdFormatElement.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
     nilMdFormatElement.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
 
-    if (objClass.equals("1")) {
-        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
-        for (i=0; i<rows.size(); i++) {
-            if (!mdDistribution) {
-                mdDistribution = mdMetadata.addElement("gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation/gmd:name/gmd:CI_Citation");
-            }
-            // ---------- <gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format> ----------
-            var mdCitation = mdDistribution.addElement("gmd:CI_Citation");
-            formatWritten = true;
-            // ---------- <gmd:title/gco:CharacterString> ----------
-            // ISO: first iso value, see INGRID-2337
-            // With #1273 the field 'Kodierungsschema' changed to a free text field!
-
-            // var formatValue = TRANSF.getCodeListEntryFromIGCSyslistEntry(6300, rows.get(i).get("format_key"), "iso");
-            // if no iso then as usual
-            // if (!hasValue(formatValue)) {
-            formatValue = rows.get(i).get("format_value");
-            // }
-            mdCitation.addElement("gmd:title/gco:CharacterString").addText(formatValue);
-
-            // ---------- <gmd:MD_Format/gmd:version> ----------
-            var date = rows.get(i).get("date");
-            if (hasValue(date)) {
-
-                var mdDate = mdCitation.addElement("gmd:date/gmd:CI_Date");
-                mdDate.addElement("gmd:date/gco:Date").addText(date);
-
-                mdDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                    .addAttribute("codeList", "http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode")
-                    .addAttribute("codeListValue", "publication")
-                    .addAttribute("codeSpace", "Domain Code");
-
-            }
-        }
-    }
-    
 // ALLE KLASSEN
 
     // ---------- <idf:idfMdMetadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
@@ -2310,9 +2274,10 @@ function addDistributionInfo(mdMetadata, objId) {
 //                .addElement("gco:CharacterString");
         }
             // ---------- <gmd:MD_Format/gmd:specification> ----------
-        if (hasValue(rows.get(i).get("specification"))) {
+        // Removed: see #1273
+        /*if (hasValue(rows.get(i).get("specification"))) {
             mdFormat.addElement("gmd:specification/gco:CharacterString").addText(rows.get(i).get("specification"));
-        }
+        }*/
             // ---------- <gmd:MD_Format/gmd:fileDecompressionTechnique> ----------
         if (hasValue(rows.get(i).get("file_decompression_technique"))) {
             mdFormat.addElement("gmd:fileDecompressionTechnique/gco:CharacterString").addText(rows.get(i).get("file_decompression_technique"));
