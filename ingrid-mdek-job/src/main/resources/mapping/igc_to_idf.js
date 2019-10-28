@@ -1252,23 +1252,27 @@ for (i=0; i<objRows.size(); i++) {
         }
         
         // ---------- <idf:idfMdMetadata/gmd:applicationSchemaInfo> ----------
-        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
-        for (i=0; i<rows.size(); i++) {
-            var formatKey = rows.get(i).get("format_key");
-            // if "Protected Sites - Simple GML Application Schema" or "Protected Sites - Full GML Application Schema"
-            if (formatKey == 13 || formatKey == 14) {
-                var appSchemaNode = mdMetadata.addElement("gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation");
-                appSchemaNode.addElement("gmd:name/gmd:CI_Citation/gmd:title/gco:CharacterString").addText(rows.get(i).get("format_value"))
-                             .getParent(2)
-                             .addElement("gmd:date/gmd:CI_Date/gmd:date/gco:DateTime").addText("2010-04-26T00:00:00")
-                             .getParent(2)
-                             .addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                                 .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
-                                 .addAttribute("codeListValue", "publication")
-                             .getParent(6)
-                             .addElement("gmd:schemaLanguage/gco:CharacterString").addText("GML")
-                             .getParent(2)
-                             .addElement("gmd:constraintLanguage/gco:CharacterString").addText("OCL");
+        var objFormatInspireRows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
+        for (i=0; i<objFormatInspireRows.size(); i++) {
+            // ---------- <<gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation/gmd:name/gmd:CI_Citation> ----------
+            var mdApplicationCitation = mdMetadata
+                .addElement("gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation/gmd:name/gmd:CI_Citation");
+            formatWritten = true;
+            // ---------- <gmd:title/gco:CharacterString> ----------
+            formatValue = objFormatInspireRows.get(i).get("format_value");
+            mdApplicationCitation.addElement("gmd:title/gco:CharacterString").addText(formatValue);
+
+            // ---------- <gmd:MD_Format/gmd:version> ----------
+            var date = objFormatInspireRows.get(i).get("date");
+            if (hasValue(date)) {
+
+                var mdDate = mdApplicationCitation.addElement("gmd:date/gmd:CI_Date");
+                mdDate.addElement("gmd:date/gco:Date").addText(date);
+
+                mdDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                    .addAttribute("codeList", "http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode")
+                    .addAttribute("codeListValue", "publication")
+                    .addAttribute("codeSpace", "Domain Code");
             }
         }
     }

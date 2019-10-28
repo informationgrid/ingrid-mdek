@@ -211,38 +211,6 @@ for (i=0; i<objRows.size(); i++) {
             liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(objGeoRow.get("data_base"));
         }
 
-        // TODO: add applicationSchema
-        var objFormatInspireRows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
-        for (i=0; i<objFormatInspireRows.size(); i++) {
-            var mdApplicationCitation = mdMetadata.addElement("gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation/gmd:name/gmd:CI_Citation/gmd:CI_Citation");
-            // ---------- <<gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation/gmd:name/gmd:CI_Citation/gmd:CI_Citation> ----------
-            formatWritten = true;
-            // ---------- <gmd:title/gco:CharacterString> ----------
-            // ISO: first iso value, see INGRID-2337
-            // With #1273 the field 'Kodierungsschema' changed to a free text field!
-
-            // var formatValue = TRANSF.getCodeListEntryFromIGCSyslistEntry(6300, rows.get(i).get("format_key"), "iso");
-            // if no iso then as usual
-            // if (!hasValue(formatValue)) {
-            formatValue = objFormatInspireRows.get(i).get("format_value");
-            // }
-            mdApplicationCitation.addElement("gmd:title/gco:CharacterString").addText(formatValue);
-
-            // ---------- <gmd:MD_Format/gmd:version> ----------
-            var date = objFormatInspireRows.get(i).get("date");
-            if (hasValue(date)) {
-
-                var mdDate = mdApplicationCitation.addElement("gmd:date/gmd:CI_Date");
-                mdDate.addElement("gmd:date/gco:Date").addText(date);
-
-                mdDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                    .addAttribute("codeList", "http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode")
-                    .addAttribute("codeListValue", "publication")
-                    .addAttribute("codeSpace", "Domain Code");
-
-            }
-        }
-
 // GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
     } else if (objClass.equals("3") || objClass.equals("6")) {
 
