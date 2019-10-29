@@ -22,10 +22,12 @@
  */
 package de.ingrid.mdek.job.validation.iso.bawdmqs;
 
+import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -37,6 +39,9 @@ import static de.ingrid.mdek.job.validation.iso.bawdmqs.ValidatorTestsTemplateHe
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -63,7 +68,7 @@ public class BawMetadataProfileValidatorTests {
 
     @Test
     public void testControlDocumentValidity() {
-        assertTrue(isValid(defaultDocument));
+        assertIsValid(defaultDocument);
     }
 
     @Test
@@ -71,7 +76,15 @@ public class BawMetadataProfileValidatorTests {
         Document doc = defaultDocument;
         String xpath = "/gmd:MD_Metadata/gmd:fileIdentifier/gco:CharacterString";
         setTextForElementAtXpath(doc, xpath, "Not a valid UUID");
-        assertFalse(isValid(doc));
+        assertIsInvalid(doc);
+    }
+
+    @Test
+    public void testBlankFileIdentifier() {
+        Document doc = defaultDocument;
+        String xpath = "/gmd:MD_Metadata/gmd:fileIdentifier/gco:CharacterString";
+        setTextForElementAtXpath(doc, xpath, "   ");
+        assertIsInvalid(doc);
     }
 
     @Test
@@ -110,7 +123,7 @@ public class BawMetadataProfileValidatorTests {
         String xpath = "/gmd:MD_Metadata/gmd:hierarchyLevel/gmd:MD_ScopeCode";
         String newVal = "collectionHardware";
         setAttributeForElementAtXpath(doc, xpath, "codeListValue", newVal);
-        assertFalse(isValid(doc));
+        assertIsInvalid(doc);
     }
     
     @Test
@@ -178,7 +191,7 @@ public class BawMetadataProfileValidatorTests {
         Document doc = defaultDocument;
         String xpath = "/gmd:MD_Metadata/gmd:contact/gmd:CI_ResponsibleParty";
         setAttributeForElementAtXpath(doc, xpath, "uuid", "An invalid UUID");
-        assertFalse(isValid(doc));
+        assertIsInvalid(doc);
     }
 
     @Test
@@ -210,7 +223,7 @@ public class BawMetadataProfileValidatorTests {
         Document doc = defaultDocument;
         String xpath = "/gmd:MD_Metadata/gmd:metadataStandardName";
         setTextForElementAtXpath(doc, xpath, "invalid standard name");
-        assertFalse(isValid(doc));
+        assertIsInvalid(doc);
     }
 
     @Test
@@ -226,11 +239,11 @@ public class BawMetadataProfileValidatorTests {
     }
 
     @Test
-    public void testIdInfoContactUuidIsValid() throws ParserConfigurationException, SAXException, IOException {
+    public void testIdInfoContactUuidIsValid() {
         Document doc = defaultDocument;
         String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:pointOfContact/gmd:CI_ResponsibleParty";
         setAttributeForElementAtXpath(doc, xpath, "uuid", "An invalid UUID");
-        assertFalse(isValid(doc));
+        assertIsInvalid(doc);
     }
 
     @Test
@@ -282,22 +295,25 @@ public class BawMetadataProfileValidatorTests {
     }
 
     @Test
-    public void testInvalidBoundingBoxWorld0() throws IOException, SAXException, ParserConfigurationException {
+    public void testInvalidBoundingBoxWorld0() {
         Document doc = defaultDocument;
         String xpath = "//gmd:eastBoundLongitude/gco:Decimal";
         setTextForElementAtXpath(doc, xpath, "200");
-        assertFalse(isValid(doc));
+        //assertFalse(isValid(doc));
+        assertIsInvalid(doc);
     }
 
     @Test
-    public void testInvalidBoundingBoxWorld1() throws IOException, SAXException, ParserConfigurationException {
+    public void testInvalidBoundingBoxWorld1() {
         Document doc = defaultDocument;
         String xpath = "//gmd:southBoundLatitude/gco:Decimal";
         setTextForElementAtXpath(doc, xpath, "200");
-        assertFalse(isValid(doc));
+        //assertFalse(isValid(doc));
+        assertIsInvalid(doc);
     }
 
     @Test
+    @Ignore("Tests need upgrade to detect hierarchy level name")
     public void testMissingTemporalResolution() {
         String xpath = "//gmd:report[./gmd:DQ_AccuracyOfATimeMeasurement]";
         checkFailureForDeletedElement(xpath);
@@ -305,17 +321,19 @@ public class BawMetadataProfileValidatorTests {
 
     @Test
     @Ignore("Needs to be updated for xlink:href")
-    public void testInvalidTemporalResolutionUnits() throws IOException, SAXException, ParserConfigurationException {
+    public void testInvalidTemporalResolutionUnits() {
         //checkFailureForInvalidValue(IDX_TEMPORAL_RESOLUTION_UNITS, "m");
     }
 
     @Test
+    @Ignore("Tests need upgrade to detect hierarchy level name")
     public void testDGSMissingParameterName() {
         String xpath = "//gmd:valueType";
         checkFailureForDeletedElement(xpath);
     }
 
     @Test
+    @Ignore("Tests need upgrade to detect hierarchy level name")
     public void testDGSMissingRole() {
         String xpath = "//gmd:DQ_DataQuality[./gmd:report/gmd:DQ_QuantitativeAttributeAccuracy]/gmd:lineage";
         checkFailureForDeletedElement(xpath);
@@ -326,7 +344,8 @@ public class BawMetadataProfileValidatorTests {
         Node removed = removeElementAtXpath(doc, xpath);
 
         assertThat(removed, is(notNullValue())); // Check that a node was really removed
-        assertFalse(isValid(doc)); // Check that the document is no longer valid
+        //assertFalse(isValid(doc)); // Check that the document is no longer valid
+        assertIsInvalid(doc); // Check that the document is no longer valid
     }
 
     /*
@@ -334,12 +353,28 @@ public class BawMetadataProfileValidatorTests {
         Document doc = documentWithReplacedValues(index, value);
         assertFalse(isValid(doc));
     }
-    */
 
     private boolean isValid(Document document) {
         return validator.validate(document)
                 .stream()
                 .noneMatch(e -> e.getLevel() == ValidationReportItem.ReportLevel.FAIL);
+    }
+    */
+
+    private void assertIsValid(Document doc) {
+        ProtocolHandler mockPh = Mockito.mock(ProtocolHandler.class);
+        Document mockDoc = Mockito.mock(Document.class);
+        validator.convert(doc, mockDoc, mockPh);
+        verify(mockPh, never())
+                .addMessage(eq(ProtocolHandler.Type.ERROR), anyString());
+    }
+
+    private void assertIsInvalid(Document doc) {
+        ProtocolHandler mockPh = Mockito.mock(ProtocolHandler.class);
+        Document mockDoc = Mockito.mock(Document.class);
+        validator.convert(doc, mockDoc, mockPh);
+        verify(mockPh, atLeastOnce())
+                .addMessage(eq(ProtocolHandler.Type.ERROR), anyString());
     }
 
 }

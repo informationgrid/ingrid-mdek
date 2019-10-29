@@ -22,77 +22,31 @@
  */
 package de.ingrid.mdek.job.validation.iso.bawdmqs;
 
+import de.ingrid.mdek.job.MdekException;
+import de.ingrid.mdek.job.mapping.ImportDataMapper;
+import de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil;
+import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
-import javax.xml.XMLConstants;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import java.io.*;
-import java.net.URL;
-import java.util.List;
+import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil.ISO_ELEMENTS_RESOURCE_BUNDLE;
+import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil.ISO_MESSAGES_RESOURCE_BUNDLE;
 
 /**
- * Interface for defining rules for validating ISO 19115:2003/Corrigendum
- * 1:2006(E) XML-files.
+ * Validator for validating ISO (19115:2003/Corrigendum 1:2006(E)) XML-files
+ * against the ISO-19139 metadata schema.
  *
  * @author Vikram Notay
  */
-public final class ISO_19115_2003_SchemaValidator extends AbstractIsoValidator {
-
-    private static final Logger LOG = Logger.getLogger(ISO_19115_2003_SchemaValidator.class);
-
-    private static final String GMD_XSD_FILESYSTEM_LOCATION = "org/isotc211/2005/gmd/gmd.xsd";
+public final class ISO_19115_2003_SchemaValidator implements ImportDataMapper<Document, Document> {
 
     public ISO_19115_2003_SchemaValidator() {
     }
 
     @Override
-    List<ValidationReportItem> validate(Document w3cDoc) {
-        ValidationReportHelper reportHelper = new ValidationReportHelper();
-        validateAgainstSchema(w3cDoc, reportHelper);
-        return reportHelper.getReport();
-    }
-
-    private void validateAgainstSchema(Document document, ValidationReportHelper reportHelper) {
-        Validator validator = getIsoSchemaValidator();
-        try {
-            validator.validate(new DOMSource(document));
-
-            reportHelper.pass(
-                    "validation.iso.pass.schema_validation",
-                    "Schema validation passed.");
-        } catch (SAXException ex) {
-            reportHelper.fail(
-                    "validation.iso.fail.schema_validation",
-                    "XML Document is invalid",
-                    ex.getMessage());
-        } catch (IOException ex) {
-            String msg = ValidationReportHelper.getLocalisedString(
-                    "validation.iso.xml_document_unreadable",
-                    "XML Document cannot be read");
-            LOG.error(msg, ex);
-        }
-    }
-
-    private Validator getIsoSchemaValidator() {
-        try {
-            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            URL url = getClass().getClassLoader().getResource(GMD_XSD_FILESYSTEM_LOCATION);
-            Schema schema = sf.newSchema(url);
-
-            return schema.newValidator();
-        } catch (SAXException ex) {
-            String msg = ValidationReportHelper.getLocalisedString(
-                    "validation.iso.invalid_schema_definition",
-                    "ISO GMD Schema at following location is invalid: " + GMD_XSD_FILESYSTEM_LOCATION,
-                    GMD_XSD_FILESYSTEM_LOCATION);
-            LOG.error(msg, ex);
-        }
-        return null;
+    public void convert(Document sourceIso, Document igcIgnored, ProtocolHandler ph) throws MdekException {
+        IsoImportValidationUtil validator = new IsoImportValidationUtil(sourceIso, ph, ISO_ELEMENTS_RESOURCE_BUNDLE, ISO_MESSAGES_RESOURCE_BUNDLE);
+        validator.validateXmlSchema(sourceIso);
     }
 
 }

@@ -22,10 +22,13 @@
  */
 package de.ingrid.mdek.job.validation.iso.bawdmqs;
 
+import de.ingrid.mdek.job.mapping.ImportDataMapper;
+import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -35,9 +38,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 
-import static de.ingrid.mdek.job.validation.iso.bawdmqs.ValidatorTestsTemplateHelper.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static de.ingrid.mdek.job.validation.iso.bawdmqs.ValidatorTestsTemplateHelper.defaultDocument;
+import static de.ingrid.mdek.job.validation.iso.bawdmqs.ValidatorTestsTemplateHelper.removeElementAtXpath;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -70,7 +75,7 @@ public class ISO_19115_2003_ValidatorTests {
 
     @Test
     public void testReferenceDocumentValidity() throws Exception {
-        assertTrue(isValid(defaultDocument));
+        assertIsValid(defaultDocument);
     }
 
     @Test
@@ -79,8 +84,8 @@ public class ISO_19115_2003_ValidatorTests {
         Document validDoc = defaultDocument();
         Document invalidDoc = fetchXmlDocument("iso_test_sparse_invalid.xml");
 
-        assertTrue(isValid(validDoc, schemaValidator));
-        assertFalse(isValid(invalidDoc, schemaValidator));
+        assertIsValid(validDoc, schemaValidator);
+        assertIsInvalid(invalidDoc, schemaValidator);
     }
 
     @Test
@@ -88,7 +93,7 @@ public class ISO_19115_2003_ValidatorTests {
         Document doc = defaultDocument;
         String xpath = "/gmd:MD_Metadata/*/gmd:DQ_DataQuality[.//gmd:MD_ScopeCode/@codeListValue='dataset']/gmd:lineage";
         removeElementAtXpath(doc, xpath);
-        assertFalse(isValid(doc));
+        assertIsInvalid(doc);
     }
 
     @Test
@@ -96,15 +101,17 @@ public class ISO_19115_2003_ValidatorTests {
         Document doc = defaultDocument;
         String xpath = "/gmd:MD_Metadata/*/gmd:MD_DataIdentification/gmd:extent";
         removeElementAtXpath(doc, xpath);
-        assertFalse(isValid(doc));
+        assertIsInvalid(doc);
     }
 
     @Test
     public void testDataQualityWithScopeDatasetOrSeriesHasStatement() {
         Document doc = defaultDocument;
-        String xpath = "/gmd:MD_Metadata/*/gmd:DQ_DataQuality[.//gmd:MD_ScopeCode/@codeListValue='dataset']/gmd:lineage/*/gmd:statement";
-        removeElementAtXpath(doc, xpath);
-        assertFalse(isValid(doc));
+        String statementXpath = "/gmd:MD_Metadata/*/gmd:DQ_DataQuality[.//gmd:MD_ScopeCode/@codeListValue='dataset']/gmd:lineage/*/gmd:statement";
+        String sourceXpath = "/gmd:MD_Metadata/*/gmd:DQ_DataQuality[.//gmd:MD_ScopeCode/@codeListValue='dataset']/gmd:lineage/*/gmd:source";
+        removeElementAtXpath(doc, statementXpath);
+        removeElementAtXpath(doc, sourceXpath);
+        assertIsInvalid(doc);
     }
 
     private Document fetchXmlDocument(String fileName) throws SAXException, IOException, ParserConfigurationException {
@@ -118,20 +125,34 @@ public class ISO_19115_2003_ValidatorTests {
     }
 
     @Test
-    public void testLineageChildren() throws ParserConfigurationException, SAXException, IOException {
+    public void testLineageChildren() {
         Document doc = defaultDocument;
         String xpath = "/gmd:MD_Metadata/gmd:dataQualityInfo[last()]/*/gmd:lineage/*/gmd:source";
         removeElementAtXpath(doc, xpath);
-        assertFalse(isValid(doc));
+        assertIsInvalid(doc);
     }
 
-    private boolean isValid(Document document) {
-        return isValid(document, validator);
+    private void assertIsValid(Document doc) {
+        assertIsValid(doc, validator);
     }
 
-    private boolean isValid(Document document, AbstractIsoValidator validator) {
-        return validator.validate(document)
-                .stream()
-                .noneMatch(e -> e.getLevel() == ValidationReportItem.ReportLevel.FAIL);
+    private void assertIsValid(Document document, ImportDataMapper<Document, Document> validator) {
+        ProtocolHandler mockPh = Mockito.mock(ProtocolHandler.class);
+        Document mockDoc = Mockito.mock(Document.class);
+        validator.convert(document, mockDoc, mockPh);
+        verify(mockPh, never())
+                .addMessage(eq(ProtocolHandler.Type.ERROR), anyString());
+    }
+
+    private void assertIsInvalid(Document doc) {
+        assertIsInvalid(doc, validator);
+    }
+
+    private void assertIsInvalid(Document doc, ImportDataMapper<Document, Document> validator) {
+        ProtocolHandler mockPh = Mockito.mock(ProtocolHandler.class);
+        Document mockDoc = Mockito.mock(Document.class);
+        validator.convert(doc, mockDoc, mockPh);
+        verify(mockPh, atLeastOnce())
+                .addMessage(eq(ProtocolHandler.Type.ERROR), anyString());
     }
 }
