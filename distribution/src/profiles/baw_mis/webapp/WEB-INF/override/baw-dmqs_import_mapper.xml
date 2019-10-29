@@ -46,7 +46,7 @@
         </property>
     </bean>
 
-    <bean id="isoToIgcMappers" class="de.ingrid.mdek.job.mapping.bawdmqs.MapperQueue">
+    <bean id="isoToIgcMappers" class="de.ingrid.mdek.job.mapping.profiles.baw.MapperQueue">
         <property name="mappers">
             <list>
                 <!-- ISO 19115/19139 Validators -->
@@ -60,9 +60,9 @@
         </property>
     </bean>
 
-    <bean id="isoSchemaValidator" class="de.ingrid.mdek.job.validation.iso.bawdmqs.ISO_19115_2003_SchemaValidator" />
-    <bean id="isoConditionsValidator" class="de.ingrid.mdek.job.validation.iso.bawdmqs.ISO_19115_2003_ConditionsValidator" />
-    <bean id="bawProfileValidator" class="de.ingrid.mdek.job.validation.iso.bawdmqs.BawMetadataProfileValidator" />
+    <bean id="isoSchemaValidator" class="de.ingrid.mdek.job.mapping.validation.iso.ISO_19115_2003_SchemaValidator" />
+    <bean id="isoConditionsValidator" class="de.ingrid.mdek.job.mapping.validation.iso.ISO_19115_2003_ConditionsValidator" />
+    <bean id="bawProfileValidator" class="de.ingrid.mdek.job.mapping.profiles.baw.validation.iso.BawMetadataProfileValidator" />
 
     <bean id="csw202ScriptImportDataMapper" class="de.ingrid.mdek.job.mapping.ScriptImportDataMapper">
         <property name="mapperScript">
@@ -136,6 +136,7 @@
                 <value>classpath:mapping/global.js</value>
                 <value>classpath:mapping/idf_utils.js</value>
                 <value>classpath:mapping/igc_to_idf.js</value>
+                <!-- <value>classpath:mapping/igc_to_idf_baw-dmqs.js</value> -->
             </list>
         </property> 
         <property name="compile" value="false" />

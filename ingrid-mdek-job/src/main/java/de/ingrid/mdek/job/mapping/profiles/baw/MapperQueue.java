@@ -20,33 +20,37 @@
  * limitations under the Licence.
  * **************************************************#
  */
-package de.ingrid.mdek.job.validation.iso.bawdmqs;
+package de.ingrid.mdek.job.mapping.profiles.baw;
 
+import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.mapping.ImportDataMapper;
-import de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil.ISO_ELEMENTS_RESOURCE_BUNDLE;
-import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil.ISO_MESSAGES_RESOURCE_BUNDLE;
+import java.util.List;
 
-/**
- * Validator for validating ISO (19115:2003/Corrigendum 1:2006(E)) XML-files
- * against the ISO-19139 metadata schema.
- *
- * @author Vikram Notay
- */
-public final class ISO_19115_2003_SchemaValidator implements ImportDataMapper<Document, Document> {
+public class MapperQueue<S, T> implements ImportDataMapper<S, T> {
+    private static final Log LOG = LogFactory.getLog(MapperQueue.class);
 
-    public ISO_19115_2003_SchemaValidator() {
-    }
+    private List<ImportDataMapper<S, T>> mappers;
 
     @Override
-    public void convert(Document sourceIso, Document igcIgnored, ProtocolHandler ph) throws MdekException {
-        IsoImportValidationUtil validator = new IsoImportValidationUtil(sourceIso, ph, ISO_ELEMENTS_RESOURCE_BUNDLE, ISO_MESSAGES_RESOURCE_BUNDLE);
-        validator.validateXmlSchema(sourceIso);
+    public void convert(S source, T target, ProtocolHandler protocolHandler) throws MdekException {
+        for(ImportDataMapper<S, T> m: mappers) {
+            try {
+                m.convert(source, target, protocolHandler);
+            } catch(Exception ex) {
+                String msg = "Could not convert from ISO-19115 to IGC format";
+                LOG.error(msg, ex);
+                throw new MdekException(new MdekError(MdekError.MdekErrorType.IMPORT_PROBLEM, msg));
+            }
+        }
+    }
+
+    public void setMappers(List<ImportDataMapper<S, T>> mappers) {
+        this.mappers = mappers;
     }
 
 }

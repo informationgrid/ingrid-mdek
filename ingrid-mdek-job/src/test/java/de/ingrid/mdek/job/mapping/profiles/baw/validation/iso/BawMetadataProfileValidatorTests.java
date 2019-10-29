@@ -20,7 +20,7 @@
  * limitations under the Licence.
  * **************************************************#
  */
-package de.ingrid.mdek.job.validation.iso.bawdmqs;
+package de.ingrid.mdek.job.mapping.profiles.baw.validation.iso;
 
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import org.apache.log4j.Logger;
@@ -35,10 +35,10 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
-import static de.ingrid.mdek.job.validation.iso.bawdmqs.ValidatorTestsTemplateHelper.*;
+import static de.ingrid.mdek.job.mapping.profiles.baw.validation.iso.ValidatorTestsTemplateHelper.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;

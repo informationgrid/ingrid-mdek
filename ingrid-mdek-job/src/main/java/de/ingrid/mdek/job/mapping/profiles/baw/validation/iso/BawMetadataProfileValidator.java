@@ -20,7 +20,7 @@
  * limitations under the Licence.
  * **************************************************#
  */
-package de.ingrid.mdek.job.validation.iso.bawdmqs;
+package de.ingrid.mdek.job.mapping.profiles.baw.validation.iso;
 
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.mapping.ImportDataMapper;

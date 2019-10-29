@@ -20,10 +20,12 @@
  * limitations under the Licence.
  * **************************************************#
  */
-package de.ingrid.mdek.job.validation.iso.bawdmqs;
+package de.ingrid.mdek.job.mapping.profiles.baw.validation.iso;
 
 import de.ingrid.mdek.job.mapping.ImportDataMapper;
+import de.ingrid.mdek.job.mapping.validation.iso.ISO_19115_2003_ConditionsValidator;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
+import de.ingrid.mdek.job.mapping.validation.iso.ISO_19115_2003_SchemaValidator;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
@@ -38,8 +40,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 
-import static de.ingrid.mdek.job.validation.iso.bawdmqs.ValidatorTestsTemplateHelper.defaultDocument;
-import static de.ingrid.mdek.job.validation.iso.bawdmqs.ValidatorTestsTemplateHelper.removeElementAtXpath;
+import static de.ingrid.mdek.job.mapping.profiles.baw.validation.iso.ValidatorTestsTemplateHelper.defaultDocument;
+import static de.ingrid.mdek.job.mapping.profiles.baw.validation.iso.ValidatorTestsTemplateHelper.removeElementAtXpath;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
