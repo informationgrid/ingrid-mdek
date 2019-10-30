@@ -366,4 +366,8 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 	public void setTemplate(Resource tpl) {
 		this.template = tpl;
 	}
+
+    public void setDataSource(BasicDataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 }
