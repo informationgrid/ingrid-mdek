@@ -1962,7 +1962,10 @@ function addResourceConstraints(identificationInfo, objRow) {
         var termsOfUse = row.get("terms_of_use_value");
         if (hasValue(termsOfUse)) {
         	// also add "Nutzungseinschränkungen: " according to GDI-DE Konventionen page 17 !
-            identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText("Nutzungseinschränkungen: " + termsOfUse);
+            // #1220: remove prefix
+            identificationInfo
+                .addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString")
+                .addText(termsOfUse);
         }
     }
 
@@ -1978,9 +1981,6 @@ function addResourceConstraints(identificationInfo, objRow) {
         }
         
         if (hasValue(licenseText)) {
-            // i.S.v. INSPIRE
-        	// also add "Nutzungsbedingungen: " according to GDI-DE Konventionen page 17 !
-        	identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText("Nutzungsbedingungen: " + licenseText);
 
             var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
             // i.S.v. ISO 19115
