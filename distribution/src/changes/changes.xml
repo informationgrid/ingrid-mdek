@@ -28,6 +28,12 @@
   </properties>
   <body>
 
+    <release version="5.3.0-SNAPSHOT" date="2020-xx-xx" description="Release 5.3.0">
+      <action type="fix" dev="wemove" issue="1547">
+        iPlug-IGE: Manchmal verliert das iPlug die DB Verbindung bei der Indexierung.
+      </action>
+    </release>
+
     <release version="5.2.0" date="2019-10-22" description="Release 5.2.0">
       <action type="fix" dev="wemove" issue="1485">
         IGE: Ein eingetragenes "gültig bis" Datum wirkt sich auf alle nachfolgenden Dokumente innerhalb der Dokumententabelle aus.
