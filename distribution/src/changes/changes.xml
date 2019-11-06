@@ -28,9 +28,12 @@
   </properties>
   <body>
 
-    <release version="5.1.1-SNAPSHOT" date="2019-xx-xx" description="Release 5.1.1">
+    <release version="5.1.1" date="2019-11-01" description="Release 5.1.1">
       <action type="fix" dev="wemove" issue="1485">
         IGE: Ein eingetragenes "gültig bis" Datum wirkt sich auf alle nachfolgenden Dokumente innerhalb der Dokumententabelle aus.
+      </action>
+      <action type="fix" dev="wemove" issue="1473">
+        Fehlendes Icon für UVP Kategorie 18, Codeliste aktualisiert.
       </action>
       <action type="fix" dev="wemove" issue="1467">
         Sortierung nach Datum funktioniert nicht.
