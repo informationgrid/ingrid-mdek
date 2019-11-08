@@ -6,9 +6,7 @@ import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.dom4j.io.DOMReader;
-import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.dom.DOMSource;
@@ -45,6 +43,12 @@ public final class IsoImportValidationUtil {
 
     private final List<ResourceBundle> bundles;
 
+    private Node startNode;
+    private String xpath;
+    private String tagKey;
+    private String stringParam;
+    private Type logLevel;
+
     public IsoImportValidationUtil(org.w3c.dom.Document w3cDoc, ProtocolHandler protocolHandler, String... bundleBaseNames) {
         DOMReader reader = new DOMReader();
         this.doc = reader.read(w3cDoc);
@@ -54,28 +58,45 @@ public final class IsoImportValidationUtil {
         for(String baseName: bundleBaseNames) {
             bundles.add(PropertyResourceBundle.getBundle(baseName));
         }
+
+        reset();
     }
 
-    public void validate(String xpath, String tagKey, String arg, ValidationType... checks) {
-        validate(xpath, tagKey, arg, Type.ERROR, checks);
+    public IsoImportValidationUtil withStartNode(Node startNode) {
+        this.startNode = startNode;
+        return this;
     }
 
-    public void validate(Node ancestor, String xpath, String tagKey, String arg, ValidationType... checks) {
-        validate(ancestor, xpath, tagKey, arg, Type.ERROR, checks);
+    public IsoImportValidationUtil withXpath(String xpath) {
+        this.xpath = xpath;
+        return this;
     }
 
-    public void validate(String xpath, String tagKey, String arg, Type logLevel, ValidationType... checks) {
-        for(ValidationType c: checks) {
-            validate(null, xpath, tagKey, arg, logLevel, c);
+    public IsoImportValidationUtil withTagKey(String tagKey) {
+        this.tagKey = tagKey;
+        return this;
+    }
+
+    public IsoImportValidationUtil withStringParameter(String param) {
+        this.stringParam = param;
+        return this;
+    }
+
+    public IsoImportValidationUtil withLogLevel(Type logLevel) {
+        this.logLevel = logLevel;
+        return this;
+    }
+
+    public void doChecks(ValidationType... checks) {
+        if (xpath == null || tagKey == null) {
+            throw new IllegalArgumentException("Either xpath or tagKey argument is missing");
         }
-    }
 
-    public void validate(Node ancestor, String xpath, String tagKey, String arg, Type logLevel, ValidationType... checks) {
         List<Node> nodes;
-        if (ancestor == null) {
+        if (startNode == null) {
             nodes = selectNodes(xpath);
         } else {
-            nodes = selectNodes(ancestor, xpath);
+            nodes = selectNodes(startNode, xpath);
         }
 
         for(ValidationType check: checks) {
@@ -95,31 +116,41 @@ public final class IsoImportValidationUtil {
                 String msgKey = "descendant.missing";
                 String tagName = tagNameFor(tagKey);
                 String defaultMsg = tagName + ": Descendant is missing.";
-                error(msgKey, defaultMsg, tagName, xpath, ancestor.getUniquePath());
+                error(msgKey, defaultMsg, tagName, xpath, startNode.getUniquePath());
                 continue;
             } else if (check == ValidationType.TEXT_CONTENT_MATCHES_PATTERN_AT_LEAST_ONCE) {
-                checkAtLeastOneNodeMatchesPattern(nodes, arg, xpath, tagKey);
+                checkAtLeastOneNodeMatchesPattern(nodes, stringParam, xpath, tagKey);
                 continue;
             }
 
             for(Node n: nodes) {
                 if (check == ValidationType.TEXT_CONTENT_EQUALS) {
-                    checkNodeTextIsExactValue(n, arg, tagKey, logLevel);
+                    checkNodeTextIsExactValue(n, stringParam, tagKey, logLevel);
                 } else if (check == ValidationType.TEXT_CONTENT_IS_FLOATING_POINT_NUMBER) {
                     checkNodeTextIsFloatingPointNumber(n, tagKey);
                 } else if (check == ValidationType.TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO) {
-                    checkNodeTextIsLessThanOrEqualTo(n, tagKey, arg, logLevel);
+                    checkNodeTextIsLessThanOrEqualTo(n, tagKey, stringParam, logLevel);
                 } else if (check == ValidationType.TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO) {
-                    checkNodeTextIsGreaterThanOrEqualTo(n, tagKey, arg, logLevel);
+                    checkNodeTextIsGreaterThanOrEqualTo(n, tagKey, stringParam, logLevel);
                 } else if (check == ValidationType.TEXT_CONTENT_IS_UUID) {
                     checkNodeTextIsValidUuid(n, tagKey);
                 } else if (check == ValidationType.TEXT_CONTENT_MATCHES_PATTERN_FOR_ALL_INSTANCES) {
-                    checkNodeTextMatchesPattern(n, arg, tagKey, logLevel);
+                    checkNodeTextMatchesPattern(n, stringParam, tagKey, logLevel);
                 } else if (check == ValidationType.TEXT_CONTENT_IS_ISO_8601_STRING) {
                     checkNodeTextIsValidIso8601String(n, tagKey);
                 }
             }
         }
+
+        reset();
+    }
+
+    private void reset() {
+        startNode = null;
+        xpath = null;
+        tagKey = null;
+        stringParam = "";
+        logLevel = Type.ERROR;
     }
 
     public void validateXmlSchema(org.w3c.dom.Document doc) {
@@ -324,7 +355,7 @@ public final class IsoImportValidationUtil {
         EXACTLY_ONE_NODE_EXISTS,
         ONE_OR_MORE_NODES_EXIST,
         ONE_OR_MORE_DESCENDANTS_EXIST,
-        TEXT_CONTENT_NOT_EMPTY,
+        TEXT_CONTENT_IS_NOT_EMPTY,
         TEXT_CONTENT_EQUALS,
         TEXT_CONTENT_IS_FLOATING_POINT_NUMBER,
         TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO,

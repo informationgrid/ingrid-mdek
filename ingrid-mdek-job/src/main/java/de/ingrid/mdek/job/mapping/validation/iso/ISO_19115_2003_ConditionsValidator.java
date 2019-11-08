@@ -34,7 +34,7 @@ import java.util.List;
 import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil.ISO_ELEMENTS_RESOURCE_BUNDLE;
 import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil.ISO_MESSAGES_RESOURCE_BUNDLE;
 import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil.ValidationType.ONE_OR_MORE_DESCENDANTS_EXIST;
-import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil.ValidationType.TEXT_CONTENT_NOT_EMPTY;
+import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil.ValidationType.TEXT_CONTENT_IS_NOT_EMPTY;
 
 /**
  * Validation rules for conditions defined in ISO 19115:2003/Corrigendum
@@ -71,7 +71,10 @@ public final class ISO_19115_2003_ConditionsValidator implements ImportDataMappe
 
         String childXpath = "./gmd:lineage|./gmd:report";
         for(Node n: nodes) {
-            validator.validate(n, childXpath, tagKey, "", ONE_OR_MORE_DESCENDANTS_EXIST);
+            validator.withStartNode(n)
+                    .withXpath(childXpath)
+                    .withTagKey(tagKey)
+                    .doChecks(ONE_OR_MORE_DESCENDANTS_EXIST);
         }
     }
 
@@ -88,7 +91,10 @@ public final class ISO_19115_2003_ConditionsValidator implements ImportDataMappe
         String geXpath = "./gmd:identificationInfo/*/gmd:extent/gmd:EX_Extent/gmd:geographicElement";
         String childXpath = geXpath + "/gmd:EX_GeographicDescription|" + geXpath + "/gmd:EX_GeographicBoundingBox";
         for(Node n: nodes) {
-            validator.validate(n, childXpath, tagKey, "", ONE_OR_MORE_DESCENDANTS_EXIST);
+            validator.withStartNode(n)
+                    .withXpath(childXpath)
+                    .withTagKey(tagKey)
+                    .doChecks(ONE_OR_MORE_DESCENDANTS_EXIST);
         }
     }
 
@@ -110,7 +116,10 @@ public final class ISO_19115_2003_ConditionsValidator implements ImportDataMappe
             String statementXpath = "./gmd:lineage/gmd:LI_Lineage/gmd:statement";
 
             if (descendantNodes.isEmpty()) {
-                validator.validate(dq, statementXpath, tagKey, "", ONE_OR_MORE_DESCENDANTS_EXIST, TEXT_CONTENT_NOT_EMPTY);
+                validator.withStartNode(dq)
+                        .withXpath(statementXpath)
+                        .withTagKey(tagKey)
+                        .doChecks(ONE_OR_MORE_DESCENDANTS_EXIST, TEXT_CONTENT_IS_NOT_EMPTY);
             }
         }
     }
@@ -126,7 +135,10 @@ public final class ISO_19115_2003_ConditionsValidator implements ImportDataMappe
         String descendantXpath = "./gmd:source|./gmd:statement|./gmd:processStep";
 
         for(Node lineage: lineageNodes) {
-            validator.validate(lineage, descendantXpath, tagKey, "", ONE_OR_MORE_DESCENDANTS_EXIST, TEXT_CONTENT_NOT_EMPTY);
+            validator.withStartNode(lineage)
+                    .withXpath(descendantXpath)
+                    .withTagKey(tagKey)
+                    .doChecks(ONE_OR_MORE_DESCENDANTS_EXIST, TEXT_CONTENT_IS_NOT_EMPTY);
         }
     }
 

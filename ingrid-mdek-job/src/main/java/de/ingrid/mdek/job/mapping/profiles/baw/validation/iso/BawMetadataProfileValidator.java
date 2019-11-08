@@ -27,7 +27,6 @@ import de.ingrid.mdek.job.mapping.ImportDataMapper;
 import de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import de.ingrid.mdek.job.protocol.ProtocolHandler.Type;
-import org.apache.log4j.Logger;
 import org.dom4j.Node;
 
 import java.util.List;
@@ -42,8 +41,6 @@ import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidation
  */
 public final class BawMetadataProfileValidator implements ImportDataMapper<org.w3c.dom.Document, org.w3c.dom.Document> {
 
-    private static final Logger LOG = Logger.getLogger(BawMetadataProfileValidator.class);
-
     private static final String BAW_URL = "(?:https?://)?(?:www.)?baw.de/?";
     private static final String BAW_NAME = "Bundesanstalt für Wasserbau";
     private static final String BAW_MD_STANDARD_NAME = "ISO 19115; ?GDI-BAW";
@@ -56,9 +53,6 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
     private static final String GERMANY_SOUTH_BOUND_LATITUDE = "47.0";
     private static final String GERMANY_NORTH_BOUND_LATITUDE = "56.0";
 
-
-    public BawMetadataProfileValidator() {
-    }
 
     @Override
     public void convert(org.w3c.dom.Document sourceIso, org.w3c.dom.Document igcIgnored, ProtocolHandler ph) throws MdekException {
@@ -89,7 +83,9 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
     private void validateFileIdentifier(IsoImportValidationUtil validator) {
         String tagKey = "iso.fileIdentifier.2";
         String xpath = "/gmd:MD_Metadata/gmd:fileIdentifier/gco:CharacterString";
-        validator.validate(xpath, tagKey, "", EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_UUID);
+        validator.withXpath(xpath)
+                .withTagKey(tagKey)
+                .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_UUID);
     }
 
     private void validateMetadataLanguage(IsoImportValidationUtil validator) {
@@ -105,13 +101,18 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
     }
 
     private void validateLanguageElement(IsoImportValidationUtil validator, String xpath, String tagKey) {
-        validator.validate(xpath, tagKey, "", ONE_OR_MORE_NODES_EXIST);
+        validator.withXpath(xpath)
+                .withTagKey(tagKey)
+                .doChecks(ONE_OR_MORE_NODES_EXIST);
         validateCodeListUri(validator, xpath, tagKey, "LanguageCode");
 
         // TODO add tests for values not matching pattern
         String codeListValueXpath = xpath + "/@codeListValue";
         String expectedPattern = "(ger|eng)";
-        validator.validate(codeListValueXpath, tagKey, expectedPattern, TEXT_CONTENT_MATCHES_PATTERN_FOR_ALL_INSTANCES);
+        validator.withXpath(codeListValueXpath)
+                .withTagKey(tagKey)
+                .withStringParameter(expectedPattern)
+                .doChecks(TEXT_CONTENT_MATCHES_PATTERN_FOR_ALL_INSTANCES);
     }
 
     private void validateMetadataCharset(IsoImportValidationUtil validator) {
@@ -127,19 +128,28 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
     }
 
     private void validateCharsetElement(IsoImportValidationUtil validator, String xpath, String tagKey) {
-        validator.validate(xpath, tagKey, "", ONE_OR_MORE_NODES_EXIST);
+        validator.withXpath(xpath)
+                .withTagKey(tagKey)
+                .doChecks(ONE_OR_MORE_NODES_EXIST);
         validateCodeListUri(validator, xpath, tagKey, "MD_CharacterSetCode");
 
         // TODO add tests for differing values
         String codeListValueXpath = xpath + "/@codeListValue";
         String expectedValue = "utf8";
-        validator.validate(codeListValueXpath, tagKey, expectedValue, Type.WARN, TEXT_CONTENT_EQUALS);
+        validator.withXpath(codeListValueXpath)
+                .withTagKey(tagKey)
+                .withStringParameter(expectedValue)
+                .withLogLevel(Type.WARN)
+                .doChecks(TEXT_CONTENT_EQUALS);
     }
 
     private void validateCodeListUri(IsoImportValidationUtil validator, String xpath, String tagKey, String codelistFragment) {
         String codeListXpath = xpath + "/@codeList";
         String codelistUri = CODELIST_BASE_URL + '#' + codelistFragment;
-        validator.validate(codeListXpath, tagKey, codelistUri, TEXT_CONTENT_EQUALS);
+        validator.withXpath(codeListXpath)
+                .withTagKey(tagKey)
+                .withStringParameter(codelistUri)
+                .doChecks(TEXT_CONTENT_EQUALS);
     }
 
     private void validateHierarchyLevel(IsoImportValidationUtil validator) {
@@ -149,7 +159,10 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
 
         String codeListValueXpath = xpath + "/@codeListValue";
         String expectedValue = "dataset";
-        validator.validate(codeListValueXpath, tagKey, expectedValue, EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_EQUALS);
+        validator.withXpath(codeListValueXpath)
+                .withTagKey(tagKey)
+                .withStringParameter(expectedValue)
+                .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_EQUALS);
     }
 
     /*
@@ -199,38 +212,56 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
     }
 
     private void validateContactDetails(IsoImportValidationUtil validator, String xpath, String tagKey) {
-        validator.validate(xpath, tagKey, "", ONE_OR_MORE_NODES_EXIST);
+        validator.withXpath(xpath)
+                .withTagKey(tagKey)
+                .doChecks(ONE_OR_MORE_NODES_EXIST);
         // TODO check that first contact is BAW with email address info@baw.de
 
         List<Node> contacts = validator.selectNodes(xpath);
         for(Node c: contacts) {
             String contactUuidXpath = "./gmd:CI_ResponsibleParty/@uuid";
-            validator.validate(c, contactUuidXpath, tagKey, "", TEXT_CONTENT_IS_UUID);
+            validator.withStartNode(c)
+                    .withXpath(contactUuidXpath)
+                    .withTagKey(tagKey)
+                    .doChecks(TEXT_CONTENT_IS_UUID);
 
             String orgNameXpath = "./gmd:CI_ResponsibleParty/gmd:organisationName/gco:CharacterString";
             String orgTagKey = "iso.organisationName.376";
-            validator.validate(c, orgNameXpath, orgTagKey, "", EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_NOT_EMPTY);
+            validator.withStartNode(c)
+                    .withXpath(orgNameXpath)
+                    .withTagKey(orgTagKey)
+                    .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_NOT_EMPTY);
 
             String emailXpath = ".//gmd:electronicMailAddress/gco:CharacterString";
             String emailTagKey = "iso.electronicMailAddress.386";
-            validator.validate(c, emailXpath, emailTagKey, "", EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_NOT_EMPTY);
+            validator.withStartNode(c)
+                    .withXpath(emailXpath)
+                    .withTagKey(emailTagKey)
+                    .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_NOT_EMPTY);
 
             String urlXpath = ".//gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL";
             String urlTagKey = "iso.onlineResource.390";
-            validator.validate(c, urlXpath, urlTagKey, "", EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_NOT_EMPTY);
+            validator.withStartNode(c)
+                    .withXpath(urlXpath)
+                    .withTagKey(urlTagKey)
+                    .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_NOT_EMPTY);
         }
     }
 
     private void validateMdDatestamp(IsoImportValidationUtil validator) {
         String tagKey = "iso.dateStamp.9";
         String xpath = dateOrDateTimeXpath("/gmd:MD_Metadata/gmd:dateStamp");
-        validator.validate(xpath, tagKey, "", EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_ISO_8601_STRING);
+        validator.withXpath(xpath)
+                .withTagKey(tagKey)
+                .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_ISO_8601_STRING);
     }
 
     private void validateDatasetDatestamp(IsoImportValidationUtil validator) {
         String tagKey = "iso.dateStamp.394";
         String xpath = dateOrDateTimeXpath("/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:citation/*/gmd:date/*/gmd:date");
-        validator.validate(xpath, tagKey, "", TEXT_CONTENT_IS_ISO_8601_STRING);
+        validator.withXpath(xpath)
+                .withTagKey(tagKey)
+                .doChecks(TEXT_CONTENT_IS_ISO_8601_STRING);
     }
 
     private String dateOrDateTimeXpath(String parentXpath) {
@@ -240,13 +271,19 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
     private void validateMdStandardName(IsoImportValidationUtil validator) {
         String xpath = "/gmd:MD_Metadata/gmd:metadataStandardName/gco:CharacterString";
         String tagKey = "iso.metadataStandardName.10";
-        validator.validate(xpath, tagKey, BAW_MD_STANDARD_NAME, EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_MATCHES_PATTERN_FOR_ALL_INSTANCES);
+        validator.withXpath(xpath)
+                .withTagKey(tagKey)
+                .withStringParameter(BAW_MD_STANDARD_NAME)
+                .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_MATCHES_PATTERN_FOR_ALL_INSTANCES);
     }
 
     private void validateMdStandardVersion(IsoImportValidationUtil validator) {
         String xpath = "/gmd:MD_Metadata/gmd:metadataStandardVersion/gco:CharacterString";
         String tagKey = "iso.metadataStandardVersion.11";
-        validator.validate(xpath, tagKey, BAW_MD_STANDARD_VERSION, EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_MATCHES_PATTERN_FOR_ALL_INSTANCES);
+        validator.withXpath(xpath)
+                .withTagKey(tagKey)
+                .withStringParameter(BAW_MD_STANDARD_VERSION)
+                .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_MATCHES_PATTERN_FOR_ALL_INSTANCES);
     }
 
     /*
@@ -283,14 +320,21 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
     private void validateGeographicIdentifier(IsoImportValidationUtil validator) {
         String tagKey = "iso.geographicIdentifier.349";
         String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:extent/*/gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/*/gmd:code/gco:CharacterString";
-        validator.validate(xpath, tagKey, "", ONE_OR_MORE_NODES_EXIST, TEXT_CONTENT_NOT_EMPTY);
-        validator.validate(xpath, tagKey, BWASTR_KM_KM, TEXT_CONTENT_MATCHES_PATTERN_AT_LEAST_ONCE);
+        validator.withXpath(xpath)
+                .withTagKey(tagKey)
+                .doChecks(ONE_OR_MORE_NODES_EXIST, TEXT_CONTENT_IS_NOT_EMPTY);
+        validator.withXpath(xpath)
+                .withTagKey(tagKey)
+                .withStringParameter(BWASTR_KM_KM)
+                .doChecks(TEXT_CONTENT_MATCHES_PATTERN_AT_LEAST_ONCE);
     }
 
     private void validateGeographicBoundingBox(IsoImportValidationUtil validator) {
         String tagKey = "iso.EX_GeographicBoundingBox.343";
         String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:extent/*/gmd:geographicElement/gmd:EX_GeographicBoundingBox";
-        validator.validate(xpath, tagKey, "", ONE_OR_MORE_NODES_EXIST);
+        validator.withXpath(xpath)
+                .withTagKey(tagKey)
+                .doChecks(ONE_OR_MORE_NODES_EXIST);
 
         List<Node> nodes = validator.selectNodes(xpath);
         for(Node n: nodes) {
@@ -304,25 +348,89 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
             String southTagKey = "iso.southBoundLatitude.346";
             String northTagKey = "iso.northBoundLatitude.347";
 
-            validator.validate(n, westXpath, westTagKey, "", EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_FLOATING_POINT_NUMBER);
-            validator.validate(n, eastXpath, eastTagKey, "", EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_FLOATING_POINT_NUMBER);
-            validator.validate(n, southXpath, southTagKey, "", EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_FLOATING_POINT_NUMBER);
-            validator.validate(n, northXpath, northTagKey, "", EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_FLOATING_POINT_NUMBER);
+            validator.withStartNode(n)
+                    .withXpath(westXpath)
+                    .withTagKey(westTagKey)
+                    .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_FLOATING_POINT_NUMBER);
+            validator.withStartNode(n)
+                    .withXpath(eastXpath)
+                    .withTagKey(eastTagKey)
+                    .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_FLOATING_POINT_NUMBER);
+            validator.withStartNode(n)
+                    .withXpath(southXpath)
+                    .withTagKey(southTagKey)
+                    .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_FLOATING_POINT_NUMBER);
+            validator.withStartNode(n)
+                    .withXpath(northXpath)
+                    .withTagKey(northTagKey)
+                    .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_IS_FLOATING_POINT_NUMBER);
 
-            validator.validate(n, westXpath, westTagKey, "-180", TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO);
-            validator.validate(n, eastXpath, eastTagKey, "-180", TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO);
-            validator.validate(n, southXpath, southTagKey, "-90", TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO);
-            validator.validate(n, northXpath, northTagKey, "-90", TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO);
+            validator.withStartNode(n)
+                    .withXpath(westXpath)
+                    .withTagKey(westTagKey)
+                    .withStringParameter("-180")
+                    .doChecks(TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO);
+            validator.withStartNode(n)
+                    .withXpath(eastXpath)
+                    .withTagKey(eastTagKey)
+                    .withStringParameter("-180")
+                    .doChecks(TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO);
+            validator.withStartNode(n)
+                    .withXpath(southXpath)
+                    .withTagKey(southTagKey)
+                    .withStringParameter("-90")
+                    .doChecks(TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO);
+            validator.withStartNode(n)
+                    .withXpath(northXpath)
+                    .withTagKey(northTagKey)
+                    .withStringParameter("-90")
+                    .doChecks(TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO);
 
-            validator.validate(n, westXpath, westTagKey, "180", TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
-            validator.validate(n, eastXpath, eastTagKey, "180", TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
-            validator.validate(n, southXpath, southTagKey, "90", TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
-            validator.validate(n, northXpath, northTagKey, "90", TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
+            validator.withStartNode(n)
+                    .withXpath(westXpath)
+                    .withTagKey(westTagKey)
+                    .withStringParameter("180")
+                    .doChecks(TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
+            validator.withStartNode(n)
+                    .withXpath(eastXpath)
+                    .withTagKey(eastTagKey)
+                    .withStringParameter("180")
+                    .doChecks(TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
+            validator.withStartNode(n)
+                    .withXpath(southXpath)
+                    .withTagKey(southTagKey)
+                    .withStringParameter("90")
+                    .doChecks(TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
+            validator.withStartNode(n)
+                    .withXpath(northXpath)
+                    .withTagKey(northTagKey)
+                    .withStringParameter("90")
+                    .doChecks(TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
 
-            validator.validate(n, westXpath, westTagKey, GERMANY_WEST_BOUND_LONGITUDE, Type.WARN, TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO);
-            validator.validate(n, eastXpath, eastTagKey, GERMANY_EAST_BOUND_LONGITUDE, Type.WARN, TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
-            validator.validate(n, southXpath, southTagKey, GERMANY_SOUTH_BOUND_LATITUDE, Type.WARN, TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO);
-            validator.validate(n, northXpath, northTagKey, GERMANY_NORTH_BOUND_LATITUDE, Type.WARN, TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
+            validator.withStartNode(n)
+                    .withXpath(westXpath)
+                    .withTagKey(westTagKey)
+                    .withStringParameter(GERMANY_WEST_BOUND_LONGITUDE)
+                    .withLogLevel(Type.WARN)
+                    .doChecks(TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
+            validator.withStartNode(n)
+                    .withXpath(eastXpath)
+                    .withTagKey(eastTagKey)
+                    .withStringParameter(GERMANY_EAST_BOUND_LONGITUDE)
+                    .withLogLevel(Type.WARN)
+                    .doChecks(TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
+            validator.withStartNode(n)
+                    .withXpath(southXpath)
+                    .withTagKey(southTagKey)
+                    .withStringParameter(GERMANY_SOUTH_BOUND_LATITUDE)
+                    .withLogLevel(Type.WARN)
+                    .doChecks(TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
+            validator.withStartNode(n)
+                    .withXpath(northXpath)
+                    .withTagKey(northTagKey)
+                    .withStringParameter(GERMANY_NORTH_BOUND_LATITUDE)
+                    .withLogLevel(Type.WARN)
+                    .doChecks(TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
         }
     }
 
