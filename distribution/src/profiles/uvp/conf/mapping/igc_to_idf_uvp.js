@@ -647,12 +647,19 @@ function getAdditionalFieldDataTable(id, fields, table){
         var tableData = docs.get(r).get("data");
         var tableFieldKey = docs.get(r).get("field_key");
         var tableSort = docs.get(r).get("sort");
+        // make sure that only for new sort keys a new row in
+        // the document table is created. In the additional_field_data table,
+        // all columns are in a flat list, rows are only distinguishable via
+        // the sort key
         if(sort != tableSort){
+            // add document row to table only when a new row is detected
+            // OR ... (see below).
             if(doc){
                 table.addElement(doc);
             }
             doc = DOM.createElement("doc");
             sort = tableSort;
+            expired = false;
         }
 
         for (var s = 0; s < fields.length; s++) {
@@ -662,7 +669,7 @@ function getAdditionalFieldDataTable(id, fields, table){
                     value = formatBytes(value);
                 } else  if(fields[s].type == "link"){
                     // detect relative links from document uploads
-                    // excluds (http|https|ftp)://
+                    // excludes (http|https|ftp)://
                     pos = value.indexOf("://");
                     if (pos <= 3 || pos >= 10) {
                         value = MdekServer.conf.profileUvpDocumentStoreBaseUrl+value;
@@ -679,14 +686,21 @@ function getAdditionalFieldDataTable(id, fields, table){
                         }
                     } 
                 }
-                
-                doc.addElement(tableFieldKey).addText(value);
+
+                // doc=null could happen if more entries in additional fields
+                // with same sort key  exist(see above).
+                if (!expired) {
+                    doc.addElement(tableFieldKey).addText(value);
+                }
             }
         }
 
         if (expired) {
-            break;
+            // unset doc so that it will not be added
+            // fix for #1485
+            doc = null;
         } else if (doc != null && r >= docs.size() -1){
+            // (see above) ... or the last records has been detected
             table.addElement(doc);
         }
     }

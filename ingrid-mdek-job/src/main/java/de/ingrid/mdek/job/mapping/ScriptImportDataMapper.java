@@ -29,6 +29,7 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import javax.script.ScriptException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,11 +87,11 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 
     private MdekCatalogService catalogService;
 
-    private Connection dbConnection;
-
     private XPathUtils xpathUtils;
 
     private DatabaseConnection internalDatabaseConnection;
+
+	private BasicDataSource dataSource;
 
     private IgeCswFolderUtil igeCswFolderUtil;
 
@@ -108,36 +110,55 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 
     @Override
     public void configure(PlugDescription plugDescription) {
-        internalDatabaseConnection = (DatabaseConnection) plugDescription.getConnection();
-    }
+		internalDatabaseConnection = (DatabaseConnection) plugDescription.getConnection();
+		if (this.dataSource != null) {
+			try {
+				this.dataSource.close();
+			} catch (SQLException e) {
+				log.error("Error closing database connection pool. Create a new one.");
+				this.dataSource = new BasicDataSource();
+			}
+		} else {
+			this.dataSource = new BasicDataSource();
+		}
+		dataSource.setDriverClassName(internalDatabaseConnection.getDataBaseDriver());
+		dataSource.setUsername(internalDatabaseConnection.getUser());
+		dataSource.setPassword(internalDatabaseConnection.getPassword());
+		dataSource.setUrl(internalDatabaseConnection.getConnectionURL());
+		dataSource.setMaxActive(5);
+		dataSource.setMaxIdle(2);
+		dataSource.setInitialSize(2);
+		if (DatabaseConnectionUtils.isOracle(internalDatabaseConnection)) {
+			dataSource.setValidationQuery("select 1 from dual");
+		} else {
+			dataSource.setValidationQuery("select 1");
+		}
+	}
 
     @Override
     public void convert(Document sourceIso, Document targetIgc, ProtocolHandler protocolHandler) throws MdekException {
-        Map<String, Object> parameters = new ConcurrentHashMap<>();
+    	Map<String, Object> parameters = new ConcurrentHashMap<>();
         DatabaseConnectionUtils connUtils = DatabaseConnectionUtils.getInstance();
-        try(Connection conn = connUtils.openConnection(internalDatabaseConnection)) {
-            // set database connection
-            dbConnection = conn;
-            // get DOM-tree from XML-file
 
+        try (Connection conn = dataSource.getConnection()) {
             // get DOM-tree from template-file. Ignore the provided document
-            Document templateXml = getDomFromSourceData(template.getInputStream());
+            Document templateXml = getDomFromSourceData(template.getInputStream(), false);
             Node importNode = targetIgc.importNode(templateXml.getDocumentElement(), true);
             targetIgc.appendChild(importNode);
 
-            if (log.isDebugEnabled()) {
+			if (log.isDebugEnabled()) {
                 log.debug("Target XML template:\n" + XMLUtils.toString(targetIgc));
-            }
+			}
             // create utils for script
-            SQLUtils sqlUtils = new SQLUtils(dbConnection);
+            SQLUtils sqlUtils = new SQLUtils(conn);
             // get initialized XPathUtils (see above)
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
             DOMUtils domUtils = new DOMUtils(targetIgc, xpathUtils);
 
-            preProcessMapping(targetIgc);
+			preProcessMapping(targetIgc);
 
-            parameters.put("source", sourceIso);
-            parameters.put("target", targetIgc);
+		    parameters.put("source", sourceIso);
+		    parameters.put("target", targetIgc);
             parameters.put("protocolHandler", protocolHandler );
             parameters.put("codeListService", catalogService);
             parameters.put("javaVersion", System.getProperty( "java.version" ));
@@ -154,49 +175,52 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
             //parameters.put("template", template);
             doMap(parameters);
 
-            mapAdditionalFields();
+			mapAdditionalFields(targetIgc);
 
-            String targetString = XMLUtils.toString(targetIgc);
-            if (log.isDebugEnabled()) {
-                log.debug("Resulting XML:\n" + targetString);
-            }
-        } catch (Exception e) {
-            log.error("Error while converting the input data!", e);
-            String msg = "Problems converting import file: " + e;
-            throw new MdekException(new MdekError(MdekErrorType.IMPORT_PROBLEM, msg));
-        }
-    }
+			String targetString = XMLUtils.toString(targetIgc);
+			if (log.isDebugEnabled()) {
+				log.debug("Resulting XML:\n" + targetString);
+			}
+		} catch (Exception e) {
+			log.error("Error while converting the input data!", e);
+			String msg = "Problems converting import file: " + e;
+			throw new MdekException(new MdekError(MdekErrorType.IMPORT_PROBLEM, msg));
+		}
+	}
+	
+	private void mapAdditionalFields(Document docTarget) throws Exception {
+		String igcProfileStr = null;
+		try(Connection conn = dataSource.getConnection()) {
+			try (PreparedStatement ps = conn.prepareStatement("SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'")) {
+				try (ResultSet rs = ps.executeQuery()) {
+					rs.next();
+					igcProfileStr = rs.getString("igc_profile");
+					if (log.isDebugEnabled()) {
+						log.debug("igc profile found: " + igcProfileStr);
+					}
+				}
+			}
+		}
 
-    private void mapAdditionalFields() throws Exception {
-        PreparedStatement ps = this.dbConnection.prepareStatement( "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" );
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        String igcProfileStr = rs.getString("igc_profile");
-        if (log.isDebugEnabled()) {
-            log.debug("igc profile found: " + igcProfileStr);
-        }
-        ps.close();
+		if (igcProfileStr != null) {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			dbf.setNamespaceAware(true);
+			DocumentBuilder db;
+			db = dbf.newDocumentBuilder();
+			Document igcProfile = db.parse(new InputSource(new StringReader(igcProfileStr)));
+			NodeList igcProfileCswMappingImports = xpathUtils.getNodeList(igcProfile, "//igcp:controls/*/igcp:scriptedCswMappingImport");
+			if (log.isDebugEnabled()) {
+				log.debug("cswMappingImport found: " + igcProfileCswMappingImports.getLength());
+			}
+			engine.put("igcProfile", igcProfile);
 
-        if (igcProfileStr != null) {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setNamespaceAware(true);
-            DocumentBuilder db;
-            db = dbf.newDocumentBuilder();
-            Document igcProfile = db.parse(new InputSource(new StringReader(igcProfileStr)));
-            NodeList igcProfileCswMappingImports = xpathUtils.getNodeList(igcProfile, "//igcp:controls/*/igcp:scriptedCswMappingImport");
-            if (log.isDebugEnabled()) {
-                log.debug("cswMappingImport found: " + igcProfileCswMappingImports.getLength());
-            }
-            engine.put("igcProfile", igcProfile);
+			for (int i=0; i<igcProfileCswMappingImports.getLength(); i++) {
+				String igcProfileCswMapping = igcProfileCswMappingImports.item(i).getTextContent();
 
-            for (int i=0; i<igcProfileCswMappingImports.getLength(); i++) {
-                String igcProfileCswMapping = igcProfileCswMappingImports.item(i).getTextContent();
-
-                // ScriptEngine.execute(this.mappingScripts, parameters, compile);
-                engine.eval( new StringReader(igcProfileCswMapping) );
-            }
-        }
-
+				// ScriptEngine.execute(this.mappingScripts, parameters, compile);
+				engine.eval( new StringReader(igcProfileCswMapping) );
+			}
+		}
     }
 
     /**
@@ -204,129 +228,152 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 	 * that have to be available for saving it.
 	 * @param docTarget, the mapped document
 	 */
-    private void preProcessMapping(Document docTarget) {
-        // write current exchange format from jar !
-        setDocumentExchangeFormat(docTarget);
-
-        // write language information
-        setDocumentLanguage(docTarget);
-
+	private void preProcessMapping(Document docTarget) {
+		// write current exchange format from jar !
+		setDocumentExchangeFormat(docTarget);
+		
+//		String title = XPathUtils.getString(docTarget, "/igc/data-sources/data-source/general/title");
+		
+		// generate uuid for each object (here only one for each import)
+		// written in backend already
+		//NodeList nodeList = docTarget.getElementsByTagName(XMLKeys.OBJECT_IDENTIFIER);
+		//setValueInNodeList(nodeList, EntityHelper.getInstance().generateUuid());
+		
+		// generate dates for certain fields
+		// written in backend already
+		//setDocumentDates(docTarget);
+		
+		// write language information
+		setDocumentLanguage(docTarget);
+		
+		// write responsible information
+		// written in backend already
+		//setDocumentUuids(docTarget);
+		
+		
+		
 	}
-
-    /** Set current xml exchange format from Versioning in import-export.jar ! */
-    private void setDocumentExchangeFormat(Document docTarget) {
-        NodeList nodeList = docTarget.getElementsByTagName(XMLKeys.IGC);
+	
+	/** Set current xml exchange format from Versioning in import-export.jar ! */
+	private void setDocumentExchangeFormat(Document docTarget) {
+		NodeList nodeList = docTarget.getElementsByTagName(XMLKeys.IGC);
 
         // !!! NOTICE !!!
         // Will be linked STATICALLY at compile time (all frontend class files) !!!
         // So will not be read from import-export jar at runtime !!!
-        String exchangeFormat = Versioning.CURRENT_IMPORT_EXPORT_VERSION;
+		String exchangeFormat = Versioning.CURRENT_IMPORT_EXPORT_VERSION;
+		
+		setAttributesInNodeList(nodeList, XMLKeys.EXCHANGE_FORMAT, exchangeFormat);
+	}
 
-        setAttributesInNodeList(nodeList, XMLKeys.EXCHANGE_FORMAT, exchangeFormat);
-    }
+	private void setDocumentLanguage(Document docTarget) {
+		List<NodeList> langNodesList = new ArrayList<NodeList>();
+		langNodesList.add(docTarget.getElementsByTagName(XMLKeys.DATA_LANGUAGE));
+		langNodesList.add(docTarget.getElementsByTagName(XMLKeys.METADATA_LANGUAGE));
 
-    private void setDocumentLanguage(Document docTarget) {
-        List<NodeList> langNodesList = new ArrayList<>();
-        langNodesList.add(docTarget.getElementsByTagName(XMLKeys.DATA_LANGUAGE));
-        langNodesList.add(docTarget.getElementsByTagName(XMLKeys.METADATA_LANGUAGE));
+		// receive the default values for a syslist ... here language
+		String langId = catalogService.getInitialKeyFromListId(99999999).toString();
+		String langString = catalogService.getInitialValueFromListId(99999999);
+		
+		for (NodeList nodeList : langNodesList) {
+			setValueInNodeList(nodeList, langString);
+			setAttributesInNodeList(nodeList, XMLKeys.ID, langId.toString());
+		}
+		
+	}
 
-        // receive the default values for a syslist ... here language
-        String langId = catalogService.getInitialKeyFromListId(99999999).toString();
-        String langString = catalogService.getInitialValueFromListId(99999999);
-
-        for (NodeList nodeList : langNodesList) {
-            setValueInNodeList(nodeList, langString);
-            setAttributesInNodeList(nodeList, XMLKeys.ID, langId);
-        }
-
-    }
-
-    public void setCatalogService(MdekCatalogService catalogService) {
+	public void setCatalogService(MdekCatalogService catalogService) {
         this.catalogService = catalogService;
     }
 
     /**
-     * Set one value in all tags of the given node list.
-     * @param nodeList
-     * @param value
-     */
-    private void setValueInNodeList(NodeList nodeList, String value) {
-        for (int i=0; i<nodeList.getLength(); i++) {
-            XMLUtils.createOrReplaceTextNode(nodeList.item(i), value);
-        }
-    }
-
-    /**
-     * Set one value in all attribute of tags of the given node list.
-     * @param nodeList
-     * @param attr
-     * @param value
-     */
-    private void setAttributesInNodeList(NodeList nodeList, String attr, String value) {
-        for (int i=0; i<nodeList.getLength(); i++) {
-            XMLUtils.createOrReplaceAttribute(nodeList.item(i), attr, value);
-        }
-    }
-
-    private void doMap(Map<String, Object> parameters) throws Exception {
+	 * Set one value in all tags of the given node list.
+	 * @param nodeList
+	 * @param value
+	 */
+	private void setValueInNodeList(NodeList nodeList, String value) {
+		for (int i=0; i<nodeList.getLength(); i++) {
+			XMLUtils.createOrReplaceTextNode(nodeList.item(i), value);
+		}
+	}
+	
+	/**
+	 * Set one value in all attribute of tags of the given node list.
+	 * @param nodeList
+	 * @param attr
+	 * @param value
+	 */
+	private void setAttributesInNodeList(NodeList nodeList, String attr, String value) {
+		for (int i=0; i<nodeList.getLength(); i++) {
+			XMLUtils.createOrReplaceAttribute(nodeList.item(i), attr, value);
+		}
+	}
+	
+	private void doMap(Map<String, Object> parameters) throws Exception {
         try {
-            ScriptEngine engine = this.getScriptEngine();
+	        ScriptEngine engine = this.getScriptEngine();
+			
+	        // pass all parameters
+	        for(String param : parameters.keySet())
+	        	engine.put(param, parameters.get(param));
 
-            // pass all parameters
-            for(String param : parameters.keySet())
-                engine.put(param, parameters.get(param));
-
-
-            // execute the mapping
-            for (Resource resource : mapperScript) {
-                log.debug("Mapping with script: " + resource);
-                engine.eval(new InputStreamReader(resource.getInputStream()));
+	
+			// execute the mapping
+	        for (Resource resource : mapperScript) {
+	            log.debug("Mapping with script: " + resource);
+	            engine.eval(new InputStreamReader(resource.getInputStream()));
             }
+	        
+		} catch (ScriptException e) {
+			log.error("Error while evaluating the script!", e);
+			throw e;
+		} catch (IOException e) {
+			log.error("Error while accessing the mapper script!", e);
+			throw e;
+		}
 
-        } catch (ScriptException e) {
-            log.error("Error while evaluating the script!", e);
-            throw e;
-        } catch (IOException e) {
-            log.error("Error while accessing the mapper script!", e);
-            throw e;
-        }
+	}
 
-    }
+	private Document getDomFromSourceData(InputStream data, boolean isNameSpaceAware)
+	throws Exception {
+		Document doc = null;
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			dbf.setNamespaceAware(isNameSpaceAware);
+			//dbf.setValidating(true);
+			DocumentBuilder db = dbf.newDocumentBuilder();
+	
+			doc = db.parse(data);
+		} catch ( Exception e ) {
+			log.error("Problems extracting DOM from file!", e);
+			e.printStackTrace();
+			throw e;
+		}
+		return doc;
+	}
 
-    private Document getDomFromSourceData(InputStream data)
-            throws Exception {
-            try {
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                dbf.setNamespaceAware(false);
-                //dbf.setValidating(true);
-                DocumentBuilder db = dbf.newDocumentBuilder();
+	/**
+	 * Get the script engine (JavaScript). It returns always the same instance once initialized.
+	 * 
+	 * @return script engine.
+	 */
+	protected ScriptEngine getScriptEngine()  {
+		if (engine == null) {
+			ScriptEngineManager manager = new ScriptEngineManager();
+	        engine = manager.getEngineByName("JavaScript");
+		}
+		return engine;
+	}
+	
+	public void setMapperScript(Resource[] scripts) {
+		this.mapperScript = scripts;
+	}
+	
+	public void setTemplate(Resource tpl) {
+		this.template = tpl;
+	}
 
-                return db.parse(data);
-            } catch ( Exception e ) {
-                log.error("Problems extracting DOM from file!", e);
-                throw e;
-            }
-    }
-
-    /**
-     * Get the script engine (JavaScript). It returns always the same instance once initialized.
-     * 
-     * @return script engine.
-     */
-    protected ScriptEngine getScriptEngine()  {
-        if (engine == null) {
-            ScriptEngineManager manager = new ScriptEngineManager();
-            engine = manager.getEngineByName("JavaScript");
-        }
-        return engine;
-    }
-
-    public void setMapperScript(Resource[] scripts) {
-        this.mapperScript = scripts;
-    }
-
-    public void setTemplate(Resource tpl) {
-        this.template = tpl;
+    public void setDataSource(BasicDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 }
-
