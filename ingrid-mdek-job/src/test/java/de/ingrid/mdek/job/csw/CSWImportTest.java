@@ -22,12 +22,23 @@
  */
 package de.ingrid.mdek.job.csw;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
+
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.job.MdekIdcCatalogJob;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import de.ingrid.mdek.job.protocol.ProtocolHandler.Type;
+import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import de.ingrid.mdek.job.utils.TestSetup;
 import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
@@ -41,6 +52,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -62,13 +74,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
-
 @PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DatabaseConnectionUtils.class, MdekObjectService.class, MdekJobHandler.class})
@@ -78,12 +83,12 @@ public class CSWImportTest extends TestSetup {
 
     // @Mock private ResultSet resultSet;
 
-
     @Before
     public void before() throws Exception {
         String[] mappingScripts = new String[] {
                 "ingrid-mdek-job/src/main/resources/import/mapper/csw202_to_ingrid_igc.js"
         };
+
 
         /*plug = new IgeSearchPlug( null, null, null, null, null );
         plug.setCatalogJob( catJobMock );

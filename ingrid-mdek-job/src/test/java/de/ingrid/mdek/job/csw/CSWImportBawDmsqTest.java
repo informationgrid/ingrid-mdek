@@ -23,6 +23,7 @@
 package de.ingrid.mdek.job.csw;
 
 import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
@@ -139,6 +140,8 @@ public class CSWImportBawDmsqTest {
 
     @Mock
     ElasticConfig elasticConfig;
+
+    @Mock private IgeCswFolderUtil igeCswFolderUtil;
 
     @Before
     public void before() throws Exception {

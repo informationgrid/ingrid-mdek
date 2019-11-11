@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import de.ingrid.mdek.xml.Versioning;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.io.FileUtils;
@@ -94,7 +95,7 @@ public class TestSetup {
     protected MdekIdcCatalogJob catJob;
     
     @Mock
-    IImporterCallback importerCallback;
+    protected IImporterCallback importerCallback;
 
     @Mock
     ILogService logService;
@@ -137,6 +138,8 @@ public class TestSetup {
     @Mock IndexManager indexManager;
 
     @Mock ElasticConfig elasticConfig;
+
+    @Mock private IgeCswFolderUtil igeCswFolderUtil;
 
     ScriptImportDataMapper cswMapper;
     
@@ -190,7 +193,7 @@ public class TestSetup {
         when( daoT03Catalogue.findFirst() ).thenReturn( t03Catalogue );
         when( catJobMock.getCatalogAdminUserUuid() ).thenReturn( "TEST_USER_ID" );
 
-        cswMapper = new ScriptImportDataMapper( daoFactory );
+        cswMapper = new ScriptImportDataMapper( daoFactory , igeCswFolderUtil);
         cswMapper.setDataSource( dataSourceMock );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
