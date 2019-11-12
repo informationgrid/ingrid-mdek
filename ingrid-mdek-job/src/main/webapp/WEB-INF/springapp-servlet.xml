@@ -115,6 +115,7 @@
                 <value>de/ingrid/mdek/services/persistence/db/model/Permission.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/PermissionAddr.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/PermissionObj.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/PriorityDataset.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/SearchtermAdr.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/SearchtermObj.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/SearchtermSns.hbm.xml</value>

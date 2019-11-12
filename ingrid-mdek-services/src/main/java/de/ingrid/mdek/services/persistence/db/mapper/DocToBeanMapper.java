@@ -24,6 +24,7 @@ package de.ingrid.mdek.services.persistence.db.mapper;
 
 import java.util.*;
 
+import de.ingrid.mdek.services.persistence.db.model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,67 +44,6 @@ import de.ingrid.mdek.services.persistence.db.dao.ISearchtermSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISearchtermValueDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefSnsDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISpatialRefValueDao;
-import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
-import de.ingrid.mdek.services.persistence.db.model.AddressComment;
-import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
-import de.ingrid.mdek.services.persistence.db.model.AddressNode;
-import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
-import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
-import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
-import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
-import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
-import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
-import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
-import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
-import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
-import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
-import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
-import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
-import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
-import de.ingrid.mdek.services.persistence.db.model.ObjectUseConstraint;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
-import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
-import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
-import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
-import de.ingrid.mdek.services.persistence.db.model.SpatialSystem;
-import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
-import de.ingrid.mdek.services.persistence.db.model.SysList;
-import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
-import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
-import de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference;
-import de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoScale;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSpatialRep;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSupplinfo;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSymc;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoVector;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjLiterature;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjProject;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServ;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpConnpoint;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpDepends;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPara;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServScale;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServUrl;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
-import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
-import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
-import de.ingrid.mdek.services.persistence.db.model.T015Legist;
-import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
-import de.ingrid.mdek.services.persistence.db.model.T01Object;
-import de.ingrid.mdek.services.persistence.db.model.T021Communication;
-import de.ingrid.mdek.services.persistence.db.model.T02Address;
-import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.mdek.services.utils.MdekKeyValueHandler;
 import de.ingrid.utils.IngridDocument;
 
@@ -534,6 +474,7 @@ public class DocToBeanMapper implements IMapper {
 			updateSpatialSystems(oDocIn, oIn);
 			updateObjectMetadata(oDocIn, oIn);
             updateObjectDataLanguages(oDocIn, oIn);
+            updatePriorityDataset(oDocIn, oIn);
 		}
 
 		if (howMuch == MappingQuantity.COPY_ENTITY) {
@@ -2598,6 +2539,19 @@ public class DocToBeanMapper implements IMapper {
 	    
 	    return ref;
 	}
+	private PriorityDataset mapPriorityDataset(T01Object oFrom,
+	        IngridDocument refDoc,
+	        PriorityDataset ref,
+	        int line)
+	{
+	    ref.setObjId(oFrom.getId());
+	    ref.setPriorityKey((Integer)refDoc.get(MdekKeys.PRIORITY_DATASET_KEY));
+	    ref.setPriorityValue(refDoc.getString(MdekKeys.PRIORITY_DATASET_VALUE));
+	    ref.setLine(line);
+	    keyValueService.processKeyValue(ref);
+
+	    return ref;
+	}
 	private List<IngridDocument> createObjectConformityList(int specificationKey, int degreeKey) {
 		List<IngridDocument> cDocList = new ArrayList<IngridDocument>();
 		IngridDocument cDoc = new IngridDocument();
@@ -2668,6 +2622,27 @@ public class DocToBeanMapper implements IMapper {
     	    for (IngridDocument refDoc : refDocs) {
     	        // add all as new ones
     	        ObjectAdvProductGroup ref = mapObjectAdvProductGroup(oIn, refDoc, new ObjectAdvProductGroup(), line);
+    	        refs.add(ref);
+    	        line++;
+    	    }
+	    }
+	}
+	private void updatePriorityDataset(IngridDocument oDocIn, T01Object oIn) {
+	    List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.PRIORITY_DATASET_LIST);
+
+	    Set<PriorityDataset> refs = oIn.getPriorityDataset();
+	    ArrayList<PriorityDataset> refs_unprocessed = new ArrayList<>(refs);
+	    // remove all !
+	    for (PriorityDataset ref : refs_unprocessed) {
+	        refs.remove(ref);
+	        dao.makeTransient(ref);
+	    }
+	    // and add all new ones !
+	    if (refDocs != null) {
+    	    int line = 1;
+    	    for (IngridDocument refDoc : refDocs) {
+    	        // add all as new ones
+				PriorityDataset ref = mapPriorityDataset(oIn, refDoc, new PriorityDataset(), line);
     	        refs.add(ref);
     	        line++;
     	    }

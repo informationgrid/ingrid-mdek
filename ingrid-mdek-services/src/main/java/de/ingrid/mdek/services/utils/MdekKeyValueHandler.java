@@ -24,6 +24,7 @@ package de.ingrid.mdek.services.utils;
 
 import java.util.Map;
 
+import de.ingrid.mdek.services.persistence.db.model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,36 +35,6 @@ import de.ingrid.mdek.MdekUtils.SearchtermType;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
-import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
-import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
-import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
-import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
-import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
-import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
-import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
-import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
-import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
-import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
-import de.ingrid.mdek.services.persistence.db.model.ObjectUseConstraint;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
-import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
-import de.ingrid.mdek.services.persistence.db.model.SpatialSystem;
-import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSymc;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjLiterature;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServ;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
-import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
-import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
-import de.ingrid.mdek.services.persistence.db.model.T015Legist;
-import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
-import de.ingrid.mdek.services.persistence.db.model.T01Object;
-import de.ingrid.mdek.services.persistence.db.model.T021Communication;
-import de.ingrid.mdek.services.persistence.db.model.T02Address;
-import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 
 
 /**
@@ -199,6 +170,8 @@ public class MdekKeyValueHandler {
             processKeyValueObjectUseConstraint((ObjectUseConstraint) bean);
         } else if (ObjectDataLanguage.class.isAssignableFrom(clazz)) {
             processKeyValueObjectDataLanguage((ObjectDataLanguage) bean);
+        } else if (PriorityDataset.class.isAssignableFrom(clazz)) {
+			processKeyValuePriorityDataset((PriorityDataset) bean);
 		// NOTICE: ALSO ADD NEW CLASSES TO ARRAY keyValueClasses ABOVE !!!!
 		// !!! DO NOT FORGET TO ASSURE ACCORDING DAO CAN BE FETCHED VIA DaoFactory.getDao(Class) !!!!
 
@@ -837,6 +810,18 @@ public class MdekKeyValueHandler {
             bean.setDataLanguageValue(keyNameMap.get(entryKey));
         }
         
+        return bean;
+    }
+
+    private IEntity processKeyValuePriorityDataset(PriorityDataset bean) {
+        Integer entryKey = bean.getPriorityKey();
+        if (entryKey != null && entryKey > -1) {
+            Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
+                MdekSysList.LANGUAGE.getDbValue(),
+                catalogService.getCatalogLanguage());
+            bean.setPriorityValue(keyNameMap.get(entryKey));
+        }
+
         return bean;
     }
 

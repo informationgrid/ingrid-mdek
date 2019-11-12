@@ -249,6 +249,12 @@
          <key column="obj_id"/>
          <one-to-many class="T017UrlRef" not-found="ignore"/>
       </set>
+      <set name="priorityDataset" order-by="line" table="priority_dataset"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_id"/>
+         <one-to-many class="PriorityDataset" not-found="ignore"/>
+      </set>
       <many-to-one name="t03Catalogue" class="T03Catalogue" column="cat_id" update="false"
                    insert="false"/>
       <many-to-one name="addressNodeResponsible" class="AddressNode" column="responsible_uuid"

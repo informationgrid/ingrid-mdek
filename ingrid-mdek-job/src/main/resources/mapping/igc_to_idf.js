@@ -789,6 +789,13 @@ for (i=0; i<objRows.size(); i++) {
         mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText("AdVMIS");
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
+
+    // priority dataset
+    rows = SQL.all("SELECT priority_key FROM priority_dataset WHERE obj_id=?", [+objId]);
+    mdKeywords = getMdKeywords(rows);
+    if (mdKeywords != null) {
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
     
     
     // if open data is checked then also add categories to thesaurus
@@ -1798,7 +1805,9 @@ function getMdKeywords(rows) {
     var keywordsAdded = false;
     for (i=0; i<rows.size(); i++) {
         var row = rows.get(i);
+        var asAnchor = null;
         var keywordValue = null;
+        var keywordLink = null;
         var keywordAlternateValue = null;
 
         // "searchterm_value" table
@@ -1824,11 +1833,29 @@ function getMdKeywords(rows) {
         // "t0114_env_topic" table
         } else if (hasValue(row.get("topic_key"))) {
             keywordValue = TRANSF.getIGCSyslistEntryName(1410, row.get("topic_key"), "en");
+        } else if (hasValue(row.get("priority_key"))) {
+            asAnchor = true;
+            keywordValue = TRANSF.getIGCSyslistEntryName(6350, row.get("priority_key"), "en");
+            var priorityData = TRANSF.getISOCodeListEntryData(6350, keywordValue);
+            if (hasValue(priorityData)) {
+                try {
+                    keywordLink = JSON.parse(priorityData).url;
+                } catch(err) {
+                    log.error("Error getting URL from Priority Dataset within data field in Codelist 6350");
+                }
+            }
         }
 
         if (hasValue(keywordValue)) {
         	var mdKeyword = mdKeywords.addElement("gmd:keyword");
-            mdKeyword.addElement("gco:CharacterString").addText(keywordValue);
+
+        	if (asAnchor) {
+                mdKeyword.addElement("gmx:Anchor")
+                    .addAttribute("xlink:href", keywordLink)
+                    .addText(keywordValue);
+            } else {
+                mdKeyword.addElement("gco:CharacterString").addText(keywordValue);
+            }
 
             // add localized keyword, see https://dev.informationgrid.eu/redmine/issues/363
             if (hasValue(keywordAlternateValue)) {
@@ -1852,6 +1879,7 @@ function getMdKeywords(rows) {
    
     var keywTitle;
     var keywDate;
+    var thesaurusLink;
     
     // "searchterm_value" table
     if (rows.get(0).get("type")) {
@@ -1881,13 +1909,27 @@ function getMdKeywords(rows) {
     } else if (rows.get(0).get("topic_key")) {
         keywTitle = "German Environmental Classification - Topic, version 1.0";
         keywDate = "2006-05-01";
+    } else if (rows.get(0).get("priority_key")) {
+        keywTitle = "INSPIRE priority data set";
+        keywDate = "2018-04-04";
+        thesaurusLink = "http://inspire.ec.europa.eu/metadata-codelist/PriorityDataset";
     }
 
-    mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
-        .addAttribute("codeList", globalCodeListAttrURL + "#MD_KeywordTypeCode")
-        .addAttribute("codeListValue", "theme");
+    if (!rows.get(0).get("priority_key")) {
+        mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#MD_KeywordTypeCode")
+            .addAttribute("codeListValue", "theme");
+    }
     var thesCit = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
-    thesCit.addElement("gmd:title/gco:CharacterString").addText(keywTitle);
+
+    if (asAnchor) {
+        thesCit.addElement("gmd:title/gmx:Anchor")
+            .addAttribute("xlink:href", thesaurusLink)
+            .addText(keywTitle);
+    } else {
+        thesCit.addElement("gmd:title/gco:CharacterString").addText(keywTitle);
+    }
+
     var thesCitDate = thesCit.addElement("gmd:date/gmd:CI_Date");
     thesCitDate.addElement("gmd:date/gco:Date").addText(keywDate);
     thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")

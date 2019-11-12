@@ -30,7 +30,10 @@
 
     <release version="5.3.0-SNAPSHOT" date="2020-xx-xx" description="Release 5.3.0">
       <action type="fix" dev="wemove" issue="1547">
-        iPlug-IGE: Manchmal verliert das iPlug die DB Verbindung bei der Indexierung.
+        Sometimes DB connection is lost during indexing.
+      </action>
+      <action type="add" dev="wemove" issue="1516">
+        Add mapping for new table priority dataset
       </action>
     </release>
 

@@ -82,6 +82,7 @@ public class T01Object implements IEntity {
 	private Set objectComments = new HashSet();
 	private Set objectConformitys = new HashSet();
 	private Set objectAdvProductGroup = new HashSet();
+	private Set priorityDataset = new HashSet();
     private Set objectDataLanguages = new HashSet();
 	private Set objectDataQualitys = new HashSet();
 	private Set objectFormatInspires = new HashSet();
@@ -686,6 +687,14 @@ public class T01Object implements IEntity {
 
 	public Set getT017UrlRefs() {
 		return t017UrlRefs;
+	}
+
+	public Set getPriorityDataset() {
+		return priorityDataset;
+	}
+
+	public void setPriorityDataset(Set set) {
+		priorityDataset = set;
 	}
 
 	public void setT017UrlRefs(Set t017UrlRefs) {
