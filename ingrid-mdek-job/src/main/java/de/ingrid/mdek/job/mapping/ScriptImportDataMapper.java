@@ -116,11 +116,9 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 				this.dataSource.close();
 			} catch (SQLException e) {
 				log.error("Error closing database connection pool. Create a new one.");
-				this.dataSource = new BasicDataSource();
 			}
-		} else {
-			this.dataSource = new BasicDataSource();
 		}
+		this.dataSource = new BasicDataSource();
 		dataSource.setDriverClassName(internalDatabaseConnection.getDataBaseDriver());
 		dataSource.setUsername(internalDatabaseConnection.getUser());
 		dataSource.setPassword(internalDatabaseConnection.getPassword());
