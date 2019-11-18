@@ -31,10 +31,12 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private static final String CODELIST_URL = "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#";
     private static final String UDUNITS_CODESPACE_VALUE = "https://www.unidata.ucar.edu/software/udunits/";
 
-    private static final String BAW_MODEL_KEYWORD_TYPE = "discipline";
+    private static final String BAW_DEFAULT_KEYWORD_TYPE = "discipline";
     private static final String BAW_MODEL_THESAURUS_TITLE_PREFIX = "de.baw.codelist.model.";
+    private static final String BAW_KEYWORD_CATALOGUE_TITLE = "BAW-Schlagwortkatalog";
     private static final String BAW_MODEL_THESAURUS_DATE = "2017-01-17";
-    private static final String BAW_MODEL_THESAURUS_DATE_TYPE = "publication";
+    private static final String BAW_KEYWORD_CATALOGUE_DATE = "2012-01-01";
+    private static final String BAW_DEFAULT_THESAURUS_DATE_TYPE = "publication";
 
     private static final String VV_WSV_1103_TITLE = "VV-WSV 1103";
     private static final String VV_WSV_1103_DATE = "2019-05-29";
@@ -42,6 +44,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
     private static final int BAW_MODEL_TYPE_CODELIST_ID = 3950003;
     private static final int BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID = 3950004;
+    private static final int BAW_KEYWORD_CATALOGUE_CODELIST_ID = 3950005;
     private static final int VV_1103_CODELIST_ID = 3950010;
 
     private static final String GCO_CHARACTER_STRING_QNAME = "gco:CharacterString";
@@ -151,6 +154,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             setHierarchyLevelName(mdMetadata, objId);
             addAuftragsInfos(mdIdentification, objId);
             addBWaStrIdentifiers(mdIdentification, objId);
+            addBawKewordCatalogeKeywords(mdIdentification, objId);
             addSimSpatialDimensionKeyword(mdIdentification, objId);
             addSimModelMethodKeyword(mdIdentification, objId);
             addSimModelTypeKeywords(mdIdentification, objId);
@@ -283,6 +287,29 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         return extentElement;
     }
 
+    private void addBawKewordCatalogeKeywords(IdfElement mdIdentification, Long objId) throws SQLException {
+        List<Map<String, String>> rows = getOrderedAdditionalFieldDataTableRowData(objId, "bawKeywordCatalogueEntry");
+
+        // Collect keywords to add them to the same descriptiveKeywords element
+        List<String> allValues = new ArrayList<>(rows.size());
+        for(Map<String, String> row: rows) {
+            String entryId = row.get("data");
+            if (entryId == null) continue;
+
+            String value = trafoUtil.getIGCSyslistEntryName(BAW_KEYWORD_CATALOGUE_CODELIST_ID, Integer.parseInt(entryId));
+            allValues.add(value);
+        }
+
+        addKeyword(
+                mdIdentification,
+                BAW_DEFAULT_KEYWORD_TYPE,
+                BAW_KEYWORD_CATALOGUE_TITLE,
+                BAW_KEYWORD_CATALOGUE_DATE,
+                BAW_DEFAULT_THESAURUS_DATE_TYPE,
+                allValues.toArray(new String[0])
+        );
+    }
+
     private void addSimSpatialDimensionKeyword(IdfElement mdIdentification, Long objId) throws SQLException {
         String value = getFirstAdditionalFieldValue(objId, "simSpatialDimension");
         if (value == null) return; // There's nothing to do if there is no value
@@ -292,10 +319,10 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
         addKeyword(
                 mdIdentification,
-                BAW_MODEL_KEYWORD_TYPE,
+                BAW_DEFAULT_KEYWORD_TYPE,
                 thesaurusTitle,
                 BAW_MODEL_THESAURUS_DATE,
-                BAW_MODEL_THESAURUS_DATE_TYPE,
+                BAW_DEFAULT_THESAURUS_DATE_TYPE,
                 value);
     }
 
@@ -308,10 +335,10 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
         addKeyword(
                 mdIdentification,
-                BAW_MODEL_KEYWORD_TYPE,
+                BAW_DEFAULT_KEYWORD_TYPE,
                 thesaurusTitle,
                 BAW_MODEL_THESAURUS_DATE,
-                BAW_MODEL_THESAURUS_DATE_TYPE,
+                BAW_DEFAULT_THESAURUS_DATE_TYPE,
                 value);
     }
 
@@ -319,6 +346,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         List<Map<String, String>> rows = getOrderedAdditionalFieldDataTableRowData(objId, "simModelType");
         if (rows.isEmpty()) return;
 
+        // Collect keywords to add them to the same descriptiveKeywords element
         String thesaurusTitle = BAW_MODEL_THESAURUS_TITLE_PREFIX + "type";
         List<String> allValues = new ArrayList<>(rows.size());
         for(Map<String, String> row: rows) {
@@ -332,10 +360,10 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         }
         addKeyword(
                 mdIdentification,
-                BAW_MODEL_KEYWORD_TYPE,
+                BAW_DEFAULT_KEYWORD_TYPE,
                 thesaurusTitle,
                 BAW_MODEL_THESAURUS_DATE,
-                BAW_MODEL_THESAURUS_DATE_TYPE,
+                BAW_DEFAULT_THESAURUS_DATE_TYPE,
                 allValues.toArray(new String[allValues.size()]));
     }
 
