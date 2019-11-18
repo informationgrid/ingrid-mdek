@@ -36,8 +36,13 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private static final String BAW_MODEL_THESAURUS_DATE = "2017-01-17";
     private static final String BAW_MODEL_THESAURUS_DATE_TYPE = "publication";
 
+    private static final String VV_WSV_1103_TITLE = "VV-WSV 1103";
+    private static final String VV_WSV_1103_DATE = "2019-05-29";
+    private static final String VV_WSV_1103_DATE_TYPE = "publication";
+
     private static final int BAW_MODEL_TYPE_CODELIST_ID = 3950003;
     private static final int BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID = 3950004;
+    private static final int VV_1103_CODELIST_ID = 3950010;
 
     private static final String GCO_CHARACTER_STRING_QNAME = "gco:CharacterString";
     private static final String VALUE_UNIT_ID_PREFIX = "valueUnit_";
@@ -145,6 +150,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
             setHierarchyLevelName(mdMetadata, objId);
             addAuftragsInfos(mdIdentification, objId);
+            addBWaStrIdentifiers(mdIdentification, objId);
             addSimSpatialDimensionKeyword(mdIdentification, objId);
             addSimModelMethodKeyword(mdIdentification, objId);
             addSimModelTypeKeywords(mdIdentification, objId);
@@ -215,6 +221,66 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 .addAttribute("gco:nilReason", "unknown");
         aggInfoCitationElement.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code")
                 .addText(number);
+    }
+
+    private void addBWaStrIdentifiers(IdfElement mdIdentification, Long objId) throws SQLException {
+        Map<Integer, Map<String, String>> rows = getOrderedAdditionalFieldDataTableRows(objId, "bwastrTable");
+
+        String extentQname = "gmd:extent";
+        IdfElement previousSibling = findPreviousSibling(extentQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
+
+        for(Map.Entry<Integer, Map<String, String>> entry: rows.entrySet()) { // Sorted by index of table row
+            Map<String, String> currentRow = entry.getValue();
+            LOG.debug("Current BWaStr. Table Row: " + currentRow);
+
+            String bwastrIdString = currentRow.get("bwastr_name");
+            String bwastrKmStart = currentRow.get("bwastr_km_start");
+            String bwastrKmEnd = currentRow.get("bwastr_km_end");
+
+
+            int entryId = Integer.parseInt(bwastrIdString);
+            String identifier = trafoUtil.getIGCSyslistEntryName(VV_1103_CODELIST_ID, entryId);
+            if (identifier != null) {
+                previousSibling = addBWaStrExtentElement(mdIdentification, previousSibling, identifier);
+            }
+
+            if (bwastrKmStart != null && bwastrKmEnd != null) {
+                previousSibling = addBWaStrExtentElement(mdIdentification, previousSibling, String.format("%s-%s-%s", bwastrIdString, bwastrKmStart, bwastrKmEnd));
+            }
+
+        }
+    }
+
+    private IdfElement addBWaStrExtentElement(IdfElement mdIdentification, IdfElement previousSibling, String identifier) {
+        String extentQname = "gmd:extent";
+        IdfElement extentElement;
+        if (previousSibling == null) {
+            extentElement = mdIdentification.addElement(extentQname);
+        } else {
+            extentElement = previousSibling.addElementAsSibling(extentQname);
+        }
+
+        IdfElement exGeographicExtentElement = extentElement.addElement("gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicDescription");
+        exGeographicExtentElement.addElement("gmd:extentTypeCode/gco:Boolean")
+                .addText("true");
+
+        IdfElement mdIdentifierElement = exGeographicExtentElement.addElement("gmd:geographicIdentifier/gmd:MD_Identifier");
+
+        IdfElement ciCitationElement = mdIdentifierElement.addElement("gmd:authority/gmd:CI_Citation");
+        ciCitationElement.addElement("gmd:title/gco:CharacterString")
+                .addText(VV_WSV_1103_TITLE);
+
+        IdfElement ciDateElement = ciCitationElement.addElement("gmd:date/gmd:CI_Date");
+        ciDateElement.addElement("gmd:date/gco:Date")
+                .addText(VV_WSV_1103_DATE);
+        ciDateElement.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                .addAttribute("codeList", CODELIST_URL + "CI_DateTypeCode")
+                .addAttribute("codeListValue", VV_WSV_1103_DATE_TYPE);
+
+        exGeographicExtentElement.addElement("gmd:code/gco:CharacterString")
+                .addText(identifier);
+
+        return extentElement;
     }
 
     private void addSimSpatialDimensionKeyword(IdfElement mdIdentification, Long objId) throws SQLException {
@@ -304,29 +370,16 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     }
 
     private void addDgsValues(Element mdMetadata, Long objId) throws SQLException {
-        String query;
-        query = "SELECT obj.sort, obj.field_key, obj.data FROM additional_field_data obj " +
-                "JOIN additional_field_data obj_parent ON obj_parent.id = obj.parent_field_id " +
-                "WHERE obj_parent.obj_id=? AND obj_parent.field_key=? " +
-                "ORDER BY obj.sort";
-        List<Map<String, String>> allRows = sqlUtils.all(query, new Object[]{objId, "simParamTable"});
-        if (allRows == null) return; // No rows, nothing to do
+        Map<Integer, Map<String, String>> groupedRows = getOrderedAdditionalFieldDataTableRows(objId, "simParamTable");
 
-        Map<Integer, Map<String, String>> groupedRows = new TreeMap<>(); // Keys are sorted
-        for(Map<String, String> row: allRows) {
-            Integer sort = Integer.valueOf(row.get("sort"));
-            groupedRows.putIfAbsent(sort, new HashMap<>());
-            groupedRows.get(sort).put(row.get("field_key"), row.get("data"));
-        }
-
-        for(Integer sort: groupedRows.keySet()) {
+        for(Integer sort: groupedRows.keySet()) { // Sorted by index of table row
             Map<String, String> row = groupedRows.get(sort);
             boolean areValuesDiscrete = Boolean.parseBoolean(row.get("simParamHasDiscreteValues"));
             String name = row.get("simParamName");
             String type = trafoUtil.getIGCSyslistEntryName(BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID, Integer.parseInt(row.get("simParamType")));
             String units = row.get("simParamUnit");
 
-            query = "SELECT obj.data FROM additional_field_data obj " +
+            String query = "SELECT obj.data FROM additional_field_data obj " +
                     "JOIN additional_field_data obj_p ON obj_p.id = obj.parent_field_id " +
                     "JOIN additional_field_data obj_gp ON obj_gp.id = obj_p.parent_field_id " +
                     "WHERE obj_gp.obj_id=? AND obj_p.sort=? AND obj.field_key=? " +
@@ -527,6 +580,24 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 "ORDER BY obj_parent.sort";
         List<Map<String, String>> result = sqlUtils.all(query, new Object[]{objId, fieldKey});
         return result == null ? Collections.emptyList() : result;
+    }
+
+    private Map<Integer, Map<String, String>> getOrderedAdditionalFieldDataTableRows(Long objId, String fieldKey) throws SQLException {
+        String query;
+        query = "SELECT obj.sort, obj.field_key, obj.data FROM additional_field_data obj " +
+                "JOIN additional_field_data obj_parent ON obj_parent.id = obj.parent_field_id " +
+                "WHERE obj_parent.obj_id=? AND obj_parent.field_key=? " +
+                "ORDER BY obj.sort";
+        List<Map<String, String>> allRows = sqlUtils.all(query, new Object[]{objId, fieldKey});
+        if (allRows == null) return Collections.emptyMap();
+
+        Map<Integer, Map<String, String>> groupedRows = new TreeMap<>(); // Keys are sorted
+        for(Map<String, String> row: allRows) {
+            Integer sort = Integer.valueOf(row.get("sort"));
+            groupedRows.putIfAbsent(sort, new HashMap<>());
+            groupedRows.get(sort).put(row.get("field_key"), row.get("data"));
+        }
+        return groupedRows;
     }
 
     private void addElementWithUnits(Element mdMetadata, IdfElement parent, String qname, String units) {
