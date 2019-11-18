@@ -316,7 +316,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     }
 
     private void addSimModelTypeKeywords(IdfElement mdIdentification, Long objId) throws SQLException {
-        List<Map<String, String>> rows = getL2AdditionalFieldDataRows(objId, "simModelType");
+        List<Map<String, String>> rows = getOrderedAdditionalFieldDataTableRowData(objId, "simModelType");
         if (rows.isEmpty()) return;
 
         String thesaurusTitle = BAW_MODEL_THESAURUS_TITLE_PREFIX + "type";
@@ -573,7 +573,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         }
     }
 
-    private List<Map<String, String>> getL2AdditionalFieldDataRows(Long objId, String fieldKey) throws SQLException {
+    private List<Map<String, String>> getOrderedAdditionalFieldDataTableRowData(Long objId, String fieldKey) throws SQLException {
         String query = "SELECT obj.data FROM additional_field_data obj " +
                 "JOIN additional_field_data obj_parent ON obj_parent.id = obj.parent_field_id " +
                 "WHERE obj_parent.obj_id=? AND obj.field_key=? " +
