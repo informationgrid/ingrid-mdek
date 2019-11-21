@@ -1315,6 +1315,9 @@ public class MdekKeys {
     /** Value: String */
     public final static String PRIORITY_DATASET_VALUE = "priority-dataset-value";
 
+    /** Value: Integer */
+    public final static String SPATIAL_SCOPE = "spatial-scope";
+
 
     // SPATIAL SYSTEMS
     /** Value: List< IngridDocument >  */

@@ -796,7 +796,38 @@ for (i=0; i<objRows.size(); i++) {
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
-    
+
+    // spatial scope
+    row = SQL.first("SELECT spatial_scope FROM t01_object WHERE id=?", [+objId]);
+    if (hasValue(row)) {
+        var spatialScopeId = row.get("spatial_scope");
+        var name = TRANSF.getIGCSyslistEntryName(6360, spatialScopeId);
+        var data = TRANSF.getISOCodeListEntryData(6360, name);
+        var dataJson;
+        try {
+            dataJson = JSON.parse(data);
+        } catch(err) {
+            log.error("Error getting data from from Spatial Scope in Codelist 6360");
+        }
+        mdKeywords = DOM.createElement("gmd:MD_Keywords");
+        mdKeywords.addElement("gmd:keyword/gmx:Anchor")
+            .addAttribute("xlink:href", dataJson.url)
+            .addText(name);
+
+        var citation = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
+        citation.addElement("gmd:title/gmx:Anchor")
+            .addAttribute("xlink:href", dataJson.thesaurusId)
+            .addText(dataJson.thesaurusTitle);
+
+        // TODO: add date if INSPIRE-registry contains it finally
+        var citationDate = citation.addElement("gmd:date/gmd:CI_Date");
+        citationDate.addElement("gmd:date/gco:Date").addText("2019-05-22");
+        citationDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+            .addAttribute("codeListValue", "publication")
+            .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode");
+
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
     
     // if open data is checked then also add categories to thesaurus
     // ATTENTION: since LGV Hamburg wants their categories always displayed, they also want

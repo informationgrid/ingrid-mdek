@@ -426,6 +426,8 @@ public class DocToBeanMapper implements IMapper {
 			oIn.setModUuid(extractModUserUuid(oDocIn));
 			oIn.setResponsibleUuid(extractResponsibleUserUuid(oDocIn));
 
+			oIn.setSpatialScope((Integer)oDocIn.get(MdekKeys.SPATIAL_SCOPE));
+
 			// update associations
 			updateObjectReferences((List<IngridDocument>) oDocIn.get(MdekKeys.OBJ_REFERENCES_TO), oIn);
 			//updateObjectFromReferences((List<IngridDocument>) oDocIn.get(MdekKeys.OBJ_REFERENCES_FROM), oIn);
@@ -496,7 +498,7 @@ public class DocToBeanMapper implements IMapper {
 		return oIn;
 	}
 
-    public T02Address mapT02Address(IngridDocument aDocIn, T02Address aIn, MappingQuantity howMuch) {
+	public T02Address mapT02Address(IngridDocument aDocIn, T02Address aIn, MappingQuantity howMuch) {
 
 		aIn.setAdrUuid(aDocIn.getString(MdekKeys.UUID));
 		aIn.setAdrType((Integer) aDocIn.get(MdekKeys.CLASS));

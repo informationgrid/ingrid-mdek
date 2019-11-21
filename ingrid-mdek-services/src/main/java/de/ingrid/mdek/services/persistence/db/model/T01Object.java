@@ -76,6 +76,7 @@ public class T01Object implements IEntity {
 	private String modUuid;
 	private String responsibleUuid;
 	private Date toBePublishedOn;
+	private Integer spatialScope;
 
 	private Set additionalFieldDatas = new HashSet();
 	private Set objectAccesss = new HashSet();
@@ -771,5 +772,13 @@ public class T01Object implements IEntity {
 
 	public void setParentIdentifier(String parentIdentifier) {
 		this.parentIdentifier = parentIdentifier;
+	}
+
+	public Integer getSpatialScope() {
+		return spatialScope;
+	}
+
+	public void setSpatialScope(Integer spatialScope) {
+		this.spatialScope = spatialScope;
 	}
 }
