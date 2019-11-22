@@ -185,7 +185,7 @@ for (var i=0; i<objRows.size(); i++) {
         var addrId = adrValueRow.get("id");
         var parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
 
-        var parentAddress = []
+        var parentAddress = [];
         
         if(hasValue(parentAdressRow)){
             parentAddress.push(parentAdressRow);
@@ -193,7 +193,7 @@ for (var i=0; i<objRows.size(); i++) {
         while (hasValue(parentAdressRow)) {
             addrId = parentAdressRow.get("id");
             parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
-            if(hasValue(parentAdressRow)){
+            if(hasValue(parentAdressRow) && !isHiddenAddress(parentAdressRow)){
                 parentAddress.push(parentAdressRow);
             }
         }
@@ -202,7 +202,7 @@ for (var i=0; i<objRows.size(); i++) {
             addAddressRow(parentAddress[index]);
         }
         
-        if(hasValue(adrValueRow)){
+        if(!isHiddenAddress(adrValueRow)){
             addAddressRow(adrValueRow);
         }
     }
@@ -254,6 +254,10 @@ for (var i=0; i<objRows.size(); i++) {
             IDX.add("needs_examination", true);
         }
     }
+}
+
+function isHiddenAddress(adrRow) {
+    return adrRow["hide_address"] === "Y";
 }
 
 function addAddressRow(adrValueRow){
