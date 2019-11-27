@@ -1988,6 +1988,8 @@ function addResourceConstraints(identificationInfo, objRow) {
             // Use gmx:Anchor element for more information (https://redmine.informationgrid.eu/issues/1218)
             // and remove additional text "Nutzungsbedingungen: " as described in the ticket if license is
             // "Es gelten keine Bedingungen"
+            //
+            // as of #1220 all prefixes "Nutzungsbedingungen: " must be removed
             log.debug("LicenseKey=" + licenseKey);
             if (licenseKey === "26") {
                 mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor")
@@ -1995,8 +1997,7 @@ function addResourceConstraints(identificationInfo, objRow) {
                     .addText(licenseText);
             } else {
                 mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString")
-                    .addText("Nutzungsbedingungen: " + licenseText);
-
+                    .addText( licenseText);
             }
 
             var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
