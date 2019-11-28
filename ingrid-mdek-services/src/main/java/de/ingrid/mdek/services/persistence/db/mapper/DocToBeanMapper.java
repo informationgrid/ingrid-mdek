@@ -53,7 +53,6 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
-import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
@@ -530,7 +529,6 @@ public class DocToBeanMapper implements IMapper {
             updateObjectUseConstraints(oDocIn, oIn);
 			updateObjectOpenDataCategorys(oDocIn, oIn);
 			updateObjectDataQualitys(oDocIn, oIn);
-			updateObjectFormatInspires(oDocIn, oIn);
 			updateSpatialSystems(oDocIn, oIn);
 			updateObjectMetadata(oDocIn, oIn);
             updateObjectDataLanguages(oDocIn, oIn);
@@ -2855,43 +2853,6 @@ public class DocToBeanMapper implements IMapper {
 		for (IngridDocument refDoc : refDocs) {
 			// add all as new ones
 			ObjectDataQuality ref = mapObjectDataQuality(oIn, refDoc, new ObjectDataQuality(), line);
-			refs.add(ref);
-			line++;
-		}
-	}
-
-	private ObjectFormatInspire mapObjectFormatInspire(T01Object oFrom,
-			IngridDocument refDoc,
-			ObjectFormatInspire ref, 
-			int line)
-	{
-		ref.setObjId(oFrom.getId());
-		ref.setFormatKey((Integer)refDoc.get(MdekKeys.FORMAT_KEY));
-		ref.setFormatValue(refDoc.getString(MdekKeys.FORMAT_VALUE));
-		ref.setDate((Date) refDoc.get(MdekKeys.FORMAT_DATE));
-		ref.setLine(line);
-		keyValueService.processKeyValue(ref);
-
-		return ref;
-	}
-	private void updateObjectFormatInspires(IngridDocument oDocIn, T01Object oIn) {
-		List<IngridDocument> refDocs = (List) oDocIn.get(MdekKeys.FORMAT_INSPIRE_LIST);
-		if (refDocs == null) {
-			refDocs = new ArrayList<IngridDocument>(0);
-		}
-		Set<ObjectFormatInspire> refs = oIn.getObjectFormatInspires();
-		ArrayList<ObjectFormatInspire> refs_unprocessed = new ArrayList<ObjectFormatInspire>(refs);
-		// remove all !
-		for (ObjectFormatInspire ref : refs_unprocessed) {
-			refs.remove(ref);
-			// delete-orphan doesn't work !!!?????
-			dao.makeTransient(ref);			
-		}		
-		// and add all new ones !
-		int line = 1;
-		for (IngridDocument refDoc : refDocs) {
-			// add all as new ones
-			ObjectFormatInspire ref = mapObjectFormatInspire(oIn, refDoc, new ObjectFormatInspire(), line);
 			refs.add(ref);
 			line++;
 		}

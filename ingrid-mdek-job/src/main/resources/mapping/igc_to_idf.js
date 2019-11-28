@@ -1250,31 +1250,7 @@ for (i=0; i<objRows.size(); i++) {
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
-        
-        // ---------- <idf:idfMdMetadata/gmd:applicationSchemaInfo> ----------
-        var objFormatInspireRows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
-        for (i=0; i<objFormatInspireRows.size(); i++) {
-            // ---------- <<gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation/gmd:name/gmd:CI_Citation> ----------
-            var mdApplicationCitation = mdMetadata
-                .addElement("gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation/gmd:name/gmd:CI_Citation");
-            formatWritten = true;
-            // ---------- <gmd:title/gco:CharacterString> ----------
-            formatValue = objFormatInspireRows.get(i).get("format_value");
-            mdApplicationCitation.addElement("gmd:title/gco:CharacterString").addText(formatValue);
 
-            // ---------- <gmd:MD_Format/gmd:version> ----------
-            var date = objFormatInspireRows.get(i).get("date");
-            if (hasValue(date)) {
-
-                var mdDate = mdApplicationCitation.addElement("gmd:date/gmd:CI_Date");
-                mdDate.addElement("gmd:date/gco:Date").addText(date);
-
-                mdDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                    .addAttribute("codeList", "http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode")
-                    .addAttribute("codeListValue", "publication")
-                    .addAttribute("codeSpace", "Domain Code");
-            }
-        }
     }
 
     // ---------- <idf:idfMdMetadata/idf:superiorReference> ----------

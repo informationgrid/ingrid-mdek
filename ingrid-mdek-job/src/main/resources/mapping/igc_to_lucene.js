@@ -384,11 +384,6 @@ for (i=0; i<objRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
         addObjectDataQuality(rows.get(j));
     }
-    // ---------- object_format_inspire ----------
-    var rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectFormatInspire(rows.get(j));
-    }
     // ---------- object data_languages ----------
     var rows = SQL.all("SELECT * FROM object_data_language WHERE obj_id=?", [+objId]);
     for (j=0; j<rows.size(); j++) {
@@ -948,11 +943,6 @@ function addObjectDataQuality(row) {
     IDX.add("object_data_quality.name_of_measure_value", row.get("name_of_measure_value"));
     IDX.add("object_data_quality.result_value", row.get("result_value"));
     IDX.add("object_data_quality.measure_description", row.get("measure_description"));
-}
-function addObjectFormatInspire(row) {
-    IDX.add("object_format_inspire.line", row.get("line"));
-    IDX.add("object_format_inspire.format_key", row.get("format_key"));
-    IDX.add("object_format_inspire.format_value", row.get("format_value"));
 }
 function addObjectOpenDataCategory(row) {
     // add as FREIER term, no alternate value

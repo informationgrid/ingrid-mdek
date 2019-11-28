@@ -40,7 +40,6 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
-import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
 import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
@@ -101,7 +100,6 @@ public class MdekKeyValueHandler {
 		T03Catalogue.class,
 		T01Object.class,
 		ObjectDataQuality.class,
-		ObjectFormatInspire.class,
 		AdditionalFieldData.class,
 		SpatialSystem.class,
 		ObjectTypesCatalogue.class,
@@ -181,8 +179,6 @@ public class MdekKeyValueHandler {
 			processKeyValueT01Object((T01Object) bean);
 		} else if (ObjectDataQuality.class.isAssignableFrom(clazz)) {
 			processKeyValueObjectDataQuality((ObjectDataQuality) bean);
-		} else if (ObjectFormatInspire.class.isAssignableFrom(clazz)) {
-			processKeyValueObjectFormatInspire((ObjectFormatInspire) bean);
 		} else if (AdditionalFieldData.class.isAssignableFrom(clazz)) {
 			processKeyValueAdditionalFieldData((AdditionalFieldData) bean);
 		} else if (SpatialSystem.class.isAssignableFrom(clazz)) {
@@ -680,19 +676,6 @@ public class MdekKeyValueHandler {
 			}
 		}
 		
-		return bean;
-	}
-
-	private IEntity processKeyValueObjectFormatInspire(ObjectFormatInspire bean) {
-		Integer entryKey = bean.getFormatKey();
-		if (entryKey != null && entryKey > -1) {
-			Map<Integer, String> keyNameMap = catalogService.getSysListKeyNameMap(
-				MdekSysList.OBJ_FORMAT_INSPIRE.getDbValue(),
-				catalogService.getCatalogLanguage());
-
-			bean.setFormatValue(keyNameMap.get(entryKey));
-		}
-
 		return bean;
 	}
 
