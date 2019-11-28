@@ -1175,13 +1175,6 @@ public class MdekExampleSupertool {
 				System.out.println("   " + doc);
 			}
 		}
-		docList = (List<IngridDocument>) oDoc.get(MdekKeys.FORMAT_INSPIRE_LIST);
-		if (docList != null && docList.size() > 0) {
-			System.out.println("  Object INSPIRE format list: " + docList.size() + " entries");
-			for (IngridDocument doc : docList) {
-				System.out.println("   " + doc);
-			}
-		}
 		docList = (List<IngridDocument>) oDoc.get(MdekKeys.SPATIAL_SYSTEM_LIST);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Object spatial system list: " + docList.size() + " entries");

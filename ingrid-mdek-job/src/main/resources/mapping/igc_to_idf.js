@@ -43,10 +43,11 @@ DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
 DOM.addNS("gco", "http://www.isotc211.org/2005/gco");
 DOM.addNS("srv", "http://www.isotc211.org/2005/srv");
 DOM.addNS("gml", "http://www.opengis.net/gml");
+DOM.addNS("gmx", "http://www.isotc211.org/2005/gmx");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
-var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml";
+var globalCodeListAttrURL = "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml";
 var globalCodeListLanguageAttrURL = "http://www.loc.gov/standards/iso639-2/";
 
 // ---------- <idf:html> ----------
@@ -63,6 +64,7 @@ mdMetadata.addAttribute("xmlns:gmd", DOM.getNS("gmd"));
 mdMetadata.addAttribute("xmlns:gco", DOM.getNS("gco"));
 mdMetadata.addAttribute("xmlns:srv", DOM.getNS("srv"));
 mdMetadata.addAttribute("xmlns:gml", DOM.getNS("gml"));
+mdMetadata.addAttribute("xmlns:gmx", DOM.getNS("gmx"));
 mdMetadata.addAttribute("xmlns:gts", DOM.getNS("gts"));
 mdMetadata.addAttribute("xmlns:xlink", DOM.getNS("xlink"));
 // and schema references
@@ -132,7 +134,12 @@ for (i=0; i<objRows.size(); i++) {
         // Should be only one row !
         objParentUuid = rows.get(0).get("fk_obj_uuid");
         if (hasValue(objParentUuid)) {
-            mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
+            // check if parent is a folder
+            // this query normally shoud return no value if parent is a folder, since they are never published ("V")
+            var parentObjRow = SQL.first("SELECT obj_class FROM t01_object WHERE obj_uuid=? and work_state=?", [objParentUuid, "V"]);
+            if (hasValue(parentObjRow) && !parentObjRow.get("obj_class").equals("1000")) {
+                mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
+            }
         }
     }
 // ---------- <gmd:hierarchyLevel> ----------
@@ -348,9 +355,13 @@ for (i=0; i<objRows.size(); i++) {
         }
         if (hasValue(referenceSystem)) {
             var rsIdentifier = mdMetadata.addElement("gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier/gmd:RS_Identifier");
-            rsIdentifier.addElement("gmd:code").addElement("gco:CharacterString").addText(referenceSystem);
             if (referenceSystem.startsWith("EPSG")) {
-                rsIdentifier.addElement("gmd:codeSpace/gco:CharacterString").addText("EPSG");
+                var EPSGCode = referenceSystem.substring(5, referenceSystem.indexOf(':'));
+                rsIdentifier.addElement("gmd:code").addElement("gmx:Anchor")
+                    .addAttribute("xlink:href", "http://www.opengis.net/def/crs/EPSG/0/" + EPSGCode)
+                    .addText(referenceSystem);
+            } else {
+                rsIdentifier.addElement("gmd:code").addElement("gco:CharacterString").addText(referenceSystem);
             }
         }
     }
@@ -1239,27 +1250,7 @@ for (i=0; i<objRows.size(); i++) {
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
-        
-        // ---------- <idf:idfMdMetadata/gmd:applicationSchemaInfo> ----------
-        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
-        for (i=0; i<rows.size(); i++) {
-            var formatKey = rows.get(i).get("format_key");
-            // if "Protected Sites - Simple GML Application Schema" or "Protected Sites - Full GML Application Schema"
-            if (formatKey == 13 || formatKey == 14) {
-                var appSchemaNode = mdMetadata.addElement("gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation");
-                appSchemaNode.addElement("gmd:name/gmd:CI_Citation/gmd:title/gco:CharacterString").addText(rows.get(i).get("format_value"))
-                             .getParent(2)
-                             .addElement("gmd:date/gmd:CI_Date/gmd:date/gco:DateTime").addText("2010-04-26T00:00:00")
-                             .getParent(2)
-                             .addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                                 .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
-                                 .addAttribute("codeListValue", "publication")
-                             .getParent(6)
-                             .addElement("gmd:schemaLanguage/gco:CharacterString").addText("GML")
-                             .getParent(2)
-                             .addElement("gmd:constraintLanguage/gco:CharacterString").addText("OCL");
-            }
-        }
+
     }
 
     // ---------- <idf:idfMdMetadata/idf:superiorReference> ----------
@@ -1595,17 +1586,17 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
         ciAddress.addElement("gmd:electronicMailAddress/gco:CharacterString").addText(emailAddresses[j]);
     }
     
-    // add hours of service (REDMINE-380)
-    if (hasValue(addressRow.get("hours_of_service"))) {
-    	ciAddress.addElement("gmd:hoursOfService/gco:CharacterString").addText(addressRow.get("hours_of_service"));
-    }
-
     if (!mapOnlyEmails) {
         // ISO only supports ONE url per contact
         if (urls.length > 0) {
             ciContact.addElement("gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(urls[0]);
         }
     }
+    // add hours of service (REDMINE-380, REDMINE-1284) 
+    if (hasValue(addressRow.get("hours_of_service"))) {
+    	ciContact.addElement("gmd:hoursOfService/gco:CharacterString").addText(addressRow.get("hours_of_service"));
+    }
+
     if (hasValue(role)) {
         idfResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
             .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
@@ -1947,7 +1938,10 @@ function addResourceConstraints(identificationInfo, objRow) {
         var termsOfUse = row.get("terms_of_use_value");
         if (hasValue(termsOfUse)) {
         	// also add "Nutzungseinschränkungen: " according to GDI-DE Konventionen page 17 !
-            identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText("Nutzungseinschränkungen: " + termsOfUse);
+            // #1220: remove prefix
+            identificationInfo
+                .addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString")
+                .addText(termsOfUse);
         }
     }
 
@@ -1956,28 +1950,34 @@ function addResourceConstraints(identificationInfo, objRow) {
     for (var i=0; i<rows.size(); i++) {
         row = rows.get(i);
 
-        var licenseText = TRANSF.getIGCSyslistEntryName(6500, row.get("license_key"));
+        var licenseKey = row.get("license_key");
+        var licenseText = TRANSF.getIGCSyslistEntryName(6500, licenseKey);
         if (!hasValue(licenseText)) {
         	licenseText = row.get("license_value");
         }
         
         if (hasValue(licenseText)) {
-            // i.S.v. INSPIRE
-        	// also add "Nutzungsbedingungen: " according to GDI-DE Konventionen page 17 !
-        	identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText("Nutzungsbedingungen: " + licenseText);
 
             var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-            // i.S.v. ISO 19115
-            mdLegalConstraints.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
-            	.addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-            	.addAttribute("codeListValue", "license");
             // i.S.v. ISO 19115
             mdLegalConstraints.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
             	.addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
             	.addAttribute("codeListValue", "otherRestrictions");
             // i.S.v. ISO 19115
         	// also add "Nutzungsbedingungen: " according to GDI-DE Konventionen page 17 !
-            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText("Nutzungsbedingungen: " + licenseText);
+            // Use gmx:Anchor element for more information (https://redmine.informationgrid.eu/issues/1218)
+            // and remove additional text "Nutzungsbedingungen: " as described in the ticket if license is
+            // "Es gelten keine Bedingungen"
+            log.debug("LicenseKey=" + licenseKey);
+            if (licenseKey === "26") {
+                mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor")
+                    .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
+                    .addText(licenseText);
+            } else {
+                mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString")
+                    .addText("Nutzungsbedingungen: " + licenseText);
+
+            }
 
             var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
             if (hasValue(licenseJSON)) {
@@ -2009,7 +2009,18 @@ function addResourceConstraints(identificationInfo, objRow) {
             value = TRANSF.getIGCSyslistEntryName(6010, row.get("restriction_key"));
             if (hasValue(value)) {
                 // value from IGC syslist, map as gmd:otherConstraints
-                otherConstraints.push(value);
+                var data = TRANSF.getISOCodeListEntryData(6010, value);
+                // log.debug("accessConstraints Data: " + data);
+
+                if (data) {
+                    var parsedData = JSON.parse(data);
+                    otherConstraints.push({
+                        text: parsedData["de"],
+                        link: parsedData["url"]
+                    });
+                } else {
+                    otherConstraints.push(value);
+                }
             } else {
                 // free entry, check whether ISO entry
                 value = row.get("restriction_value");
@@ -2041,7 +2052,18 @@ function addResourceConstraints(identificationInfo, objRow) {
                 .addAttribute("codeListValue", "otherRestrictions")
                 .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
                 .addText("otherRestrictions");
-            mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(otherConstraints[i]);
+
+            var constraint = otherConstraints[i];
+
+            if (constraint instanceof Object) {
+                var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor");
+                accessAnchor
+                    .addAttribute("xlink:href", constraint.link)
+                    .addText(constraint.text);
+            } else {
+                var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString");
+                accessAnchor.addText(otherConstraints[i]);
+            }
         }
     }
 
@@ -2209,39 +2231,6 @@ function addDistributionInfo(mdMetadata, objId) {
     nilMdFormatElement.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
     nilMdFormatElement.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
 
-    if (objClass.equals("1")) {
-        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
-        for (i=0; i<rows.size(); i++) {
-            if (!mdDistribution) {
-                mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
-            }
-            // ---------- <gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format> ----------
-            var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
-            formatWritten = true;
-            // ---------- <gmd:MD_Format/gmd:name> ----------
-            // ISO: first iso value, see INGRID-2337
-            var formatValue = TRANSF.getCodeListEntryFromIGCSyslistEntry(6300, rows.get(i).get("format_key"), "iso");
-            // if no iso then as usual
-            if (!hasValue(formatValue)) {
-                formatValue = rows.get(i).get("format_value");
-            }
-            mdFormat.addElement("gmd:name/gco:CharacterString").addText(formatValue);
-            // ---------- <gmd:MD_Format/gmd:version> ----------
-            var data = TRANSF.getISOCodeListEntryData(6300, formatValue);
-            var version = getParameterWithin(data, '"', 1);
-            if (!version || version.trim() === "")
-                mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
-            else
-                mdFormat.addElement("gmd:version/gco:CharacterString").addText(version);
-            // ---------- <gmd:MD_Format/gmd:specification> ----------
-            var specification = getParameterWithin(data, '"', 2);
-            if (!specification || specification.trim() === "")
-                mdFormat.addElement("gmd:specification").addAttribute("gco:nilReason", "unknown");
-            else
-                mdFormat.addElement("gmd:specification/gco:CharacterString").addText(specification);
-        }
-    }
-    
 // ALLE KLASSEN
 
     // ---------- <idf:idfMdMetadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
@@ -2265,9 +2254,10 @@ function addDistributionInfo(mdMetadata, objId) {
 //                .addElement("gco:CharacterString");
         }
             // ---------- <gmd:MD_Format/gmd:specification> ----------
-        if (hasValue(rows.get(i).get("specification"))) {
+        // Removed: see #1273
+        /*if (hasValue(rows.get(i).get("specification"))) {
             mdFormat.addElement("gmd:specification/gco:CharacterString").addText(rows.get(i).get("specification"));
-        }
+        }*/
             // ---------- <gmd:MD_Format/gmd:fileDecompressionTechnique> ----------
         if (hasValue(rows.get(i).get("file_decompression_technique"))) {
             mdFormat.addElement("gmd:fileDecompressionTechnique/gco:CharacterString").addText(rows.get(i).get("file_decompression_technique"));

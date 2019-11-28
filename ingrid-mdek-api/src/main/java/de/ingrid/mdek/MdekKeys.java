@@ -1300,13 +1300,6 @@ public class MdekKeys {
     /** Value: String */
     public final static String MEASURE_DESCRIPTION = "measure-description";
 
-    /** Value: List< IngridDocument > */
-    public final static String FORMAT_INSPIRE_LIST = "format_inspire_list";
-    /** Value: Integer */
-    public final static String FORMAT_KEY = "format-key";
-    /** Value: String */
-    public final static String FORMAT_VALUE = "format-value";
-
     // SPATIAL SYSTEMS
     /** Value: List< IngridDocument >  */
     public final static String SPATIAL_SYSTEM_LIST = "spatial-system-list";
