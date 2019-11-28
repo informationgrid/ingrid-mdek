@@ -826,7 +826,8 @@ for (i=0; i<objRows.size(); i++) {
             citationDate.addElement("gmd:date/gco:Date").addText("2019-05-22");
             citationDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                 .addAttribute("codeListValue", "publication")
-                .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode");
+                .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
+                .addText("publication");
 
             identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
         }
@@ -855,8 +856,9 @@ for (i=0; i<objRows.size(); i++) {
 	    var thesCitDate = thesCit.addElement("gmd:date/gmd:CI_Date");
 	    thesCitDate.addElement("gmd:date/gco:Date").addText("2012-11-27");
 	    thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-	    .addAttribute("codeListValue", "publication")
-	    .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode");
+            .addAttribute("codeListValue", "publication")
+            .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
+            .addText("publication");
 	    identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
@@ -1245,7 +1247,8 @@ for (i=0; i<objRows.size(); i++) {
                 ciDate.addElement("gmd:date/gco:Date").addText("2006-05-01");
                 ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                     .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
-                    .addAttribute("codeListValue", "publication");
+                    .addAttribute("codeListValue", "publication")
+                    .addText("publication");
             }
         }
 
@@ -1306,6 +1309,7 @@ for (i=0; i<objRows.size(); i++) {
                              .addElement("gmd:dateType/gmd:CI_DateTypeCode")
                                  .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
                                  .addAttribute("codeListValue", "publication")
+                                 .addText("publication")
                              .getParent(6)
                              .addElement("gmd:schemaLanguage/gco:CharacterString").addText("GML")
                              .getParent(2)
@@ -1968,7 +1972,8 @@ function getMdKeywords(rows) {
     thesCitDate.addElement("gmd:date/gco:Date").addText(keywDate);
     thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
         .addAttribute("codeListValue", "publication")
-        .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode");
+        .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
+        .addText("publication");
 
     return mdKeywords;
 }
