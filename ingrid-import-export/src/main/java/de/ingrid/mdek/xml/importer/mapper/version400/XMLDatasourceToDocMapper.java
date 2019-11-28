@@ -310,9 +310,9 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapGeneralAdditionalValues(Document source, IngridDocument target) {
 		NodeList additionalValues = XPathUtils.getNodeList(source, X_GENERAL_ADDITIONAL_VALUE_LIST);
-		List<IngridDocument> additionalValuesList = new ArrayList<IngridDocument>();
+		List<IngridDocument> additionalValuesList = new ArrayList<>();
 
-		Map<String, IngridDocument> fieldKeyToDocMap = new HashMap<String, IngridDocument>();
+		Map<String, IngridDocument> fieldKeyToDocMap = new HashMap<>();
 		for (int index = 0; index < additionalValues.getLength(); ++index) {
 			Node additionalValue = additionalValues.item(index);
 			addAdditionalValue(additionalValue, additionalValuesList, fieldKeyToDocMap);
@@ -336,7 +336,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			if (tableDoc == null) {
 				tableDoc = new IngridDocument();
 				tableDoc.put(MdekKeys.ADDITIONAL_FIELD_KEY, parentKey);
-				List<List<IngridDocument>> rowList = new ArrayList<List<IngridDocument>>();
+				List<List<IngridDocument>> rowList = new ArrayList<>();
 				tableDoc.put(MdekKeys.ADDITIONAL_FIELD_ROWS, rowList);
 				fieldKeyToDocMap.put(parentKey, tableDoc);
 				// also add to top list if not present (no table in table)
@@ -345,7 +345,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			Integer line = XPathUtils.getInt(additionalValue, X_GENERAL_ADDITIONAL_VALUE_LINE);
 			List<List<IngridDocument>> rowList = (List<List<IngridDocument>>) tableDoc.get(MdekKeys.ADDITIONAL_FIELD_ROWS);
 			while (rowList.size() < line) {
-				rowList.add(new ArrayList<IngridDocument>());
+				rowList.add(new ArrayList<>());
 			}
 			List<IngridDocument> colList = rowList.get(line-1);
 			IngridDocument dynRef = fieldKeyToDocMap.get(additionalValueDoc.get( MdekKeys.ADDITIONAL_FIELD_KEY ));
@@ -367,7 +367,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapOpenDataCategories(Document source, IngridDocument target) {
 		NodeList openDataCats = XPathUtils.getNodeList(source, X_OPEN_DATA_CATEGORIES);
-		List<IngridDocument> openDataCatList = new ArrayList<IngridDocument>();
+		List<IngridDocument> openDataCatList = new ArrayList<>();
 
 		for (int index = 0; index < openDataCats.getLength(); index++) {
 			Node openDataCat = openDataCats.item(index);
@@ -419,7 +419,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapDatasetParameter(Node domainNode, IngridDocument target) {
 		NodeList parameterNodeList = XPathUtils.getNodeList(domainNode, X_DATASET_PARAMETER_LIST);
-		List<IngridDocument> parameters = new ArrayList<IngridDocument>();
+		List<IngridDocument> parameters = new ArrayList<>();
 		for (int index = 0; index < parameterNodeList.getLength(); ++index) {
 			Node parameter = parameterNodeList.item(index);
 			IngridDocument parameterDoc = new IngridDocument();
@@ -462,7 +462,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapServiceClassifications(Node service, IngridDocument target) {
 		NodeList serviceClassificNodeList = XPathUtils.getNodeList(service, X_SERVICE_CLASSIFICATION_LIST);
-		List<IngridDocument> serviceClassificDocs = new ArrayList<IngridDocument>();
+		List<IngridDocument> serviceClassificDocs = new ArrayList<>();
 
 		for (int index = 0; index < serviceClassificNodeList.getLength(); index++) {
 			Node serviceClassific = serviceClassificNodeList.item(index);
@@ -477,7 +477,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapPublicationScales(Node context, IngridDocument target) {
 		NodeList publicationScaleNodeList = XPathUtils.getNodeList(context, X_PUBLICATION_SCALE_LIST);
-		List<IngridDocument> publicationScales = new ArrayList<IngridDocument>();
+		List<IngridDocument> publicationScales = new ArrayList<>();
 
 		for (int index = 0; index < publicationScaleNodeList.getLength(); index++) {
 			Node publicationScale = publicationScaleNodeList.item(index);
@@ -493,7 +493,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
     private static void mapServiceVersions(Node service, IngridDocument target) {
         NodeList serviceVersionNodeList = XPathUtils.getNodeList(service, X_SERVICE_VERSION_LIST);
-        List<IngridDocument> serviceVersionDocs = new ArrayList<IngridDocument>();
+        List<IngridDocument> serviceVersionDocs = new ArrayList<>();
 
         for (int index = 0; index < serviceVersionNodeList.getLength(); index++) {
             Node serviceVersion = serviceVersionNodeList.item(index);
@@ -508,7 +508,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapServiceOperations(Node service, IngridDocument target) {
 		NodeList serviceOperationList = XPathUtils.getNodeList(service, X_SERVICE_OPERATION_LIST);
-		ArrayList<IngridDocument> serviceOperations = new ArrayList<IngridDocument>();
+		ArrayList<IngridDocument> serviceOperations = new ArrayList<>();
 
 		for (int index = 0; index < serviceOperationList.getLength(); index++) {
 			Node serviceOperation = serviceOperationList.item(index);
@@ -528,7 +528,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	}
 
 	private static void mapPlatformsOfOperation(Node operationContext, IngridDocument operationDoc) {
-		List<IngridDocument> platformsList = new ArrayList<IngridDocument>();
+		List<IngridDocument> platformsList = new ArrayList<>();
 		NodeList platformsOfOperation = XPathUtils.getNodeList(operationContext, X_SERVICE_PLATFORM_LIST);
 
 		for (int index = 0; index < platformsOfOperation.getLength(); index++) {
@@ -543,7 +543,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	}
 
 	private static void mapParametersOfOperation(Node operationContext, IngridDocument operationDoc) {
-		List<IngridDocument> parameterList = new ArrayList<IngridDocument>();
+		List<IngridDocument> parameterList = new ArrayList<>();
 		NodeList parametersOfOperation = XPathUtils.getNodeList(operationContext, X_SERVICE_OPERATION_PARAMETER_LIST);
 
 		for (int index = 0; index < parametersOfOperation.getLength(); index++) {
@@ -562,7 +562,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapServiceUrls(Node context, IngridDocument target) {
 		NodeList serviceUrlNodeList = XPathUtils.getNodeList(context, X_SERVICE_URL_LIST);
-		List<IngridDocument> serviceUrlDocs = new ArrayList<IngridDocument>();
+		List<IngridDocument> serviceUrlDocs = new ArrayList<>();
 
 		for (int index = 0; index < serviceUrlNodeList.getLength(); index++) {
 			Node serviceUrl = serviceUrlNodeList.item(index);
@@ -648,7 +648,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapKeyCatalogue(Node domainNode, IngridDocument target, String keyOfTechnicalDomain) {
 		NodeList keyCatalogues = XPathUtils.getNodeList(domainNode, X_MAP_AND_DATASET_KEY_CATALOGUE_LIST);
-		List<IngridDocument> keyCatalogueList = new ArrayList<IngridDocument>();
+		List<IngridDocument> keyCatalogueList = new ArrayList<>();
 
 		for (int index = 0; index < keyCatalogues.getLength(); index++) {
 			Node keyCatalogue = keyCatalogues.item(index);
@@ -666,7 +666,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapSymbolCatalogue(Node mapContext, IngridDocument target) {
 		NodeList symbolCatalogues = XPathUtils.getNodeList(mapContext, X_MAP_SYMBOL_CATALOGUE_LIST);
-		List<IngridDocument> symbolCatalogueList = new ArrayList<IngridDocument>();
+		List<IngridDocument> symbolCatalogueList = new ArrayList<>();
 
 		for (int index = 0; index < symbolCatalogues.getLength(); index++) {
 			Node symbolCatalogue = symbolCatalogues.item(index);
@@ -684,7 +684,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapGeoVectors(Node mapContext, IngridDocument target) {
 		NodeList geoVectors = XPathUtils.getNodeList(mapContext, X_MAP_GEO_VECTOR_LIST);
-		List<IngridDocument> geoVectorList = new ArrayList<IngridDocument>();
+		List<IngridDocument> geoVectorList = new ArrayList<>();
 
 		for (int index = 0; index < geoVectors.getLength(); index++) {
 			Node geoVector = geoVectors.item(index);
@@ -727,7 +727,6 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		mapUseConstraints(source, target);
 		mapMediumOptions(source, target);
 		mapDataFormats(source, target);
-		mapDataFormatsInspire(source, target);
 		putInt(MdekKeys.PUBLICATION_CONDITION,
 				XPathUtils.getInt(source, X_ADDITIONAL_PUBLICATION_CONDITION), target);
 		putString(MdekKeys.DATASET_USAGE,
@@ -741,7 +740,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapExportTos(Document source, IngridDocument target) {
 		NodeList exportTos = XPathUtils.getNodeList(source, X_ADDITIONAL_EXPORT_TO_LIST);
-		List<IngridDocument> exportToList = new ArrayList<IngridDocument>();
+		List<IngridDocument> exportToList = new ArrayList<>();
 
 		for (int index = 0; index < exportTos.getLength(); index++) {
 			Node exportTo = exportTos.item(index);
@@ -756,7 +755,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapLegislations(Document source, IngridDocument target) {
 		NodeList legislations = XPathUtils.getNodeList(source, X_ADDITIONAL_LEGISLATION_LIST);
-		List<IngridDocument> legislationList = new ArrayList<IngridDocument>();
+		List<IngridDocument> legislationList = new ArrayList<>();
 
 		for (int index = 0; index < legislations.getLength(); index++) {
 			Node legislation = legislations.item(index);
@@ -771,7 +770,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapAccessConstraints(Document source, IngridDocument target) {
 		NodeList accessConstraints = XPathUtils.getNodeList(source, X_ADDITIONAL_ACCESS_CONSTRAINT_LIST);
-		List<IngridDocument> accessConstraintList = new ArrayList<IngridDocument>();
+		List<IngridDocument> accessConstraintList = new ArrayList<>();
 
 		for (int index = 0; index < accessConstraints.getLength(); index++) {
 			Node accessConstraint = accessConstraints.item(index);
@@ -787,7 +786,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
     private static void mapUseLimitations(Document source, IngridDocument target) {
         NodeList useLimitations = XPathUtils.getNodeList(source, X_ADDITIONAL_USE_LIMITATION_LIST);
-        List<IngridDocument> useLimitationList = new ArrayList<IngridDocument>();
+        List<IngridDocument> useLimitationList = new ArrayList<>();
 
         for (int index = 0; index < useLimitations.getLength(); index++) {
             Node useLimitation = useLimitations.item(index);
@@ -803,7 +802,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapUseConstraints(Document source, IngridDocument target) {
 		NodeList useConstraints = XPathUtils.getNodeList(source, X_ADDITIONAL_USE_CONSTRAINT_LIST);
-		List<IngridDocument> useConstraintList = new ArrayList<IngridDocument>();
+		List<IngridDocument> useConstraintList = new ArrayList<>();
 
 		for (int index = 0; index < useConstraints.getLength(); index++) {
 			Node useConstraint = useConstraints.item(index);
@@ -819,7 +818,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapMediumOptions(Document source, IngridDocument target) {
 		NodeList mediumOptions = XPathUtils.getNodeList(source, X_ADDITIONAL_MEDIUM_OPTION_LIST);
-		List<IngridDocument> mediumOptionList = new ArrayList<IngridDocument>();
+		List<IngridDocument> mediumOptionList = new ArrayList<>();
 
 		for (int index = 0; index < mediumOptions.getLength(); index++) {
 			Node mediumOption = mediumOptions.item(index);
@@ -836,7 +835,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapDataFormats(Document source, IngridDocument target) {
 		NodeList dataFormats = XPathUtils.getNodeList(source, X_ADDITIONAL_DATA_FORMAT_LIST);
-		List<IngridDocument> dataFormatList = new ArrayList<IngridDocument>();
+		List<IngridDocument> dataFormatList = new ArrayList<>();
 
 		for (int index = 0; index < dataFormats.getLength(); index++) {
 			Node dataFormat = dataFormats.item(index);
@@ -853,25 +852,9 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putDocList(MdekKeys.DATA_FORMATS, dataFormatList, target);
 	}
 
-	private static void mapDataFormatsInspire(Document source, IngridDocument target) {
-		NodeList formats = XPathUtils.getNodeList(source, X_ADDITIONAL_DATA_FORMAT_INSPIRE_LIST);
-		List<IngridDocument> formatList = new ArrayList<IngridDocument>();
-
-		for (int index = 0; index < formats.getLength(); index++) {
-			Node format = formats.item(index);
-			IngridDocument formatDoc = new IngridDocument();
-			putString(MdekKeys.FORMAT_VALUE, XPathUtils.getString(format, X_ADDITIONAL_DATA_FORMAT_INSPIRE_NAME), formatDoc);
-			putInt(MdekKeys.FORMAT_KEY, XPathUtils.getInt(format, X_ADDITIONAL_DATA_FORMAT_INSPIRE_NAME_KEY), formatDoc);
-
-			formatList.add(formatDoc);
-		}
-
-		putDocList(MdekKeys.FORMAT_INSPIRE_LIST, formatList, target);
-	}
-
 	private static void mapComments(Document source, IngridDocument target) {
 		NodeList comments = XPathUtils.getNodeList(source, X_ADDITIONAL_COMMENT_LIST);
-		List<IngridDocument> commentList = new ArrayList<IngridDocument>();
+		List<IngridDocument> commentList = new ArrayList<>();
 
 		for (int index = 0; index < comments.getLength(); index++) {
 			Node comment = comments.item(index);
@@ -888,7 +871,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapConformities(Document source, IngridDocument target) {
 		NodeList conformities = XPathUtils.getNodeList(source, X_ADDITIONAL_CONFORMITY_LIST);
-		List<IngridDocument> conformityList = new ArrayList<IngridDocument>();
+		List<IngridDocument> conformityList = new ArrayList<>();
 
 		for (int index = 0; index < conformities.getLength(); index++) {
 			Node conformity = conformities.item(index);
@@ -906,7 +889,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapDQs(Document source, IngridDocument target) {
 		NodeList nodeList = XPathUtils.getNodeList(source, X_ADDITIONAL_DQ_LIST);
-		List<IngridDocument> dqList = new ArrayList<IngridDocument>();
+		List<IngridDocument> dqList = new ArrayList<>();
 
 		for (int index = 0; index < nodeList.getLength(); index++) {
 			Node node = nodeList.item(index);
@@ -936,7 +919,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapCoordinateSystems(Document source, IngridDocument target) {
 		NodeList coordSystemNodes = XPathUtils.getNodeList(source, X_SPATIAL_COORDINATE_SYSTEM_LIST);
-		List<IngridDocument> docList = new ArrayList<IngridDocument>();
+		List<IngridDocument> docList = new ArrayList<>();
 
 		for (int index = 0; index < coordSystemNodes.getLength(); index++) {
 			Node coordSystemNode = coordSystemNodes.item(index);
@@ -951,7 +934,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapGeoLocations(Document source, IngridDocument target) {
 		NodeList geoLocations = XPathUtils.getNodeList(source, X_SPATIAL_GEO_LIST);
-		List<IngridDocument> geoLocationList = new ArrayList<IngridDocument>();
+		List<IngridDocument> geoLocationList = new ArrayList<>();
 
 		for (int index = 0; index < geoLocations.getLength(); index++) {
 			Node geoLocation = geoLocations.item(index);
@@ -1025,7 +1008,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapDatasetReferences(Document source, IngridDocument target) {
 		NodeList datasetReferences = XPathUtils.getNodeList(source, X_TEMPORAL_DATASET_REFERENCE_LIST);
-		List<IngridDocument> datasetReferenceList = new ArrayList<IngridDocument>();
+		List<IngridDocument> datasetReferenceList = new ArrayList<>();
 
 		for (int index = 0; index < datasetReferences.getLength(); index++) {
 			Node datasetReference = datasetReferences.item(index);
@@ -1050,7 +1033,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapAvailableLinkages(Document source, IngridDocument target) {
 		NodeList linkages = XPathUtils.getNodeList(source, X_LINK_LIST);
-		List<IngridDocument> linkagesList = new ArrayList<IngridDocument>();
+		List<IngridDocument> linkagesList = new ArrayList<>();
 
 		for (int index = 0; index < linkages.getLength(); index++) {
 			Node linkage = linkages.item(index);
@@ -1076,7 +1059,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapRelatedAddresses(Document source, IngridDocument target) {
 		NodeList relatedAddresses = XPathUtils.getNodeList(source, X_RELATED_ADDRESS_LIST);
-		List<IngridDocument> relatedAddressList = new ArrayList<IngridDocument>();
+		List<IngridDocument> relatedAddressList = new ArrayList<>();
 
 		for (int index = 0; index < relatedAddresses.getLength(); index++) {
 			Node relatedAddress = relatedAddresses.item(index);
@@ -1095,7 +1078,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapLinkDataSources(Document source, IngridDocument target) {
 		NodeList relatedDatasources = XPathUtils.getNodeList(source, X_RELATED_DS_LIST);
-		List<IngridDocument> relatedDSList = new ArrayList<IngridDocument>();
+		List<IngridDocument> relatedDSList = new ArrayList<>();
 
 		for (int index = 0; index < relatedDatasources.getLength(); index++) {
 			Node relatedDS = relatedDatasources.item(index);
@@ -1125,7 +1108,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapIntList(Object source, String xPathExpression, IngridDocument target, String key) {
 		NodeList nodeList = XPathUtils.getNodeList(source, xPathExpression);
-		List<Integer> targetList = new ArrayList<Integer>();
+		List<Integer> targetList = new ArrayList<>();
 
 		for (int index = 0; index < nodeList.getLength(); ++index) {
 			Node item = nodeList.item(index);
@@ -1147,7 +1130,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapStringList(Object source, String xPathExpression, IngridDocument target, String key) {
 		NodeList nodeList = XPathUtils.getNodeList(source, xPathExpression);
-		List<String> targetList = new ArrayList<String>();
+		List<String> targetList = new ArrayList<>();
 
 		for (int index = 0; index < nodeList.getLength(); ++index) {
 			Node item = nodeList.item(index);

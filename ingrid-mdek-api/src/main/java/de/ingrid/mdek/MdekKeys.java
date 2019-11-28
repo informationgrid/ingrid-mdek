@@ -1301,14 +1301,6 @@ public class MdekKeys {
     public final static String MEASURE_DESCRIPTION = "measure-description";
 
     /** Value: List< IngridDocument > */
-    public final static String FORMAT_INSPIRE_LIST = "format_inspire_list";
-    /** Value: Integer */
-    public final static String FORMAT_KEY = "format-key";
-    /** Value: String */
-    public final static String FORMAT_VALUE = "format-value";
-
-
-    /** Value: List< IngridDocument > */
     public final static String PRIORITY_DATASET_LIST = "priority_dataset_list";
     /** Value: Integer */
     public final static String PRIORITY_DATASET_KEY = "priority-dataset-key";

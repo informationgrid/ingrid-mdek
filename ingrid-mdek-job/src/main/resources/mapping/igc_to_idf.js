@@ -1294,28 +1294,7 @@ for (i=0; i<objRows.size(); i++) {
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
-        
-        // ---------- <idf:idfMdMetadata/gmd:applicationSchemaInfo> ----------
-        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
-        for (i=0; i<rows.size(); i++) {
-            var formatKey = rows.get(i).get("format_key");
-            // if "Protected Sites - Simple GML Application Schema" or "Protected Sites - Full GML Application Schema"
-            if (formatKey == 13 || formatKey == 14) {
-                var appSchemaNode = mdMetadata.addElement("gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation");
-                appSchemaNode.addElement("gmd:name/gmd:CI_Citation/gmd:title/gco:CharacterString").addText(rows.get(i).get("format_value"))
-                             .getParent(2)
-                             .addElement("gmd:date/gmd:CI_Date/gmd:date/gco:DateTime").addText("2010-04-26T00:00:00")
-                             .getParent(2)
-                             .addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                                 .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
-                                 .addAttribute("codeListValue", "publication")
-                                 .addText("publication")
-                             .getParent(6)
-                             .addElement("gmd:schemaLanguage/gco:CharacterString").addText("GML")
-                             .getParent(2)
-                             .addElement("gmd:constraintLanguage/gco:CharacterString").addText("OCL");
-            }
-        }
+
     }
 
     // ---------- <idf:idfMdMetadata/idf:superiorReference> ----------
@@ -1918,7 +1897,7 @@ function getMdKeywords(rows) {
     var keywTitle;
     var keywDate;
     var thesaurusLink;
-    
+
     // "searchterm_value" table
     if (rows.get(0).get("type")) {
         var type = rows.get(0).get("type");
@@ -2333,39 +2312,6 @@ function addDistributionInfo(mdMetadata, objId) {
     nilMdFormatElement.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
     nilMdFormatElement.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
 
-    if (objClass.equals("1")) {
-        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
-        for (i=0; i<rows.size(); i++) {
-            if (!mdDistribution) {
-                mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
-            }
-            // ---------- <gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format> ----------
-            var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
-            formatWritten = true;
-            // ---------- <gmd:MD_Format/gmd:name> ----------
-            // ISO: first iso value, see INGRID-2337
-            var formatValue = TRANSF.getCodeListEntryFromIGCSyslistEntry(6300, rows.get(i).get("format_key"), "iso");
-            // if no iso then as usual
-            if (!hasValue(formatValue)) {
-                formatValue = rows.get(i).get("format_value");
-            }
-            mdFormat.addElement("gmd:name/gco:CharacterString").addText(formatValue);
-            // ---------- <gmd:MD_Format/gmd:version> ----------
-            var data = TRANSF.getISOCodeListEntryData(6300, formatValue);
-            var version = getParameterWithin(data, '"', 1);
-            if (!version || version.trim() === "")
-                mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
-            else
-                mdFormat.addElement("gmd:version/gco:CharacterString").addText(version);
-            // ---------- <gmd:MD_Format/gmd:specification> ----------
-            var specification = getParameterWithin(data, '"', 2);
-            if (!specification || specification.trim() === "")
-                mdFormat.addElement("gmd:specification").addAttribute("gco:nilReason", "unknown");
-            else
-                mdFormat.addElement("gmd:specification/gco:CharacterString").addText(specification);
-        }
-    }
-    
 // ALLE KLASSEN
 
     // ---------- <idf:idfMdMetadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
@@ -2389,9 +2335,10 @@ function addDistributionInfo(mdMetadata, objId) {
 //                .addElement("gco:CharacterString");
         }
             // ---------- <gmd:MD_Format/gmd:specification> ----------
-        if (hasValue(rows.get(i).get("specification"))) {
+        // Removed: see #1273
+        /*if (hasValue(rows.get(i).get("specification"))) {
             mdFormat.addElement("gmd:specification/gco:CharacterString").addText(rows.get(i).get("specification"));
-        }
+        }*/
             // ---------- <gmd:MD_Format/gmd:fileDecompressionTechnique> ----------
         if (hasValue(rows.get(i).get("file_decompression_technique"))) {
             mdFormat.addElement("gmd:fileDecompressionTechnique/gco:CharacterString").addText(rows.get(i).get("file_decompression_technique"));
