@@ -68,24 +68,6 @@ var ERROR = 4;
 
 // ------------------------
 
-// import BAW Auftragsnummer, remove from general keywords
-var keywords = XPATH.getNodeList(source, "//gmd:descriptiveKeywords/gmd:MD_Keywords[normalize-space(./gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString)='DEBUNDBAWAUFTRAGNR']/gmd:keyword/gco:CharacterString");
-for (var i=0; i<keywords.getLength(); i++ ) {
-    var keyword = keywords.item(i).getTextContent();
-    log.info("Found BAW Auftragsnummer:" + keyword);
-    // find the keyword in local lookup list
-    var id = codeListService.getSysListEntryKey(10100, keyword, "", false);
-    log.info("Found BAW Auftragsnummer in Syslist with entry ID:" + id);
-
-    var targetEl = target.getDocumentElement();
-    var additionalValues = XPATH.createElementFromXPath(targetEl, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
-    var additionalValue = DOM.addElement(additionalValues, "general-additional-value");
-    additionalValue.addElement("field-key").addText("bawAuftragsnummer");
-    additionalValue.addElement("field-data").addAttribute("id", id).addText(keyword);
-    // remove keyword from uncontroled terms
-    XPATH.removeElementAtXPath(targetEl, "//uncontrolled-term[.='"+keyword+"']");
-}
-
 // import Simulation: Räumliche Dimensionalität, remove from general keywords
 var keywords = XPATH.getNodeList(source, "//gmd:descriptiveKeywords/gmd:MD_Keywords[normalize-space(./gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString)='BAW-DMQS Spatial Dimensions']/gmd:keyword/gco:CharacterString");
 for (var i=0; i<keywords.getLength(); i++ ) {
