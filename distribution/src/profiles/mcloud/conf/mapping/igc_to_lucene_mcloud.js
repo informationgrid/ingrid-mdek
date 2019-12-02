@@ -87,7 +87,6 @@ function map(mapper) {
             groups: mapper.getGroups(),
             displayContact: mapper.getDisplayContacts(),
             all: mapper.getExtrasAllData(),
-            temporal: mapper.getTemporal(),
             realtime: mapper.isRealtime(),
             citation: mapper.getCitation(),
             mfund_fkz: mapper.getMFundFKZ(),
