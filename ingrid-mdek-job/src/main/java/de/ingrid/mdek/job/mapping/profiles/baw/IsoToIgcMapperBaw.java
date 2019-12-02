@@ -9,6 +9,9 @@ import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.mapping.ImportDataMapper;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
+import de.ingrid.mdek.job.protocol.ProtocolHandler.Type;
+import de.ingrid.mdek.services.catalog.MdekCatalogService;
+import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.utils.IConfigurable;
 import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.ConfigurableNamespaceContext;
@@ -17,6 +20,7 @@ import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xml.IgcProfileNamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -25,8 +29,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
+import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.BAW_HIERARCHY_LEVEL_NAME_CODELIST_ID;
 
     private static final Logger LOG = Logger.getLogger(IsoToIgcMapperBaw.class);
+
+    private MdekCatalogService catalogService;
 
     private XPathUtils igcXpathUtil;
     private XPathUtils isoXpathUtil;
@@ -36,6 +43,11 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
     private SQLUtils sqlUtils;
     private TransformationUtils trafoUtil;
+
+    @Autowired
+    public IsoToIgcMapperBaw(DaoFactory daoFactory) {
+        catalogService = MdekCatalogService.getInstance(daoFactory);
+    }
 
     @Override
     public void convert(Document sourceIso, Document targetIgc, ProtocolHandler protocolHandler) throws MdekException {
@@ -62,10 +74,33 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             Element additionalValues = (Element) igcXpathUtil.createElementFromXPath(targetIgc.getDocumentElement(), addnValuesXpath);
 
             mapAuftragInfos(mdIdentification, additionalValues);
+            mapHierarchyLevelName(mdMetadata, additionalValues, protocolHandler);
 
         } catch (MdekException e) {
-            protocolHandler.addMessage(ProtocolHandler.Type.ERROR, e.getMessage());
+            protocolHandler.addMessage(Type.ERROR, e.getMessage());
             throw e;
+        }
+    }
+
+    private void mapHierarchyLevelName(Element mdMetadata, Element additionalValues, ProtocolHandler ph) {
+        String xpath = "./gmd:hierarchyLevelName/gco:CharacterString";
+        Node hlNameElement = isoXpathUtil.getNode(mdMetadata, xpath);
+        String hlName = getNodeText(hlNameElement);
+        if (!hlName.isEmpty()) {
+            LOG.debug("Found BAW hierarchy level name: " + hlName);
+
+            Integer key = catalogService.getSysListEntryKey(BAW_HIERARCHY_LEVEL_NAME_CODELIST_ID, hlName, "", false);
+            if (key == null || key < 0) {
+                ph.addMessage(Type.WARN, "Hierarchy level name not found in BAW codelist: " + hlName);
+                key = -1;
+            }
+
+            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
+            additionalValue.addElement("field-key")
+                    .addText("bawHierarchyLevelName");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", key.toString())
+                    .addText(hlName);
         }
     }
 

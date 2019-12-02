@@ -21,6 +21,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
+
 @Order(2)
 public class IgcToIdfMapperBaw implements IIdfMapper {
 
@@ -41,11 +43,6 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private static final String VV_WSV_1103_TITLE = "VV-WSV 1103";
     private static final String VV_WSV_1103_DATE = "2019-05-29";
     private static final String VV_WSV_1103_DATE_TYPE = "publication";
-
-    private static final int BAW_MODEL_TYPE_CODELIST_ID = 3950003;
-    private static final int BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID = 3950004;
-    private static final int BAW_KEYWORD_CATALOGUE_CODELIST_ID = 3950005;
-    private static final int VV_1103_CODELIST_ID = 3950010;
 
     private static final String GCO_CHARACTER_STRING_QNAME = "gco:CharacterString";
     private static final String VALUE_UNIT_ID_PREFIX = "valueUnit_";
