@@ -2593,10 +2593,16 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
 
         // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
                 var platfRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [+svOpRow.get("id")]);
+                var platformValues = [];
                 for (j=0; j<platfRows.size(); j++) {
+                    var value = platfRows.get(j).get("platform_value");
+                    if (platformValues.indexOf(value) !== -1) {
+                        continue;
+                    }
+                    platformValues.push(value);
                     svOperationMetadata.addElement("srv:DCP/srv:DCPList")
                         .addAttribute("codeList", globalCodeListAttrURL + "#CSW_DCPCodeType")
-                        .addAttribute("codeListValue", platfRows.get(j).get("platform_value"));
+                        .addAttribute("codeListValue", value);
                 }
                 if (platfRows.size() == 0) {
                     // mandatory !
