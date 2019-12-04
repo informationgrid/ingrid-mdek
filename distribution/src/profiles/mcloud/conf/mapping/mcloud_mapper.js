@@ -233,7 +233,7 @@ var McloudMapper = /** @class */ (function () {
                 }
                 distributions.push({
                     // Attention: we map sourceType to format, since this will be used as facet!
-                    format: row['sourceType'],
+                    format: [row['sourceType']],
                     accessURL: link,
                     description: row['title'],
                     // Attention: type, which is the format of the download will be used as extra information for the download
