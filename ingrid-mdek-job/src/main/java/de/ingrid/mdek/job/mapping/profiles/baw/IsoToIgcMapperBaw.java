@@ -31,8 +31,9 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.BAW_HIERARCHY_LEVEL_NAME_CODELIST_ID;
+
+public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
     private static final Logger LOG = Logger.getLogger(IsoToIgcMapperBaw.class);
 
