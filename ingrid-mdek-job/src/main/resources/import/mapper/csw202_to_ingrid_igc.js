@@ -1436,6 +1436,12 @@ function mapReferenceSystemInfo(source, target) {
 	if (hasValue(rsIdentifiers)) {
 		for (i=0; i<rsIdentifiers.getLength(); i++ ) {
 			var code = XPATH.getString(rsIdentifiers.item(i), "gmd:code/gco:CharacterString");
+
+			// If gco:CharacterString is empty, then also try gmx:Anchor
+			if (!hasValue(code)) {
+				code = XPATH.getString(rsIdentifiers.item(i), "gmd:code/gmx:Anchor");
+			}
+
 			var codeSpace = XPATH.getString(rsIdentifiers.item(i), "gmd:codeSpace/gco:CharacterString");
 			var coordinateSystem;
 			if (hasValue(codeSpace) && hasValue(code)) {
