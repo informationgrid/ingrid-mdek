@@ -241,12 +241,10 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
             int entryId = Integer.parseInt(bwastrIdString);
             String identifier = trafoUtil.getIGCSyslistEntryName(VV_1103_CODELIST_ID, entryId);
-            if (identifier != null) {
+            if (identifier != null && bwastrKmStart != null && bwastrKmEnd != null) {
+                previousSibling = addBWaStrExtentElement(mdIdentification, previousSibling, String.format("%04d-%s-%s", entryId, bwastrKmStart, bwastrKmEnd));
+            } else if (identifier != null) {
                 previousSibling = addBWaStrExtentElement(mdIdentification, previousSibling, identifier);
-            }
-
-            if (bwastrKmStart != null && bwastrKmEnd != null) {
-                previousSibling = addBWaStrExtentElement(mdIdentification, previousSibling, String.format("%s-%s-%s", bwastrIdString, bwastrKmStart, bwastrKmEnd));
             }
 
         }
