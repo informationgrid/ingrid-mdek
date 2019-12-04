@@ -55,39 +55,8 @@ for (i=0; i<objRows.size(); i++) {
     var value = null;
     var elem = null;
     
-    handleBKGAccessConstraints();
     handleBKGUseConstraints();
     handleBKGUseLimitation();
-}
-
-function handleBKGAccessConstraints() {
-    // get the container for the select and free text field
-    var bkgAccessConstraintId = getAdditionalFieldFromObject(objId, null, 'bkg_accessConstraints', 'id');
-    if (bkgAccessConstraintId) {
-        
-        // get value from select box
-        var bkgAccessConstraintSelectListItem = getAdditionalFieldFromObject(null, bkgAccessConstraintId, 'bkg_accessConstraints_select', 'list_item_id');
-        if (bkgAccessConstraintSelectListItem) {
-            
-            if (log.isDebugEnabled()) {
-                log.debug("BKG access constraint field contains value: " + bkgAccessConstraintSelectListItem);
-            }
-            
-            // get value from free text field
-            var bkgAccessConstraintFreeText = getAdditionalFieldFromObject(null, bkgAccessConstraintId, 'bkg_accessConstraints_freeText', 'data');
-            if (bkgAccessConstraintFreeText) {
-                if (log.isDebugEnabled()) {
-                    log.debug("BKG access constraint free text field contains value: " + bkgAccessConstraintFreeText);
-                }
-            }
-            
-            // add select value and free text to ISO depending on selection
-            if ((bkgAccessConstraintSelectListItem && bkgAccessConstraintSelectListItem !== "") || bkgAccessConstraintFreeText !== "") {
-                var legalConstraint = getFirstNodeInIdentificationBefore("gmd:accessConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-                addAccessConstraints(legalConstraint, bkgAccessConstraintSelectListItem, bkgAccessConstraintFreeText);
-            }
-        }
-    }
 }
 
 function handleBKGUseConstraints() {
@@ -109,12 +78,21 @@ function handleBKGUseConstraints() {
                 log.debug("BKG use constraint free text field contains value: " + bkgUseConstraintFreeText);
             }
         }
+
+        // get value from source note field
+        var bkgSourceNoteText = getAdditionalFieldFromObject(null, bkgUseConstraintId, 'bkg_useConstraints_sourceNote', 'data');
+        if (bkgSourceNoteText) {
+            if (log.isDebugEnabled()) {
+                log.debug("BKG use constraint free text field contains value: " + bkgSourceNoteText);
+            }
+        }
         
         // add select value and free text to ISO depending on selection
         // if there is any value
         if ((bkgUseConstraintSelectListItem && bkgUseConstraintSelectListItem !== "") || bkgUseConstraintFreeText !== "") {
             var legalConstraint = getFirstNodeInIdentificationBefore("gmd:useConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-            addUseConstraints(legalConstraint, bkgUseConstraintSelectListItem, bkgUseConstraintFreeText);
+            addUseConstraints(legalConstraint, bkgUseConstraintSelectListItem, bkgUseConstraintFreeText,
+                bkgSourceNoteText ? "Quellenvermerk: " + bkgSourceNoteText : null);
         }
     }
 }
@@ -177,123 +155,32 @@ function getFirstNodeInIdentificationBefore(subNode) {
     return beforeResourceElement;
 }
 
-function addAccessConstraints(legalConstraint, codelistEntryId, valueFree) {
-    if (codelistEntryId === null || codelistEntryId === undefined| codelistEntryId === "") {
-        addAccessConstraintElements(legalConstraint, [], [valueFree]);
-        return;
-    }
-    
-	// codelist 10001/10002
-    switch (codelistEntryId) {
-    case "1":
-        addAccessConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10002, codelistEntryId), valueFree]);
-        break;
-    case "5":
-        addAccessConstraintElements(legalConstraint, ["copyright"], [valueFree]);
-        break;
-    case "6":
-        addAccessConstraintElements(legalConstraint, ["license"], [valueFree]);
-        break;
-    case "7":
-        addAccessConstraintElements(legalConstraint, ["copyright","license"], [valueFree]);
-        break;
-    case "8":
-        addAccessConstraintElements(legalConstraint, ["intellectualPropertyRights"], [valueFree]);
-        break;
-    case "9":
-        addAccessConstraintElements(legalConstraint, ["restricted"], [valueFree]);
-        break;
-    default:
-        addAccessConstraintElements(legalConstraint, ["copyright"], [TRANSF.getIGCSyslistEntryName(10002, codelistEntryId), valueFree]);
-    }
-}
-
-function addUseConstraints(legalConstraint, codelistEntryId, valueFree) {
+function addUseConstraints(legalConstraint, codelistEntryId, valueFree, sourceNote) {
     log.debug("BKG: Use Constraint codelist: " + codelistEntryId);
     if (codelistEntryId === null || codelistEntryId === undefined | codelistEntryId === "") {
-        addUseConstraintElements(legalConstraint, [], [valueFree]);
+        addUseConstraintElements(legalConstraint, [], [valueFree, sourceNote]);
         return;
     }
 
-
-    if (isOpenData()) {
-    	// codelist 10005/10006
-        switch (codelistEntryId) {
-        case "2":
-            addUseConstraintElements(legalConstraint, ["copyright"], [valueFree]);
-            break;
-        case "3":
-            addUseConstraintElements(legalConstraint, ["license"], [valueFree]);
-            break;
-        case "4":
-            addUseConstraintElements(legalConstraint, ["copyright", "license"], [valueFree]);
-            break;
-        case "5":
-            addUseConstraintElements(legalConstraint, ["intellectualPropertyRights"], [valueFree]);
-            break;
-        case "6":
-            addUseConstraintElements(legalConstraint, ["restricted"], [valueFree]);
-            break;
-        default:
-            // if opendata other codelist was used, then add JSON as other constraint
-            var codelistEntryName = TRANSF.getIGCSyslistEntryName(10006, codelistEntryId);
-        	var codelistDataEntryName = TRANSF.getIGCSyslistEntryName(10005, codelistEntryId);
-        	var json = TRANSF.getISOCodeListEntryData(10005, codelistDataEntryName);
-        	addUseConstraintElements(legalConstraint, ["license"], [codelistEntryName, json, valueFree]);
-        }
-    	
-    } else {
-    	// codelist 10003/10004
-        switch (codelistEntryId) {
-        case "10":
-            addUseConstraintElements(legalConstraint, ["copyright"], [valueFree]);
-            break;
-        case "11":
-            addUseConstraintElements(legalConstraint, ["license"], [valueFree]);
-            break;
-        case "12":
-            addUseConstraintElements(legalConstraint, ["copyright", "license"], [valueFree]);
-            break;
-        case "13":
-            addUseConstraintElements(legalConstraint, ["intellectualPropertyRights"], [valueFree]);
-            break;
-        case "14":
-            addUseConstraintElements(legalConstraint, ["restricted"], [valueFree]);
-            break;
-        default:
-            addUseConstraintElements(legalConstraint, ["license"], [TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), valueFree]);
-        }
-    }
-}
-
-/**
- * 
- * @param legalConstraint
- * @param restrictionCodeValues
- * @param {string[]} otherConstraints
- * @returns
- */
-function addAccessConstraintElements(legalConstraint, restrictionCodeValues, otherConstraints) {
-    for (var i=0; i<restrictionCodeValues.length; i++) {
-        legalConstraint.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
-            .addAttribute("codeListValue", restrictionCodeValues[i])
-            .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-            .addText(restrictionCodeValues[i]);
-    }
-    
-    legalConstraint.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
-    .addAttribute("codeListValue", "otherRestrictions")
-    .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-    .addText("otherRestrictions");
-
-    if (hasValue(otherConstraints)) {
-        for (var j=0; j<otherConstraints.length; j++) {
-            if (otherConstraints[j]) {
-                legalConstraint
-                .addElement("gmd:otherConstraints/gco:CharacterString")
-                .addText(otherConstraints[j]);
-            }
-        }
+    // codelist 10003/10004
+    switch (codelistEntryId) {
+    case "10":
+        addUseConstraintElements(legalConstraint, ["copyright"], [valueFree, sourceNote]);
+        break;
+    case "11":
+        addUseConstraintElements(legalConstraint, [], [valueFree, sourceNote]);
+        break;
+    case "12":
+        addUseConstraintElements(legalConstraint, ["copyright"], [valueFree, sourceNote]);
+        break;
+    case "13":
+        addUseConstraintElements(legalConstraint, ["intellectualPropertyRights"], [valueFree, sourceNote]);
+        break;
+    case "14":
+        addUseConstraintElements(legalConstraint, ["restricted"], [valueFree, sourceNote]);
+        break;
+    default:
+        addUseConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), valueFree, sourceNote]);
     }
 }
 
@@ -313,16 +200,24 @@ function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherC
     }
     
     legalConstraint.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
-    .addAttribute("codeListValue", "otherRestrictions")
-    .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-    .addText("otherRestrictions");
+        .addAttribute("codeListValue", "otherRestrictions")
+        .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
+        .addText("otherRestrictions");
 
     if (hasValue(otherConstraints)) {
         for (var j=0; j<otherConstraints.length; j++) {
             if (otherConstraints[j]) {
-                legalConstraint
-                    .addElement("gmd:otherConstraints/gco:CharacterString")
-                    .addText(otherConstraints[j]);
+                if (otherConstraints[j] === "Es gelten keine Bedingungen") {
+                    legalConstraint
+                        .addElement("gmd:otherConstraints/gmx:Anchor")
+                        .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
+                        .addText(otherConstraints[j]);
+                } else {
+                    legalConstraint
+                        .addElement("gmd:otherConstraints/gco:CharacterString")
+                        .addText(otherConstraints[j]);
+                }
+
             }
         }
     }

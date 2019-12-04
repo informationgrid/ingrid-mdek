@@ -43,6 +43,7 @@ import java.util.zip.GZIPInputStream;
 
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.mdek.xml.Versioning;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
 import org.mockito.Mock;
@@ -103,7 +104,9 @@ public class TestSetup {
     
     @Mock
     IPermissionService permissionService;
-    
+
+    @Mock
+    private BasicDataSource dataSourceMock;
     @Mock
     private DatabaseConnectionUtils dcUtils;
     @Mock
@@ -162,6 +165,8 @@ public class TestSetup {
         when( jobHandler.getRunningJobInfo( any( String.class ) ) ).thenReturn( new IngridDocument() );
         when( permissionService.isCatalogAdmin( "TEST_USER_ID" ) ).thenReturn( true );
 
+        when( dataSourceMock.getConnection() ).thenReturn( connectionMock );
+
         PowerMockito.mockStatic( DatabaseConnectionUtils.class );
         when( DatabaseConnectionUtils.getInstance() ).thenReturn( dcUtils );
         when( dcUtils.openConnection( any( DatabaseConnection.class ) ) ).thenReturn( connectionMock );
@@ -186,6 +191,7 @@ public class TestSetup {
         when( catJobMock.getCatalogAdminUserUuid() ).thenReturn( "TEST_USER_ID" );
 
         cswMapper = new ScriptImportDataMapper( daoFactory );
+        cswMapper.setDataSource( dataSourceMock );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
         Logger mockLogger = mock(Logger.class);

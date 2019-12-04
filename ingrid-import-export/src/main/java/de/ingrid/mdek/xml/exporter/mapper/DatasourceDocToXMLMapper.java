@@ -695,7 +695,6 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		additionalInformation.addChildren(createUseConstraints());
 		additionalInformation.addChildren(createMediumOptions());
 		additionalInformation.addChildren(createDataFormats());
-		additionalInformation.addChildren(createDataFormatsInspire());
 		additionalInformation.addChild(createPublicationCondition());
 		additionalInformation.addChild(createDatasetUsage());
 		additionalInformation.addChild(createOrderingInstructions());
@@ -819,6 +818,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	private XMLElement createLicense(IngridDocument useConstraintContext) {
 		XMLElement license = new XMLElement(LICENSE, getStringForKey(MdekKeys.USE_LICENSE_VALUE, useConstraintContext));
 		license.addAttribute(ID, getIntegerForKey(MdekKeys.USE_LICENSE_KEY, useConstraintContext));
+		license.addAttribute(SOURCE_NOTE, getStringForKey(MdekKeys.USE_LICENSE_SOURCE, useConstraintContext));
 		return license;
 	}
 
@@ -881,25 +881,6 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	private XMLElement createFormatName(IngridDocument dataFormatContext) {
 		XMLElement formatName = new XMLElement(FORMAT_NAME, getStringForKey(MdekKeys.FORMAT_NAME, dataFormatContext));
 		formatName.addAttribute(ID, getIntegerForKey(MdekKeys.FORMAT_NAME_KEY, dataFormatContext));
-		return formatName;
-	}
-
-	private List<XMLElement> createDataFormatsInspire() {
-		List<XMLElement> formats = new ArrayList<XMLElement>();
-		List<IngridDocument> formatsList = getIngridDocumentListForKey(MdekKeys.FORMAT_INSPIRE_LIST);
-		for (IngridDocument format : formatsList) {
-			formats.add(createDataFormatInspire(format));
-		}
-		return formats;
-	}
-	private XMLElement createDataFormatInspire(IngridDocument formatContext) {
-		XMLElement format = new XMLElement(DATA_FORMAT_INSPIRE);
-		format.addChild(createDataFormatInspireName(formatContext));
-		return format;
-	}
-	private XMLElement createDataFormatInspireName(IngridDocument formatContext) {
-		XMLElement formatName = new XMLElement(FORMAT_INSPIRE_NAME, getStringForKey(MdekKeys.FORMAT_VALUE, formatContext));
-		formatName.addAttribute(ID, getIntegerForKey(MdekKeys.FORMAT_KEY, formatContext));
 		return formatName;
 	}
 

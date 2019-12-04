@@ -76,6 +76,7 @@
       <property name="responsibleUuid" type="string" column="responsible_uuid"/>
       <property name="toBePublishedOn" type="date" column="to_be_published_on"/>
       <property name="parentIdentifier" type="string" column="parent_identifier"/>
+      <property name="spatialScope" type="integer" column="spatial_scope"/>
 
       <set name="additionalFieldDatas" order-by="sort" table="additional_field_data"
            inverse="true"
@@ -116,12 +117,6 @@
            cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="ObjectDataQuality" not-found="ignore"/>
-      </set>
-      <set name="objectFormatInspires" order-by="line" table="object_format_inspire"
-           inverse="true"
-           cascade="all-delete-orphan">
-         <key column="obj_id"/>
-         <one-to-many class="ObjectFormatInspire" not-found="ignore"/>
       </set>
       <set name="objectOpenDataCategorys" order-by="line"
            table="object_open_data_category"
@@ -248,6 +243,12 @@
            cascade="all-delete-orphan">
          <key column="obj_id"/>
          <one-to-many class="T017UrlRef" not-found="ignore"/>
+      </set>
+      <set name="priorityDataset" order-by="line" table="priority_dataset"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_id"/>
+         <one-to-many class="PriorityDataset" not-found="ignore"/>
       </set>
       <many-to-one name="t03Catalogue" class="T03Catalogue" column="cat_id" update="false"
                    insert="false"/>
