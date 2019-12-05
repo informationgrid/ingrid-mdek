@@ -68,57 +68,6 @@ var ERROR = 4;
 
 // ------------------------
 
-// import Simulation: Räumliche Dimensionalität, remove from general keywords
-var keywords = XPATH.getNodeList(source, "//gmd:descriptiveKeywords/gmd:MD_Keywords[normalize-space(./gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString)='BAW-DMQS Spatial Dimensions']/gmd:keyword/gco:CharacterString");
-for (var i=0; i<keywords.getLength(); i++ ) {
-    var keyword = keywords.item(i).getTextContent();
-    // find the keyword in local lookup list
-    var id = codeListService.getSysListEntryKey(10101, keyword, "", false);
-
-    var targetEl = target.getDocumentElement();
-    var additionalValues = XPATH.createElementFromXPath(targetEl, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
-    var additionalValue = DOM.addElement(additionalValues, "general-additional-value");
-    additionalValue.addElement("field-key").addText("simSpatialDimension");
-    additionalValue.addElement("field-data").addAttribute("id", id).addText(keyword);
-    // remove keyword from uncontroled terms
-    XPATH.removeElementAtXPath(targetEl, "//uncontrolled-term[.='"+keyword+"']");
-}
-
-// import Simulation: Verfahren, remove from general keywords
-var keywords = XPATH.getNodeList(source, "//gmd:descriptiveKeywords/gmd:MD_Keywords[normalize-space(./gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString)='BAW-DMQS Modelling Method']/gmd:keyword/gco:CharacterString");
-for (var i=0; i<keywords.getLength(); i++ ) {
-    var keyword = keywords.item(i).getTextContent();
-    // find the keyword in local lookup list
-    var id = codeListService.getSysListEntryKey(10102, keyword, "", false);
-
-    var targetEl = target.getDocumentElement();
-    var additionalValues = XPATH.createElementFromXPath(targetEl, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
-    var additionalValue = DOM.addElement(additionalValues, "general-additional-value");
-    additionalValue.addElement("field-key").addText("simProcess");
-    additionalValue.addElement("field-data").addAttribute("id", id).addText(keyword);
-    // remove keyword from uncontroled terms
-    XPATH.removeElementAtXPath(targetEl, "//uncontrolled-term[.='"+keyword+"']");
-}
-
-// import Simulation: Modellart, remove from general keywords
-var keywords = XPATH.getNodeList(source, "//gmd:descriptiveKeywords/gmd:MD_Keywords[normalize-space(./gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString)='BAW-DMQS Modelling Type']/gmd:keyword/gco:CharacterString");
-for (var i=0; i<keywords.getLength(); i++ ) {
-    var keyword = keywords.item(i).getTextContent();
-    // find the keyword in local lookup list
-    log.info("lookup keyword: " + keyword);
-    var id = codeListService.getSysListEntryKey(10103, keyword, "", false);
-    log.info("got ID: " + id);
-    var targetEl = target.getDocumentElement();
-    var additionalValues = XPATH.createElementFromXPath(targetEl, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
-    var additionalValue = DOM.addElement(additionalValues, "general-additional-value").addAttribute("line", (i+1));
-    additionalValue.addElement("field-key").addText("simModelType");
-    additionalValue.addElement("field-data").addAttribute("id", id).addText(keyword);
-    additionalValue.addElement("field-key-parent").addText("simModelTypeTable");
-    // remove keyword from uncontroled terms
-    XPATH.removeElementAtXPath(targetEl, "//uncontrolled-term[.='"+keyword+"']");
-}
-
-
 // import Simulation: DGS Daten
 var dqQualityNodes = XPATH.getNodeList(source, "//gmd:DQ_DataQuality[./gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode/@codeListValue='model']");
 for (var i=0; i<dqQualityNodes.getLength(); i++ ) {

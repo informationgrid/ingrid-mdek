@@ -33,17 +33,6 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private static final String CODELIST_URL = "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#";
     private static final String UDUNITS_CODESPACE_VALUE = "https://www.unidata.ucar.edu/software/udunits/";
 
-    private static final String BAW_DEFAULT_KEYWORD_TYPE = "discipline";
-    private static final String BAW_MODEL_THESAURUS_TITLE_PREFIX = "de.baw.codelist.model.";
-    private static final String BAW_KEYWORD_CATALOGUE_TITLE = "BAW-Schlagwortkatalog";
-    private static final String BAW_MODEL_THESAURUS_DATE = "2017-01-17";
-    private static final String BAW_KEYWORD_CATALOGUE_DATE = "2012-01-01";
-    private static final String BAW_DEFAULT_THESAURUS_DATE_TYPE = "publication";
-
-    private static final String VV_WSV_1103_TITLE = "VV-WSV 1103";
-    private static final String VV_WSV_1103_DATE = "2019-05-29";
-    private static final String VV_WSV_1103_DATE_TYPE = "publication";
-
     private static final String GCO_CHARACTER_STRING_QNAME = "gco:CharacterString";
     private static final String VALUE_UNIT_ID_PREFIX = "valueUnit_";
 

@@ -28,10 +28,13 @@ import org.w3c.dom.NodeList;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.BAW_HIERARCHY_LEVEL_NAME_CODELIST_ID;
+import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
 
 public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
@@ -83,12 +86,18 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             String xpath = "./gmd:identificationInfo/gmd:MD_DataIdentification|./gmd:identificationInfo/srv:SV_ServiceIdentification";
             Element mdIdentification = (Element) isoXpathUtil.getNode(mdMetadata, xpath);
 
+            Element igcRoot = targetIgc.getDocumentElement();
+
             String addnValuesXpath = "/igc/data-sources/data-source/data-source-instance/general/general-additional-values";
-            Element additionalValues = (Element) igcXpathUtil.createElementFromXPath(targetIgc.getDocumentElement(), addnValuesXpath);
+            Element additionalValues = (Element) igcXpathUtil.createElementFromXPath(igcRoot, addnValuesXpath);
 
             mapAuftragInfos(mdIdentification, additionalValues);
             mapHierarchyLevelName(mdMetadata, additionalValues, protocolHandler);
             mapBWaStrIdentifiers(mdIdentification, additionalValues, protocolHandler);
+            mapKeywordCatalogueKeywords(mdIdentification, additionalValues, protocolHandler);
+            mapSimSpatialDimensions(mdIdentification, additionalValues, protocolHandler);
+            mapSimModelMethod(mdIdentification, additionalValues, protocolHandler);
+            mapSimModelTypes(mdIdentification, additionalValues, protocolHandler);
 
         } catch (MdekException e) {
             protocolHandler.addMessage(Type.ERROR, e.getMessage());
@@ -151,7 +160,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
     }
 
     private void mapBWaStrIdentifiers(Element mdIdentification, Element additionalValues, ProtocolHandler ph) {
-        String codeXpath = "./gmd:extent//gmd:geographicIdentifier/gmd:MD_Identifier[./gmd:authority/gmd:CI_Citation/gmd:title/gco:CharacterString/text()='VV-WSV 1103']/gmd:code/gco:CharacterString";
+        String codeXpath = "./gmd:extent//gmd:geographicIdentifier/gmd:MD_Identifier[./gmd:authority/gmd:CI_Citation/gmd:title/gco:CharacterString/text()='" + VV_WSV_1103_TITLE + "']/gmd:code/gco:CharacterString";
         NodeList codeNodes = isoXpathUtil.getNodeList(mdIdentification, codeXpath);
         for(int i=0; i<codeNodes.getLength(); i++) {
             String code = getNodeText(codeNodes.item(i));
@@ -223,6 +232,128 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         String end = matcher.group(3) == null ? null : matcher.group(3).substring(1);
 
         return new String[] { id, start, end };
+    }
+
+    private void mapKeywordCatalogueKeywords(Element mdIdentification, Element additionalValues, ProtocolHandler ph) {
+        String thesaurusTitle = BawConstants.BAW_KEYWORD_CATALOGUE_TITLE;
+
+        int line = 0;
+        for(String kw: getKeywordsForThesaurus(mdIdentification, thesaurusTitle)) {
+            Integer key = catalogService.getSysListEntryKey(BAW_KEYWORD_CATALOGUE_CODELIST_ID, kw, "", false);
+            if (key == null || key < 0) {
+                ph.addMessage(Type.WARN, "Keyword not found in BAW Keyword Catalogue (2012): " + kw);
+                continue;
+            }
+
+            line++;
+
+            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", Integer.toString(line));
+            additionalValue.addElement("field-key")
+                    .addText("bawKeywordCatalogueEntry");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(key.toString());
+            additionalValue.addElement("field-key-parent")
+                    .addText("bawKeywordCatalogueTable");
+
+            removeFromUncontrolledTerms(additionalValues, kw);
+        }
+    }
+
+    private void mapSimSpatialDimensions(Element mdIdentification, Element additionalValues, ProtocolHandler ph) {
+        String thesaurusTitle = BAW_MODEL_THESAURUS_TITLE_PREFIX + "dimensionality";
+        List<String> kwList = getKeywordsForThesaurus(mdIdentification, thesaurusTitle);
+
+        if (kwList.size() == 0) return;
+
+        String kw = kwList.get(0); // There should be only one such keyword
+        Integer key = catalogService.getSysListEntryKey(BAW_DIMENSIONALITY_CODELIST_ID, kw, "", false);
+        if (key == null || key < 1) {
+            ph.addMessage(Type.ERROR, "Spatial dimensionality code wasn't found in the available codelist: " + kw);
+        } else {
+            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
+            additionalValue.addElement("field-key")
+                    .addText("simSpatialDimension");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", key.toString())
+                    .addText(kw);
+
+            removeFromUncontrolledTerms(additionalValues, kw);
+        }
+    }
+
+    private void mapSimModelMethod(Element mdIdentification, Element additionalValues, ProtocolHandler ph) {
+        String thesaurusTitle = BAW_MODEL_THESAURUS_TITLE_PREFIX + "method";
+        List<String> kwList = getKeywordsForThesaurus(mdIdentification, thesaurusTitle);
+
+        if (kwList.size() == 0) return;
+
+        String kw = kwList.get(0); // There should be only one such keyword
+        Integer key = catalogService.getSysListEntryKey(BAW_MODEL_METHOD_CODELIST_ID, kw, "", false);
+        if (key == null || key < 1) {
+            ph.addMessage(Type.ERROR, "Modelling method code wasn't found in the available codelist: " + kw);
+        } else {
+            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
+            additionalValue.addElement("field-key")
+                    .addText("simProcess");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", key.toString())
+                    .addText(kw);
+
+            removeFromUncontrolledTerms(additionalValues, kw);
+        }
+    }
+
+    private void mapSimModelTypes(Element mdIdentification, Element additionalValues, ProtocolHandler ph) {
+        String thesaurusTitle = BAW_MODEL_THESAURUS_TITLE_PREFIX + "type";
+
+        int line = 0;
+        for(String kw: getKeywordsForThesaurus(mdIdentification, thesaurusTitle)) {
+            Integer key = catalogService.getSysListEntryKey(BAW_MODEL_TYPE_CODELIST_ID, kw, "", false);
+            if (key == null || key < 0) {
+                ph.addMessage(Type.WARN, "Simulation model type not found in available codelist: " + kw);
+                continue;
+            }
+
+            line++;
+
+            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", Integer.toString(line));
+            additionalValue.addElement("field-key")
+                    .addText("simModelType");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(key.toString());
+            additionalValue.addElement("field-key-parent")
+                    .addText("simModelTypeTable");
+
+            removeFromUncontrolledTerms(additionalValues, kw);
+        }
+    }
+
+    private List<String> getKeywordsForThesaurus(Element mdIdentification, String thesaurusTitle) {
+        String xpath = "gmd:descriptiveKeywords/gmd:MD_Keywords[./gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString/text()='" + thesaurusTitle + "']/gmd:keyword/gco:CharacterString";
+        NodeList allKeywordNodes = isoXpathUtil.getNodeList(mdIdentification, xpath);
+
+        if (allKeywordNodes.getLength() == 0) {
+            return Collections.emptyList();
+        }
+        List<String> keywordTexts = new ArrayList<>(allKeywordNodes.getLength());
+        for(int i=0; i<allKeywordNodes.getLength(); i++) {
+            String kw = getNodeText(allKeywordNodes.item(i));
+            if (!kw.isEmpty()) {
+                keywordTexts.add(kw);
+            }
+        }
+
+        return keywordTexts;
+    }
+
+    private void removeFromUncontrolledTerms(Element additionalValues, String keyword) {
+        Element igcRoot = additionalValues.getOwnerDocument().getDocumentElement();
+        String xpath = "//uncontrolled-term[.='" + keyword + "']";
+        igcXpathUtil.removeElementAtXPath(igcRoot, xpath);
     }
 
     private String getNodeText(Node node) {
