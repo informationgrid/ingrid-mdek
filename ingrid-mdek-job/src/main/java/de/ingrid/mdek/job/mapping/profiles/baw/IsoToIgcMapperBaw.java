@@ -98,6 +98,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             mapSimSpatialDimensions(mdIdentification, additionalValues, protocolHandler);
             mapSimModelMethod(mdIdentification, additionalValues, protocolHandler);
             mapSimModelTypes(mdIdentification, additionalValues, protocolHandler);
+            mapTimestepSize(mdMetadata, additionalValues);
 
         } catch (MdekException e) {
             protocolHandler.addMessage(Type.ERROR, e.getMessage());
@@ -354,6 +355,38 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         Element igcRoot = additionalValues.getOwnerDocument().getDocumentElement();
         String xpath = "//uncontrolled-term[.='" + keyword + "']";
         igcXpathUtil.removeElementAtXPath(igcRoot, xpath);
+    }
+
+    private void mapTimestepSize(Element mdMetadata, Element additionalValues) {
+        String xpath = ".//gmd:DQ_AccuracyOfATimeMeasurement/gmd:result/gmd:DQ_QuantitativeResult"; // There is only one DQ_AccuracyOfATimeMeasurement Element
+        Node resultNode = isoXpathUtil.getNode(mdMetadata, xpath);
+
+        if (resultNode == null) return;
+
+        String valueXpath = "./gmd:value/gco:Record";
+        Node valueNode = isoXpathUtil.getNode(resultNode, valueXpath);
+        String value = getNodeText(valueNode);
+
+        IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
+        additionalValue.addElement("field-key")
+                .addText("dqAccTimeMeas");
+        additionalValue.addElement("field-data")
+                .addText(value);
+    }
+
+    private String getValueUnit(Node quantitativeResultNode) {
+        Node symbolNode = null;
+        if (isoXpathUtil.nodeExists(quantitativeResultNode, ".//gml:catalogSymbol")) {
+            symbolNode = isoXpathUtil.getNode(quantitativeResultNode, ".//gml:catalogSymbol");
+        } else {
+            Node hrefNode = isoXpathUtil.getNode(quantitativeResultNode, "./valueUnit/@href");
+            if (!getNodeText(hrefNode).isEmpty()) {
+                String href = getNodeText(hrefNode).substring(1); // Remove the leading #
+                String xpath = "//gml:UnitDefinition[@id='" + href + "']//gml:catalogSymbol";
+                symbolNode = isoXpathUtil.getNode(quantitativeResultNode, xpath);
+            }
+        }
+        return getNodeText(symbolNode);
     }
 
     private String getNodeText(Node node) {
