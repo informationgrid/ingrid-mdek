@@ -1,9 +1,7 @@
 package de.ingrid.mdek.job.mapping.profiles.baw;
 
-import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.utils.DOMUtils;
 import de.ingrid.iplug.dsc.utils.DOMUtils.IdfElement;
-import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
 import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.mdek.job.MdekException;
@@ -12,8 +10,6 @@ import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import de.ingrid.mdek.job.protocol.ProtocolHandler.Type;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
-import de.ingrid.utils.IConfigurable;
-import de.ingrid.utils.PlugDescription;
 import de.ingrid.utils.xml.ConfigurableNamespaceContext;
 import de.ingrid.utils.xml.Csw202NamespaceContext;
 import de.ingrid.utils.xml.IDFNamespaceContext;
@@ -26,8 +22,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -236,10 +230,8 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
     }
 
     private void mapKeywordCatalogueKeywords(Element mdIdentification, Element additionalValues, ProtocolHandler ph) {
-        String thesaurusTitle = BawConstants.BAW_KEYWORD_CATALOGUE_TITLE;
-
         int line = 0;
-        for(String kw: getKeywordsForThesaurus(mdIdentification, thesaurusTitle)) {
+        for(String kw: getKeywordsForThesaurus(mdIdentification, BAW_KEYWORD_CATALOGUE_TITLE)) {
             Integer key = catalogService.getSysListEntryKey(BAW_KEYWORD_CATALOGUE_CODELIST_ID, kw, "", false);
             if (key == null || key < 0) {
                 ph.addMessage(Type.WARN, "Keyword not found in BAW Keyword Catalogue (2012): " + kw);
@@ -374,19 +366,164 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                 .addText(value);
     }
 
-    private String getValueUnit(Node quantitativeResultNode) {
+    private void mapDgsValues(Element mdMetadata, Element additionalValues, ProtocolHandler ph) {
+        /*
+         * Index of the table rows have to be tracked independently because
+         * the number of records in a dataQualityInfo element can vary.
+         */
+        int line = 0;
+
+        String dqXpath = "./gmd:dataQualityInfo/gmd:DQ_DataQuality[./gmd:scope/*/gmd:level/gmd:MD_ScopeCode/@codeListValue='model']";
+
+        String resultXpath = "./gmd:report/gmd:DQ_QuantitativeAttributeAccuracy/gmd:result/gmd:DQ_QuantitativeResult";
+
+        String paramNameXpath = "./gmd:valueType/gco:RecordType";
+        String valueXpath = "./gmd:value/gco:Record";
+        String typeAttrXpath = valueXpath + "[@type='gml:integerList' or @type='gml:doubleList']";
+
+        String paramTypeXpath = "./gmd:lineage/*/gmd:source/*/gmd:description";
+
+        String simParamTable = "simParamTable";
+
+        NodeList allDqNodes = isoXpathUtil.getNodeList(mdMetadata, dqXpath);
+        for(int i=0; i<allDqNodes.getLength(); i++) {
+            LOG.debug(String.format("Importing %d of %d DGS values", i+1, allDqNodes.getLength()));
+
+            Node dqNode = allDqNodes.item(i);
+            NodeList allResultNodes = isoXpathUtil.getNodeList(dqNode, resultXpath);
+
+            Node paramTypeNode = isoXpathUtil.getNode(dqNode, paramTypeXpath);
+            String paramType = getNodeText(paramTypeNode);
+            Integer paramTypeKey = catalogService.getSysListEntryKey(BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID, paramType, "", false);
+            if (paramTypeKey == null || paramTypeKey < -1) {
+                ph.addMessage(Type.ERROR, "Simulation parameter type not found in a available codelist: " + paramType);
+                continue;
+            }
+            LOG.debug("DGS parameter type can be imported: " + paramType);
+
+            for (int j = 0; j < allResultNodes.getLength(); j++) {
+
+                line++;
+                String lineStr = Integer.toString(line);
+
+                Node resultNode = allResultNodes.item(j);
+                Node paramNameNode = isoXpathUtil.getNode(resultNode, paramNameXpath);
+                String paramName = getNodeText(paramNameNode);
+                LOG.debug("DGS parameter name found: " + paramName);
+
+                IdfElement paramTypeAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", lineStr);
+                paramTypeAddnValue.addElement("field-key")
+                        .addText("simParamType");
+                paramTypeAddnValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(paramTypeKey.toString());
+                paramTypeAddnValue.addElement("field-key-parent")
+                        .addText(simParamTable);
+
+                IdfElement paramNameAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", lineStr);
+                paramNameAddnValue.addElement("field-key")
+                        .addText("simParamName");
+                paramNameAddnValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(paramName);
+                paramNameAddnValue.addElement("field-key-parent")
+                        .addText(simParamTable);
+
+                String paramUnits = getValueUnits(resultNode);
+                if (!paramUnits.isEmpty()) {
+                    LOG.debug("DGS parameter units found: " + paramUnits);
+
+                    IdfElement paramUnitsAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                            .addAttribute("line", lineStr);
+                    paramUnitsAddnValue.addElement("field-key")
+                            .addText("simParamUnit");
+                    paramUnitsAddnValue.addElement("field-data")
+                            .addAttribute("id", "-1")
+                            .addText(paramUnits);
+                    paramUnitsAddnValue.addElement("field-key-parent")
+                            .addText(simParamTable);
+                }
+
+                NodeList allValueNodes = isoXpathUtil.getNodeList(resultNode, valueXpath);
+                List<String> values = new ArrayList<>();
+
+                for (int k = 0; k < allValueNodes.getLength(); k++) {
+                    String valueText = getNodeText(allValueNodes.item(k));
+                    if (valueText.indexOf(' ') < 0) { // Single discrete value
+                        values.add(valueText);
+                    } else { // value range (gml list)
+                        for (String val : valueText.split(" +")) {
+                            values.add(val);
+                        }
+                    }
+                }
+                LOG.debug(String.format("%d values found to be imported in the current DGS block", values.size()));
+
+                for (int k = 0; k < values.size(); k++) {
+                    String val = values.get(k);
+                    IdfElement valueAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                            .addAttribute("line", lineStr);
+                    valueAddnValue.addElement("field-key")
+                            .addText("simParamValue." + (k+1)); // Value indices start at 1
+                    valueAddnValue.addElement("field-data")
+                            .addAttribute("id", "-1")
+                            .addText(val);
+                    valueAddnValue.addElement("field-key-parent")
+                            .addText(simParamTable);
+                }
+
+                boolean hasDiscreteValues = !isoXpathUtil.nodeExists(resultNode, typeAttrXpath); // Discrete values DON'T have values in the gml namespace for the type attribute
+                boolean hasNumericValues = hasNumericValues(values);
+                String valueType;
+                if (values.isEmpty()) {
+                    valueType = VALUE_TYPE_DISCRETE_STRING;
+                } else if (hasDiscreteValues && hasNumericValues) {
+                    valueType = VALUE_TYPE_DISCRETE_NUMERIC;
+                } else if (hasDiscreteValues) {
+                    valueType = VALUE_TYPE_DISCRETE_STRING;
+                } else {
+                    valueType = VALUE_TYPE_RANGE_NUMERIC;
+                }
+
+                IdfElement valueTypeAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", lineStr);
+                valueTypeAddnValue.addElement("field-key")
+                        .addText("simParamValueType");
+                valueTypeAddnValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(valueType);
+                valueTypeAddnValue.addElement("field-key-parent")
+                        .addText(simParamTable);
+            }
+        }
+    }
+
+    private String getValueUnits(Node quantitativeResultNode) {
         Node symbolNode = null;
         if (isoXpathUtil.nodeExists(quantitativeResultNode, ".//gml:catalogSymbol")) {
             symbolNode = isoXpathUtil.getNode(quantitativeResultNode, ".//gml:catalogSymbol");
         } else {
-            Node hrefNode = isoXpathUtil.getNode(quantitativeResultNode, "./valueUnit/@href");
+            Node hrefNode = isoXpathUtil.getNode(quantitativeResultNode, "./gmd:valueUnit/@xlink:href");
             if (!getNodeText(hrefNode).isEmpty()) {
                 String href = getNodeText(hrefNode).substring(1); // Remove the leading #
-                String xpath = "//gml:UnitDefinition[@id='" + href + "']//gml:catalogSymbol";
+                String xpath = "//gml:UnitDefinition[@gml:id='" + href + "']//gml:catalogSymbol";
                 symbolNode = isoXpathUtil.getNode(quantitativeResultNode, xpath);
             }
         }
         return getNodeText(symbolNode);
+    }
+
+    private boolean hasNumericValues(List<String> values) {
+        try {
+            for(String v: values) {
+                Double.parseDouble(v);
+            }
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
+        return true;
     }
 
     private String getNodeText(Node node) {

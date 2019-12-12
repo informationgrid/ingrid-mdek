@@ -68,46 +68,6 @@ var ERROR = 4;
 
 // ------------------------
 
-// import Simulation: DGS Daten
-var dqQualityNodes = XPATH.getNodeList(source, "//gmd:DQ_DataQuality[./gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode/@codeListValue='model']");
-for (var i=0; i<dqQualityNodes.getLength(); i++ ) {
-    var dqQualityNode = dqQualityNodes.item(i);
-    var targetEl = target.getDocumentElement();
-    var additionalValues = XPATH.createElementFromXPath(targetEl, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
-
-    var simParamTypeVal = XPATH.getString(dqQualityNode, "gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString");
-    if (simParamTypeVal == null) continue;
-    
-    var simParamValueNodes = XPATH.getNodeList(dqQualityNode, "gmd:report/gmd:DQ_QuantitativeAttributeAccuracy/gmd:result/gmd:DQ_QuantitativeResult/gmd:value/gco:Record");
-    var simParamValue = "";
-    for (var j=0; j<simParamValueNodes.getLength(); j++ ) {
-    	simParamValue += XPATH.getString(simParamValueNodes.item(j), ".");
-    	if (j < (simParamValueNodes.getLength() - 1)) {
-    		simParamValue +=";";
-    	}
-    }
-
-    var records = [
-              {"key":"simParamName", "value":XPATH.getString(dqQualityNode, "gmd:report/gmd:DQ_QuantitativeAttributeAccuracy/gmd:result/gmd:DQ_QuantitativeResult/gmd:valueType/gco:RecordType")},
-              {"key":"simParamType", "value":simParamTypeVal,"id":codeListService.getSysListEntryKey(10104, simParamTypeVal, "", false)},
-              {"key":"simParamUnit", "value":XPATH.getString(dqQualityNode, "gmd:report/gmd:DQ_QuantitativeAttributeAccuracy/gmd:result/gmd:DQ_QuantitativeResult/gmd:valueUnit/gml:UnitDefinition/gml:catalogSymbol")},
-              {"key":"simParamValue", "value":simParamValue},
-              {"key":"simParamInfo", "value":XPATH.getString(dqQualityNode, "gmd:report/gmd:DQ_QuantitativeAttributeAccuracy/gmd:result/@xlink:href")},
-              {"key":"simParamMdInfo", "value":XPATH.getString(dqQualityNode, "gmd:lineage/gmd:LI_Lineage/gmd:source/@xlink:href")}
-            ];
-
-    var record;
-    for (record in records) {
-	    var additionalValue = additionalValues.appendChild(targetEl.getOwnerDocument().createElement("general-additional-value"));
-	    XMLUtils.createOrReplaceAttribute(additionalValue, "line", (i+1));
-	    XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key"), records[record].key);
-	    var fieldData = XPATH.createElementFromXPath(additionalValue, "field-data");
-	    XMLUtils.createOrReplaceAttribute(fieldData, "id", records[record].id ? records[record].id : "-1");
-	    XMLUtils.createOrReplaceTextNode(fieldData, records[record].value);
-	    XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key-parent"), "simParamTable");
-    }
-}
-
 //import resourceFormat
 var resourceFormatNodes = XPATH.getNodeList(source, "//gmd:resourceFormat/gmd:MD_Format");
 for (var i=0; i<resourceFormatNodes.getLength(); i++ ) {

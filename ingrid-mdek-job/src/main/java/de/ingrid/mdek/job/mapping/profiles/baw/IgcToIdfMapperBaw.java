@@ -20,6 +20,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
 
@@ -384,66 +385,74 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private void addDgsValues(Element mdMetadata, Long objId) throws SQLException {
         Map<Integer, Map<String, String>> groupedRows = getOrderedAdditionalFieldDataTableRows(objId, "simParamTable");
 
-        for(Integer sort: groupedRows.keySet()) { // Sorted by index of table row
-            Map<String, String> row = groupedRows.get(sort);
-            boolean areValuesDiscrete = Boolean.parseBoolean(row.get("simParamHasDiscreteValues"));
-            String name = row.get("simParamName");
-            String type = trafoUtil.getIGCSyslistEntryName(BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID, Integer.parseInt(row.get("simParamType")));
-            String units = row.get("simParamUnit");
+        for(Map.Entry<Integer, Map<String, String>> entry: groupedRows.entrySet()) {
+            Map<String, String> row = entry.getValue();
 
-            String query = "SELECT obj.data FROM additional_field_data obj " +
-                    "JOIN additional_field_data obj_p ON obj_p.id = obj.parent_field_id " +
-                    "JOIN additional_field_data obj_gp ON obj_gp.id = obj_p.parent_field_id " +
-                    "WHERE obj_gp.obj_id=? AND obj_p.sort=? AND obj.field_key=? " +
-                    "ORDER BY obj.sort";
-            List<Map<String, String>> valueRows = sqlUtils.all(query, new Object[]{objId, sort, "simParamValue"});
+            String paramName = row.get("simParamName");
+            String paramType = trafoUtil.getIGCSyslistEntryName(BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID, Integer.parseInt(row.get("simParamType")));
+            String paramUnits = row.get("simParamUnit");
+            String valueType = row.get("simParamValueType");
 
-            List<String> values = valueRows.stream()
-                    .map(e -> e.get("data"))
+            String prefix = "simParamValue.";
+            int startIdx = prefix.length();
+            List<String> values = row.entrySet().stream()
+                    .filter(e -> e.getKey().startsWith(prefix))
+                    .sorted(Comparator.comparingInt(e -> Integer.parseInt(e.getKey().substring(startIdx))))
+                    .map(e -> e.getValue())
                     .collect(Collectors.toList());
 
             IdfElement dqElement = modelScopedDqDataQualityElement(mdMetadata);
             IdfElement resultElement = dqElement.addElement("gmd:report/gmd:DQ_QuantitativeAttributeAccuracy/gmd:result");
 
-            resultElement.addElement("gmd:DQ_QuantitativeResult/gmd:valueType/gco:TypeName/gco:aName/gco:CharacterString")
-                    .addText(name);
+            resultElement.addElement("gmd:DQ_QuantitativeResult/gmd:valueType/gco:RecordType")
+                    .addText(paramName);
 
-            addElementWithUnits(mdMetadata, resultElement, "gmd:valueUnit", units);
+            addElementWithUnits(mdMetadata, resultElement, "gmd:valueUnit", paramUnits);
 
-            boolean valuesAreDoubles = false;
-            if (areValuesDiscrete) {
-                String typeAttr;
-                if (areValuesIntegers(values)) {
-                    typeAttr = "xs:integer";
-                } else if (areValuesDoubles(values)) {
-                    typeAttr = "xs:double";
-                    valuesAreDoubles = true;
+            if (values.isEmpty()) {
+                resultElement.addElement("gmd:value")
+                        .addAttribute("gco:nilReason", "unknown");
+            } else {
+                boolean areValuesDiscrete = VALUE_TYPE_DISCRETE_NUMERIC.equals(valueType)
+                        || VALUE_TYPE_DISCRETE_STRING.equals(valueType);
+                boolean areValuesIntegers = areValuesIntegers(values);
+                boolean areValuesDoubles = !areValuesIntegers && areValuesDoubles(values);
+
+                if (areValuesDiscrete) {
+                    String typeAttr;
+                    if (areValuesIntegers) {
+                        typeAttr = "xs:integer";
+                    } else if (VALUE_TYPE_DISCRETE_STRING.equals(valueType)) {
+                        typeAttr = "xs:string";
+                    } else {
+                        typeAttr = "xs:double";
+                    }
+                    for (String val : values) {
+                        if (areValuesDoubles) {
+                            val = String.format("%.1f", Double.parseDouble(val));
+                        }
+                        resultElement.addElement("gmd:value/gco:Record")
+                                .addAttribute("xsi:type", typeAttr)
+                                .addText(val);
+                    }
                 } else {
-                    typeAttr = "xs:string";
-                }
-                for(String val: values) {
-                    if (valuesAreDoubles) {
-                        val = String.format("%.1f", Double.parseDouble(val));
+                    String typeAttr;
+                    String val;
+                    if (areValuesIntegers) {
+                        typeAttr = "gml:integerList";
+                        val = String.format("%s %s", values.get(0), values.get(1));
+                    } else {
+                        typeAttr = "gml:doubleList";
+                        val = String.format("%.1f %.1f", Double.parseDouble(values.get(0)), Double.parseDouble(values.get(1)));
                     }
                     resultElement.addElement("gmd:value/gco:Record")
                             .addAttribute("xsi:type", typeAttr)
                             .addText(val);
                 }
-            } else {
-                String typeAttr;
-                if (areValuesIntegers(values)) {
-                    typeAttr = "gml:integerList";
-                } else {
-                    typeAttr = "gml:doubleList";
-                }
-                String val = String.format("%s %s", values.get(0), values.get(1));
-                resultElement.addElement("gmd:value/gco:Record")
-                        .addAttribute("xsi:type", typeAttr)
-                        .addText(val);
             }
 
             dqElement.addElement("gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description")
-                    .addText(type);
+                    .addText(paramType);
         }
     }
 

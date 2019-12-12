@@ -21,5 +21,9 @@ class BawConstants {
     static final String VV_WSV_1103_TITLE = "VV-WSV 1103";
     static final String VV_WSV_1103_DATE = "2019-05-29";
     static final String VV_WSV_1103_DATE_TYPE = "publication";
+
+    static final String VALUE_TYPE_DISCRETE_NUMERIC = "DISCRETE_NUMERIC";
+    static final String VALUE_TYPE_DISCRETE_STRING = "DISCRETE_STRING";
+    static final String VALUE_TYPE_RANGE_NUMERIC = "RANGE_NUMERIC";
 }
 
