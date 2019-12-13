@@ -93,6 +93,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             mapSimModelMethod(mdIdentification, additionalValues, protocolHandler);
             mapSimModelTypes(mdIdentification, additionalValues, protocolHandler);
             mapTimestepSize(mdMetadata, additionalValues);
+            mapDgsValues(mdMetadata, additionalValues, protocolHandler);
 
         } catch (MdekException e) {
             protocolHandler.addMessage(Type.ERROR, e.getMessage());
