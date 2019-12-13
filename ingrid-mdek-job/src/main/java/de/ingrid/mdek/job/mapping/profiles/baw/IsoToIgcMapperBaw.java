@@ -166,6 +166,10 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                 String idx = Integer.toString(i+1); // Line numbers start with 1
 
                 String[] components = toBWaStrComponents(code);
+                if (components == null) {
+                    LOG.debug("Failed to compute BWaStr. section from identifier: " + code);
+                    continue;
+                }
                 String bwastrId = components[0];
                 String kmStart = components[1];
                 String kmEnd = components[2];
@@ -220,13 +224,16 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
     private String[] toBWaStrComponents(String code) {
         Matcher matcher = BWASTR_PATTERN.matcher(code);
-        matcher.find(); // Only consider the first match
+        if (matcher.find()) { // Only consider the first match
 
-        String id = matcher.group(1);
-        String start = matcher.group(2) == null ? null : matcher.group(2).substring(1); // Trim the hyphen at the start
-        String end = matcher.group(3) == null ? null : matcher.group(3).substring(1);
+            String id = matcher.group(1);
+            String start = matcher.group(2) == null ? null : matcher.group(2).substring(1); // Trim the hyphen at the start
+            String end = matcher.group(3) == null ? null : matcher.group(3).substring(1);
 
-        return new String[] { id, start, end };
+            return new String[]{id, start, end};
+        } else {
+            return null;
+        }
     }
 
     private void mapKeywordCatalogueKeywords(Element mdIdentification, Element additionalValues, ProtocolHandler ph) {
