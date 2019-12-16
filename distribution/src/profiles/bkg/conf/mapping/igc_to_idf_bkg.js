@@ -95,10 +95,12 @@ function handleBKGUseConstraints() {
                 bkgSourceNoteText ? "Quellenvermerk: " + bkgSourceNoteText : null);
         }
 
-        // add json from codelist-data field
-        var licenseJSON = TRANSF.getISOCodeListEntryData(10003, TRANSF.getIGCSyslistEntryName(10003, bkgUseConstraintSelectListItem));
-        if (hasValue(licenseJSON)) {
-            legalConstraint.addElement("gmd:otherConstraints/gco:CharacterString").addText(licenseJSON);
+        // add json from codelist-data field for open data datasets
+        if (isOpenData()) {
+            var licenseJSON = TRANSF.getISOCodeListEntryData(10003, TRANSF.getIGCSyslistEntryName(10003, bkgUseConstraintSelectListItem));
+            if (hasValue(licenseJSON)) {
+                legalConstraint.addElement("gmd:otherConstraints/gco:CharacterString").addText(licenseJSON);
+            }
         }
     }
 }
