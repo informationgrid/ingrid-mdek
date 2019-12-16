@@ -6,7 +6,9 @@ import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.dom4j.io.DOMReader;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.dom.DOMSource;
@@ -178,7 +180,10 @@ public final class IsoImportValidationUtil {
             URL url = getClass().getClassLoader().getResource(GMD_XSD_FILESYSTEM_LOCATION);
             Schema schema = sf.newSchema(url);
 
-            return schema.newValidator();
+            Validator validator = schema.newValidator();
+            validator.setErrorHandler(new IsoValidationErrorHandler());
+
+            return validator;
         } catch (SAXException ex) {
             String msgKey = "xml.schema.definition.invalid";
             String defaultMsg = "ISO GMD Schema at following location is invalid: " + GMD_XSD_FILESYSTEM_LOCATION;
@@ -364,6 +369,34 @@ public final class IsoImportValidationUtil {
         TEXT_CONTENT_MATCHES_PATTERN_AT_LEAST_ONCE,
         TEXT_CONTENT_IS_UUID,
         TEXT_CONTENT_IS_ISO_8601_STRING;
+    }
+
+    private class IsoValidationErrorHandler implements ErrorHandler {
+
+        private List<String> messages = new ArrayList<>();
+
+        @Override
+        public void warning(SAXParseException e) throws SAXException {
+            protocolHandler.addMessage(Type.WARN, e.getMessage());
+            messages.add(e.getMessage());
+        }
+
+        @Override
+        public void error(SAXParseException e) throws SAXException {
+            String ignored = "cvc-complex-type.2.4.a: Invalid content was found starting with element 'gmx:Anchor'. One of '{\"http://www.isotc211.org/2005/gco\":CharacterString}' is expected.";
+            String message = e.getMessage();
+            if (!ignored.equals(message)) { // TODO find way to modify xml schema instead of comparing strings
+                protocolHandler.addMessage(Type.ERROR, message);
+                messages.add(message);
+            }
+        }
+
+        @Override
+        public void fatalError(SAXParseException e) throws SAXException {
+            protocolHandler.addMessage(Type.ERROR, e.getMessage());
+            messages.add(e.getMessage());
+            throw e;
+        }
     }
 
 }
