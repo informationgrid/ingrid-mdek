@@ -448,6 +448,7 @@ function addT01Object(row) {
     IDX.add("t01_object.mod_time", row.get("mod_time"));
     IDX.add("t01_object.mod_uuid", row.get("mod_uuid"));
     IDX.add("t01_object.responsible_uuid", row.get("responsible_uuid"));
+    IDX.add("t01_object.is_inspire_relevant", row.get("is_inspire_relevant"));
     if (hasValue(row.get("is_inspire_relevant")) && row.get("is_inspire_relevant")=='Y') {
         // add as FREIER term, no alternate value
         addSearchtermValue("F", "inspireidentifiziert", "");
@@ -457,6 +458,16 @@ function addT01Object(row) {
     if (hasValue(row.get("is_open_data")) && row.get("is_open_data")=='Y') {
         // add as FREIER term, no alternate value
         addSearchtermValue("F", "opendata", "");
+    }
+    // also adv keyword and checkbox, see #1105
+    IDX.add("t01_object.is_adv_compatible", row.get("is_adv_compatible"));
+    if (hasValue(row.get("is_adv_compatible")) && row.get("is_adv_compatible")=='Y') {
+        // add as FREIER term, no alternate value
+        addSearchtermValue("F", "AdVMIS", "");
+    }
+    // if this document has topics then add the datatype topics to be found
+    if (hasValue(row.get("is_catalog_data")) && row.get("is_catalog_data")=='Y') {
+        IDX.add("datatype", "topics");
     }
 }
 function addT0110AvailFormat(row) {
@@ -892,8 +903,10 @@ function addT0114EnvTopic(row) {
     IDX.add("t0114_env_topic.line", row.get("line"));
     IDX.add("t0114_env_topic.topic_key", row.get("topic_key"));
     // get the query value of the topic, this one has to be in the "topic" index field (queried by portal)
-    var specificLangId = TRANSF.LANG_ID_INGRID_QUERY_VALUE;
-    IDX.add("topic", TRANSF.getCodeListEntryFromIGCSyslistEntry(1410, row.get("topic_key"), specificLangId));
+    var TransformationUtils = Java.type("de.ingrid.iplug.dsc.utils.TransformationUtils")
+    var specificLangId = TransformationUtils.LANG_ID_INGRID_QUERY_VALUE;
+    var value = TRANSF.getCodeListEntryFromIGCSyslistEntry(1410, row.get("topic_key"), specificLangId);
+    IDX.add("topic", value ? value.toLocaleLowerCase() : null);
     // we also index the displayed value of the topic
     IDX.add("t0114_env_topic.topic_value", TRANSF.getIGCSyslistEntryName(1410, row.get("topic_key")));
 }
