@@ -210,7 +210,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 .addText(title);
         aggInfoCitationElement.addElement("gmd:date")
                 .addAttribute("gco:nilReason", "unknown");
-        aggInfoCitationElement.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code")
+        aggInfoCitationElement.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString")
                 .addText(number);
     }
 
@@ -451,7 +451,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 }
             }
 
-            dqElement.addElement("gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description")
+            dqElement.addElement("gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString")
                     .addText(paramType);
         }
     }

@@ -129,7 +129,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                     addText(auftragsTitel);
         }
 
-        String pspXpath = "./gmd:identifier/gmd:MD_Identifier/gmd:code";
+        String pspXpath = "./gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString";
         Element pspElement = (Element) isoXpathUtil.getNode(ciCitation, pspXpath);
         String pspNumber = getNodeText(pspElement);
         if (!pspNumber.isEmpty()) {
@@ -369,7 +369,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
          */
         int line = 0;
 
-        String dqXpath = "./gmd:dataQualityInfo/gmd:DQ_DataQuality[./gmd:scope/*/gmd:level/gmd:MD_ScopeCode/@codeListValue='model']";
+        String dqXpath = "./gmd:dataQualityInfo/gmd:DQ_DataQuality[./gmd:report/gmd:DQ_QuantitativeAttributeAccuracy and ./gmd:scope/*/gmd:level/gmd:MD_ScopeCode/@codeListValue='model']";
 
         String resultXpath = "./gmd:report/gmd:DQ_QuantitativeAttributeAccuracy/gmd:result/gmd:DQ_QuantitativeResult";
 
@@ -377,7 +377,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         String valueXpath = "./gmd:value/gco:Record";
         String typeAttrXpath = valueXpath + "[@type='gml:integerList' or @type='gml:doubleList']";
 
-        String paramTypeXpath = "./gmd:lineage/*/gmd:source/*/gmd:description";
+        String paramTypeXpath = "./gmd:lineage/*/gmd:source/*/gmd:description/gco:CharacterString";
 
         String simParamTable = "simParamTable";
 

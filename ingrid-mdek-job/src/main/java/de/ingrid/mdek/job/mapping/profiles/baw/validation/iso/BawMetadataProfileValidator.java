@@ -412,7 +412,7 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
                     .withTagKey(westTagKey)
                     .withStringParameter(GERMANY_WEST_BOUND_LONGITUDE)
                     .withLogLevel(Type.WARN)
-                    .doChecks(TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
+                    .doChecks(TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO);
             validator.withStartNode(n)
                     .withXpath(eastXpath)
                     .withTagKey(eastTagKey)
@@ -424,7 +424,7 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
                     .withTagKey(southTagKey)
                     .withStringParameter(GERMANY_SOUTH_BOUND_LATITUDE)
                     .withLogLevel(Type.WARN)
-                    .doChecks(TEXT_CONTENT_IS_LESS_THAN_OR_EQUAL_TO);
+                    .doChecks(TEXT_CONTENT_IS_GREATER_THAN_OR_EQUAL_TO);
             validator.withStartNode(n)
                     .withXpath(northXpath)
                     .withTagKey(northTagKey)
