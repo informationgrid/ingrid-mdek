@@ -2,8 +2,6 @@ package de.ingrid.mdek.job.mapping.profiles.baw;
 
 import de.ingrid.iplug.dsc.utils.DOMUtils;
 import de.ingrid.iplug.dsc.utils.DOMUtils.IdfElement;
-import de.ingrid.iplug.dsc.utils.SQLUtils;
-import de.ingrid.iplug.dsc.utils.TransformationUtils;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.mapping.ImportDataMapper;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
@@ -11,7 +9,6 @@ import de.ingrid.mdek.job.protocol.ProtocolHandler.Type;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.utils.xml.ConfigurableNamespaceContext;
-import de.ingrid.utils.xml.Csw202NamespaceContext;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xml.IgcProfileNamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
@@ -49,10 +46,6 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
     private XPathUtils isoXpathUtil;
 
     private DOMUtils igcDomUtil;
-    private DOMUtils isoDomUtil;
-
-    private SQLUtils sqlUtils;
-    private TransformationUtils trafoUtil;
 
     @Autowired
     public IsoToIgcMapperBaw(DaoFactory daoFactory) {
@@ -70,11 +63,6 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             igcDomUtil = new DOMUtils(targetIgc, igcXpathUtil);
 
             isoXpathUtil = new XPathUtils(new IDFNamespaceContext());
-            isoDomUtil = new DOMUtils(sourceIso, isoXpathUtil);
-            isoDomUtil.addNS("gmd", Csw202NamespaceContext.NAMESPACE_URI_GMD);
-            isoDomUtil.addNS("gco", Csw202NamespaceContext.NAMESPACE_URI_GCO);
-            isoDomUtil.addNS("gml", Csw202NamespaceContext.NAMESPACE_URI_GML);
-            isoDomUtil.addNS("xlink", Csw202NamespaceContext.NAMESPACE_URI_XLINK);
 
             Element mdMetadata = (Element) isoXpathUtil.getNode(sourceIso, "/gmd:MD_Metadata");
             String xpath = "./gmd:identificationInfo/gmd:MD_DataIdentification|./gmd:identificationInfo/srv:SV_ServiceIdentification";
