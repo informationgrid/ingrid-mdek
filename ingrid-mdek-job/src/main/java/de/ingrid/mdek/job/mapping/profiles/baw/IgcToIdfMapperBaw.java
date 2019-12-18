@@ -266,7 +266,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 .addAttribute("codeList", CODELIST_URL + "CI_DateTypeCode")
                 .addAttribute("codeListValue", VV_WSV_1103_DATE_TYPE);
 
-        exGeographicExtentElement.addElement("gmd:code/gco:CharacterString")
+        mdIdentifierElement.addElement("gmd:code/gco:CharacterString")
                 .addText(identifier);
 
         return extentElement;
