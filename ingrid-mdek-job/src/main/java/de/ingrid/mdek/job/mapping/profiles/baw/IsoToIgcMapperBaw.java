@@ -23,22 +23,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
 
 public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
     private static final Logger LOG = Logger.getLogger(IsoToIgcMapperBaw.class);
-
-    /**
-     * [^0-9]*: any character, as long as it isn't a number
-     * ([0-9]{4}): First capture group with exactly 4 digits
-     * (-[0-9.]+)?: Second capture group starting with a hyphen and followed by a number (int or float). The whole capture group is optional (Question mark at the end)
-     * ditto
-     * .*: any trailing character
-     */
-    private static final Pattern BWASTR_PATTERN = Pattern.compile("[^0-9]*([0-9]{4})(-[0-9.]+)?(-[0-9.]+)?.*");
 
     private MdekCatalogService catalogService;
 

@@ -24,6 +24,7 @@ package de.ingrid.mdek.job.mapping.profiles.baw.validation.iso;
 
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.mapping.ImportDataMapper;
+import de.ingrid.mdek.job.mapping.profiles.baw.BawConstants;
 import de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import de.ingrid.mdek.job.protocol.ProtocolHandler.Type;
@@ -31,6 +32,8 @@ import org.dom4j.Node;
 
 import java.util.List;
 
+import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
+import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.VV_WSV_1103_TITLE;
 import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil.*;
 import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidationUtil.ValidationType.*;
 
@@ -323,10 +326,13 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
         validator.withXpath(xpath)
                 .withTagKey(tagKey)
                 .doChecks(ONE_OR_MORE_NODES_EXIST, TEXT_CONTENT_IS_NOT_EMPTY);
-        validator.withXpath(xpath)
+
+
+        String bwastrXpath = "//gmd:geographicIdentifier/gmd:MD_Identifier[./gmd:authority/gmd:CI_Citation/gmd:title/gco:CharacterString/text()='" + VV_WSV_1103_TITLE + "']/gmd:code/gco:CharacterString";
+        validator.withXpath(bwastrXpath)
                 .withTagKey(tagKey)
-                .withStringParameter(BWASTR_KM_KM)
-                .doChecks(TEXT_CONTENT_MATCHES_PATTERN_AT_LEAST_ONCE);
+                .withStringParameter(BWASTR_PATTERN.toString())
+                .doChecks(ONE_OR_MORE_NODES_EXIST, TEXT_CONTENT_MATCHES_PATTERN_AT_LEAST_ONCE);
     }
 
     private void validateGeographicBoundingBox(IsoImportValidationUtil validator) {
