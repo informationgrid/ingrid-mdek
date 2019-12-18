@@ -98,7 +98,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
             Integer key = catalogService.getSysListEntryKey(BAW_HIERARCHY_LEVEL_NAME_CODELIST_ID, hlName, "", false);
             if (key == null || key < 0) {
-                ph.addMessage(Type.WARN, "Hierarchy level name not found in BAW codelist: " + hlName);
+                ph.addMessage(Type.WARN, "Hierarchy level name not found in BAW codelist: '" + hlName + '\'');
                 key = -1;
             }
 
@@ -164,7 +164,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                 String kmEnd = components[2];
 
                 if (bwastrId == null) {
-                    ph.addMessage(Type.WARN, "No BWaStr. ID detected for code: " + code);
+                    ph.addMessage(Type.WARN, "No BWaStr. ID detected for code: '" + code + '\'');
                     continue;
                 }
 
@@ -230,7 +230,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         for(String kw: getKeywordsForThesaurus(mdIdentification, BAW_KEYWORD_CATALOGUE_TITLE)) {
             Integer key = catalogService.getSysListEntryKey(BAW_KEYWORD_CATALOGUE_CODELIST_ID, kw, "", false);
             if (key == null || key < 0) {
-                ph.addMessage(Type.WARN, "Keyword not found in BAW Keyword Catalogue (2012): " + kw);
+                ph.addMessage(Type.WARN, "Keyword not found in BAW Keyword Catalogue (2012): '" + kw + '\'');
                 continue;
             }
 
@@ -259,7 +259,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         String kw = kwList.get(0); // There should be only one such keyword
         Integer key = catalogService.getSysListEntryKey(BAW_DIMENSIONALITY_CODELIST_ID, kw, "", false);
         if (key == null || key < 1) {
-            ph.addMessage(Type.ERROR, "Spatial dimensionality code wasn't found in the available codelist: " + kw);
+            ph.addMessage(Type.ERROR, "Spatial dimensionality code wasn't found in the available codelist: '" + kw + '\'');
         } else {
             IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
             additionalValue.addElement("field-key")
@@ -281,7 +281,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         String kw = kwList.get(0); // There should be only one such keyword
         Integer key = catalogService.getSysListEntryKey(BAW_MODEL_METHOD_CODELIST_ID, kw, "", false);
         if (key == null || key < 1) {
-            ph.addMessage(Type.ERROR, "Modelling method code wasn't found in the available codelist: " + kw);
+            ph.addMessage(Type.ERROR, "Modelling method code wasn't found in the available codelist: '" + kw + '\'');
         } else {
             IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
             additionalValue.addElement("field-key")
@@ -301,7 +301,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         for(String kw: getKeywordsForThesaurus(mdIdentification, thesaurusTitle)) {
             Integer key = catalogService.getSysListEntryKey(BAW_MODEL_TYPE_CODELIST_ID, kw, "", false);
             if (key == null || key < 0) {
-                ph.addMessage(Type.WARN, "Simulation model type not found in available codelist: " + kw);
+                ph.addMessage(Type.WARN, "Simulation model type not found in available codelist: '" + kw + '\'');
                 continue;
             }
 
@@ -392,7 +392,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             String paramType = getNodeText(paramTypeNode);
             Integer paramTypeKey = catalogService.getSysListEntryKey(BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID, paramType, "", false);
             if (paramTypeKey == null || paramTypeKey < -1) {
-                ph.addMessage(Type.ERROR, "Simulation parameter type not found in a available codelist: " + paramType);
+                ph.addMessage(Type.ERROR, "Simulation parameter type not found in the available codelist: '" + paramType + '\'');
                 continue;
             }
             LOG.debug("DGS parameter type can be imported: " + paramType);

@@ -373,12 +373,9 @@ public final class IsoImportValidationUtil {
 
     private class IsoValidationErrorHandler implements ErrorHandler {
 
-        private List<String> messages = new ArrayList<>();
-
         @Override
         public void warning(SAXParseException e) throws SAXException {
             protocolHandler.addMessage(Type.WARN, e.getMessage());
-            messages.add(e.getMessage());
         }
 
         @Override
@@ -387,14 +384,12 @@ public final class IsoImportValidationUtil {
             String message = e.getMessage();
             if (!ignored.equals(message)) { // TODO find way to modify xml schema instead of comparing strings
                 protocolHandler.addMessage(Type.ERROR, message);
-                messages.add(message);
             }
         }
 
         @Override
         public void fatalError(SAXParseException e) throws SAXException {
             protocolHandler.addMessage(Type.ERROR, e.getMessage());
-            messages.add(e.getMessage());
             throw e;
         }
     }
