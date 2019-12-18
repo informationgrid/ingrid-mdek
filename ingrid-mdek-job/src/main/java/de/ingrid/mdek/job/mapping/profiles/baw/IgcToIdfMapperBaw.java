@@ -370,7 +370,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
     private void addTimestepSizeElement(Element mdMetadata, Long objId) throws SQLException {
         String value = getFirstAdditionalFieldValue(objId, "dqAccTimeMeas");
-        if (value == null) return; // There's nothing to do if there is no value
+        if (value == null || "NaN".equals(value)) return; // There's nothing to do if there is no value
 
         IdfElement dqElement = modelScopedDqDataQualityElement(mdMetadata);
 
