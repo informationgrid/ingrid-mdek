@@ -2304,29 +2304,72 @@ function getTypeOfAddress(source, target) {
 }
 
 function handleBoundingPolygon(source, target) {
-    var posListElements = XPATH.getNodeList(source, "//gmd:identificationInfo//gml:Polygon/gml:exterior/gml:LinearRing/gml:PosList");
-    for(var i=0; i<posListElements.getLength(); i++) {
-		var posList = posListElements.item(i).getTextContent();
-		if (hasValue(posList)) {
-			posList = posList.replace(/[\r\n]/g, ""); // Remove newlines
-
-			var wkt = "POLYGON ((";
-			var coordinates = posList.split(/\s+/);
-			for(var j=0; j<coordinates.length; j+=2) {
-			    if (!wkt.endsWith("((")) {
-			    	wkt += ", ";
-				}
-				wkt += coordinates[j] + " " + coordinates[j+1];
-			}
-			wkt += "))";
-
-			var additionalValues = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
-			var additionalValue = XPATH.createElementFromXPath(additionalValues, "general-additional-value");
-
-			XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key"), "boundingPolygon");
-			XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-data"), wkt);
+	var gmlPointPosNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:Point/gml:pos");
+	for(var i=0; i<gmlPointPosNodes.getLength(); i++) {
+		var wkt = gmlPosListToWktCoordinates(gmlPointPosNodes.item(i));
+		if (wkt) {
+			wkt = "POINT " + wkt;
+			addPolygonWktToIgc(target, wkt);
 		}
 	}
+
+	var gmlLineStringPosListNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:LineString/gml:posList");
+	for(var i=0; i<gmlLineStringPosListNodes.getLength(); i++) {
+		var wkt = gmlPosListToWktCoordinates(gmlLineStringPosListNodes.item(i));
+		if (wkt) {
+			wkt = "LINESTRING " + wkt;
+			addPolygonWktToIgc(target, wkt);
+		}
+	}
+
+	// Polygon elements
+	var gmlPolygonNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:Polygon");
+	for(var i=0; i<gmlPolygonNodes.getLength(); i++) {
+		var wkt = "";
+	    var polygonNode = gmlPolygonNodes.item(i);
+
+		var exteriorNode = XPATH.getNode(polygonNode, "./gml:exterior/gml:LinearRing/gml:posList");
+		wkt += gmlPosListToWktCoordinates(exteriorNode);
+
+		var interiorNodes = XPATH.getNodeList(polygonNode, "./gml:interior/gml:LinearRing/gml:posList");
+		for(var j=0; j<interiorNodes.getLength(); j++) {
+			var str = gmlPosListToWktCoordinates(interiorNodes.item(j));
+			if (wkt && str)  {
+				wkt += ", ";
+			}
+			wkt += str;
+		}
+		if (wkt) {
+			wkt = "POLYGON (" + wkt + ")";
+			addPolygonWktToIgc(target, wkt);
+		}
+	}
+}
+
+function gmlPosListToWktCoordinates(node) {
+	if (!node) return "";
+
+	var posList = node.getTextContent();
+	if (!hasValue(posList)) return "";
+
+	posList = posList.replace(/[\r\n]/g, ""); // Remove newlines
+	var coords = "";
+	var arr = posList.split(/\s+/);
+	for(var i=0; i<arr.length; i+=2) {
+		if (coords) { // not empty
+			coords += ", ";
+		}
+		coords += arr[i] + " " + arr[i+1];
+	}
+	return "(" + coords + ")";
+}
+
+function addPolygonWktToIgc(target, wkt) {
+	var additionalValues = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
+	var additionalValue = XPATH.createElementFromXPath(additionalValues, "general-additional-value");
+
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key"), "boundingPolygon");
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-data"), wkt);
 }
 
 
