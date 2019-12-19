@@ -159,6 +159,11 @@ var mappingDescription = {"mappings":[
 			  	]
 			}
   		},
+		{
+		    "execute": {
+		    	"funct": handleBoundingPolygon
+			}
+		},
 
   		// ****************************************************
   		//
@@ -2295,6 +2300,32 @@ function getTypeOfAddress(source, target) {
 		XMLUtils.createOrReplaceAttribute(node, "id", "0");
 	} else {
 		XMLUtils.createOrReplaceAttribute(node, "id", "2");
+	}
+}
+
+function handleBoundingPolygon(source, target) {
+    var posListElements = XPATH.getNodeList(source, "//gmd:identificationInfo//gml:Polygon/gml:exterior/gml:LinearRing/gml:PosList");
+    for(var i=0; i<posListElements.getLength(); i++) {
+		var posList = posListElements.item(i).getTextContent();
+		if (hasValue(posList)) {
+			posList = posList.replace(/[\r\n]/g, ""); // Remove newlines
+
+			var wkt = "POLYGON ((";
+			var coordinates = posList.split(/\s+/);
+			for(var j=0; j<coordinates.length; j+=2) {
+			    if (!wkt.endsWith("((")) {
+			    	wkt += ", ";
+				}
+				wkt += coordinates[j] + " " + coordinates[j+1];
+			}
+			wkt += "))";
+
+			var additionalValues = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
+			var additionalValue = XPATH.createElementFromXPath(additionalValues, "general-additional-value");
+
+			XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key"), "boundingPolygon");
+			XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-data"), wkt);
+		}
 	}
 }
 
