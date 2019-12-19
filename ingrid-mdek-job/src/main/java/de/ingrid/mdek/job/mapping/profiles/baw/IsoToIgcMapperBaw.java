@@ -19,9 +19,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 
 import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
@@ -72,6 +70,8 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             mapSimModelTypes(mdIdentification, additionalValues, protocolHandler);
             mapTimestepSize(mdMetadata, additionalValues);
             mapDgsValues(mdMetadata, additionalValues, protocolHandler);
+
+            mapOnlineFunctionCode(mdMetadata, igcRoot);
 
         } catch (MdekException e) {
             protocolHandler.addMessage(Type.ERROR, e.getMessage());
@@ -510,6 +510,33 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             return false;
         }
         return true;
+    }
+
+    private void mapOnlineFunctionCode(Element mdMetadata, Element igcRoot) {
+        String linkageXpath = "/igc/data-sources/data-source/data-source-instance/available-linkage";
+        NodeList allIgcLinkages = igcXpathUtil.getNodeList(igcRoot, linkageXpath);
+
+        Map<String, Integer> counts = new HashMap<>();
+
+        String urlXpath = "./linkage-url";
+        String functionNodeXpathPattern = "./gmd:distributionInfo/*/gmd:transferOptions/*/gmd:onLine/gmd:CI_OnlineResource[./gmd:linkage/gmd:URL/text()='%s']/gmd:function/gmd:CI_OnLineFunctionCode/@codeListValue";
+        for(int i=0; i<allIgcLinkages.getLength(); i++) {
+            Element linkageNode = (Element) allIgcLinkages.item(i);
+            String url = getNodeText(igcXpathUtil.getNode(linkageNode, urlXpath));
+
+            if (url.isEmpty()) continue;
+
+            Integer n = counts.getOrDefault(url, 0);
+            counts.put(url, n+1);
+
+            NodeList codeListNodes = isoXpathUtil.getNodeList(mdMetadata, String.format(functionNodeXpathPattern, url));
+            String codeListValue = getNodeText(codeListNodes.item(n));
+            if ("download".equals(codeListValue)) {
+                igcDomUtil.addElement(linkageNode, "linkage-reference")
+                        .addAttribute("id", "9990")
+                        .addText("Datendownload");
+            }
+        }
     }
 
     private String getNodeText(Node node) {
