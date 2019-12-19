@@ -2175,6 +2175,35 @@ function addExtent(identificationInfo, objRow) {
         exExtent.addElement("gmd:description/gco:CharacterString").addText(objRow.get("loc_descr"));
     }
 
+    // ---------- <gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon> ----------
+    var wktRow = SQL.first("SELECT fd.data AS data FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'boundingPolygon'", [+objId]);
+    if (hasValue(wktRow)) {
+        var wkt = wktRow.get("data");
+        log.debug("WKT for polygon is: " + wkt);
+
+        // Remove newlines
+        wkt = wkt.replace(/[\r\n]/g, "");
+        /*
+         * \(     -> opening parenthesis
+         * \s     -> {0,n} whitespace characters
+         * (      -> start capture group
+         * [0-9.] -> single number or dot
+         * [^)]+  -> one or more characters other than )
+         * )      -> end of capture group
+         * \s*    -> {0,n} whitespace characters
+         * )      -> closing parenthesis
+         */
+        var match = wkt.match(/\(\s*([0-9.][^)]+)\s*\)/);
+        if (hasValue(match)) {
+            var ring = match[1]; // First capture group
+            ring = ring.replace(/,/g, " ").replace(/  +/g, " ");
+
+            var gmdBoundingPolygon = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon");
+            gmdBoundingPolygon.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
+            gmdBoundingPolygon.addElement("gmd:polygon/gml:Polygon/gml:exterior/gml:LinearRing/gml:PosList").addText(ring);
+        }
+    }
+
     // ---------- <gmd:EX_Extent/gmd:geographicElement> ----------
     rows = SQL.all("SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value WHERE spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?", [+objId]);
     for (i=0; i<rows.size(); i++) {
