@@ -2183,24 +2183,40 @@ function addExtent(identificationInfo, objRow) {
 
         // Remove newlines
         wkt = wkt.replace(/[\r\n]/g, "");
-        /*
-         * \(     -> opening parenthesis
-         * \s     -> {0,n} whitespace characters
-         * (      -> start capture group
-         * [0-9.] -> single number or dot
-         * [^)]+  -> one or more characters other than )
-         * )      -> end of capture group
-         * \s*    -> {0,n} whitespace characters
-         * )      -> closing parenthesis
-         */
-        var match = wkt.match(/\(\s*([0-9.][^)]+)\s*\)/);
-        if (hasValue(match)) {
-            var ring = match[1]; // First capture group
-            ring = ring.replace(/,/g, " ").replace(/  +/g, " ");
+        if (wkt.trim().toLowerCase().startsWith("polygon")) {
+            /*
+             * \(     -> opening parenthesis
+             * \s     -> {0,n} whitespace characters
+             * (      -> start capture group
+             * [^()]+  -> one or more characters other than parentheses ( and )
+             * )      -> end of capture group
+             * \s*    -> {0,n} whitespace characters
+             * )      -> closing parenthesis
+             */
+            var regex = /\(\s*([^()]+)\s*\)/g;
+            var arr;
+            var rings = [];
+            while((arr = regex.exec(wkt)) !== null) {
+                if (hasValue(arr[1]) && arr[1].trim()) { // Value exists and isn't empty
+                    var coords = arr[1].replace(/,/g, " ") // Replace all commas with spaces
+                        .replace(/  +/g, " "); // Replace multiple consecutive spaces with single space
+                    rings.push(coords);
+                }
+            }
 
-            var gmdBoundingPolygon = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon");
-            gmdBoundingPolygon.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
-            gmdBoundingPolygon.addElement("gmd:polygon/gml:Polygon/gml:exterior/gml:LinearRing/gml:PosList").addText(ring);
+            // Create the polygon element
+            var polygon;
+            if (rings.length > 0) {
+                polygon = createAndGetPolygonFirstChild(identificationInfo, extentElemName, "Polygon");
+            }
+
+            // add the rings
+            for(var i=0; i<rings.length; i++) {
+                var path = i === 0 ? "gml:exterior/" : "gml:interior/";
+                path += "gml:LinearRing/gml:PosList";
+
+                polygon.addElement(path).addText(rings[i]);
+            }
         }
     }
 
@@ -2293,6 +2309,15 @@ function addExtent(identificationInfo, objRow) {
         verticalDatum.addElement("gml:name").addText(verticalExtentVDatum);
         verticalDatum.addElement("gml:scope");
     }
+}
+
+function createAndGetPolygonFirstChild(idInfoNode, extentElemName, name) {
+    var prefix = name.toLowerCase() + "_ID_";
+
+    var gmdBoundingPolygon = idInfoNode.addElement(extentElemName).addElement("gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon");
+    gmdBoundingPolygon.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
+    return gmdBoundingPolygon.addElement("gmd:polygon/gml:" + name)
+        .addAttribute("gml:id", prefix.concat(TRANSF.getRandomUUID()));
 }
 
 function getGeographicIdentifier(spatialRefValueRow) {
