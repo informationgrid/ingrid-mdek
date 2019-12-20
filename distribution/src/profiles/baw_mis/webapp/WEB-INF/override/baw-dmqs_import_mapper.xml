@@ -88,33 +88,21 @@
         <property name="recordSetProducer" ref="recordSetProducer" />
         <property name="recordMapperList">
             <list>
-                <ref bean="recordMapper"/>
                 <ref bean="recordProfileMapper"/>
-                <ref bean="recordMapperBawDmqsPostProcessing"/>
                 <ref bean="idfProducerIndexMapper"/>
             </list>
         </property>
         <property name="indexInfo" ref="indexInfo"></property>
     </bean>
-    
-    
-    <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
+
+    <bean id="recordProfileMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
         <property name="mappingScripts">
             <list>
                 <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/igc_to_lucene.js</value>
                 <value>classpath:mapping/igc_to_lucene_baw-dmqs.js</value>
             </list>
-        </property> 
-        <property name="compile" value="false" />
-    </bean>
-
-    <bean id="recordMapperBawDmqsPostProcessing" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
-        <property name="mappingScripts">
-            <list>
-                <value>classpath:mapping/global.js</value>
-                <value>classpath:mapping/baw-dmqs-postprocessing.js</value>
-            </list>
-        </property> 
+        </property>
         <property name="compile" value="false" />
     </bean>
 

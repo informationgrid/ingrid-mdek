@@ -122,7 +122,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             IdfElement mdIdentification = domUtil.getElement(mdMetadata, xpath);
 
             @SuppressWarnings("unchecked")
-            Map<String, String> idxDoc = (Map<String, String>) sourceRecord.get("idxDoc");
+            Map<String, Object> idxDoc = (Map<String, Object>) sourceRecord.get("idxDoc");
 
             // ===== Operations that don't require a database data =====
             logMissingMetadataContact(mdMetadata);
@@ -502,7 +502,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         return true;
     }
 
-    private void addWaterwayInformation(Element mdMetadata, Map<String, String> idxDoc) {
+    private void addWaterwayInformation(Element mdMetadata, Map<String, Object> idxDoc) {
         IdfElement additionalDataSection = domUtil.addElement(mdMetadata, "idf:additionalDataSection")
                 .addAttribute("id", "bawDmqsAdditionalFields");
         additionalDataSection.addElement("idf:title")
@@ -510,39 +510,52 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 .addText("BAW DMQS Zusatzfelder");
 
         // bwstr-bwastr_name (Bundeswasserstrassen Name)
-        IdfElement field = additionalDataSection.addElement("idf:additionalDataField")
-                .addAttribute("id", "bwstr-bwastr_name");
-        field.addElement("idf:title")
-                .addAttribute("lang", "de")
-                .addText("Bwstr Name");
-        field.addElement("idf:data")
-                .addText(idxDoc.get("bwstr-bwastr_name"));
+        Object wwayName = idxDoc.get("bwstr-bwastr_name");
+        Object wwayStretchName = idxDoc.get("bwstr-strecken_name");
+        Object centreLon = idxDoc.get("bwstr-center-lon");
+        Object centreLat = idxDoc.get("bwstr-center-lat");
 
-        // bwstr-strecken_name (Streckenname des Abschnitts)
-        field = additionalDataSection.addElement("idf:additionalDataField")
-                .addAttribute("id", "bwstr-strecken_name");
-        field.addElement("idf:title")
-                .addAttribute("lang", "de")
-                .addText("Bwstr Streckenname");
-        field.addElement("idf:data")
-                .addText(idxDoc.get("bwstr-strecken_name"));
+        if (wwayName != null) {
+            IdfElement field = additionalDataSection.addElement("idf:additionalDataField")
+                    .addAttribute("id", "bwstr-bwastr_name");
+            field.addElement("idf:title")
+                    .addAttribute("lang", "de")
+                    .addText("Bwstr Name");
+            field.addElement("idf:data")
+                    .addText(wwayName.toString());
 
-        // bwstr-center-lon (Longitude des Zentrums des Abschnitts)
-        field = additionalDataSection.addElement("idf:additionalDataField")
-                .addAttribute("id", "bwstr-center-lon");
-        field.addElement("idf:title")
-                .addAttribute("lang", "de")
-                .addText("Longitude des Zentrums des Abschnitts");
-        field.addElement("idf:data")
-                .addText(idxDoc.get("bwstr-center-lon"));
+            // bwstr-strecken_name (Streckenname des Abschnitts)
+            if (wwayStretchName != null) {
+                field = additionalDataSection.addElement("idf:additionalDataField")
+                        .addAttribute("id", "bwstr-strecken_name");
+                field.addElement("idf:title")
+                        .addAttribute("lang", "de")
+                        .addText("Bwstr Streckenname");
+                field.addElement("idf:data")
+                        .addText(wwayStretchName.toString());
+            }
 
-        // bwstr-center-lat (Latitude des Zentrums des Abschnitts)
-        field = additionalDataSection.addElement("idf:additionalDataField")
-                .addAttribute("id", "bwstr-center-lat");
-        field.addElement("idf:title").addAttribute("lang", "de")
-                .addText("Latitude des Zentrums des Abschnitts");
-        field.addElement("idf:data")
-                .addText(idxDoc.get("bwstr-center-lat"));
+            // bwstr-center-lon (Longitude des Zentrums des Abschnitts)
+            if (centreLon != null) {
+                field = additionalDataSection.addElement("idf:additionalDataField")
+                        .addAttribute("id", "bwstr-center-lon");
+                field.addElement("idf:title")
+                        .addAttribute("lang", "de")
+                        .addText("Longitude des Zentrums des Abschnitts");
+                field.addElement("idf:data")
+                        .addText(centreLon.toString());
+            }
+
+            // bwstr-center-lat (Latitude des Zentrums des Abschnitts)
+            if (centreLat != null) {
+                field = additionalDataSection.addElement("idf:additionalDataField")
+                        .addAttribute("id", "bwstr-center-lat");
+                field.addElement("idf:title").addAttribute("lang", "de")
+                        .addText("Latitude des Zentrums des Abschnitts");
+                field.addElement("idf:data")
+                        .addText(centreLat.toString());
+            }
+        }
     }
 
     private void addKeyword(
