@@ -100,7 +100,7 @@
             <list>
                 <value>classpath:mapping/global.js</value>
                 <value>classpath:mapping/igc_to_lucene.js</value>
-                <value>classpath:mapping/igc_to_lucene_baw-dmqs.js</value>
+                <value>classpath:mapping/igc_to_lucene_baw-mis.js</value>
             </list>
         </property>
         <property name="compile" value="false" />
