@@ -96,6 +96,8 @@ for (i=0; i<objRows.size(); i++) {
             body.addElement("date").addText(getDate(isoDate));
         }
     }
+
+
     
 // ---------- <name> ----------
     var obj_name = objRow.get("obj_name");
@@ -108,6 +110,12 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(obj_descr)) {
         body.addElement("descr").addText(obj_descr);
     }
+
+// ---------- <type> ----------
+    if (hasValue(objClass)) {
+        body.addElement("type").addText(objClass);
+    }
+
 
 // ---------- <spatialValue> ----------
     var uvpSpatialValueRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvp_spatialValue']);
