@@ -402,15 +402,15 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                     .collect(Collectors.toList());
 
             IdfElement dqElement = modelScopedDqDataQualityElement(mdMetadata);
-            IdfElement resultElement = dqElement.addElement("gmd:report/gmd:DQ_QuantitativeAttributeAccuracy/gmd:result");
+            IdfElement dqQuantitativeResult = dqElement.addElement("gmd:report/gmd:DQ_QuantitativeAttributeAccuracy/gmd:result/gmd:DQ_QuantitativeResult");
 
-            resultElement.addElement("gmd:DQ_QuantitativeResult/gmd:valueType/gco:RecordType")
+            dqQuantitativeResult.addElement("gmd:valueType/gco:RecordType")
                     .addText(paramName);
 
-            addElementWithUnits(mdMetadata, resultElement, "gmd:valueUnit", paramUnits);
+            addElementWithUnits(mdMetadata, dqQuantitativeResult, "gmd:valueUnit", paramUnits);
 
             if (values.isEmpty()) {
-                resultElement.addElement("gmd:value")
+                dqQuantitativeResult.addElement("gmd:value")
                         .addAttribute("gco:nilReason", "unknown");
             } else {
                 boolean areValuesDiscrete = VALUE_TYPE_DISCRETE_NUMERIC.equals(valueType)
@@ -431,7 +431,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                         if (areValuesDoubles) {
                             val = String.format("%.1f", Double.parseDouble(val));
                         }
-                        resultElement.addElement("gmd:value/gco:Record")
+                        dqQuantitativeResult.addElement("gmd:value/gco:Record")
                                 .addAttribute("xsi:type", typeAttr)
                                 .addText(val);
                     }
@@ -445,7 +445,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                         typeAttr = "gml:doubleList";
                         val = String.format("%.1f %.1f", Double.parseDouble(values.get(0)), Double.parseDouble(values.get(1)));
                     }
-                    resultElement.addElement("gmd:value/gco:Record")
+                    dqQuantitativeResult.addElement("gmd:value/gco:Record")
                             .addAttribute("xsi:type", typeAttr)
                             .addText(val);
                 }
