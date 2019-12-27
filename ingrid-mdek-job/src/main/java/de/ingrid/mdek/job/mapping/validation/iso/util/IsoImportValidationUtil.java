@@ -159,10 +159,13 @@ public final class IsoImportValidationUtil {
         Validator validator = getIsoSchemaValidator();
         try {
             validator.validate(new DOMSource(doc));
+            IsoValidationErrorHandler errorHandler = (IsoValidationErrorHandler) validator.getErrorHandler();
 
-            String msgKey = "xml.schema.validation.pass";
-            String defaultMsg = "XML schema validation successful";
-            info(msgKey, defaultMsg);
+            if (!errorHandler.hasValidationErrors) {
+                String msgKey = "xml.schema.validation.pass";
+                String defaultMsg = "XML schema validation successful";
+                info(msgKey, defaultMsg);
+            }
         } catch (SAXException e) {
             String msgKey = "xml.schema.validation.error";
             String defaultMsg = "XML schema validation error: " + e.getMessage();
@@ -373,6 +376,8 @@ public final class IsoImportValidationUtil {
 
     private class IsoValidationErrorHandler implements ErrorHandler {
 
+        private boolean hasValidationErrors = false;
+
         @Override
         public void warning(SAXParseException e) throws SAXException {
             protocolHandler.addMessage(Type.WARN, e.getMessage());
@@ -380,18 +385,20 @@ public final class IsoImportValidationUtil {
 
         @Override
         public void error(SAXParseException e) throws SAXException {
+            hasValidationErrors = true;
             String ignored = "cvc-complex-type.2.4.a: Invalid content was found starting with element 'gmx:Anchor'. One of '{\"http://www.isotc211.org/2005/gco\":CharacterString}' is expected.";
             String message = e.getMessage();
             if (!ignored.equals(message)) { // TODO find way to modify xml schema instead of comparing strings
                 protocolHandler.addMessage(Type.ERROR, message);
             }
         }
-
         @Override
         public void fatalError(SAXParseException e) throws SAXException {
+            hasValidationErrors = true;
             protocolHandler.addMessage(Type.ERROR, e.getMessage());
             throw e;
         }
+
     }
 
 }

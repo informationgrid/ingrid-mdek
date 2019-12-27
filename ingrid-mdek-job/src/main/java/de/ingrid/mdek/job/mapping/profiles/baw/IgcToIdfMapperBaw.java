@@ -198,20 +198,25 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         String aggInfoQname = "gmd:aggregationInfo";
         IdfElement previousSibling = findPreviousSibling(aggInfoQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
 
-        String aggInfoCitationPath = aggInfoQname + "/gmd:MD_AggregateInformation/gmd:aggregateDataSetName/gmd:CI_Citation";
-        IdfElement aggInfoCitationElement;
+        String mdAggregateInfoPath = aggInfoQname + "/gmd:MD_AggregateInformation";
+        IdfElement mdAggregateInfoElement;
         if (previousSibling == null) {
-            aggInfoCitationElement = mdIdentification.addElement(aggInfoCitationPath);
+            mdAggregateInfoElement = mdIdentification.addElement(mdAggregateInfoPath);
         } else {
-            aggInfoCitationElement = previousSibling.addElementAsSibling(aggInfoCitationPath);
+            mdAggregateInfoElement = previousSibling.addElementAsSibling(mdAggregateInfoPath);
         }
 
+        IdfElement aggInfoCitationElement = mdAggregateInfoElement.addElement("gmd:aggregateDataSetName/gmd:CI_Citation");
         aggInfoCitationElement.addElement("gmd:title/gco:CharacterString")
                 .addText(title);
         aggInfoCitationElement.addElement("gmd:date")
                 .addAttribute("gco:nilReason", "unknown");
         aggInfoCitationElement.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString")
                 .addText(number);
+
+        mdAggregateInfoElement.addElement("gmd:associationType/gmd:DS_AssociationTypeCode")
+                .addAttribute("codeList", CODELIST_URL + "DS_AssociationTypeCode")
+                .addAttribute("codeListValue", "largerWorkCitation");
     }
 
     private void addBWaStrIdentifiers(IdfElement mdIdentification, Long objId) throws SQLException {
@@ -285,14 +290,16 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             allValues.add(value);
         }
 
-        addKeyword(
-                mdIdentification,
-                BAW_DEFAULT_KEYWORD_TYPE,
-                BAW_KEYWORD_CATALOGUE_TITLE,
-                BAW_KEYWORD_CATALOGUE_DATE,
-                BAW_DEFAULT_THESAURUS_DATE_TYPE,
-                allValues.toArray(new String[0])
-        );
+        if (!allValues.isEmpty()) {
+            addKeyword(
+                    mdIdentification,
+                    BAW_DEFAULT_KEYWORD_TYPE,
+                    BAW_KEYWORD_CATALOGUE_TITLE,
+                    BAW_KEYWORD_CATALOGUE_DATE,
+                    BAW_DEFAULT_THESAURUS_DATE_TYPE,
+                    allValues.toArray(new String[0])
+            );
+        }
     }
 
     private void addSimSpatialDimensionKeyword(IdfElement mdIdentification, Long objId) throws SQLException {
@@ -585,7 +592,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 .addAttribute("codeList", CODELIST_URL + "MD_KeywordTypeCode")
                 .addAttribute("codeListValue", keywordType);
 
-        IdfElement thesaurusElement = keywordElement.addElement("gmd:thesaurusName/gmd:CI_Citation");
+        IdfElement thesaurusElement = mdKeywordElement.addElement("gmd:thesaurusName/gmd:CI_Citation");
         thesaurusElement.addElement("gmd:title/gco:CharacterString")
                 .addText(thesuarusName);
 

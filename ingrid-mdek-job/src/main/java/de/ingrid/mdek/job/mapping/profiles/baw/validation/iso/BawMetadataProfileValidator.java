@@ -107,7 +107,13 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
         validator.withXpath(xpath)
                 .withTagKey(tagKey)
                 .doChecks(ONE_OR_MORE_NODES_EXIST);
-        validateCodeListUri(validator, xpath, tagKey, "LanguageCode");
+
+        String codeListXpath = xpath + "/@codeList";
+        String codelistUri = "http://www.loc.gov/standards/iso639-2/";
+        validator.withXpath(codeListXpath)
+                .withTagKey(tagKey)
+                .withStringParameter(codelistUri)
+                .doChecks(TEXT_CONTENT_EQUALS);
 
         // TODO add tests for values not matching pattern
         String codeListValueXpath = xpath + "/@codeListValue";
