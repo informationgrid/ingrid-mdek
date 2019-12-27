@@ -253,6 +253,14 @@
       "type": "text",
       "store": true,
       "index": false
+    },
+    "created": {
+      "type": "date",
+      "store": true
+    },
+    "modified": {
+      "type": "date",
+      "store": true
     }
   }
 }

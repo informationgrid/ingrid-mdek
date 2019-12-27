@@ -39,11 +39,11 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
 DOM.addNS("gco", "http://www.isotc211.org/2005/gco");
 DOM.addNS("srv", "http://www.isotc211.org/2005/srv");
-DOM.addNS("gml", "http://www.opengis.net/gml/3.2");
+DOM.addNS("gml", "http://www.opengis.net/gml");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
-var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml";
+var globalCodeListAttrURL = "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml";
 
 // ---------- <idf:idfMdMetadata> ----------
 var mdMetadata = DOM.getElement(idfDoc, "//idf:idfMdMetadata");
