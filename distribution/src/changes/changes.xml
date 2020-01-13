@@ -44,6 +44,9 @@
       <action type="add" dev="wemove" issue="1516">
         Add mapping for new table priority dataset
       </action>
+      <action type="fix" dev="wemove" issue="1597">
+        Fix exporting not published service references
+      </action>
     </release>
 
     <release version="5.2.0" date="2019-10-22" description="Release 5.2.0">
