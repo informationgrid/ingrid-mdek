@@ -28,24 +28,54 @@
   </properties>
   <body>
 
-    <release version="5.3.0-SNAPSHOT" date="2020-xx-xx" description="Release 5.3.0">
+    <release version="5.3.0" date="2020-01-13" description="Release 5.3.0">
+      <action type="add" dev="wemove" issue="1590">
+        UVP: Display of "Verfahrenstyp" in detail view.
+      </action>
+      <action type="add" dev="wemove" issue="513">
+        WMTS via GetCapabilities-Assistant. Fix double entries in ISO.  
+      </action>
+      <action type="add" dev="wemove" issue="1273">
+        Migrate ""encoding schema" to "application schema".  
+      </action>
       <action type="add" dev="wemove" issue="1554">
         Change codelist namespace to http://standards.iso.org/iso/19139/resources/gmxCodelists.xml
       </action>
-      <action type="fix" dev="wemove" issue="1467">
-        Sortierung nach Datum funktioniert nicht.
-      </action>
       <action type="add" dev="wemove" issue="1220">
-        IGE: INSPIRE TG MD 2.0: Normalize ISO-Mapping of "Nutzungsbedingungen" and "Anwendungseinschränkungen"
+        IGE: INSPIRE TG MD 2.0: Normalize ISO-Mapping of "Nutzungsbedingungen" and "Anwendungseinschränkungen".
+      </action>
+      <action type="add" dev="wemove" issue="1517">
+        Add mapping for new column spatial_scope.
+      </action>
+      <action type="add" dev="wemove" issue="1516">
+        Add mapping for new table priority dataset.
+      </action>
+      <action type="add" dev="wemove" issue="971">
+        BKG: Add Source Note to JSON in IDF.
+      </action>
+      <action type="update" dev="wemove">
+          Updated dependencies (utils).
+      </action>
+      <action type="fix" dev="wemove" issue="1363">
+        BKG: Add JSON to IDF from codelist.
+      </action>
+      <action type="fix" dev="wemove">
+        Fix index mapping of address (dates).
+      </action>
+      <action type="fix" dev="wemove" issue="1569">
+        Import CRS from gmx:Anchor elements too.
+      </action>
+      <action type="fix" dev="wemove" issue="1522">
+        UVP: Do not add hidden addresses to search result view.
+      </action>
+      <action type="fix" dev="wemove" issue="1467">
+        Fix transformation of date fields to a format elastic understands.
       </action>
       <action type="fix" dev="wemove" issue="1547">
         Sometimes DB connection is lost during indexing.
       </action>
-      <action type="add" dev="wemove" issue="1516">
-        Add mapping for new table priority dataset
-      </action>
       <action type="fix" dev="wemove" issue="1597">
-        Fix exporting not published service references
+        Fix exporting not published service references.
       </action>
     </release>
 

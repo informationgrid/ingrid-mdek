@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -1981,7 +1981,7 @@ function addLocaleElement(id, languageCode, charEncoding) {
     	.addAttribute("codeListValue", languageCode)
     	.addText(languageCode);
 	ptLocaleNode.addElement("gmd:characterEncoding/gmd:MD_CharacterSetCode")
-	.addAttribute("codeList", "http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode")
+	.addAttribute("codeList", globalCodeListAttrURL + "#MD_CharacterSetCode")
 	.addAttribute("codeListValue", charEncoding);
 
     return gmdLocaleNode;
