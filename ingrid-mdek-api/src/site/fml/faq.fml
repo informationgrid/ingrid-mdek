@@ -3,7 +3,7 @@
   **************************************************-
   ingrid-mdek-api
   ==================================================
-  Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+  Copyright (C) 2014 - 2020 wemove digital solutions GmbH
   ==================================================
   Licensed under the EUPL, Version 1.1 or â€“ as soon they will be
   approved by the European Commission - subsequent versions of the
@@ -42,7 +42,7 @@
 					registerDocument.put(IJobRepository.JOB_ID, MyJobImpl.class.getName());<br/>
 					registerDocument.put(IJobRepository.JOB_DESCRIPTION, jobXmlString);<br/>
 					
-					registerDocument.putBoolean(IJobRepository.JOB_PERSIST, true); //wird nach ausfŸhrung im Speicher gehalten und ebenfalls auf Festplatte geschrieben<br/>
+					registerDocument.putBoolean(IJobRepository.JOB_PERSIST, true); //wird nach ausfï¿½hrung im Speicher gehalten und ebenfalls auf Festplatte geschrieben<br/>
 					IngridDocument response = jobRepositoryFacade.execute(registerDocument);<br/>
 			 </div>
       </answer> 
@@ -52,7 +52,7 @@
       <question>Wie ruft man Methoden an einem Job auf?</question> 
       <answer> 
 	      <p>
-      		<div>Nach erfolgreicher Anmeldung des Jobs am Repository wird die Methode "getResults" vom job aufgerufen. Das Ergebnis des Aufrugs wird als Ergebnis zurŸckgegeben.</div>
+      		<div>Nach erfolgreicher Anmeldung des Jobs am Repository wird die Methode "getResults" vom job aufgerufen. Das Ergebnis des Aufrugs wird als Ergebnis zurï¿½ckgegeben.</div>
       	  </p>
         	<div style="text-align:left; padding:10px; margin:15px; font-family:Courier; font-size:12px; color:#333333;	line-height:18px;" >
         			IngridDocument invokeDocument = new IngridDocument();<br/>
@@ -63,7 +63,7 @@
 				
 					
 					invokeDocument.put(IJobRepository.JOB_METHODS, methodList);<br/>
-					invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true); //Job wird nach Aufruf der Methoden nicht aus dem Speicher entfernt. Wenn false wŸrde der Job entfernt und ggfl. der Job auch von der Festplatte entfernt.<br/>
+					invokeDocument.putBoolean(IJobRepository.JOB_PERSIST, true); //Job wird nach Aufruf der Methoden nicht aus dem Speicher entfernt. Wenn false wï¿½rde der Job entfernt und ggfl. der Job auch von der Festplatte entfernt.<br/>
 					IngridDocument invokeResponse = jobRepositoryFacade.execute(invokeDocument);<br/>
         	
 			 </div>
