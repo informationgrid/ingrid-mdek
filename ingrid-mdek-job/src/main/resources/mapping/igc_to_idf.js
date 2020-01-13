@@ -1981,7 +1981,7 @@ function addLocaleElement(id, languageCode, charEncoding) {
     	.addAttribute("codeListValue", languageCode)
     	.addText(languageCode);
 	ptLocaleNode.addElement("gmd:characterEncoding/gmd:MD_CharacterSetCode")
-	.addAttribute("codeList", "http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode")
+	.addAttribute("codeList", globalCodeListAttrURL + "#MD_CharacterSetCode")
 	.addAttribute("codeListValue", charEncoding);
 
     return gmdLocaleNode;
