@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -151,7 +151,6 @@ public class MdekUtils {
 		INSPIRE_SEARCHTERM(6100, "SearchtermValue:entryId:term"),
 		COUNTRY(6200, "T03Catalogue, T02Address:countryKey:countryValue"),
 		ADMINISTRATIVE_AREA(6250, "T02Address, T02Address:administrativeAreaKey:administrativeAreaValue"),
-		OBJ_FORMAT_INSPIRE(6300, "ObjectFormatInspire:formatKey:formatValue"),
 		/** dqElementId=109 */
 		DQ_109_CompletenessComission(7109, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
 		/** dqElementId=112 */

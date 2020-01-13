@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -789,7 +789,49 @@ for (i=0; i<objRows.size(); i++) {
         mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText("AdVMIS");
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
-    
+
+    // priority dataset
+    rows = SQL.all("SELECT priority_key FROM priority_dataset WHERE obj_id=?", [+objId]);
+    mdKeywords = getMdKeywords(rows);
+    if (mdKeywords != null) {
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
+
+    // spatial scope
+    row = SQL.first("SELECT spatial_scope FROM t01_object WHERE id=?", [+objId]);
+    if (hasValue(row)) {
+        var spatialScopeId = row.get("spatial_scope");
+
+        if (hasValue(spatialScopeId)) {
+            var name = TRANSF.getIGCSyslistEntryName(6360, spatialScopeId);
+            var data = TRANSF.getISOCodeListEntryData(6360, name);
+            var dataJson;
+            try {
+                dataJson = JSON.parse(data);
+            } catch (err) {
+                log.error("Error getting data from from Spatial Scope in Codelist 6360");
+            }
+            mdKeywords = DOM.createElement("gmd:MD_Keywords");
+            mdKeywords.addElement("gmd:keyword/gmx:Anchor")
+                .addAttribute("xlink:href", dataJson.url)
+                .addText(name);
+
+            var citation = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
+            citation.addElement("gmd:title/gmx:Anchor")
+                .addAttribute("xlink:href", dataJson.thesaurusId)
+                .addText(dataJson.thesaurusTitle);
+
+            // TODO: add date if INSPIRE-registry contains it finally
+            var citationDate = citation.addElement("gmd:date/gmd:CI_Date");
+            citationDate.addElement("gmd:date/gco:Date").addText("2019-05-22");
+            citationDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                .addAttribute("codeListValue", "publication")
+                .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
+                .addText("publication");
+
+            identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+        }
+    }
     
     // if open data is checked then also add categories to thesaurus
     // ATTENTION: since LGV Hamburg wants their categories always displayed, they also want
@@ -814,8 +856,9 @@ for (i=0; i<objRows.size(); i++) {
 	    var thesCitDate = thesCit.addElement("gmd:date/gmd:CI_Date");
 	    thesCitDate.addElement("gmd:date/gco:Date").addText("2012-11-27");
 	    thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-	    .addAttribute("codeListValue", "publication")
-	    .addAttribute("codeList", "http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode");
+            .addAttribute("codeListValue", "publication")
+            .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
+            .addText("publication");
 	    identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
@@ -1204,7 +1247,8 @@ for (i=0; i<objRows.size(); i++) {
                 ciDate.addElement("gmd:date/gco:Date").addText("2006-05-01");
                 ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                     .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
-                    .addAttribute("codeListValue", "publication");
+                    .addAttribute("codeListValue", "publication")
+                    .addText("publication");
             }
         }
 
@@ -1250,27 +1294,7 @@ for (i=0; i<objRows.size(); i++) {
         for (i=0; i<rows.size(); i++) {
             mdMetadata.addElement("gmd:portrayalCatalogueInfo").addAttribute("uuidref", rows.get(i).get("obj_to_uuid"));
         }
-        
-        // ---------- <idf:idfMdMetadata/gmd:applicationSchemaInfo> ----------
-        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
-        for (i=0; i<rows.size(); i++) {
-            var formatKey = rows.get(i).get("format_key");
-            // if "Protected Sites - Simple GML Application Schema" or "Protected Sites - Full GML Application Schema"
-            if (formatKey == 13 || formatKey == 14) {
-                var appSchemaNode = mdMetadata.addElement("gmd:applicationSchemaInfo/gmd:MD_ApplicationSchemaInformation");
-                appSchemaNode.addElement("gmd:name/gmd:CI_Citation/gmd:title/gco:CharacterString").addText(rows.get(i).get("format_value"))
-                             .getParent(2)
-                             .addElement("gmd:date/gmd:CI_Date/gmd:date/gco:DateTime").addText("2010-04-26T00:00:00")
-                             .getParent(2)
-                             .addElement("gmd:dateType/gmd:CI_DateTypeCode")
-                                 .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
-                                 .addAttribute("codeListValue", "publication")
-                             .getParent(6)
-                             .addElement("gmd:schemaLanguage/gco:CharacterString").addText("GML")
-                             .getParent(2)
-                             .addElement("gmd:constraintLanguage/gco:CharacterString").addText("OCL");
-            }
-        }
+
     }
 
     // ---------- <idf:idfMdMetadata/idf:superiorReference> ----------
@@ -1798,7 +1822,9 @@ function getMdKeywords(rows) {
     var keywordsAdded = false;
     for (i=0; i<rows.size(); i++) {
         var row = rows.get(i);
+        var asAnchor = null;
         var keywordValue = null;
+        var keywordLink = null;
         var keywordAlternateValue = null;
 
         // "searchterm_value" table
@@ -1824,11 +1850,29 @@ function getMdKeywords(rows) {
         // "t0114_env_topic" table
         } else if (hasValue(row.get("topic_key"))) {
             keywordValue = TRANSF.getIGCSyslistEntryName(1410, row.get("topic_key"), "en");
+        } else if (hasValue(row.get("priority_key"))) {
+            asAnchor = true;
+            keywordValue = TRANSF.getIGCSyslistEntryName(6350, row.get("priority_key"), "de");
+            var priorityData = TRANSF.getISOCodeListEntryData(6350, keywordValue);
+            if (hasValue(priorityData)) {
+                try {
+                    keywordLink = JSON.parse(priorityData).url;
+                } catch(err) {
+                    log.error("Error getting URL from Priority Dataset within data field in Codelist 6350");
+                }
+            }
         }
 
         if (hasValue(keywordValue)) {
         	var mdKeyword = mdKeywords.addElement("gmd:keyword");
-            mdKeyword.addElement("gco:CharacterString").addText(keywordValue);
+
+        	if (asAnchor) {
+                mdKeyword.addElement("gmx:Anchor")
+                    .addAttribute("xlink:href", keywordLink)
+                    .addText(keywordValue);
+            } else {
+                mdKeyword.addElement("gco:CharacterString").addText(keywordValue);
+            }
 
             // add localized keyword, see https://dev.informationgrid.eu/redmine/issues/363
             if (hasValue(keywordAlternateValue)) {
@@ -1852,7 +1896,8 @@ function getMdKeywords(rows) {
    
     var keywTitle;
     var keywDate;
-    
+    var thesaurusLink;
+
     // "searchterm_value" table
     if (rows.get(0).get("type")) {
         var type = rows.get(0).get("type");
@@ -1881,18 +1926,33 @@ function getMdKeywords(rows) {
     } else if (rows.get(0).get("topic_key")) {
         keywTitle = "German Environmental Classification - Topic, version 1.0";
         keywDate = "2006-05-01";
+    } else if (rows.get(0).get("priority_key")) {
+        keywTitle = "INSPIRE priority data set";
+        keywDate = "2018-04-04";
+        thesaurusLink = "http://inspire.ec.europa.eu/metadata-codelist/PriorityDataset";
     }
 
-    mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
-        .addAttribute("codeList", globalCodeListAttrURL + "#MD_KeywordTypeCode")
-        .addAttribute("codeListValue", "theme");
+    if (!rows.get(0).get("priority_key")) {
+        mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#MD_KeywordTypeCode")
+            .addAttribute("codeListValue", "theme");
+    }
     var thesCit = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
-    thesCit.addElement("gmd:title/gco:CharacterString").addText(keywTitle);
+
+    if (asAnchor) {
+        thesCit.addElement("gmd:title/gmx:Anchor")
+            .addAttribute("xlink:href", thesaurusLink)
+            .addText(keywTitle);
+    } else {
+        thesCit.addElement("gmd:title/gco:CharacterString").addText(keywTitle);
+    }
+
     var thesCitDate = thesCit.addElement("gmd:date/gmd:CI_Date");
     thesCitDate.addElement("gmd:date/gco:Date").addText(keywDate);
     thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
         .addAttribute("codeListValue", "publication")
-        .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode");
+        .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
+        .addText("publication");
 
     return mdKeywords;
 }
@@ -1921,7 +1981,7 @@ function addLocaleElement(id, languageCode, charEncoding) {
     	.addAttribute("codeListValue", languageCode)
     	.addText(languageCode);
 	ptLocaleNode.addElement("gmd:characterEncoding/gmd:MD_CharacterSetCode")
-	.addAttribute("codeList", "http://www.isotc211.org/schemas/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode")
+	.addAttribute("codeList", globalCodeListAttrURL + "#MD_CharacterSetCode")
 	.addAttribute("codeListValue", charEncoding);
 
     return gmdLocaleNode;
@@ -1958,7 +2018,10 @@ function addResourceConstraints(identificationInfo, objRow) {
         var termsOfUse = row.get("terms_of_use_value");
         if (hasValue(termsOfUse)) {
         	// also add "Nutzungseinschränkungen: " according to GDI-DE Konventionen page 17 !
-            identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText("Nutzungseinschränkungen: " + termsOfUse);
+            // #1220: remove prefix
+            identificationInfo
+                .addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString")
+                .addText(termsOfUse);
         }
     }
 
@@ -1974,9 +2037,6 @@ function addResourceConstraints(identificationInfo, objRow) {
         }
         
         if (hasValue(licenseText)) {
-            // i.S.v. INSPIRE
-        	// also add "Nutzungsbedingungen: " according to GDI-DE Konventionen page 17 !
-        	identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString").addText("Nutzungsbedingungen: " + licenseText);
 
             var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
             // i.S.v. ISO 19115
@@ -1988,6 +2048,8 @@ function addResourceConstraints(identificationInfo, objRow) {
             // Use gmx:Anchor element for more information (https://redmine.informationgrid.eu/issues/1218)
             // and remove additional text "Nutzungsbedingungen: " as described in the ticket if license is
             // "Es gelten keine Bedingungen"
+            //
+            // as of #1220 all prefixes "Nutzungsbedingungen: " must be removed
             log.debug("LicenseKey=" + licenseKey);
             if (licenseKey === "26") {
                 mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor")
@@ -1995,8 +2057,7 @@ function addResourceConstraints(identificationInfo, objRow) {
                     .addText(licenseText);
             } else {
                 mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString")
-                    .addText("Nutzungsbedingungen: " + licenseText);
-
+                    .addText( licenseText);
             }
 
             var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
@@ -2251,39 +2312,6 @@ function addDistributionInfo(mdMetadata, objId) {
     nilMdFormatElement.addElement("gmd:name").addAttribute("gco:nilReason", "unknown");
     nilMdFormatElement.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
 
-    if (objClass.equals("1")) {
-        rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
-        for (i=0; i<rows.size(); i++) {
-            if (!mdDistribution) {
-                mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
-            }
-            // ---------- <gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format> ----------
-            var mdFormat = mdDistribution.addElement("gmd:distributionFormat/gmd:MD_Format");
-            formatWritten = true;
-            // ---------- <gmd:MD_Format/gmd:name> ----------
-            // ISO: first iso value, see INGRID-2337
-            var formatValue = TRANSF.getCodeListEntryFromIGCSyslistEntry(6300, rows.get(i).get("format_key"), "iso");
-            // if no iso then as usual
-            if (!hasValue(formatValue)) {
-                formatValue = rows.get(i).get("format_value");
-            }
-            mdFormat.addElement("gmd:name/gco:CharacterString").addText(formatValue);
-            // ---------- <gmd:MD_Format/gmd:version> ----------
-            var data = TRANSF.getISOCodeListEntryData(6300, formatValue);
-            var version = getParameterWithin(data, '"', 1);
-            if (!version || version.trim() === "")
-                mdFormat.addElement("gmd:version").addAttribute("gco:nilReason", "unknown");
-            else
-                mdFormat.addElement("gmd:version/gco:CharacterString").addText(version);
-            // ---------- <gmd:MD_Format/gmd:specification> ----------
-            var specification = getParameterWithin(data, '"', 2);
-            if (!specification || specification.trim() === "")
-                mdFormat.addElement("gmd:specification").addAttribute("gco:nilReason", "unknown");
-            else
-                mdFormat.addElement("gmd:specification/gco:CharacterString").addText(specification);
-        }
-    }
-    
 // ALLE KLASSEN
 
     // ---------- <idf:idfMdMetadata/gmd:distributionInfo/gmd:MD_Distribution> ----------
@@ -2307,9 +2335,10 @@ function addDistributionInfo(mdMetadata, objId) {
 //                .addElement("gco:CharacterString");
         }
             // ---------- <gmd:MD_Format/gmd:specification> ----------
-        if (hasValue(rows.get(i).get("specification"))) {
+        // Removed: see #1273
+        /*if (hasValue(rows.get(i).get("specification"))) {
             mdFormat.addElement("gmd:specification/gco:CharacterString").addText(rows.get(i).get("specification"));
-        }
+        }*/
             // ---------- <gmd:MD_Format/gmd:fileDecompressionTechnique> ----------
         if (hasValue(rows.get(i).get("file_decompression_technique"))) {
             mdFormat.addElement("gmd:fileDecompressionTechnique/gco:CharacterString").addText(rows.get(i).get("file_decompression_technique"));
@@ -2453,7 +2482,7 @@ function addDistributionInfo(mdMetadata, objId) {
         //rows = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_to_uuid=t01obj.obj_uuid AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_from_id=? and special_ref=?", [+objId, 5066]);
         // the links should all come from service objects (class=3)
         if (objClass.equals("1"))
-            rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
+            rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
         else
             // Service Object
             // Fetch now Services of all types but still operation has to be of name_key=1 (GetCapabilities), see REDMINE-85
@@ -2564,10 +2593,16 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
 
         // ---------- <srv:SV_OperationMetadata/srv:DCP/srv:DCPList> ----------
                 var platfRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [+svOpRow.get("id")]);
+                var platformValues = [];
                 for (j=0; j<platfRows.size(); j++) {
+                    var value = platfRows.get(j).get("platform_value");
+                    if (platformValues.indexOf(value) !== -1) {
+                        continue;
+                    }
+                    platformValues.push(value);
                     svOperationMetadata.addElement("srv:DCP/srv:DCPList")
                         .addAttribute("codeList", globalCodeListAttrURL + "#CSW_DCPCodeType")
-                        .addAttribute("codeListValue", platfRows.get(j).get("platform_value"));
+                        .addAttribute("codeListValue", value);
                 }
                 if (platfRows.size() == 0) {
                     // mandatory !

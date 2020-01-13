@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -76,15 +76,16 @@ public class T01Object implements IEntity {
 	private String modUuid;
 	private String responsibleUuid;
 	private Date toBePublishedOn;
+	private Integer spatialScope;
 
 	private Set additionalFieldDatas = new HashSet();
 	private Set objectAccesss = new HashSet();
 	private Set objectComments = new HashSet();
 	private Set objectConformitys = new HashSet();
 	private Set objectAdvProductGroup = new HashSet();
+	private Set priorityDataset = new HashSet();
     private Set objectDataLanguages = new HashSet();
 	private Set objectDataQualitys = new HashSet();
-	private Set objectFormatInspires = new HashSet();
 	private Set objectOpenDataCategorys = new HashSet();
 	private Set objectReferences = new HashSet();
 	private Set objectTypesCatalogues = new HashSet();
@@ -500,14 +501,6 @@ public class T01Object implements IEntity {
 		this.objectDataQualitys = objectDataQualitys;
 	}
 
-	public Set getObjectFormatInspires() {
-		return objectFormatInspires;
-	}
-
-	public void setObjectFormatInspires(Set objectFormatInspires) {
-		this.objectFormatInspires = objectFormatInspires;
-	}
-
 	public Set getObjectOpenDataCategorys() {
 		return objectOpenDataCategorys;
 	}
@@ -688,6 +681,14 @@ public class T01Object implements IEntity {
 		return t017UrlRefs;
 	}
 
+	public Set getPriorityDataset() {
+		return priorityDataset;
+	}
+
+	public void setPriorityDataset(Set set) {
+		priorityDataset = set;
+	}
+
 	public void setT017UrlRefs(Set t017UrlRefs) {
 		this.t017UrlRefs = t017UrlRefs;
 	}
@@ -762,5 +763,13 @@ public class T01Object implements IEntity {
 
 	public void setParentIdentifier(String parentIdentifier) {
 		this.parentIdentifier = parentIdentifier;
+	}
+
+	public Integer getSpatialScope() {
+		return spatialScope;
+	}
+
+	public void setSpatialScope(Integer spatialScope) {
+		this.spatialScope = spatialScope;
 	}
 }

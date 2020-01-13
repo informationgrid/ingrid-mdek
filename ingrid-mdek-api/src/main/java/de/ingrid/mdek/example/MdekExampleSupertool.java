@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -1171,13 +1171,6 @@ public class MdekExampleSupertool {
 		docList = (List<IngridDocument>) oDoc.get(MdekKeys.DATA_QUALITY_LIST);
 		if (docList != null && docList.size() > 0) {
 			System.out.println("  Object data quality (INSPIRE): " + docList.size() + " entries");
-			for (IngridDocument doc : docList) {
-				System.out.println("   " + doc);
-			}
-		}
-		docList = (List<IngridDocument>) oDoc.get(MdekKeys.FORMAT_INSPIRE_LIST);
-		if (docList != null && docList.size() > 0) {
-			System.out.println("  Object INSPIRE format list: " + docList.size() + " entries");
 			for (IngridDocument doc : docList) {
 				System.out.println("   " + doc);
 			}

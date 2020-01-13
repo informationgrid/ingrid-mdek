@@ -2,7 +2,7 @@
  * **************************************************-
  * Ingrid Portal MDEK Application
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -29,6 +29,7 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import javax.script.ScriptException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,11 +86,11 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 
     private MdekCatalogService catalogService;
 
-    private Connection dbConnection;
-
     private XPathUtils xpathUtils;
 
     private DatabaseConnection internalDatabaseConnection;
+
+	private BasicDataSource dataSource;
 
     @Autowired
 	public ScriptImportDataMapper(DaoFactory daoFactory) {
@@ -104,17 +106,34 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
     @Override
     public void configure(PlugDescription plugDescription) {
 		internalDatabaseConnection = (DatabaseConnection) plugDescription.getConnection();
+		if (this.dataSource != null) {
+			try {
+				this.dataSource.close();
+			} catch (SQLException e) {
+				log.error("Error closing database connection pool. Create a new one.");
+			}
+		}
+		this.dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(internalDatabaseConnection.getDataBaseDriver());
+		dataSource.setUsername(internalDatabaseConnection.getUser());
+		dataSource.setPassword(internalDatabaseConnection.getPassword());
+		dataSource.setUrl(internalDatabaseConnection.getConnectionURL());
+		dataSource.setMaxActive(5);
+		dataSource.setMaxIdle(2);
+		dataSource.setInitialSize(2);
+		if (DatabaseConnectionUtils.isOracle(internalDatabaseConnection)) {
+			dataSource.setValidationQuery("select 1 from dual");
+		} else {
+			dataSource.setValidationQuery("select 1");
+		}
 	}
 
     @Override
     public void convert(Document sourceIso, Document targetIgc, ProtocolHandler protocolHandler) throws MdekException {
-        Map<String, Object> parameters = new ConcurrentHashMap<>();
+    	Map<String, Object> parameters = new ConcurrentHashMap<>();
         DatabaseConnectionUtils connUtils = DatabaseConnectionUtils.getInstance();
-        try(Connection conn = connUtils.openConnection(internalDatabaseConnection)) {
-            // set database connection
-            dbConnection = conn;
-			// get DOM-tree from XML-file
 
+        try (Connection conn = dataSource.getConnection()) {
             // get DOM-tree from template-file. Ignore the provided document
             Document templateXml = getDomFromSourceData(template.getInputStream(), false);
             Node importNode = targetIgc.importNode(templateXml.getDocumentElement(), true);
@@ -124,7 +143,7 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
                 log.debug("Target XML template:\n" + XMLUtils.toString(targetIgc));
 			}
             // create utils for script
-            SQLUtils sqlUtils = new SQLUtils(dbConnection);
+            SQLUtils sqlUtils = new SQLUtils(conn);
             // get initialized XPathUtils (see above)
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
             DOMUtils domUtils = new DOMUtils(targetIgc, xpathUtils);
@@ -162,35 +181,38 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 	}
 	
 	private void mapAdditionalFields(Document docTarget) throws Exception {
-        PreparedStatement ps = this.dbConnection.prepareStatement( "SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" );
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        String igcProfileStr = rs.getString("igc_profile");
-        if (log.isDebugEnabled()) {
-            log.debug("igc profile found: " + igcProfileStr);
-        }
-        ps.close();
-        
-        if (igcProfileStr != null) {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setNamespaceAware(true);
-            DocumentBuilder db;
-            db = dbf.newDocumentBuilder();
-            Document igcProfile = db.parse(new InputSource(new StringReader(igcProfileStr)));
-            NodeList igcProfileCswMappingImports = xpathUtils.getNodeList(igcProfile, "//igcp:controls/*/igcp:scriptedCswMappingImport");
-            if (log.isDebugEnabled()) {
-                log.debug("cswMappingImport found: " + igcProfileCswMappingImports.getLength());
-            }
-            engine.put("igcProfile", igcProfile);
+		String igcProfileStr = null;
+		try(Connection conn = dataSource.getConnection()) {
+			try (PreparedStatement ps = conn.prepareStatement("SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'")) {
+				try (ResultSet rs = ps.executeQuery()) {
+					rs.next();
+					igcProfileStr = rs.getString("igc_profile");
+					if (log.isDebugEnabled()) {
+						log.debug("igc profile found: " + igcProfileStr);
+					}
+				}
+			}
+		}
 
-            for (int i=0; i<igcProfileCswMappingImports.getLength(); i++) {
-                String igcProfileCswMapping = igcProfileCswMappingImports.item(i).getTextContent();
-                
-                // ScriptEngine.execute(this.mappingScripts, parameters, compile);
-                engine.eval( new StringReader(igcProfileCswMapping) );
-            }
-        }
-        
+		if (igcProfileStr != null) {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			dbf.setNamespaceAware(true);
+			DocumentBuilder db;
+			db = dbf.newDocumentBuilder();
+			Document igcProfile = db.parse(new InputSource(new StringReader(igcProfileStr)));
+			NodeList igcProfileCswMappingImports = xpathUtils.getNodeList(igcProfile, "//igcp:controls/*/igcp:scriptedCswMappingImport");
+			if (log.isDebugEnabled()) {
+				log.debug("cswMappingImport found: " + igcProfileCswMappingImports.getLength());
+			}
+			engine.put("igcProfile", igcProfile);
+
+			for (int i=0; i<igcProfileCswMappingImports.getLength(); i++) {
+				String igcProfileCswMapping = igcProfileCswMappingImports.item(i).getTextContent();
+
+				// ScriptEngine.execute(this.mappingScripts, parameters, compile);
+				engine.eval( new StringReader(igcProfileCswMapping) );
+			}
+		}
     }
 
     /**
@@ -342,4 +364,8 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 	public void setTemplate(Resource tpl) {
 		this.template = tpl;
 	}
+
+    public void setDataSource(BasicDataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 }

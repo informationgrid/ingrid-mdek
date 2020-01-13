@@ -124,6 +124,10 @@
     "t02_address.mod_uuid": {
       "type": "keyword"
     },
+    "t02_address.mod_time": {
+      "type": "keyword",
+      "store": true
+    },
     "t02_address.responsible_uuid": {
       "type": "keyword",
       "store": true
@@ -239,6 +243,14 @@
     },
     "topic": {
       "type": "keyword",
+      "store": true
+    },
+    "created": {
+      "type": "date",
+      "store": true
+    },
+    "modified": {
+      "type": "date",
       "store": true
     }
   }

@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -43,7 +43,7 @@ DOM.addNS("gml", "http://www.opengis.net/gml");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
 
-var globalCodeListAttrURL = "http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/gmxCodelists.xml";
+var globalCodeListAttrURL = "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml";
 
 // ---------- <idf:idfMdMetadata> ----------
 var mdMetadata = DOM.getElement(idfDoc, "//idf:idfMdMetadata");

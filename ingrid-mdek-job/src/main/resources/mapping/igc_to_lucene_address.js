@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -117,6 +117,14 @@ function addT02Address(row) {
     IDX.add("t02_address.work_state", row.get("work_state"));
     IDX.add("t02_address.create_time", row.get("create_time"));
     IDX.add("t02_address.mod_time", row.get("mod_time"));
+    var created = TRANSF.getISODateFromIGCDate(row.get("create_time"));
+    if (created) {
+        IDX.add("created", created);
+    }
+    var modified = TRANSF.getISODateFromIGCDate(row.get("mod_time"));
+    if (modified) {
+        IDX.add("modified", modified);
+    }
     IDX.add("t02_address.mod_uuid", row.get("mod_uuid"));
     IDX.add("t02_address.responsible_uuid", row.get("responsible_uuid"));
     IDX.add("t02_address.publish_id", row.get("publish_id"));

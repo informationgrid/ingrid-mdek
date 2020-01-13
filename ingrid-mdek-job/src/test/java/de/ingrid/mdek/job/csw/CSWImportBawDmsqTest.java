@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -50,6 +50,7 @@ import de.ingrid.mdek.xml.importer.IngridXMLStreamReader;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.xml.XMLUtils;
 import de.ingrid.utils.xpath.XPathUtils;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
@@ -124,7 +125,8 @@ public class CSWImportBawDmsqTest {
     
     @Mock
     private MdekIdcObjectJob objectJobMock;
-    
+
+    @Mock private BasicDataSource dataSourceMock;
     @Mock private DatabaseConnectionUtils dcUtils;
     @Mock private Connection connectionMock;
     @Mock private PreparedStatement ps;
@@ -151,6 +153,7 @@ public class CSWImportBawDmsqTest {
         when( jobHandler.getRunningJobInfo( any(String.class) ) ).thenReturn( new IngridDocument() );
         when( permissionService.isCatalogAdmin( "TEST_USER_ID" ) ).thenReturn( true );
 
+        when( dataSourceMock.getConnection() ).thenReturn( connectionMock );
         PowerMockito.mockStatic( DatabaseConnectionUtils.class );
         when(DatabaseConnectionUtils.getInstance()).thenReturn( dcUtils );
         when( dcUtils.openConnection( any(DatabaseConnection.class) ) ).thenReturn( connectionMock );
@@ -179,6 +182,7 @@ public class CSWImportBawDmsqTest {
         when( catJobMock.getCatalogAdminUserUuid() ).thenReturn( "TEST_USER_ID" );
 
         cswMapper = new ScriptImportDataMapper( daoFactory );
+        cswMapper.setDataSource( dataSourceMock );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
         Logger mockLogger = mock(Logger.class);

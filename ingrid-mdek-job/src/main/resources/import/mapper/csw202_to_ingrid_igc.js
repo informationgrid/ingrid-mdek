@@ -2,7 +2,7 @@
  * **************************************************-
  * Ingrid Portal MDEK Application
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -1436,6 +1436,12 @@ function mapReferenceSystemInfo(source, target) {
 	if (hasValue(rsIdentifiers)) {
 		for (i=0; i<rsIdentifiers.getLength(); i++ ) {
 			var code = XPATH.getString(rsIdentifiers.item(i), "gmd:code/gco:CharacterString");
+
+			// If gco:CharacterString is empty, then also try gmx:Anchor
+			if (!hasValue(code)) {
+				code = XPATH.getString(rsIdentifiers.item(i), "gmd:code/gmx:Anchor");
+			}
+
 			var codeSpace = XPATH.getString(rsIdentifiers.item(i), "gmd:codeSpace/gco:CharacterString");
 			var coordinateSystem;
 			if (hasValue(codeSpace) && hasValue(code)) {

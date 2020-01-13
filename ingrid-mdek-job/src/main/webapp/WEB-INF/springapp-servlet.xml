@@ -104,7 +104,6 @@
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectAdvProductGroup.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectDataLanguage.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectDataQuality.hbm.xml</value>
-                <value>de/ingrid/mdek/services/persistence/db/model/ObjectFormatInspire.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectMetadata.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/ObjectOpenDataCategory.hbm.xml</value>
@@ -115,6 +114,7 @@
                 <value>de/ingrid/mdek/services/persistence/db/model/Permission.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/PermissionAddr.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/PermissionObj.hbm.xml</value>
+                <value>de/ingrid/mdek/services/persistence/db/model/PriorityDataset.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/SearchtermAdr.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/SearchtermObj.hbm.xml</value>
                 <value>de/ingrid/mdek/services/persistence/db/model/SearchtermSns.hbm.xml</value>
