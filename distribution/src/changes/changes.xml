@@ -29,6 +29,12 @@
   <body>
 
 
+    <release version="4.4.4.mCLOUD" date="2020-01-24" description="Release 4.4.4.mCLOUD">
+      <action type="fix" issue="2301">
+        Fix published dataset not showing up in portal.
+      </action>
+    </release>
+
     <release version="4.4.3.mCLOUD" date="2019-09-16" description="Release 4.4.3.mCLOUD">
       <action type="add" dev="wemove">
         Add default attribution to easily filter data in portal.
