@@ -28,7 +28,7 @@
   </properties>
   <body>
 
-    <release version="5.3.1" date="2020-xx-xx" description="Release 5.3.1">
+    <release version="5.3.1" date="2020-01-24" description="Release 5.3.1">
       <action type="fix" dev="wemove" issue="1668">
         IGE: Nicht darzustellende Adressen werden trotzdem indexiert.
       </action>
