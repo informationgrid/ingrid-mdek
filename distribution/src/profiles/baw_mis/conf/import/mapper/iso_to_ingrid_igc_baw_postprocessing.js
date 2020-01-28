@@ -114,6 +114,7 @@ for (var i=0; i<unitsWithoutEmail && unitsWithoutEmail.getLength(); i++ ) {
     XMLUtils.remove( unitsWithoutEmailNode )
 }
 
+/*
 // set address type of "gmd:contact" adresses to pointOfContactMd
 var contactMdNodes = XPATH.getNodeList(source, "//gmd:contact/gmd:CI_ResponsibleParty");
 for (var i=0; i<contactMdNodes.getLength(); i++) {
@@ -127,6 +128,7 @@ for (var i=0; i<contactMdNodes.getLength(); i++) {
         XMLUtils.createOrReplaceTextNode(XPATH.getNode(relatedAddressNode, "./type-of-relation"), "pointOfContactMd");
     }
 }
+*/
 
 var targetEl = target.getDocumentElement();
 var geoLocationNodesNodes = XPATH.getNodeList(targetEl, "//spatial-domain/geo-location");
