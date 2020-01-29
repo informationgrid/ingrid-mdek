@@ -67,12 +67,49 @@
     "t01_object.mod_time": {
       "type": "text"
     },
+    "kml": {
+      "type": "keyword",
+      "store": true
+    },
+    "additional_html_1": {
+      "type": "keyword",
+      "store": true
+    },
+    "capabilities_url": {
+      "type": "keyword",
+      "store": true
+    },
+    "refering_service_uuid": {
+      "type": "keyword",
+      "store": true
+    },
+    "t01_object.mod_time": {
+      "type": "keyword",
+      "store": true
+    },
     "t01_object.obj_id": {
       "type": "keyword",
       "store": true
     },
+    "t01_object.obj_class": {
+      "type": "keyword",
+      "store": true
+    },
     "t01_object.org_obj_id": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
+    },
+    "t011_obj_serv.has_access_constraint": {
+      "type": "keyword",
+      "store": true
+    },
+    "t011_obj_serv.type": {
+      "type": "keyword",
+      "store": true
+    },
+    "t011_obj_serv.type_key": {
+      "type": "keyword",
+      "store": true
     },
     "t012_obj_adr.adr_id": {
       "type": "keyword"
@@ -90,9 +127,6 @@
       "type": "keyword"
     },
     "object_reference.obj_to_uuid": {
-      "type": "keyword"
-    },
-    "refering_service_uuid": {
       "type": "keyword"
     },
     "refering.object_reference.obj_uuid": {
@@ -134,8 +168,13 @@
     "t02_address.mod_uuid": {
       "type": "keyword"
     },
+    "t02_address.mod_time": {
+      "type": "keyword",
+      "store": true
+    },
     "t02_address.responsible_uuid": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
     },
     "t02_address.firstname": {
       "type": "keyword",
@@ -201,18 +240,29 @@
       "null_value": 0.0
     },
     "title": {
-      "analyzer": "german",
+      "type": "text",
+      "analyzer": "decomp",
+      "search_analyzer": "no_decomp",
+      "store": true
+    },
+    "title2": {
+      "type": "text",
+      "store": true
+    },
+    "title3": {
       "type": "text",
       "store": true
     },
     "summary": {
-      "analyzer": "german",
       "type": "text",
+      "analyzer": "decomp",
+      "search_analyzer": "no_decomp",
       "store": true
     },
     "content": {
-      "analyzer": "german",
       "type": "text",
+      "analyzer": "decomp",
+      "search_analyzer": "no_decomp",
       "store": true
     },
     "x1": {
@@ -233,7 +283,10 @@
     },
     "idf": {
       "type": "text",
-      "index": false,
+      "store": true
+    },
+    "topic": {
+      "type": "keyword",
       "store": true
     },
     "created": {
