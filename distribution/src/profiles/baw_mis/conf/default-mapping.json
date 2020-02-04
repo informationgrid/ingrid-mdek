@@ -64,9 +64,6 @@
     "simspatialdimension": {
       "type": "keyword"
     },
-    "t01_object.mod_time": {
-      "type": "text"
-    },
     "kml": {
       "type": "keyword",
       "store": true
