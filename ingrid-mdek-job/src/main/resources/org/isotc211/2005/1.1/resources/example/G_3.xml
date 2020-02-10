@@ -19,7 +19,7 @@
 		<gmd:LanguageCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode" codeListValue="eng">eng</gmd:LanguageCode>
 	</gmx:language>
 	<gmx:characterSet>
-		<gmd:MD_CharacterSetCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxcodelists.xml#MD_CharacterSetCode" codeListValue="utf8">UTF-8</gmd:MD_CharacterSetCode>
+		<gmd:MD_CharacterSetCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8">UTF-8</gmd:MD_CharacterSetCode>
 	</gmx:characterSet>
 	<gmx:locale>
 		<gmd:PT_Locale id="fra">
@@ -27,7 +27,7 @@
 				<gmd:LanguageCode codeListValue="fra" codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#LanguageCode">fra</gmd:LanguageCode>
 			</gmd:languageCode>
 			<gmd:characterEncoding>
-				<gmd:MD_CharacterSetCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxcodelists.xml#MD_CharacterSetCode" codeListValue="utf8">UTF-8</gmd:MD_CharacterSetCode>
+				<gmd:MD_CharacterSetCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8">UTF-8</gmd:MD_CharacterSetCode>
 			</gmd:characterEncoding>
 		</gmd:PT_Locale>
 	</gmx:locale>
@@ -76,7 +76,7 @@
 												<gco:Date>1997-06-01</gco:Date>
 											</gmd:date>
 											<gmd:dateType>
-												<gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication"/>
+												<gmd:CI_DateTypeCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication"/>
 											</gmd:dateType>
 										</gmd:CI_Date>
 									</gmd:date>
@@ -102,7 +102,7 @@
 														<gco:Date>2010</gco:Date>
 													</gmd:date>
 													<gmd:dateType>
-														<gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication">publication</gmd:CI_DateTypeCode>
+														<gmd:CI_DateTypeCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication">publication</gmd:CI_DateTypeCode>
 													</gmd:dateType>
 												</gmd:CI_Date>
 											</gmd:date>
@@ -314,7 +314,7 @@
 												<gco:Date>1997-06-01</gco:Date>
 											</gmd:date>
 											<gmd:dateType>
-												<gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication"/>
+												<gmd:CI_DateTypeCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication"/>
 											</gmd:dateType>
 										</gmd:CI_Date>
 									</gmd:date>

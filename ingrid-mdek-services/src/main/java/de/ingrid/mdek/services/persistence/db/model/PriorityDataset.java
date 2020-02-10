@@ -1,8 +1,8 @@
-/*
+/*-
  * **************************************************-
- * ingrid-mdek-services
+ * InGrid mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -24,17 +24,17 @@ package de.ingrid.mdek.services.persistence.db.model;
 
 import de.ingrid.mdek.services.persistence.db.IEntity;
 
-public class ObjectFormatInspire implements IEntity {
+public class PriorityDataset implements IEntity {
 
 	private Long id;
 	private int version;
 	private Long objId;
 	private Integer line;
-	private Integer formatKey;
-	private String formatValue;
+	private Integer priorityKey;
+	private String priorityValue;
 
 
-	public ObjectFormatInspire() {}
+	public PriorityDataset() {}
 
 	public Long getId() {
 		return id;
@@ -68,21 +68,20 @@ public class ObjectFormatInspire implements IEntity {
 		this.line = line;
 	}
 
-	public Integer getFormatKey() {
-		return formatKey;
+
+	public Integer getPriorityKey() {
+		return priorityKey;
 	}
 
-	public void setFormatKey(Integer formatKey) {
-		this.formatKey = formatKey;
+	public void setPriorityKey(Integer priorityKey) {
+		this.priorityKey = priorityKey;
 	}
 
-	public String getFormatValue() {
-		return formatValue;
+	public String getPriorityValue() {
+		return priorityValue;
 	}
 
-	public void setFormatValue(String formatValue) {
-		this.formatValue = formatValue;
+	public void setPriorityValue(String priorityValue) {
+		this.priorityValue = priorityValue;
 	}
-
-
 }

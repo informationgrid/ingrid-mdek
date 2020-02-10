@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -96,6 +96,8 @@ for (i=0; i<objRows.size(); i++) {
             body.addElement("date").addText(getDate(isoDate));
         }
     }
+
+
     
 // ---------- <name> ----------
     var obj_name = objRow.get("obj_name");
@@ -108,6 +110,12 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(obj_descr)) {
         body.addElement("descr").addText(obj_descr);
     }
+
+// ---------- <type> ----------
+    if (hasValue(objClass)) {
+        body.addElement("type").addText(objClass);
+    }
+
 
 // ---------- <spatialValue> ----------
     var uvpSpatialValueRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvp_spatialValue']);

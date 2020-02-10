@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -50,7 +50,6 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
-import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
 import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
@@ -552,12 +551,6 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 			extendFullData(data, objDQ.getNameOfMeasureValue());
 			extendFullData(data, objDQ.getResultValue());
 			extendFullData(data, objDQ.getMeasureDescription());
-		}
-		// ObjectFormatInspire
-		Set<ObjectFormatInspire> objFormatInspires = o.getObjectFormatInspires();
-		for (ObjectFormatInspire objFormatInspire : objFormatInspires) {
-			extendFullDataWithSysList(data, MdekSysList.OBJ_FORMAT_INSPIRE,
-					objFormatInspire.getFormatKey(), objFormatInspire.getFormatValue());				
 		}
 		// SpatialSystem
 		Set<SpatialSystem> spatialSystems = o.getSpatialSystems();

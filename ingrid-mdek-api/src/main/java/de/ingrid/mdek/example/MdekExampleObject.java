@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -1709,15 +1709,6 @@ class MdekExampleObjectThread extends Thread {
 			}
 		}
 
-		// add entry to OBJECT FORMAT_INSPIRE
-		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.FORMAT_INSPIRE_LIST);
-		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
-		testDoc = new IngridDocument();
-		// check FORMAT_KEY -> FORMAT_VALUE is stored via syslist
-		testDoc.put(MdekKeys.FORMAT_KEY, 1);
-		docList.add(testDoc);
-		oDocIn.put(MdekKeys.FORMAT_INSPIRE_LIST, docList);
-
 		// add entry to SPATIAL SYSTEM
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.SPATIAL_SYSTEM_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
@@ -2022,13 +2013,6 @@ class MdekExampleObjectThread extends Thread {
 					docList.remove(docList.size()-1);
 					docList.remove(docList.size()-1);
 				}
-			}
-
-			// OBJECT FORMAT_INSPIRE wieder wie vorher !
-			docList = (List<IngridDocument>) oRefetchedDoc.get(MdekKeys.FORMAT_INSPIRE_LIST);
-			if (docList != null && docList.size() > 0) {
-				docList.remove(docList.size()-1);
-				oRefetchedDoc.put(MdekKeys.FORMAT_INSPIRE_LIST, docList);
 			}
 
 			// SPATIAL_SYSTEM wieder wie vorher !

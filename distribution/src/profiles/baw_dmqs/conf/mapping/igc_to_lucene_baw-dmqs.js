@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -384,11 +384,6 @@ for (i=0; i<objRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
         addObjectDataQuality(rows.get(j));
     }
-    // ---------- object_format_inspire ----------
-    var rows = SQL.all("SELECT * FROM object_format_inspire WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectFormatInspire(rows.get(j));
-    }
     // ---------- object data_languages ----------
     var rows = SQL.all("SELECT * FROM object_data_language WHERE obj_id=?", [+objId]);
     for (j=0; j<rows.size(); j++) {
@@ -451,6 +446,14 @@ function addT01Object(row) {
     IDX.add("t01_object.is_catalog_data", row.get("is_catalog_data"));
     IDX.add("t01_object.create_time", row.get("create_time"));
     IDX.add("t01_object.mod_time", row.get("mod_time"));
+    var created = TRANSF.getISODateFromIGCDate(row.get("create_time"));
+    if (created) {
+        IDX.add("created", created);
+    }
+    var modified = TRANSF.getISODateFromIGCDate(row.get("mod_time"));
+    if (modified) {
+        IDX.add("modified", modified);
+    }
     IDX.add("t01_object.mod_uuid", row.get("mod_uuid"));
     IDX.add("t01_object.responsible_uuid", row.get("responsible_uuid"));
     if (hasValue(row.get("is_inspire_relevant")) && row.get("is_inspire_relevant")=='Y') {
@@ -935,11 +938,6 @@ function addObjectDataQuality(row) {
     IDX.add("object_data_quality.name_of_measure_value", row.get("name_of_measure_value"));
     IDX.add("object_data_quality.result_value", row.get("result_value"));
     IDX.add("object_data_quality.measure_description", row.get("measure_description"));
-}
-function addObjectFormatInspire(row) {
-    IDX.add("object_format_inspire.line", row.get("line"));
-    IDX.add("object_format_inspire.format_key", row.get("format_key"));
-    IDX.add("object_format_inspire.format_value", row.get("format_value"));
 }
 function addObjectOpenDataCategory(row) {
     // add as FREIER term, no alternate value

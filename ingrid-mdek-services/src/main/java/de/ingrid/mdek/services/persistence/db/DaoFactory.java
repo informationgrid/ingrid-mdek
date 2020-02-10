@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -74,7 +74,6 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
 import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
 import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
-import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
 import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
 import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
 import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
@@ -304,8 +303,6 @@ public class DaoFactory implements IDaoFactory {
 			dao = getT01ObjectDao();
 		} else if (clazz.isAssignableFrom(ObjectDataQuality.class)) {
 			dao = new GenericHibernateDao<ObjectDataQuality>(_sessionFactory, ObjectDataQuality.class);
-		} else if (clazz.isAssignableFrom(ObjectFormatInspire.class)) {
-			dao = new GenericHibernateDao<ObjectFormatInspire>(_sessionFactory, ObjectFormatInspire.class);
 		} else if (clazz.isAssignableFrom(AdditionalFieldData.class)) {
 			dao = new GenericHibernateDao<AdditionalFieldData>(_sessionFactory, AdditionalFieldData.class);
 		} else if (clazz.isAssignableFrom(SpatialSystem.class)) {

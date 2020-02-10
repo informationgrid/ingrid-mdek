@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -1301,11 +1301,15 @@ public class MdekKeys {
     public final static String MEASURE_DESCRIPTION = "measure-description";
 
     /** Value: List< IngridDocument > */
-    public final static String FORMAT_INSPIRE_LIST = "format_inspire_list";
+    public final static String PRIORITY_DATASET_LIST = "priority_dataset_list";
     /** Value: Integer */
-    public final static String FORMAT_KEY = "format-key";
+    public final static String PRIORITY_DATASET_KEY = "priority-dataset-key";
     /** Value: String */
-    public final static String FORMAT_VALUE = "format-value";
+    public final static String PRIORITY_DATASET_VALUE = "priority-dataset-value";
+
+    /** Value: Integer */
+    public final static String SPATIAL_SCOPE = "spatial-scope";
+
 
     // SPATIAL SYSTEMS
     /** Value: List< IngridDocument >  */

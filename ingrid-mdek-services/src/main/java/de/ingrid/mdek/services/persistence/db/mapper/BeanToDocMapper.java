@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.ingrid.mdek.services.persistence.db.model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,67 +43,6 @@ import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
-import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
-import de.ingrid.mdek.services.persistence.db.model.AddressComment;
-import de.ingrid.mdek.services.persistence.db.model.AddressMetadata;
-import de.ingrid.mdek.services.persistence.db.model.AddressNode;
-import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
-import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
-import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
-import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
-import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
-import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
-import de.ingrid.mdek.services.persistence.db.model.ObjectFormatInspire;
-import de.ingrid.mdek.services.persistence.db.model.ObjectMetadata;
-import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
-import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
-import de.ingrid.mdek.services.persistence.db.model.ObjectReference;
-import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
-import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
-import de.ingrid.mdek.services.persistence.db.model.ObjectUseConstraint;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
-import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
-import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
-import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
-import de.ingrid.mdek.services.persistence.db.model.SpatialSystem;
-import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
-import de.ingrid.mdek.services.persistence.db.model.SysList;
-import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
-import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
-import de.ingrid.mdek.services.persistence.db.model.T0113DatasetReference;
-import de.ingrid.mdek.services.persistence.db.model.T0114EnvTopic;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoScale;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSpatialRep;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSupplinfo;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSymc;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoVector;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjLiterature;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjProject;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServ;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpConnpoint;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpDepends;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPara;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServScale;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServUrl;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjTopicCat;
-import de.ingrid.mdek.services.persistence.db.model.T012ObjAdr;
-import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
-import de.ingrid.mdek.services.persistence.db.model.T015Legist;
-import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
-import de.ingrid.mdek.services.persistence.db.model.T01Object;
-import de.ingrid.mdek.services.persistence.db.model.T021Communication;
-import de.ingrid.mdek.services.persistence.db.model.T02Address;
-import de.ingrid.mdek.services.persistence.db.model.T03Catalogue;
 import de.ingrid.utils.IngridDocument;
 
 /**
@@ -319,6 +259,7 @@ public class BeanToDocMapper implements IMapper {
 			objectDoc.put(MdekKeys.IS_INSPIRE_CONFORM, o.getIsInspireConform());
 			objectDoc.put(MdekKeys.IS_ADV_COMPATIBLE, o.getIsAdvCompatible());
 			objectDoc.put(MdekKeys.IS_OPEN_DATA, o.getIsOpenData());
+			objectDoc.put(MdekKeys.SPATIAL_SCOPE, o.getSpatialScope());
 
 			// map associations		
 			mapObjectReferences(o.getObjectReferences(), objectDoc);
@@ -358,9 +299,10 @@ public class BeanToDocMapper implements IMapper {
             mapObjectUseConstraints(o.getObjectUseConstraints(), objectDoc);
 			mapObjectOpenDataCategorys(o.getObjectOpenDataCategorys(), objectDoc);
 			mapObjectDataQualitys(o.getObjectDataQualitys(), objectDoc);
-			mapObjectFormatInspires(o.getObjectFormatInspires(), objectDoc);
 			mapSpatialSystems(o.getSpatialSystems(), objectDoc);
             mapObjectDataLanguages(o.getObjectDataLanguages(), objectDoc);
+
+            mapPriorityDataset(o.getPriorityDataset(), objectDoc);
 
 			// map only with initial data ! call mapping method explicitly if more data wanted.
 			mapModUser(o.getModUuid(), objectDoc, MappingQuantity.INITIAL_ENTITY);
@@ -1996,6 +1938,33 @@ public class BeanToDocMapper implements IMapper {
 	    return objectDoc;
 	}
 
+	public IngridDocument mapPriorityDataset(Set<PriorityDataset> refs, IngridDocument objectDoc) {
+	    if (refs == null) {
+	        return objectDoc;
+	    }
+
+	    ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
+	    for (PriorityDataset ref : refs) {
+	        IngridDocument refDoc = new IngridDocument();
+	        mapPriorityDataset(ref, refDoc);
+	        refList.add(refDoc);
+	    }
+	    objectDoc.put(MdekKeys.PRIORITY_DATASET_LIST, refList);
+
+	    return objectDoc;
+	}
+
+	private IngridDocument mapPriorityDataset(PriorityDataset ref, IngridDocument refDoc) {
+		if (ref == null) {
+			return refDoc;
+		}
+
+		refDoc.put(MdekKeys.PRIORITY_DATASET_KEY, ref.getPriorityKey());
+		refDoc.put(MdekKeys.PRIORITY_DATASET_VALUE, ref.getPriorityValue());
+
+		return refDoc;
+	}
+
 	private IngridDocument mapObjectConformity(ObjectConformity ref, IngridDocument refDoc) {
 		if (ref == null) {
 			return refDoc;
@@ -2156,32 +2125,6 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.NAME_OF_MEASURE_VALUE, ref.getNameOfMeasureValue());
 		refDoc.put(MdekKeys.RESULT_VALUE, ref.getResultValue());
 		refDoc.put(MdekKeys.MEASURE_DESCRIPTION, ref.getMeasureDescription());
-
-		return refDoc;
-	}
-
-	private IngridDocument mapObjectFormatInspires(Set<ObjectFormatInspire> refs, IngridDocument objectDoc) {
-		if (refs == null) {
-			return objectDoc;
-		}
-
-		ArrayList<IngridDocument> refList = new ArrayList<>(refs.size());
-		for (ObjectFormatInspire ref : refs) {
-			IngridDocument refDoc = new IngridDocument();
-			mapObjectFormatInspire(ref, refDoc);
-			refList.add(refDoc);
-		}
-		objectDoc.put(MdekKeys.FORMAT_INSPIRE_LIST, refList);
-		
-		return objectDoc;
-	}
-	private IngridDocument mapObjectFormatInspire(ObjectFormatInspire ref, IngridDocument refDoc) {
-		if (ref == null) {
-			return refDoc;
-		}
-
-		refDoc.put(MdekKeys.FORMAT_KEY, ref.getFormatKey());
-		refDoc.put(MdekKeys.FORMAT_VALUE, ref.getFormatValue());
 
 		return refDoc;
 	}

@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2019 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -93,6 +93,19 @@ function handleBKGUseConstraints() {
             var legalConstraint = getFirstNodeInIdentificationBefore("gmd:useConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
             addUseConstraints(legalConstraint, bkgUseConstraintSelectListItem, bkgUseConstraintFreeText,
                 bkgSourceNoteText ? "Quellenvermerk: " + bkgSourceNoteText : null);
+        }
+
+        // add json from codelist-data field for open data datasets
+        if (isOpenData()) {
+            var licenseJSON = TRANSF.getISOCodeListEntryData(10003, TRANSF.getIGCSyslistEntryName(10003, bkgUseConstraintSelectListItem));
+            if (hasValue(licenseJSON)) {
+                if (bkgSourceNoteText) {
+                    var licenseJSONParsed = JSON.parse(licenseJSON);
+                    licenseJSONParsed.quelle = bkgSourceNoteText;
+                    licenseJSON = JSON.stringify(licenseJSONParsed);
+                }
+                legalConstraint.addElement("gmd:otherConstraints/gco:CharacterString").addText(licenseJSON);
+            }
         }
     }
 }
@@ -207,7 +220,7 @@ function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherC
     if (hasValue(otherConstraints)) {
         for (var j=0; j<otherConstraints.length; j++) {
             if (otherConstraints[j]) {
-                if (otherConstraints[j] === "Es gelten keine Bedingungen") {
+                if (isInspireRelevant() && otherConstraints[j] === "Es gelten keine Bedingungen") {
                     legalConstraint
                         .addElement("gmd:otherConstraints/gmx:Anchor")
                         .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
