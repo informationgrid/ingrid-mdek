@@ -65,14 +65,15 @@ Contribute
 ### Run with elastic search component
 
 To test the index capabilities of the iPlug, a elastic search node is required. Please see the docker-compose.yml 
-in the iBus project to get a fully configured elastic search node running.     
+to get a fully configured elastic search node, ibus and database running.     
 
 ### Run with a profile
 
 In order to run the configuration for a specific profile to create the correct index documents, you need to do the following steps:
 
 * uncomment profile directory from `baseResource` in `ingrid-mdek-job\src\main\webapp\WEB-INF\jetty-web.xml`
-* add `distribution/src/profiles/<profile>/conf` as `Resources Root` (IntelliJ) or as Classpath (Eclipse)
+* add `../distribution/src/profiles/<profile>/conf` as `Resources Folder` (IntelliJ) or as Classpath (Eclipse)
+** rebuild the project (mvn compile)
 
 ### Start various test examples simulating a frontend server calling various interfaces of IGE iPlug
 
