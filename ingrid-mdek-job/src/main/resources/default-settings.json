@@ -1,4 +1,7 @@
 {
+  "index" : {
+    "max_result_window" : "30000"
+  },
   "analysis": {
     "filter": {
       "decomp": {
