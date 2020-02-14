@@ -68,10 +68,10 @@ if (hasValue(bwastrId)) {
     } else if (bwastrId === "9900") {
         IDX.add("bwstr-bwastr_name", "Sonstige Gewässer");
     } else if (hasValue(bwastrKmStart)) {
-        while(bwastrId.length < 4) {
-            bwastrId = "0" + bwastrId; // O-pad the id
-        }
         var bwstrIdAndKm = bwastrId + "-" + bwastrKmStart + "-" + bwastrKmEnd;
+        for (var i=bwastrId.length; i<4; i++) {
+            bwstrIdAndKm = "0" + bwstrIdAndKm;
+        }
         var parts = BWST_LOC_TOOL.parseCenterSectionFromBwstrIdAndKm(bwstrIdAndKm);
         var parsedResponse = BWST_LOC_TOOL.parse(BWST_LOC_TOOL.getResponse(parts[0], parts[1], parts[2]));
         var center = BWST_LOC_TOOL.getCenter(parsedResponse);
@@ -88,8 +88,14 @@ if (hasValue(bwastrId)) {
             IDX.add("bwstr-strecken_name", locNames[1]);
         }
     }
-    // Add the BWaStr-ID itself to the index
-    IDX.add("bwstr-bwastr-id", bwastrId);
+    // Add the BWaStr-ID itself to the index.
+    // Use workaround to store it as string to preserve leading zeros and
+    // have a predictable behaviour in elasticsearch.
+    var bwastrIdPrefix = "id_";
+    for (var i=bwastrId.length; i<4; i++) {
+        bwastrIdPrefix += "0";
+    }
+    IDX.add("bwstr-bwastr-id", bwastrIdPrefix + bwastrId);
 }
 
 function getAdditionalFieldValue(objId, fieldKey) {
