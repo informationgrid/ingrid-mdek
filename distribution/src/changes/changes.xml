@@ -28,6 +28,12 @@
   </properties>
   <body>
 
+    <release version="5.3.5" date="2020-02-14" description="Release 5.3.5">
+      <action type="update" dev="wemove" issue="1276">
+        Verhalten der Felder zur "Datenqualität" ändern
+      </action>
+    </release>
+
     <release version="5.3.1" date="2020-01-24" description="Release 5.3.1">
       <action type="fix" dev="wemove" issue="1668">
         IGE: Nicht darzustellende Adressen werden trotzdem indexiert.
