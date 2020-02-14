@@ -35,6 +35,9 @@
       <action type="update" dev="wemove" issue="1276">
         Verhalten der Felder zur "Datenqualität" ändern
       </action>
+      <action type="fix" dev="wemove" issue="1670">
+        Fix highlight summary by search query.
+      </action>
     </release>
 
     <release version="5.3.0" date="2020-01-13" description="Release 5.3.0">
