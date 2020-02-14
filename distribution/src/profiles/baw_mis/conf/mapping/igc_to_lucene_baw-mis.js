@@ -88,6 +88,8 @@ if (hasValue(bwastrId)) {
             IDX.add("bwstr-strecken_name", locNames[1]);
         }
     }
+    // Add the BWaStr-ID itself to the index
+    IDX.add("bwstr-bwastr-id", bwastrId);
 }
 
 function getAdditionalFieldValue(objId, fieldKey) {

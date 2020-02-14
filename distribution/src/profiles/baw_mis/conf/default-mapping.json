@@ -23,6 +23,10 @@
       "type": "keyword",
       "store": true
     },
+    "bwstr-bwastr-id": {
+      "type": "keyword",
+      "store": true
+    },
     "bwstr-center-lat": {
       "type": "keyword",
       "store": true
