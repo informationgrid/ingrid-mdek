@@ -42,14 +42,20 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
 var objId = +sourceRecord.get("id");
 
-// ---- BAW Hierarchy level name (Auftrag, Variante, etc.) ------
+// ---- BAW specific fields ----
 var addnFieldRows = SQL.all("SELECT * FROM additional_field_data WHERE obj_id = ?", [objId]);
 for(var i=0; i<addnFieldRows.size(); i++) {
     var row = addnFieldRows.get(i);
     var fieldKey = row.get("field_key");
     var data = row.get("data");
     if (fieldKey && data && fieldKey == "bawHierarchyLevelName") {
+        // ---- BAW Hierarchy level name (Auftrag, Variante, etc.) ------
         IDX.add("bawhierarchylevelname", data);
+    } else if (fieldKey && data && fieldKey == "simSpatialDimension") {
+        // ---- BAW model spatial dimensionality ----
+        IDX.add("simspatialdimension", data);
+    } else if (fieldKey && data && fieldKey == "simProcess") {
+        IDX.add("simprocess", data);
     }
 }
 
