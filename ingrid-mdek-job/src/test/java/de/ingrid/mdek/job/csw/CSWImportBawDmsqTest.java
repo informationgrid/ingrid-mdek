@@ -50,7 +50,7 @@ import de.ingrid.mdek.xml.importer.IngridXMLStreamReader;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.xml.XMLUtils;
 import de.ingrid.utils.xpath.XPathUtils;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
@@ -60,6 +60,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.io.ClassPathResource;
@@ -90,6 +91,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.management.*")
 @PrepareForTest({DatabaseConnectionUtils.class, MdekObjectService.class, MdekJobHandler.class})
 public class CSWImportBawDmsqTest {
 
@@ -182,7 +184,6 @@ public class CSWImportBawDmsqTest {
         when( catJobMock.getCatalogAdminUserUuid() ).thenReturn( "TEST_USER_ID" );
 
         cswMapper = new ScriptImportDataMapper( daoFactory );
-        cswMapper.setDataSource( dataSourceMock );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
         Logger mockLogger = mock(Logger.class);
