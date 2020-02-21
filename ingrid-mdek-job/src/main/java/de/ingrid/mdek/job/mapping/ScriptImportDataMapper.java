@@ -106,34 +106,13 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
     @Override
     public void configure(PlugDescription plugDescription) {
 		internalDatabaseConnection = (DatabaseConnection) plugDescription.getConnection();
-		if (this.dataSource != null) {
-			try {
-				this.dataSource.close();
-			} catch (SQLException e) {
-				log.error("Error closing database connection pool. Create a new one.");
-			}
-		}
-		this.dataSource = new BasicDataSource();
-		dataSource.setDriverClassName(internalDatabaseConnection.getDataBaseDriver());
-		dataSource.setUsername(internalDatabaseConnection.getUser());
-		dataSource.setPassword(internalDatabaseConnection.getPassword());
-		dataSource.setUrl(internalDatabaseConnection.getConnectionURL());
-		dataSource.setMaxActive(5);
-		dataSource.setMaxIdle(2);
-		dataSource.setInitialSize(2);
-		if (DatabaseConnectionUtils.isOracle(internalDatabaseConnection)) {
-			dataSource.setValidationQuery("select 1 from dual");
-		} else {
-			dataSource.setValidationQuery("select 1");
-		}
 	}
 
     @Override
     public void convert(Document sourceIso, Document targetIgc, ProtocolHandler protocolHandler) throws MdekException {
     	Map<String, Object> parameters = new ConcurrentHashMap<>();
-        DatabaseConnectionUtils connUtils = DatabaseConnectionUtils.getInstance();
 
-        try (Connection conn = dataSource.getConnection()) {
+        try (Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
             // get DOM-tree from template-file. Ignore the provided document
             Document templateXml = getDomFromSourceData(template.getInputStream(), false);
             Node importNode = targetIgc.importNode(templateXml.getDocumentElement(), true);
