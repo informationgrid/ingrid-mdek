@@ -1699,6 +1699,7 @@ function mapUseConstraints(source, target) {
 					if (hasNextElement) {
                     	//check next element
 						var nextElem = XPATH.getString(otherConstraints.item(j+1), "./gco:CharacterString") ;
+						var nextElementIsJson = isJsonString(nextElem) && hasValue(nextElem) ;
 						var secondNextElem = null;
 						var nextElementIsSourceNote = hasValue(nextElem) && isSourceNote(nextElem);
 
@@ -1718,6 +1719,12 @@ function mapUseConstraints(source, target) {
 								addUseConstraint(otherConstraint, target, nextElem);
 							}
 						}
+						if(nextElementIsJson && !thisElementIsSourceNote){
+							if(compareUseConstraintWithJson(otherConstraint, nextElem)){
+								// skip
+								continue;
+							}
+						}
 
 						if (nextElementIsSourceNote && !hasValue(secondNextElem)){
 							log.debug("Im supposed to be here");
@@ -1730,6 +1737,14 @@ function mapUseConstraints(source, target) {
             }
         }
     }
+}
+
+function compareUseConstraintWithJson(useConstraint, jsonUseConstraint){
+	jsonUseConstraint = JSON.parse(jsonUseConstraint);
+	if (useConstraint == jsonUseConstraint.name){
+		return true;
+	}
+	return false;
 }
 
 function addLicenseInfo(node, useConstraint, sourceNote) {
