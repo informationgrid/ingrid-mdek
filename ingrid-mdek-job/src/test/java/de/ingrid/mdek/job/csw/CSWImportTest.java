@@ -927,7 +927,72 @@ public class CSWImportTest extends TestSetup {
 
         assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
     }
-    
+
+    @Test
+    public void importUseConstraintSourceLicense() throws Exception {
+        doAnswer((Answer<Void>) invocation -> {
+
+            IngridDocument docOut = getDocument( invocation, "4915275a-733a-47cd-b1a6-1a3f1e976949" );
+
+            List<IngridDocument> useList = (List<IngridDocument>) docOut.get( MdekKeys.USE_CONSTRAINTS );
+            assertThat(useList.size(), is(5));
+            assertThat( useList.get(0).get( MdekKeys.USE_LICENSE_VALUE), is( "restricted" ) );
+            assertThat( useList.get(3).get( MdekKeys.USE_LICENSE_VALUE), is( "GNU Free Documentation License (GFDL)" ) );
+            assertThat( useList.get(3).get( MdekKeys.USE_LICENSE_SOURCE), is( "test the source" ) );
+            assertThat( useList.get(4).get( MdekKeys.USE_LICENSE_VALUE), is( "Es gelten keine Bedingungen" ) );
+            assertThat( useList.get(4).get( MdekKeys.USE_LICENSE_KEY), is( 26 ) );
+            assertThat( useList.get(2).get( MdekKeys.USE_LICENSE_VALUE), is( "Mozilla Public License 2.0 (MPL)" ) );
+            assertThat( useList.get(1).get( MdekKeys.USE_LICENSE_VALUE), is( "Public Domain Mark 1.0 (PDM)" ) );
+            return null;
+        }).when( jobHandler ).updateJobInfoDB(any(), any(), anyString() );
+
+        IngridDocument docIn = prepareInsertDocument( "csw/importUseConstraintSourceLicense.xml" );
+        IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+
+        assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
+    }
+
+    @Test
+    public void importUseConstraintSourceLicense_02() throws Exception {
+        doAnswer((Answer<Void>) invocation -> {
+
+            IngridDocument docOut = getDocument( invocation, "4915275a-733a-47cd-b1a6-1a3f1e976950" );
+
+            List<IngridDocument> useList = (List<IngridDocument>) docOut.get( MdekKeys.USE_CONSTRAINTS );
+            assertThat(useList.size(), is(2));
+            assertThat( useList.get(0).get( MdekKeys.USE_LICENSE_VALUE), is( "restricted" ) );
+            assertThat( useList.get(1).get( MdekKeys.USE_LICENSE_VALUE), is( "Creative Commons Namensnennung - Nicht kommerziell (CC BY-NC)" ) );
+            assertThat( useList.get(1).get( MdekKeys.USE_LICENSE_SOURCE), is( "test the source without a JSON" ) );
+            return null;
+        }).when( jobHandler ).updateJobInfoDB(any(), any(), anyString() );
+
+        IngridDocument docIn = prepareInsertDocument( "csw/importUseConstraintSourceLicense_02.xml" );
+        IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+
+        assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
+    }
+
+    @Test
+    public void importUseConstraintSourceLicense_03() throws Exception {
+        doAnswer((Answer<Void>) invocation -> {
+
+            IngridDocument docOut = getDocument( invocation, "4915275a-733a-47cd-b1a6-1a3f1e976951" );
+
+            List<IngridDocument> useList = (List<IngridDocument>) docOut.get( MdekKeys.USE_CONSTRAINTS );
+            assertThat(useList.size(), is(3));
+            assertThat( useList.get(0).get( MdekKeys.USE_LICENSE_VALUE), is( "restricted" ) );
+            assertThat( useList.get(1).get( MdekKeys.USE_LICENSE_VALUE), is( "GNU Free Documentation License (GFDL)" ) );
+            assertThat( useList.get(1).get( MdekKeys.USE_LICENSE_SOURCE), is( "test the source with JSON" ) );
+            assertThat( useList.get(2).get( MdekKeys.USE_LICENSE_VALUE), is( "Es gelten keine Bedingungen" ) );
+            assertThat( useList.get(2).get( MdekKeys.USE_LICENSE_KEY), is( 26 ) );
+            return null;
+        }).when( jobHandler ).updateJobInfoDB(any(), any(), anyString() );
+
+        IngridDocument docIn = prepareInsertDocument( "csw/importUseConstraintSourceLicense_03.xml" );
+        IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+
+        assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
+    }
     
     @Test @Ignore
     public void deleteFailsWhenOrigIdNotFound() {}

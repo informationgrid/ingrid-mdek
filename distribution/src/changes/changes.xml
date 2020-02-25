@@ -44,6 +44,9 @@
       <action type="fix" dev="wemove" issue="1670">
         Fix highlight summary by search query.
       </action>
+      <action type="add" dev="wemove" issue="1443">
+        Import of license source note.
+      </action>
     </release>
 
     <release version="5.3.0" date="2020-01-13" description="Release 5.3.0">
