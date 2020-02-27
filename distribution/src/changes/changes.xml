@@ -29,6 +29,9 @@
   <body>
 
     <release version="5.4.0-SNAPSHOT" date="2020-xx-xx" description="???">
+      <action type="add" dev="wemove" issue="1763">
+        IGE: Optimize publish of one dataset.
+      </action>
       <action type="update" dev="wemove" issue="1547">
         Use connection pooling fo database access in whole import/export process.
       </action>
