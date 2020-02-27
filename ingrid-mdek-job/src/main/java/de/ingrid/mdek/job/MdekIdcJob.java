@@ -151,7 +151,7 @@ public abstract class MdekIdcJob extends MdekJob {
             // PUBLISHED entities !
             if (WorkState.VEROEFFENTLICHT.getDbValue().equals( entity.get( MdekKeys.WORK_STATE ) )) {
                 // update search index
-                ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
+                ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString());
                 if (doc != null && !doc.isEmpty()) {
 
                     IndexInfo indexInfo = docProducer.getIndexInfo();
