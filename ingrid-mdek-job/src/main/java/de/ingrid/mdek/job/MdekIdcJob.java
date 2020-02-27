@@ -150,10 +150,22 @@ public abstract class MdekIdcJob extends MdekJob {
 
             // PUBLISHED entities !
             if (WorkState.VEROEFFENTLICHT.getDbValue().equals( entity.get( MdekKeys.WORK_STATE ) )) {
-                // update search index
-                ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString());
-                if (doc != null && !doc.isEmpty()) {
 
+                // update index
+                ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString());
+                /*
+                   Note that the result can be null if the publication conditions are not
+                   met based on the SQL provided in property recordByIdSql in
+                   PlugDescriptionConfiguredDatabaseRecordSetProducer, even if the database ID exists.
+
+                   Example:
+
+                   SELECT DISTINCT id FROM t01_object
+                     WHERE work_state='V' AND publish_id=1
+                     AND (to_be_published_on is null OR to_be_published_on >= CURRENT_DATE)
+                     AND id = ?
+                 */
+                if (doc != null && !doc.isEmpty()) {
                     IndexInfo indexInfo = docProducer.getIndexInfo();
                     String[] datatypes = null;
                     try {
