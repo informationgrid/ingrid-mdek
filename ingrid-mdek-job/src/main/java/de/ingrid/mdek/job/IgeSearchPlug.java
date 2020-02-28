@@ -281,6 +281,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 }
                 IngridDocument importDoc = prepareImportDocument();
                 importDoc.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
+                importDoc.put( MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT, true );
                 resultInsert = catalogJob.importEntities( importDoc );
                 Exception ex = (Exception) resultInsert.get( MdekKeys.JOBINFO_EXCEPTION );
                 if (ex == null) {
@@ -307,6 +308,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, true );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
+                    document.put( MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT, true );
 
                     IngridDocument analyseResult = catalogJob.analyzeImportData( document );
                     /*

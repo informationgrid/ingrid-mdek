@@ -839,6 +839,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		boolean errorOnMissingUuid = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, false );
 		boolean errorOnException = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, false );
 		boolean ignoreParentImportNodes = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, false );
+		boolean overwriteAddressOnImport = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT, false );
 		boolean removeRunningJob = true;
 		try {
 		    if (!transactionInProgress) {
@@ -850,6 +851,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, errorOnMissingUuid );
 			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, errorOnException );
             jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, ignoreParentImportNodes );
+			jobDescr.put( MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT, overwriteAddressOnImport );
             // first add basic running jobs info !
 			addRunningJob(userId, jobDescr );
 

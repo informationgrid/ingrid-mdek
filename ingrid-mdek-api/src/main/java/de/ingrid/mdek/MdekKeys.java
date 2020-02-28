@@ -230,6 +230,12 @@ public class MdekKeys {
     /** Indicate handled transaction outside of jobs, so job does NOT begin/commit transaction
     *  Value: Boolean */
     public final static String REQUESTINFO_TRANSACTION_IS_HANDLED = "requestinfo_transactionIsHandled";
+    /**
+     * If TRUE the addresses are overwritten when import a dataset.
+     * This setting is used in CSW-T import setting.
+     *
+     * Value: Boolean */
+    public final static String REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT = "requestinfo_overrideAddressOnImport";
 
 
     // URL
