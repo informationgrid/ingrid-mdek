@@ -2610,6 +2610,11 @@ function addDistributionInfo(mdMetadata, objId) {
                     }
                     idfOnlineResource.addElement("gmd:name/gco:CharacterString").addText(serviceName);
                 }
+
+                // add functionCode (#1367)
+                idfOnlineResource.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CI_OnLineFunctionCode")
+                    .addAttribute("codeListValue", "information").addText("information");
             }
         }
     }
@@ -2914,6 +2919,7 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
 function addAttachedToField(row, parentElement, addAsISO) {
     var attachedToFieldKey = row.get("special_ref");
     var attachedToFieldValue = row.get("special_name");
+    var validKeys = ["9990", "5302", "5303", "5304", "5305"];
 
     if (hasValue(attachedToFieldKey) &&
         hasValue(attachedToFieldValue)) {
@@ -2922,20 +2928,29 @@ function addAttachedToField(row, parentElement, addAsISO) {
         if (attachedToFieldKey.equals("-1")) {
             // free entry, only add if ISO
             if (addAsISO) {
-               textContent = attachedToFieldValue;
+                if (validKeys.indexOf(attachedToFieldKey) !== -1) {
+                    textContent = attachedToFieldValue;
+                } else {
+                    textContent = "information";
+                }
             }
         } else if (!attachedToFieldKey.equals("9999")) {
+
             // syslist entry, NOT "unspezifischer Verweis"
             if (addAsISO) {
-                // ISO: first iso value, see INGRID-2317
-            	textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "iso");
-            	// if no iso then english !
-            	if (!hasValue(textContent)) {
-            	   textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "en");
-            	}
+                if (validKeys.indexOf(attachedToFieldKey) !== -1) {
+                    // ISO: first iso value, see INGRID-2317
+                    textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "iso");
+                    // if no iso then english !
+                    if (!hasValue(textContent)) {
+                        textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "en");
+                    }
+                } else {
+                    textContent = "information";
+                }
             } else {
-               // IDF: use catalog language like it was entered
-               textContent = attachedToFieldValue;
+                // IDF: use catalog language like it was entered
+                textContent = attachedToFieldValue;
             }
         }
 

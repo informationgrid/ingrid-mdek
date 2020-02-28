@@ -28,9 +28,27 @@
   </properties>
   <body>
 
-    <release version="5.4.0" date="2020-xx-xx" description="Release 5.4.0">
+    <release version="5.4.0-SNAPSHOT" date="2020-xx-xx" description="???">
+      <action type="add" dev="wemove" issue="1763">
+        IGE: Optimize publish of one dataset.
+      </action>
+      <action type="update" dev="wemove" issue="1547">
+        Use connection pooling fo database access in whole import/export process.
+      </action>
+      <action type="add" dev="wemove" issue="1600">
+        Add indexes to table additional_field_data to increase statistics performance.
+      </action>
       <action type="fix" dev="wemove" issue="1668">
-        IGE: Nicht darzustellende Adressen werden trotzdem indexiert.
+        Nicht darzustellende Adressen werden trotzdem indexiert.
+      </action>
+      <action type="update" dev="wemove" issue="1276">
+        Verhalten der Felder zur "Datenqualität" ändern
+      </action>
+      <action type="fix" dev="wemove" issue="1670">
+        Fix highlight summary by search query.
+      </action>
+      <action type="add" dev="wemove" issue="1443">
+        Import of license source note.
       </action>
     </release>
 

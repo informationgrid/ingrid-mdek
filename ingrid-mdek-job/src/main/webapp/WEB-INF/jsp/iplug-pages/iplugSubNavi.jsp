@@ -24,4 +24,4 @@
 
 <menutaglib:MenuTag text="Weitere Einstellungen" url="../base/extras.html" ></menutaglib:MenuTag>
 <menutaglib:MenuTag text="Datenbankeinstellungen" url="../iplug-pages/dbParams.html" ></menutaglib:MenuTag>
-<menutaglib:MenuTag text="Einstellungen f�r die Erfassungskomponente (IGE)" url="../iplug-pages/editor.html" ></menutaglib:MenuTag>
+<menutaglib:MenuTag text="Einstellungen für die Erfassungskomponente (IGE)" url="../iplug-pages/editor.html" ></menutaglib:MenuTag>

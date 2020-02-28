@@ -113,8 +113,8 @@ public class JobRepository implements IJobRepository {
 				for (Pair pair : methods) {
 					methodName = pair.getKey();
 					Object value = pair.getValue();
-					if (LOG.isInfoEnabled()) {
-						LOG.info("try to invoke method [" + methodName
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("try to invoke method [" + methodName
 								+ "] for jobid [" + jobId + "]");
 					}
 					Method method = getMethodToInvoke(registeredJob, methodName);

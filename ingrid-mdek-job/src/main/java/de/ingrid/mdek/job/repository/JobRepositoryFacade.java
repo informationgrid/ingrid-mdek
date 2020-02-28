@@ -71,16 +71,16 @@ public class JobRepositoryFacade implements IJobRepositoryFacade {
 		}
 
 		if (jobMethods != null) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("invoke job by job repository [" + jobId + "]");
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("invoke job by job repository [" + jobId + "]");
 			}
 			IngridDocument invokeDocument = _jobRepository.invoke(document);
 			ret.putAll(invokeDocument);
 		}
 
 		if (!jobPersist) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("deRegister job by job repository [" + jobId + "]");
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("deRegister job by job repository [" + jobId + "]");
 			}
 			IngridDocument deRegisterDocument = _jobRepository
 					.deRegister(document);

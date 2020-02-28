@@ -44,7 +44,7 @@ import java.util.zip.GZIPInputStream;
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import de.ingrid.mdek.xml.Versioning;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
 import org.mockito.Mock;
