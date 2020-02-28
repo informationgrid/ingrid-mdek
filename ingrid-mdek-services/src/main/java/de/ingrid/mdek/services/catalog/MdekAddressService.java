@@ -496,8 +496,13 @@ public class MdekAddressService {
 
 		// all parents published ?
 		checkAddressPathForPublish(parentUuid, uuid);
-		// publication condition of referencing objects fit to address ?
-		checkAddressPublicationConditionReferencingObjects(aDocIn);
+		// if an address should be overridden in import (csw-t)
+		// then no check of references objects should be done because
+		// with CSW-T all datasets are treated as published
+		if (!aDocIn.getBoolean(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT)) {
+			// publication condition of referencing objects fit to address ?
+			checkAddressPublicationConditionReferencingObjects(aDocIn);
+		}
 		// publication condition of parent fits to address ?
 		checkAddressPublicationConditionParent(parentUuid, uuid, pubTypeIn);
 		// publication conditions of sub nodes fit to address ?
