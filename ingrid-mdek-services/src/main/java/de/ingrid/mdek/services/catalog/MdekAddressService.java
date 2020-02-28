@@ -499,7 +499,7 @@ public class MdekAddressService {
 		// if an address should be overridden in import (csw-t)
 		// then no check of references objects should be done because
 		// with CSW-T all datasets are treated as published
-		if (!aDocIn.getBoolean(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT)) {
+		if (!aDocIn.containsKey(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT) || !aDocIn.getBoolean(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT)) {
 			// publication condition of referencing objects fit to address ?
 			checkAddressPublicationConditionReferencingObjects(aDocIn);
 		}
