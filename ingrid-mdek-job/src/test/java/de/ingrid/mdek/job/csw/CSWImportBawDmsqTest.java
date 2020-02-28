@@ -187,7 +187,6 @@ public class CSWImportBawDmsqTest {
         when( catJobMock.getCatalogAdminUserUuid() ).thenReturn( "TEST_USER_ID" );
 
         cswMapper = new ScriptImportDataMapper( daoFactory, igeCswFolderUtil );
-        cswMapper.setDataSource( dataSourceMock );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
         Logger mockLogger = mock(Logger.class);
