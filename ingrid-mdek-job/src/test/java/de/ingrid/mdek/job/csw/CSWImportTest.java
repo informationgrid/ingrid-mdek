@@ -28,7 +28,6 @@ import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.job.MdekIdcCatalogJob;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import de.ingrid.mdek.job.protocol.ProtocolHandler.Type;
-import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import de.ingrid.mdek.job.utils.TestSetup;
 import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.persistence.db.model.SysList;
@@ -42,7 +41,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -64,12 +62,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+
 
 @PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
