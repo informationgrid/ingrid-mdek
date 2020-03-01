@@ -237,6 +237,15 @@ public class MdekKeys {
      * Value: Boolean */
     public final static String REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT = "requestinfo_overrideAddressOnImport";
 
+    /**
+     * If TRUE (default) the publication conditions of datasets, referencing an
+     * address that will be overwritten by import, are checked.
+     *
+     * see de.ingrid.mdek.job.Configuration for details
+     *
+     * Value: Boolean
+     */
+    public final static String REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT_CHECK_REFERENCING_DATASETS = "requestinfo_overrideAddressOnImportCheckReferencingDatasets";
 
     // URL
     // ------

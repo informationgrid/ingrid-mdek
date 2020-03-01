@@ -33,6 +33,7 @@ import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import de.ingrid.iplug.PlugDescriptionFieldFilters;
 import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.mdek.MdekKeys;
+import de.ingrid.mdek.MdekServer;
 import de.ingrid.mdek.job.validation.iso.bawdmqs.IsoValidationException;
 import de.ingrid.utils.*;
 import de.ingrid.utils.dsc.Record;
@@ -281,7 +282,6 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 }
                 IngridDocument importDoc = prepareImportDocument();
                 importDoc.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
-                importDoc.put( MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT, true );
                 resultInsert = catalogJob.importEntities( importDoc );
                 Exception ex = (Exception) resultInsert.get( MdekKeys.JOBINFO_EXCEPTION );
                 if (ex == null) {
@@ -308,7 +308,6 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, true );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_OBJ_PARENT_UUID, parentUuid );
-                    document.put( MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT, true );
 
                     IngridDocument analyseResult = catalogJob.analyzeImportData( document );
                     /*

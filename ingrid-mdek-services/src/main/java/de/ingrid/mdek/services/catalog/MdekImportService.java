@@ -239,6 +239,11 @@ public class MdekImportService implements IImporterCallback {
 			overwriteAddressesOnImport = (Boolean) runningJobInfo.get(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT);
 		}
 		inDoc.putBoolean(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT, overwriteAddressesOnImport);
+		boolean overwriteAddressesOnImportCheckReferencingDatasets = true;
+		if (runningJobInfo.containsKey(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT_CHECK_REFERENCING_DATASETS)) {
+			overwriteAddressesOnImportCheckReferencingDatasets = (Boolean) runningJobInfo.get(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT_CHECK_REFERENCING_DATASETS);
+		}
+		inDoc.putBoolean(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT_CHECK_REFERENCING_DATASETS, overwriteAddressesOnImportCheckReferencingDatasets);
 
 		IEntity importNode = null;
 		if (whichType == IdcEntityType.OBJECT) {

@@ -40,18 +40,14 @@ import java.util.zip.GZIPOutputStream;
 
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IBusIndexManager;
+import de.ingrid.mdek.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.elasticsearch.IndexManager;
-import de.ingrid.mdek.EnumUtil;
-import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
-import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.MdekKeysSecurity;
-import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.CsvRequestType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
@@ -839,7 +835,6 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		boolean errorOnMissingUuid = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, false );
 		boolean errorOnException = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, false );
 		boolean ignoreParentImportNodes = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, false );
-		boolean overwriteAddressOnImport = (boolean) getOrDefault( docIn, MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT, false );
 		boolean removeRunningJob = true;
 		try {
 		    if (!transactionInProgress) {
@@ -851,7 +846,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, errorOnMissingUuid );
 			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION, errorOnException );
             jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE, ignoreParentImportNodes );
-			jobDescr.put( MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT, overwriteAddressOnImport );
+			jobDescr.put( MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT, MdekServer.conf.importOverwriteAddresses );
+			jobDescr.put( MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT_CHECK_REFERENCING_DATASETS, MdekServer.conf.importOverwriteAddressesCheckReferencingDatasets );
             // first add basic running jobs info !
 			addRunningJob(userId, jobDescr );
 
