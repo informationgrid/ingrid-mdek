@@ -223,20 +223,6 @@ for (var i=0; i<unitsWithoutEmail && unitsWithoutEmail.getLength(); i++ ) {
     XMLUtils.remove( unitsWithoutEmailNode )
 }
 
-// set address type of "gmd:contact" adresses to pointOfContactMd
-var contactMdNodes = XPATH.getNodeList(source, "//gmd:contact/gmd:CI_ResponsibleParty");
-for (var i=0; i<contactMdNodes.getLength(); i++) {
-    var contactMdNode = contactMdNodes.item(i);
-    var ContactMdUUID = createUUIDFromAddress(contactMdNode);
-	var targetEl = target.getDocumentElement();
-    var relatedAddresses = XPATH.getNodeList(targetEl, "//related-address[./type-of-relation/@entry-id=7 and address-identifier='"+ContactMdUUID+"']");
-    for (var j=0; j<relatedAddresses.getLength(); j++) {
-        var relatedAddressNode = relatedAddresses.item(j);
-        XMLUtils.createOrReplaceAttribute(XPATH.getNode(relatedAddressNode, "./type-of-relation"), "entry-id", "12");
-        XMLUtils.createOrReplaceTextNode(XPATH.getNode(relatedAddressNode, "./type-of-relation"), "pointOfContactMd");
-    }
-}
-
 var targetEl = target.getDocumentElement();
 var geoLocationNodesNodes = XPATH.getNodeList(targetEl, "//spatial-domain/geo-location");
 if (geoLocationNodesNodes.getLength() == 2 

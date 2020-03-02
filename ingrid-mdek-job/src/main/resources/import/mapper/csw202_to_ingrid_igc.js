@@ -1928,9 +1928,8 @@ function mapAddresses(source, target) {
         for (var i=0; i<contactMdNodes.getLength(); i++) {
             var contactMdNode = contactMdNodes.item(i);
             var ContactMdUUID = createUUIDFromAddress(contactMdNode);
-            var targetEl = target.getDocumentElement();
             // Point Of Contact
-            var relatedAddresses = XPATH.getNodeList(targetEl, "//related-address[./type-of-relation/@entry-id=7 and address-identifier='"+ContactMdUUID+"']");
+            var relatedAddresses = XPATH.getNodeList(target, "//related-address[./type-of-relation/@entry-id=7 and address-identifier='"+ContactMdUUID+"']");
             for (var j=0; j<relatedAddresses.getLength(); j++) {
                 var relatedAddressNode = relatedAddresses.item(j);
                 XMLUtils.createOrReplaceAttribute(XPATH.getNode(relatedAddressNode, "./type-of-relation"), "entry-id", "12");
