@@ -29,6 +29,9 @@
   <body>
 
     <release version="5.4.0-SNAPSHOT" date="2020-xx-xx" description="???">
+      <action type="add" dev="wemove" issue="1767">
+        Introduce metadata point of contact address.
+      </action>
       <action type="add" dev="wemove" issue="1763">
         IGE: Optimize publish of one dataset.
       </action>
