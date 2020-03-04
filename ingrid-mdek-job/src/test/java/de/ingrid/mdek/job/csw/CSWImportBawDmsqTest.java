@@ -33,6 +33,7 @@ import de.ingrid.mdek.job.MdekIdcObjectJob;
 import de.ingrid.mdek.job.mapping.DataMapperFactory;
 import de.ingrid.mdek.job.mapping.ImportDataMapper;
 import de.ingrid.mdek.job.mapping.ScriptImportDataMapper;
+import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.log.ILogService;
@@ -84,11 +85,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
+
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
@@ -142,6 +144,8 @@ public class CSWImportBawDmsqTest {
     @Mock
     ElasticConfig elasticConfig;
 
+    @Mock private IgeCswFolderUtil igeCswFolderUtil;
+
     @Before
     public void before() throws Exception {
 
@@ -183,7 +187,7 @@ public class CSWImportBawDmsqTest {
         when( daoT03Catalogue.findFirst() ).thenReturn( t03Catalogue );
         when( catJobMock.getCatalogAdminUserUuid() ).thenReturn( "TEST_USER_ID" );
 
-        cswMapper = new ScriptImportDataMapper( daoFactory );
+        cswMapper = new ScriptImportDataMapper( daoFactory, igeCswFolderUtil );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
         Logger mockLogger = mock(Logger.class);

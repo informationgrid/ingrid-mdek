@@ -31,6 +31,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
+import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.xml.Versioning;
@@ -67,6 +68,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.w3c.dom.Node;
 
 public class ScriptImportDataMapper implements ImportDataMapper<Document, Document>, IConfigurable {
 	
@@ -86,8 +88,10 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 
     private DatabaseConnection internalDatabaseConnection;
 
+    private IgeCswFolderUtil igeCswFolderUtil;
+
     @Autowired
-	public ScriptImportDataMapper(DaoFactory daoFactory) {
+    public ScriptImportDataMapper(DaoFactory daoFactory, IgeCswFolderUtil igeCswFolderUtil) {
         catalogService = MdekCatalogService.getInstance(daoFactory);
         
         ConfigurableNamespaceContext cnc = new ConfigurableNamespaceContext();
@@ -95,6 +99,8 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
         cnc.addNamespaceContext(new IgcProfileNamespaceContext());
         
         xpathUtils = new XPathUtils(cnc);
+
+        this.igeCswFolderUtil = igeCswFolderUtil;
     }
     
     @Override
@@ -126,19 +132,20 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 		    parameters.put("source", sourceIso);
 		    parameters.put("target", targetIgc);
             parameters.put("protocolHandler", protocolHandler );
-		    parameters.put("codeListService", catalogService);
-		    parameters.put("javaVersion", System.getProperty( "java.version" ));
-		    parameters.put("SQL", sqlUtils);
-		    parameters.put("XPATH", xpathUtils);
-		    parameters.put("TRANSF", trafoUtils);
-		    parameters.put("DOM", domUtils);
-		    parameters.put("log", log);
+            parameters.put("codeListService", catalogService);
+            parameters.put("javaVersion", System.getProperty( "java.version" ));
+            parameters.put("SQL", sqlUtils);
+            parameters.put("XPATH", xpathUtils);
+            parameters.put("TRANSF", trafoUtils);
+            parameters.put("DOM", domUtils);
+            parameters.put("igeCswFolderUtil", igeCswFolderUtil);
+            parameters.put("log", log);
 
-		    // the template represents only one object!
-		    // Better if docTarget is only header and footer where
-		    // new objects made from template will be put into?
-		    //parameters.put("template", template);
-			doMap(parameters);
+            // the template represents only one object!
+            // Better if docTarget is only header and footer where
+            // new objects made from template will be put into?
+            //parameters.put("template", template);
+            doMap(parameters);
 
 			mapAdditionalFields(targetIgc);
 

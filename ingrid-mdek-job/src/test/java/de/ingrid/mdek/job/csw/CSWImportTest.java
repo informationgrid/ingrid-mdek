@@ -62,12 +62,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+
 
 @PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
@@ -77,7 +78,6 @@ public class CSWImportTest extends TestSetup {
     //private IgeSearchPlug plug;
 
     // @Mock private ResultSet resultSet;
-
 
     @Before
     public void before() throws Exception {

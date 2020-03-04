@@ -32,7 +32,9 @@
           <!-- UVP -->
           <!-- <Item>../distribution/src/profiles/uvp/webapp</Item> -->
           <!-- BKG -->
-<!--          <Item>../distribution/src/profiles/bkg/webapp</Item>-->
+          <!-- <Item>../distribution/src/profiles/bkg/webapp</Item> -->
+          <!-- HZG -->
+          <!-- <Item>../distribution/src/profiles/hzg/webapp</Item> -->
           <Item>src/main/webapp</Item>
           <Item>target/base-webapp</Item>
           <!--<Item><SystemProperty name="jetty.home" default="."/>/webapps/foo</Item>-->
