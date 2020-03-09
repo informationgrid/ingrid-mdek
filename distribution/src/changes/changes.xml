@@ -28,6 +28,12 @@
   </properties>
   <body>
 
+    <release version="5.3.7" date="2020-xx-xx" description="Release 5.3.7">
+      <action type="fix" dev="wemove" issue="1762">
+        Fix 5.2.0a strategie eingeführt mit #1274 (Konformitäten). Gilt nur für Updates von InGrid Versionen vor 5.2.0.
+      </action>
+    </release>
+
     <release version="5.3.5" date="2020-02-14" description="Release 5.3.5">
       <action type="update" dev="wemove" issue="1276">
         Verhalten der Felder zur "Datenqualität" ändern
