@@ -29,6 +29,9 @@
   <body>
 
     <release version="5.4.0-SNAPSHOT" date="2020-xx-xx" description="???">
+      <action type="add" dev="wemove" issue="1084">
+        Handle new metadata date in object.
+      </action>
       <action type="fix" dev="wemove" issue="1762">
         Fix 5.2.0a strategie eingeführt mit #1274 (Konformitäten). Gilt nur für Updates von InGrid Versionen vor 5.2.0.
       </action>

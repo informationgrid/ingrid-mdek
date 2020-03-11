@@ -373,6 +373,7 @@ public class DocToBeanMapper implements IMapper {
 		oIn.setObjName((String) oDocIn.get(MdekKeys.TITLE));
 		oIn.setWorkState((String) oDocIn.get(MdekKeys.WORK_STATE));
 		oIn.setModTime((String) oDocIn.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
+        oIn.setMetadataTime((String) oDocIn.get(MdekKeys.METADATA_DATE));
 		oIn.setToBePublishedOn((Date) oDocIn.get(MdekKeys.TO_BE_PUBLISHED_ON));
 
 		// stuff only set if NEW object !
