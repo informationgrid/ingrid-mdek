@@ -58,15 +58,45 @@
       </action>
     </release>
 
+    <release version="4.4.4.mCLOUD" date="2020-01-24" description="Release 4.4.4.mCLOUD">
+      <action type="fix" issue="2301">
+        Fix published dataset not showing up in portal.
+      </action>
+    </release>
+
+    <release version="4.4.3.mCLOUD" date="2019-09-16" description="Release 4.4.3.mCLOUD">
+      <action type="add" dev="wemove">
+        Add default attribution to easily filter data in portal.
+      </action>
+    </release>
+
+    <release version="4.4.2.mCLOUD" date="2019-07-10" description="Release 4.4.2.mCLOUD">
+      <action type="update" dev="wemove">
+        Change mapping of temporal field.
+      </action>
+    </release>
+
+    <release version="4.4.1.mCLOUD" date="2019-06-07" description="Release 4.4.1.mCLOUD">
+      <action type="add" dev="wemove" issue="">
+        Modify links for uploaded documents in index
+      </action>
+    </release>
+
+    <release version="4.4.0.mCLOUD" date="2019-04-02" description="Release 4.4.0.mCLOUD">
+      <action type="add" dev="wemove" issue="1590">
+        Profile for mCLOUD
+      </action>
+    </release>
+
     <release version="5.3.0" date="2020-01-13" description="Release 5.3.0">
       <action type="add" dev="wemove" issue="1590">
         UVP: Display of "Verfahrenstyp" in detail view.
       </action>
       <action type="add" dev="wemove" issue="513">
-        WMTS via GetCapabilities-Assistant. Fix double entries in ISO.  
+        WMTS via GetCapabilities-Assistant. Fix double entries in ISO.
       </action>
       <action type="add" dev="wemove" issue="1273">
-        Migrate ""encoding schema" to "application schema".  
+        Migrate ""encoding schema" to "application schema".
       </action>
       <action type="add" dev="wemove" issue="1554">
         Change codelist namespace to http://standards.iso.org/iso/19139/resources/gmxCodelists.xml
@@ -176,7 +206,7 @@
       <action type="fix" dev="wemove" issue="1336">
         Make CSW-T import robuster.
       </action>
-    </release>  
+    </release>
 
     <release version="4.6.0" date="2019-01-14" description="Release InGrid 4.6.0">
       <action type="add" dev="wemove" issue="1202">
