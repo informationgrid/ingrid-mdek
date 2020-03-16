@@ -28,7 +28,7 @@
   </properties>
   <body>
 
-    <release version="5.4.0-SNAPSHOT" date="2020-xx-xx" description="Release 5.4.0">
+    <release version="5.4.0-SNAPSHOT" date="2020-xx-xx" description="???">
       <action type="fix" dev="wemove" issue="1762">
         Fix 5.2.0a strategie eingeführt mit #1274 (Konformitäten). Gilt nur für Updates von InGrid Versionen vor 5.2.0.
       </action>
@@ -93,10 +93,10 @@
         UVP: Display of "Verfahrenstyp" in detail view.
       </action>
       <action type="add" dev="wemove" issue="513">
-        WMTS via GetCapabilities-Assistant. Fix double entries in ISO.  
+        WMTS via GetCapabilities-Assistant. Fix double entries in ISO.
       </action>
       <action type="add" dev="wemove" issue="1273">
-        Migrate ""encoding schema" to "application schema".  
+        Migrate ""encoding schema" to "application schema".
       </action>
       <action type="add" dev="wemove" issue="1554">
         Change codelist namespace to http://standards.iso.org/iso/19139/resources/gmxCodelists.xml
@@ -206,7 +206,7 @@
       <action type="fix" dev="wemove" issue="1336">
         Make CSW-T import robuster.
       </action>
-    </release>  
+    </release>
 
     <release version="4.6.0" date="2019-01-14" description="Release InGrid 4.6.0">
       <action type="add" dev="wemove" issue="1202">

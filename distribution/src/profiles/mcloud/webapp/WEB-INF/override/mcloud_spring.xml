@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  **************************************************-
+  InGrid-iPlug DSC
+  ==================================================
+  Copyright (C) 2014 - 2015 wemove digital solutions GmbH
+  ==================================================
+  Licensed under the EUPL, Version 1.1 or – as soon they will be
+  approved by the European Commission - subsequent versions of the
+  EUPL (the "Licence");
+
+  You may not use this work except in compliance with the Licence.
+  You may obtain a copy of the Licence at:
+
+  http://ec.europa.eu/idabc/eupl5
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the Licence is distributed on an "AS IS" basis,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the Licence for the specific language governing permissions and
+  limitations under the Licence.
+  **************************************************#
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+
+    <!-- SEARCH / INDEX CONFIGURATION -->
+    <bean id="dscDocumentProducer" class="de.ingrid.iplug.dsc.index.DscDocumentProducer">
+        <property name="recordSetProducer" ref="recordSetProducer" />
+        <property name="recordMapperList">
+            <list>
+                <ref bean="recordMapper"/>
+                <ref bean="recordProfileMapper"/>
+                <ref bean="idfProducerIndexMapper"/>
+            </list>
+        </property>
+        <property name="indexInfo" ref="indexInfo"/>
+    </bean>
+
+    <bean id="indexInfo" class="de.ingrid.elasticsearch.IndexInfo">
+        <property name="toIndex" value="ige-test" />
+        <property name="toType" value="object" />
+        <property name="docIdField" value="uuid" />
+        <property name="toAlias" value="mcloud" />
+    </bean>
+
+    <bean id="indexInfoAddress" class="de.ingrid.elasticsearch.IndexInfo">
+        <property name="toIndex" value="ige-test" />
+        <property name="toType" value="address" />
+        <property name="docIdField" value="t02_address.adr_id" />
+        <property name="toAlias" value="mcloud" />
+    </bean>
+    
+    <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/mcloud_mapper.js</value>
+                <value>classpath:mapping/igc_to_lucene_mcloud.js</value>
+            </list>
+        </property> 
+        <property name="compile" value="false" />
+    </bean>
+
+    <bean id="recordSetProducerAddress" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
+        <property name="recordSql" value="SELECT DISTINCT id FROM t02_address WHERE work_state='SKIP_ALL_ADDRESSES' AND publish_id=1" />
+    </bean>
+
+    <bean id="scriptedIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/idf_utils.js</value>
+                <value>classpath:mapping/igc_to_idf_mcloud.js</value>
+            </list>
+        </property> 
+        <property name="compile" value="false" />
+    </bean>
+
+    <bean id="recordProducer" class="de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer">
+        <property name="indexFieldID" value="uuid" />
+    </bean>
+
+    <bean id="scriptedIdfMapperDQ" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
+        <property name="mappingScripts">
+            <list/>
+        </property>
+        <property name="compile" value="true" />
+    </bean>
+
+    <!-- enable audit service for logging operations publish and delete -->
+    <bean id="auditService" class="de.ingrid.mdek.services.log.AuditService" />
+
+</beans>

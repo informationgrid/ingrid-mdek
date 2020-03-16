@@ -157,32 +157,29 @@ for (i=0; i<objRows.size(); i++) {
     }
     // ---------- <gmd:contact> ----------
     
-    // special contact for metadata from IMPORT
-    // select only adresses associated with syslist 505 entry 12 ("pointOfContactMd")
-    // this is the contact from ISO Import which should not be lost (CSW-T), if set, we do NOT map "responsible user" (see below)
+    // contact for metadata
+    // select only addresses associated with syslist 505 entry 12 ("pointOfContactMd")
+    // use this address to be able to keep contact address from import/csw-t data
+    // otherwise the responsible user will be used
     var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', +objId, 12, 505]);
     if (hasValue(addressRow)) {
         // address may be hidden ! then get first visible parent in hierarchy !
         addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
-    }
-    if (hasValue(addressRow)) {
-    	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
-    } else {
-    	log.debug('No responsible party for metadata found!');
-    }
-    
-    // contact for metadata is now responsible user, see INGRID32-46
-    // only map if no contact from import was found (CSW-T, see above)
-    if (!hasValue(addressRow) && hasValue(objRow.get("responsible_uuid"))) {
+    } else if (hasValue(objRow.get("responsible_uuid"))) {
+        // contact for metadata is now responsible user, see INGRID32-46
         // USE WORKING VERSION (pass true) ! user addresses are now separated and NOT published, see INGRID32-36
         addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
-        if (addressRow) {
-            // map only email address (pass true as third parameter), see INGRID32-36
-            // NO, ISO needs more data, see INGRID32-146
-            // do not export all values ... only organisation name and email(s) (INGRID-2256)
-            mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
-        }
     }
+    if (hasValue(addressRow)) {
+        // map only email address (pass true as third parameter), see INGRID32-36
+        // NO, ISO needs more data, see INGRID32-146
+        // do not export all values ... only organisation name and email(s) (INGRID-2256)
+    	// for BAW DMQS export full address
+    	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
+    } else {
+    	log.error('No responsible party for metadata found!');
+    }
+
     // ---------- <gmd:dateStamp> ----------
     if (hasValue(objRow.get("mod_time"))) {
         var isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
@@ -692,11 +689,12 @@ for (i=0; i<objRows.size(); i++) {
     }
     
     // ---------- <gmd:identificationInfo/gmd:graphicOverview> ----------
-    row = SQL.first("SELECT url_link,descr FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [+objId]);
-    if (hasValue(row)) {
+    var previewRows = SQL.all("SELECT url_link,descr FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [+objId]);
+    for (var i=0; i<previewRows.length; i++) {
+        var preview = previewRows.get(i);
         var graphic = identificationInfo.addElement("gmd:graphicOverview/gmd:MD_BrowseGraphic");
-        graphic.addElement("gmd:fileName/gco:CharacterString").addText(row.get("url_link"));
-        var description = row.get("descr");
+        graphic.addElement("gmd:fileName/gco:CharacterString").addText(preview.get("url_link"));
+        var description = preview.get("descr");
         if (hasValue(description)) {
             graphic.addElement("gmd:fileDescription/gco:CharacterString").addText(description);
         }
@@ -2608,6 +2606,11 @@ function addDistributionInfo(mdMetadata, objId) {
                     }
                     idfOnlineResource.addElement("gmd:name/gco:CharacterString").addText(serviceName);
                 }
+
+                // add functionCode (#1367)
+                idfOnlineResource.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CI_OnLineFunctionCode")
+                    .addAttribute("codeListValue", "information").addText("information");
             }
         }
     }
@@ -2912,6 +2915,7 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
 function addAttachedToField(row, parentElement, addAsISO) {
     var attachedToFieldKey = row.get("special_ref");
     var attachedToFieldValue = row.get("special_name");
+    var validKeys = ["9990", "5302", "5303", "5304", "5305"];
 
     if (hasValue(attachedToFieldKey) &&
         hasValue(attachedToFieldValue)) {
@@ -2920,20 +2924,29 @@ function addAttachedToField(row, parentElement, addAsISO) {
         if (attachedToFieldKey.equals("-1")) {
             // free entry, only add if ISO
             if (addAsISO) {
-               textContent = attachedToFieldValue;
+                if (validKeys.indexOf(attachedToFieldKey) !== -1) {
+                    textContent = attachedToFieldValue;
+                } else {
+                    textContent = "information";
+                }
             }
         } else if (!attachedToFieldKey.equals("9999")) {
+
             // syslist entry, NOT "unspezifischer Verweis"
             if (addAsISO) {
-                // ISO: first iso value, see INGRID-2317
-            	textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "iso");
-            	// if no iso then english !
-            	if (!hasValue(textContent)) {
-            	   textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "en");
-            	}
+                if (validKeys.indexOf(attachedToFieldKey) !== -1) {
+                    // ISO: first iso value, see INGRID-2317
+                    textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "iso");
+                    // if no iso then english !
+                    if (!hasValue(textContent)) {
+                        textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "en");
+                    }
+                } else {
+                    textContent = "information";
+                }
             } else {
-               // IDF: use catalog language like it was entered
-               textContent = attachedToFieldValue;
+                // IDF: use catalog language like it was entered
+                textContent = attachedToFieldValue;
             }
         }
 
