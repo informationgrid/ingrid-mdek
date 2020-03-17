@@ -62,12 +62,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+
 
 @PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
@@ -77,7 +78,6 @@ public class CSWImportTest extends TestSetup {
     //private IgeSearchPlug plug;
 
     // @Mock private ResultSet resultSet;
-
 
     @Before
     public void before() throws Exception {
@@ -337,7 +337,7 @@ public class CSWImportTest extends TestSetup {
                     List<IngridDocument> addresses = (List<IngridDocument>) docOut.get( MdekKeys.ADR_REFERENCES_TO );
                     // TODO: dataset gets a new UUID but keeps its origUUID!!!
                     assertThat( addresses.size(), is( 3 ) );
-                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 7 ) );
+                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 12 ) );
                     assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
                     assertThat( addresses.get( 2 ).getString( MdekKeys.UUID ), is( "3E1B7F21-4E56-11D3-9A6B-0060971A0BF7" ) );
                     assertThat( addresses.get( 2 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 1 ) );
@@ -663,7 +663,7 @@ public class CSWImportTest extends TestSetup {
                     List<IngridDocument> addresses = (List<IngridDocument>) docOut.get( MdekKeys.ADR_REFERENCES_TO );
                     // TODO: dataset gets a new UUID but keeps its origUUID!!!
                     assertThat( addresses.size(), is( 2 ) );
-                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 7 ) );
+                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 12 ) );
                     assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
                     assertThat( addresses.get( 0 ).getString( MdekKeys.UUID ), is( "110C6012-1713-44C0-9A33-4E2C24D06966" ) );
                     assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 7 ) );
@@ -927,7 +927,72 @@ public class CSWImportTest extends TestSetup {
 
         assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
     }
-    
+
+    @Test
+    public void importUseConstraintSourceLicense() throws Exception {
+        doAnswer((Answer<Void>) invocation -> {
+
+            IngridDocument docOut = getDocument( invocation, "4915275a-733a-47cd-b1a6-1a3f1e976949" );
+
+            List<IngridDocument> useList = (List<IngridDocument>) docOut.get( MdekKeys.USE_CONSTRAINTS );
+            assertThat(useList.size(), is(5));
+            assertThat( useList.get(0).get( MdekKeys.USE_LICENSE_VALUE), is( "restricted" ) );
+            assertThat( useList.get(3).get( MdekKeys.USE_LICENSE_VALUE), is( "GNU Free Documentation License (GFDL)" ) );
+            assertThat( useList.get(3).get( MdekKeys.USE_LICENSE_SOURCE), is( "test the source" ) );
+            assertThat( useList.get(4).get( MdekKeys.USE_LICENSE_VALUE), is( "Es gelten keine Bedingungen" ) );
+            assertThat( useList.get(4).get( MdekKeys.USE_LICENSE_KEY), is( 26 ) );
+            assertThat( useList.get(2).get( MdekKeys.USE_LICENSE_VALUE), is( "Mozilla Public License 2.0 (MPL)" ) );
+            assertThat( useList.get(1).get( MdekKeys.USE_LICENSE_VALUE), is( "Public Domain Mark 1.0 (PDM)" ) );
+            return null;
+        }).when( jobHandler ).updateJobInfoDB(any(), any(), anyString() );
+
+        IngridDocument docIn = prepareInsertDocument( "csw/importUseConstraintSourceLicense.xml" );
+        IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+
+        assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
+    }
+
+    @Test
+    public void importUseConstraintSourceLicense_02() throws Exception {
+        doAnswer((Answer<Void>) invocation -> {
+
+            IngridDocument docOut = getDocument( invocation, "4915275a-733a-47cd-b1a6-1a3f1e976950" );
+
+            List<IngridDocument> useList = (List<IngridDocument>) docOut.get( MdekKeys.USE_CONSTRAINTS );
+            assertThat(useList.size(), is(2));
+            assertThat( useList.get(0).get( MdekKeys.USE_LICENSE_VALUE), is( "restricted" ) );
+            assertThat( useList.get(1).get( MdekKeys.USE_LICENSE_VALUE), is( "Creative Commons Namensnennung - Nicht kommerziell (CC BY-NC)" ) );
+            assertThat( useList.get(1).get( MdekKeys.USE_LICENSE_SOURCE), is( "test the source without a JSON" ) );
+            return null;
+        }).when( jobHandler ).updateJobInfoDB(any(), any(), anyString() );
+
+        IngridDocument docIn = prepareInsertDocument( "csw/importUseConstraintSourceLicense_02.xml" );
+        IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+
+        assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
+    }
+
+    @Test
+    public void importUseConstraintSourceLicense_03() throws Exception {
+        doAnswer((Answer<Void>) invocation -> {
+
+            IngridDocument docOut = getDocument( invocation, "4915275a-733a-47cd-b1a6-1a3f1e976951" );
+
+            List<IngridDocument> useList = (List<IngridDocument>) docOut.get( MdekKeys.USE_CONSTRAINTS );
+            assertThat(useList.size(), is(3));
+            assertThat( useList.get(0).get( MdekKeys.USE_LICENSE_VALUE), is( "restricted" ) );
+            assertThat( useList.get(1).get( MdekKeys.USE_LICENSE_VALUE), is( "GNU Free Documentation License (GFDL)" ) );
+            assertThat( useList.get(1).get( MdekKeys.USE_LICENSE_SOURCE), is( "test the source with JSON" ) );
+            assertThat( useList.get(2).get( MdekKeys.USE_LICENSE_VALUE), is( "Es gelten keine Bedingungen" ) );
+            assertThat( useList.get(2).get( MdekKeys.USE_LICENSE_KEY), is( 26 ) );
+            return null;
+        }).when( jobHandler ).updateJobInfoDB(any(), any(), anyString() );
+
+        IngridDocument docIn = prepareInsertDocument( "csw/importUseConstraintSourceLicense_03.xml" );
+        IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+
+        assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
+    }
     
     @Test @Ignore
     public void deleteFailsWhenOrigIdNotFound() {}

@@ -365,6 +365,7 @@ public class BawMetadataProfileValidatorTests {
         ProtocolHandler mockPh = Mockito.mock(ProtocolHandler.class);
         Document mockDoc = Mockito.mock(Document.class);
         validator.convert(doc, mockDoc, mockPh);
+        // check that no error message was recorded...
         verify(mockPh, never())
                 .addMessage(eq(ProtocolHandler.Type.ERROR), anyString());
     }

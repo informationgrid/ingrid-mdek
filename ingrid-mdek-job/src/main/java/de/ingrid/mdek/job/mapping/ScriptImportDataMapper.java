@@ -22,33 +22,6 @@
  */
 package de.ingrid.mdek.job.mapping;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.utils.DOMUtils;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
@@ -58,6 +31,7 @@ import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
+import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import de.ingrid.mdek.services.catalog.MdekCatalogService;
 import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.xml.Versioning;
@@ -69,6 +43,30 @@ import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xml.IgcProfileNamespaceContext;
 import de.ingrid.utils.xml.XMLUtils;
 import de.ingrid.utils.xpath.XPathUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.w3c.dom.Node;
 
@@ -90,10 +88,10 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 
     private DatabaseConnection internalDatabaseConnection;
 
-	private BasicDataSource dataSource;
+    private IgeCswFolderUtil igeCswFolderUtil;
 
     @Autowired
-	public ScriptImportDataMapper(DaoFactory daoFactory) {
+    public ScriptImportDataMapper(DaoFactory daoFactory, IgeCswFolderUtil igeCswFolderUtil) {
         catalogService = MdekCatalogService.getInstance(daoFactory);
         
         ConfigurableNamespaceContext cnc = new ConfigurableNamespaceContext();
@@ -101,39 +99,20 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
         cnc.addNamespaceContext(new IgcProfileNamespaceContext());
         
         xpathUtils = new XPathUtils(cnc);
+
+        this.igeCswFolderUtil = igeCswFolderUtil;
     }
     
     @Override
     public void configure(PlugDescription plugDescription) {
 		internalDatabaseConnection = (DatabaseConnection) plugDescription.getConnection();
-		if (this.dataSource != null) {
-			try {
-				this.dataSource.close();
-			} catch (SQLException e) {
-				log.error("Error closing database connection pool. Create a new one.");
-			}
-		}
-		this.dataSource = new BasicDataSource();
-		dataSource.setDriverClassName(internalDatabaseConnection.getDataBaseDriver());
-		dataSource.setUsername(internalDatabaseConnection.getUser());
-		dataSource.setPassword(internalDatabaseConnection.getPassword());
-		dataSource.setUrl(internalDatabaseConnection.getConnectionURL());
-		dataSource.setMaxActive(5);
-		dataSource.setMaxIdle(2);
-		dataSource.setInitialSize(2);
-		if (DatabaseConnectionUtils.isOracle(internalDatabaseConnection)) {
-			dataSource.setValidationQuery("select 1 from dual");
-		} else {
-			dataSource.setValidationQuery("select 1");
-		}
 	}
 
     @Override
     public void convert(Document sourceIso, Document targetIgc, ProtocolHandler protocolHandler) throws MdekException {
     	Map<String, Object> parameters = new ConcurrentHashMap<>();
-        DatabaseConnectionUtils connUtils = DatabaseConnectionUtils.getInstance();
 
-        try (Connection conn = dataSource.getConnection()) {
+        try (Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
             // get DOM-tree from template-file. Ignore the provided document
             Document templateXml = getDomFromSourceData(template.getInputStream(), false);
             Node importNode = targetIgc.importNode(templateXml.getDocumentElement(), true);
@@ -153,19 +132,20 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 		    parameters.put("source", sourceIso);
 		    parameters.put("target", targetIgc);
             parameters.put("protocolHandler", protocolHandler );
-		    parameters.put("codeListService", catalogService);
-		    parameters.put("javaVersion", System.getProperty( "java.version" ));
-		    parameters.put("SQL", sqlUtils);
-		    parameters.put("XPATH", xpathUtils);
-		    parameters.put("TRANSF", trafoUtils);
-		    parameters.put("DOM", domUtils);
-		    parameters.put("log", log);
+            parameters.put("codeListService", catalogService);
+            parameters.put("javaVersion", System.getProperty( "java.version" ));
+            parameters.put("SQL", sqlUtils);
+            parameters.put("XPATH", xpathUtils);
+            parameters.put("TRANSF", trafoUtils);
+            parameters.put("DOM", domUtils);
+            parameters.put("igeCswFolderUtil", igeCswFolderUtil);
+            parameters.put("log", log);
 
-		    // the template represents only one object!
-		    // Better if docTarget is only header and footer where
-		    // new objects made from template will be put into?
-		    //parameters.put("template", template);
-			doMap(parameters);
+            // the template represents only one object!
+            // Better if docTarget is only header and footer where
+            // new objects made from template will be put into?
+            //parameters.put("template", template);
+            doMap(parameters);
 
 			mapAdditionalFields(targetIgc);
 
@@ -182,7 +162,7 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 	
 	private void mapAdditionalFields(Document docTarget) throws Exception {
 		String igcProfileStr = null;
-		try(Connection conn = dataSource.getConnection()) {
+		try(Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
 			try (PreparedStatement ps = conn.prepareStatement("SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'")) {
 				try (ResultSet rs = ps.executeQuery()) {
 					rs.next();
@@ -364,8 +344,4 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 	public void setTemplate(Resource tpl) {
 		this.template = tpl;
 	}
-
-    public void setDataSource(BasicDataSource dataSource) {
-        this.dataSource = dataSource;
-    }
 }

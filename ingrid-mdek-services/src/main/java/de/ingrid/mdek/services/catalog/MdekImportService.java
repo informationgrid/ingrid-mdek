@@ -94,7 +94,7 @@ public class MdekImportService implements IImporterCallback {
 	private final static String KEY_ADDR_IMPORT_NODE = "IMPORTSERVICE_ADDR_IMPORT_NODE";
 	/** Value: Boolean */
 	private final static String KEY_PUBLISH_IMMEDIATELY = "IMPORTSERVICE_PUBLISH_IMMEDIATELY";
-	/** Should the import be separated under one node ! 
+	/** Should the import be separated under one node !
 	 * Value: Boolean */
 	private final static String KEY_DO_SEPARATE_IMPORT = "IMPORTSERVICE_DO_SEPARATE_IMPORT";
 	/** On separate import, should an existing node (uuid) be copied to a new node (uuid) or not ! 
@@ -234,7 +234,17 @@ public class MdekImportService implements IImporterCallback {
 		boolean errorOnException = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXCEPTION) : false;
 		boolean errorOnMissingUuid = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID) : false;
         boolean ignoreParentImportNodes = runningJobInfo.containsKey( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE ) ? (boolean)runningJobInfo.get( MdekKeys.REQUESTINFO_IMPORT_IGNORE_PARENT_IMPORT_NODE) : false;
-        
+		boolean overwriteAddressesOnImport = false;
+        if (runningJobInfo.containsKey(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT)) {
+			overwriteAddressesOnImport = (Boolean) runningJobInfo.get(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT);
+		}
+		inDoc.putBoolean(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT, overwriteAddressesOnImport);
+		boolean overwriteAddressesOnImportCheckReferencingDatasets = true;
+		if (runningJobInfo.containsKey(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT_CHECK_REFERENCING_DATASETS)) {
+			overwriteAddressesOnImportCheckReferencingDatasets = (Boolean) runningJobInfo.get(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT_CHECK_REFERENCING_DATASETS);
+		}
+		inDoc.putBoolean(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT_CHECK_REFERENCING_DATASETS, overwriteAddressesOnImportCheckReferencingDatasets);
+
 		IEntity importNode = null;
 		if (whichType == IdcEntityType.OBJECT) {
 			importNode = (IEntity) runningJobInfo.get(KEY_OBJ_IMPORT_NODE);
@@ -495,8 +505,6 @@ public class MdekImportService implements IImporterCallback {
 	 * Throws Exception encapsulating error message if not.
 	 * @param defaultObjectParentUuid uuid of default parent for imported objects
 	 * @param defaultAddrParentUuid  uuid of default parent for imported addresses
-	 * @param publishImmediately publish imported entities immediately ?
-	 * @param doSeparateImport separate all imported entities underneath the chosen "import nodes".
 	 * @param userUuid calling user
 	 * @throws MdekException encapsulates error message
 	 */
@@ -749,9 +757,13 @@ public class MdekImportService implements IImporterCallback {
 		// create tag for messages !
 		String tag = createEntityTag(whichType, inDoc);
 
+		/*
+		// Disabled check to allow publication of Nokis Platform data.
+		// TODO: make checks configurable through a config file
 		if (EnumUtil.mapDatabaseToEnumConst(ObjectType.class, inDoc.get(MdekKeys.CLASS)) == null) {
 			MdekUtils.appendWithSeparator(missingFields, separator, MdekKeys.CLASS);
 		}
+		*/
 		if (docToBeanMapper.extractResponsibleUserUuid(inDoc) == null) {
 			MdekUtils.appendWithSeparator(missingFields, separator, MdekKeys.RESPONSIBLE_USER);
 		}
@@ -1013,11 +1025,13 @@ public class MdekImportService implements IImporterCallback {
 				// Only report existing node if we have the FIRST instance of an entity to write !
 				// Former instances should also be written !
 				if (existingNode != null && inDoc.getBoolean(TMP_FIRST_INSTANCE)) {
-//					inDoc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, ((AddressNode)existingNode).getT02AddressWork().getOrgAdrId());
-
-					// report existing address, will be skipped !
-					// No changes in catalogue !
-					throw new MdekException(new MdekError(MdekErrorType.ENTITY_ALREADY_EXISTS, inUuid));
+					if (inDoc.getBoolean(MdekKeys.REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT)) {
+						inDoc.put(MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, ((AddressNode) existingNode).getT02AddressWork().getOrgAdrId());
+					} else {
+						// report existing address, will be skipped !
+						// No changes in catalogue !
+						throw new MdekException(new MdekError(MdekErrorType.ENTITY_ALREADY_EXISTS, inUuid));
+					}
 				}
 			}
 		}
@@ -1605,8 +1619,9 @@ public class MdekImportService implements IImporterCallback {
 				hasPublishedVersion = addressService.hasPublishedVersion((AddressNode) parentNode);
 			}
 
-			if (!hasPublishedVersion) {
+			if (!hasPublishedVersion && !objectService.isFolder((ObjectNode) parentNode)) {
 				// parent not published -> store working version !
+				// However, folders are handled differently because they are never published. Don't perform this check for folders
 				String msg = MSG_WARN + tag + "Parent not published";
 				updateImportJobInfoMessages(msg, userUuid);
 				updateImportJobInfoFrontendMessages(

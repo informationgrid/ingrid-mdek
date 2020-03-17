@@ -22,9 +22,9 @@
  */
 package de.ingrid.mdek.job.utils;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -42,8 +42,9 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import de.ingrid.mdek.xml.Versioning;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
 import org.mockito.Mock;
@@ -138,6 +139,8 @@ public class TestSetup {
 
     @Mock ElasticConfig elasticConfig;
 
+    @Mock private IgeCswFolderUtil igeCswFolderUtil;
+
     ScriptImportDataMapper cswMapper;
     
     protected IgeSearchPlug plug;
@@ -190,8 +193,7 @@ public class TestSetup {
         when( daoT03Catalogue.findFirst() ).thenReturn( t03Catalogue );
         when( catJobMock.getCatalogAdminUserUuid() ).thenReturn( "TEST_USER_ID" );
 
-        cswMapper = new ScriptImportDataMapper( daoFactory );
-        cswMapper.setDataSource( dataSourceMock );
+        cswMapper = new ScriptImportDataMapper( daoFactory , igeCswFolderUtil);
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
         Logger mockLogger = mock(Logger.class);
