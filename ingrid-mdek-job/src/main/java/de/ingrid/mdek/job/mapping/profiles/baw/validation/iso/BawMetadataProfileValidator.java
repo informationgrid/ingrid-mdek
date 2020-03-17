@@ -333,17 +333,11 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
                 .withTagKey(tagKey)
                 .doChecks(ONE_OR_MORE_NODES_EXIST, TEXT_CONTENT_IS_NOT_EMPTY);
 
-/*
-
-        Deactivate because in tests the template baw_template.xml does not contain the elements anymore!!
-        Please fix.
-
         String bwastrXpath = "//gmd:geographicIdentifier/gmd:MD_Identifier[./gmd:authority/gmd:CI_Citation/gmd:title/gco:CharacterString/text()='" + VV_WSV_1103_TITLE + "']/gmd:code/gco:CharacterString";
         validator.withXpath(bwastrXpath)
                 .withTagKey(tagKey)
                 .withStringParameter(BWASTR_PATTERN.toString())
                 .doChecks(ONE_OR_MORE_NODES_EXIST, TEXT_CONTENT_MATCHES_PATTERN_AT_LEAST_ONCE);
-*/
     }
 
     private void validateGeographicBoundingBox(IsoImportValidationUtil validator) {

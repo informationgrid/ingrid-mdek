@@ -148,20 +148,6 @@
 			<gmd:extent>
 				<gmd:EX_Extent>
 					<gmd:geographicElement>
-						<gmd:EX_GeographicDescription>
-							<gmd:extentTypeCode>
-								<gco:Boolean>true</gco:Boolean>
-							</gmd:extentTypeCode>
-							<gmd:geographicIdentifier>
-								<gmd:MD_Identifier>
-									<gmd:code>
-										<gco:CharacterString>3901-729-776</gco:CharacterString>
-									</gmd:code>
-								</gmd:MD_Identifier>
-							</gmd:geographicIdentifier>
-						</gmd:EX_GeographicDescription>
-					</gmd:geographicElement>
-					<gmd:geographicElement>
 						<gmd:EX_GeographicBoundingBox>
 							<gmd:extentTypeCode>
 								<gco:Boolean>true</gco:Boolean>
@@ -179,6 +165,41 @@
 								<gco:Decimal>51.3270606108592</gco:Decimal>
 							</gmd:northBoundLatitude>
 						</gmd:EX_GeographicBoundingBox>
+					</gmd:geographicElement>
+				</gmd:EX_Extent>
+			</gmd:extent>
+			<gmd:extent>
+				<gmd:EX_Extent>
+					<gmd:geographicElement>
+						<gmd:EX_GeographicDescription>
+							<gmd:extentTypeCode>
+								<gco:Boolean>true</gco:Boolean>
+							</gmd:extentTypeCode>
+							<gmd:geographicIdentifier>
+								<gmd:MD_Identifier>
+                                    <gmd:authority>
+										<gmd:CI_Citation>
+											<gmd:title>
+												<gco:CharacterString>VV-WSV 1103</gco:CharacterString>
+											</gmd:title>
+											<gmd:date>
+												<gmd:CI_Date>
+													<gmd:date>2019-05-29</gmd:date>
+													<gmd:dateType>
+														<gmd:CI_DateTypeCode
+																codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_DateTypeCode"
+																codeListValue="publication" />
+													</gmd:dateType>
+												</gmd:CI_Date>
+											</gmd:date>
+										</gmd:CI_Citation>
+									</gmd:authority>
+									<gmd:code>
+										<gco:CharacterString>3901-729-776</gco:CharacterString>
+									</gmd:code>
+								</gmd:MD_Identifier>
+							</gmd:geographicIdentifier>
+						</gmd:EX_GeographicDescription>
 					</gmd:geographicElement>
 				</gmd:EX_Extent>
 			</gmd:extent>
