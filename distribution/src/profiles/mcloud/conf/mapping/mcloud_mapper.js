@@ -180,7 +180,21 @@ var McloudMapper = /** @class */ (function () {
         return undefined;
     };
     McloudMapper.prototype.getExtrasAllData = function () {
-        return undefined;
+        var result;
+
+        var mfundFkz = getAdditionalField(this.objId, 'mcloudMFundFKZ');
+        var mfundProject = getAdditionalField(this.objId, 'mcloudMFundProject');
+        if(mfundFkz || mfundProject) {
+            result = ["mfund"];
+            if (mfundFkz) {
+                result.push(["mFUND-FKZ: " + mfundFkz.data]);
+            }
+            if (mfundProject) {
+                result.push(["mFUND-Projekt: " + mfundProject.data]);
+            }
+        }
+
+        return result;
     };
     McloudMapper.prototype.getContactPoint = function () {
         return undefined;
