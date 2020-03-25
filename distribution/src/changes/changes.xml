@@ -28,6 +28,12 @@
   </properties>
   <body>
 
+    <release version="5.3.8-SNAPSHOT" date="2020-xx-xx" description="Release 5.3.8">
+      <action type="fix" dev="wemove" issue="1801">
+        Fix problem when no json exists in CL 6360.
+      </action>
+    </release>
+
     <release version="5.3.7" date="2020-03-12" description="Release 5.3.7">
       <action type="fix" dev="wemove" issue="1762">
         Fix für 5.2.0a Strategie eingeführt mit #1274 (Konformitäten). Gilt nur für Updates von InGrid Versionen vor 5.2.0.
