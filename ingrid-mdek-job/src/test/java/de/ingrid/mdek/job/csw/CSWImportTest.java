@@ -993,7 +993,27 @@ public class CSWImportTest extends TestSetup {
 
         assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
     }
-    
+
+    @Test
+    public void importEmptyFormat() throws Exception {
+        doAnswer((Answer<Void>) invocation -> {
+
+            IngridDocument docOut = getDocument( invocation, "41638279-BC9B-4625-B70E-884C1A2869D0" );
+
+            List<IngridDocument> dataFormat = (List<IngridDocument>) docOut.get( MdekKeys.DATA_FORMATS );
+            assertThat( dataFormat.size(), is(1) );
+            assertThat( dataFormat.get(0).get(MdekKeys.FORMAT_NAME), is( nullValue() ) );
+            assertThat( dataFormat.get(0).get(MdekKeys.FORMAT_VERSION), is( nullValue() ) );
+
+            return null;
+        }).when( jobHandler ).updateJobInfoDB(any(), any(), anyString() );
+
+        IngridDocument docIn = prepareInsertDocument( "csw/importDistributionFormat.xml" );
+        IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
+
+        assertThat( analyzeImportData.get( "error" ), is( nullValue() ) );
+    }
+
     @Test @Ignore
     public void deleteFailsWhenOrigIdNotFound() {}
     @Test @Ignore
