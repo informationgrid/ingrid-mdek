@@ -802,21 +802,25 @@ for (i=0; i<objRows.size(); i++) {
         if (hasValue(spatialScopeId)) {
             var name = TRANSF.getIGCSyslistEntryName(6360, spatialScopeId);
             var data = TRANSF.getISOCodeListEntryData(6360, name);
-            var dataJson;
+            var dataJson = "";
             try {
                 dataJson = JSON.parse(data);
             } catch (err) {
                 log.error("Error getting data from from Spatial Scope in Codelist 6360");
             }
             mdKeywords = DOM.createElement("gmd:MD_Keywords");
-            mdKeywords.addElement("gmd:keyword/gmx:Anchor")
-                .addAttribute("xlink:href", dataJson.url)
-                .addText(name);
+            var anchor = mdKeywords.addElement("gmd:keyword/gmx:Anchor");
+            if (dataJson && dataJson.url) {
+                anchor.addAttribute("xlink:href", dataJson.url)
+            }
+            anchor.addText(name);
 
             var citation = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
-            citation.addElement("gmd:title/gmx:Anchor")
-                .addAttribute("xlink:href", dataJson.thesaurusId)
-                .addText(dataJson.thesaurusTitle);
+            if (dataJson && dataJson.thesaurusId && dataJson.thesaurusTitle) {
+                citation.addElement("gmd:title/gmx:Anchor")
+                    .addAttribute("xlink:href", dataJson.thesaurusId)
+                    .addText(dataJson.thesaurusTitle);
+            }
 
             // TODO: add date if INSPIRE-registry contains it finally
             var citationDate = citation.addElement("gmd:date/gmd:CI_Date");
