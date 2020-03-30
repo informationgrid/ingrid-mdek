@@ -40,8 +40,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 
-import static de.ingrid.mdek.job.mapping.profiles.baw.validation.iso.ValidatorTestsTemplateHelper.defaultDocument;
-import static de.ingrid.mdek.job.mapping.profiles.baw.validation.iso.ValidatorTestsTemplateHelper.removeElementAtXpath;
+import static de.ingrid.mdek.job.mapping.profiles.baw.validation.iso.ValidatorTestsTemplateHelper.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -102,7 +101,7 @@ public class ISO_19115_2003_ValidatorTests {
     public void testHierarchyDatasetHasGeographicElement() {
         Document doc = defaultDocument;
         String xpath = "/gmd:MD_Metadata/*/gmd:MD_DataIdentification/gmd:extent";
-        removeElementAtXpath(doc, xpath);
+        removeElementsAtXpath(doc, xpath);
         assertIsInvalid(doc);
     }
 

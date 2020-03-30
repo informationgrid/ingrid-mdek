@@ -27,6 +27,7 @@ import de.ingrid.utils.xpath.XPathUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -50,7 +51,15 @@ class ValidatorTestsTemplateHelper {
     }
 
     static Node removeElementAtXpath(Document doc, String xpath) {
-        return XPATH.removeElementAtXPath(doc, xpath);
+       return XPATH.removeElementAtXPath(doc, xpath);
+    }
+
+    static void removeElementsAtXpath(Document doc, String xpath) {
+        NodeList nl = XPATH.getNodeList(doc, xpath);
+
+        for (int i=0; i< nl.getLength(); i++) {
+            XPATH.removeElementAtXPath(doc, xpath);
+        }
     }
 
     static void setTextForElementAtXpath(Document doc, String xpath, String text) {
