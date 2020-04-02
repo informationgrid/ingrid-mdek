@@ -28,7 +28,7 @@
   </properties>
   <body>
 
-    <release version="5.3.8-SNAPSHOT" date="2020-xx-xx" description="Release 5.3.8">
+    <release version="5.3.8" date="2020-04-02" description="Release 5.3.8">
       <action type="fix" dev="wemove" issue="1801">
         Fix problem when no json exists in CL 6360.
       </action>
