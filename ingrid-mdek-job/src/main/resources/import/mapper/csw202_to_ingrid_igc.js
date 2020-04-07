@@ -251,8 +251,95 @@ var mappingDescription = {"mappings":[
 		      			  	]
 		      			}
 		        	},
-	        		{	
-	        			"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation/gmd:topologyLevel/gmd:MD_TopologyLevelCode/@codeListValue",
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:numberOfDimensions/gco:Integer",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-num-dimensions"
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:axisDimensionProperties/gmd:MD_Dimension/gmd:dimensionName/gmd:MD_DimensionNameTypeCode/@codeListValue",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-axis-name",
+						"transform":{
+							"funct":transformISOToIgcDomainId,
+							"params":[514, "Could not transform dimension name in axisDimensionProperties: "]
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:axisDimensionProperties/gmd:MD_Dimension/gmd:dimensionSize/gco:Integer",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-axis-size"
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:cellGeometry/gmd:MD_CellGeometryCode/@codeListValue",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-cell-geometry",
+						"transform":{
+							"funct":transformISOToIgcDomainId,
+							"params":[516, "Could not transform geometric object type code: "]
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:transformationParameterAvailability/gco:Boolean",
+						"defaultValue": "N",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-transform-param",
+						"transform":{
+							"funct":transformGeneric,
+							"params":[{"true":"Y", "false":"N"}, false, "Could not map transformationParameterAvailability "]
+						}
+					},
+					{
+						"execute":{
+							"funct": determineGridSpatialRepresentationConcreteType
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georectified/gmd:checkPointAvailability/gco:Boolean",
+						"defaultValue": "N",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-rect-checkpoint",
+						"transform":{
+							"funct":transformGeneric,
+							"params":[{"true":"Y", "false":"N"}, false, "Could not map controlPointAvailability "]
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georectified/gmd:checkPointDescription/gco:CharacterString",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-rect-description"
+					},
+					// TODO review import/export of corner point coordinates
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georectified/gmd:cornerPoints/gml:Point/gml:coordinates",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-rect-corner-point"
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georectified/gmd:pointInPixel/gmd:MD_PixelOrientationCode",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-rect-point-in-pixel",
+						"defaultValue": "1",
+						"transform":{
+							"funct":transformISOToIgcDomainId,
+							"params":[2100, "Could not transform point in pixel code: "]
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable/gmd:controlPointAvailability/gco:Boolean",
+						"defaultValue": "N",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-ref-control-point",
+						"transform":{
+							"funct":transformGeneric,
+							"params":[{"true":"Y", "false":"N"}, false, "Could not map controlPointAvailability "]
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable/gmd:orientationParameterAvailability/gco:Boolean",
+						"defaultValue": "N",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-ref-orientation-param",
+						"transform":{
+							"funct":transformGeneric,
+							"params":[{"true":"Y", "false":"N"}, false, "Could not map controlPointAvailability "]
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable/gmd:georeferencedParameters/gco:Record",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-ref-referenced-param"
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation/gmd:topologyLevel/gmd:MD_TopologyLevelCode/@codeListValue",
 	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/vector-format/vector-topology-level",
 	        			"targetAttribute":"iso-code",
 	        			"transform":{
@@ -2473,6 +2560,12 @@ function addPolygonWktToIgc(target, wkt) {
 
 	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key"), "boundingPolygon");
 	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-data"), wkt);
+}
+
+function determineGridSpatialRepresentationConcreteType(source, target) {
+	var isGeorectified = XPATH.nodeExists(source, ".//gmd:MD_Georectified") ? "Y" : "N";
+	var georectifiedNode = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-geo-rectified");
+	XMLUtils.createOrReplaceTextNode(georectifiedNode, isGeorectified);
 }
 
 
