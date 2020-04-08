@@ -30,7 +30,7 @@
 
     <release version="5.4.0-SNAPSHOT" date="2020-xx-xx" description="???">
       <action type="add" dev="wemove" issue="1084">
-        Handle new metadata date in object.
+        Handle new columns metadata_time and iso_hash in object.
       <action type="fix" dev="wemove" issue="1801">
         Fix problem when no json exists in CL 6360.
       </action>
