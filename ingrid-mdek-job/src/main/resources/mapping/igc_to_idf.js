@@ -2205,7 +2205,10 @@ function addExtent(identificationInfo, objRow) {
                     .replace(/  +/g, " "); // replace multiple consecutive spaces with a single space
 
                 var lineString = createAndGetPolygonFirstChild(identificationInfo, extentElemName, "Point");
-                lineString.addElement("gml:pos").addText(coords);
+                lineString.addElement("gml:pos")
+                    .addAttribute("srsName", "urn:ogc:def:crs:EPSG::4326")
+                    .addAttribute("srsDimension", "2")
+                    .addText(coords);
             }
         } else if (wktLower.startsWith("linestring")) {
             var match = wkt.match(regex);
@@ -2215,7 +2218,10 @@ function addExtent(identificationInfo, objRow) {
                     .replace(/  +/g, " "); // replace multiple consecutive spaces with a single space
 
                 var lineString = createAndGetPolygonFirstChild(identificationInfo, extentElemName, "LineString");
-                lineString.addElement("gml:posList").addText(coords);
+                lineString.addElement("gml:posList")
+                    .addAttribute("srsName", "urn:ogc:def:crs:EPSG::4326")
+                    .addAttribute("srsDimension", "2")
+                    .addText(coords);
             }
         } else if (wktLower.startsWith("polygon")) {
             /*
@@ -2251,7 +2257,10 @@ function addExtent(identificationInfo, objRow) {
                 var path = i === 0 ? "gml:exterior/" : "gml:interior/";
                 path += "gml:LinearRing/gml:posList";
 
-                polygon.addElement(path).addText(rings[i]);
+                polygon.addElement(path)
+                    .addAttribute("srsName", "urn:ogc:def:crs:EPSG::4326")
+                    .addAttribute("srsDimension", "2")
+                    .addText(rings[i]);
             }
         }
     }
