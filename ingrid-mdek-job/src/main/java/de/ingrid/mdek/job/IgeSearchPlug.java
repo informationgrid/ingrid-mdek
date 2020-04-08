@@ -33,7 +33,7 @@ import de.ingrid.iplug.IPlugdescriptionFieldFilter;
 import de.ingrid.iplug.PlugDescriptionFieldFilters;
 import de.ingrid.iplug.dsc.record.DscRecordCreator;
 import de.ingrid.mdek.MdekKeys;
-import de.ingrid.mdek.job.validation.iso.bawdmqs.IsoValidationException;
+import de.ingrid.mdek.job.mapping.validation.iso.IsoValidationException;
 import de.ingrid.utils.*;
 import de.ingrid.utils.dsc.Record;
 import de.ingrid.utils.metadata.IMetadataInjector;

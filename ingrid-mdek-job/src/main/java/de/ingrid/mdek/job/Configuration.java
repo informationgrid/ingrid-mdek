@@ -80,6 +80,18 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     @Value("${igc.enableIBusCommunication:true}")
     public boolean igcEnableIBusCommunication;
 
+    @Value("${igc.default.metadata.standard.name.geodata:}")
+    public String defaultMdStandardNameGeodata;
+
+    @Value("${igc.default.metadata.standard.version.geodata:}")
+    public String defaultMdStandardNameVersionGeodata;
+
+    @Value("${igc.default.metadata.standard.name.geoservice:}")
+    public String defaultMdStandardNameGeoservice;
+
+    @Value("${igc.default.metadata.standard.version.geoservice:}")
+    public String defaultMdStandardNameVersionGeoservice;
+
     public List<CommunicationCommandObject> igeCommunication;
     
     @Value("${communications.ige.clientName:ige-iplug-test}")

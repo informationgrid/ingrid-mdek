@@ -90,7 +90,6 @@ for (i=0; i<objRows.size(); i++) {
     var row = null;
     var rows = null;
     var value = null;
-    var elem = null;
 /*
     // Example iterating all columns !
     var colNames = objRow.keySet().toArray();
@@ -204,15 +203,15 @@ for (i=0; i<objRows.size(); i++) {
     mdMetadata.addElement("gmd:metadataStandardName/gco:CharacterString").addText(mdStandardName);
 
     // ---------- <gmd:metadataStandardVersion> ----------
-    var mdStandardName;
+    var mdStandardVersion;
     if (hasValue(objRow.get("metadata_standard_version"))) {
-        mdStandardName=objRow.get("metadata_standard_version");
+        mdStandardVersion=objRow.get("metadata_standard_version");
     } else if (objClass.equals("3")) {
-        mdStandardName="2005/PDAM 1";
+        mdStandardVersion="2005/PDAM 1";
     } else {
-        mdStandardName="2003/Cor.1:2006";
+        mdStandardVersion="2003/Cor.1:2006";
     }
-    mdMetadata.addElement("gmd:metadataStandardVersion/gco:CharacterString").addText(mdStandardName);
+    mdMetadata.addElement("gmd:metadataStandardVersion/gco:CharacterString").addText(mdStandardVersion);
 
     // ---------- <gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation> ----------
     var objGeoRow = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [+objId]);
@@ -391,7 +390,7 @@ for (i=0; i<objRows.size(); i++) {
     }
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
     var referenceDateRows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [+objId]);
-    for (j=0; j<referenceDateRows.size(); j++) {
+    for (var j=0; j<referenceDateRows.size(); j++) {
         var referenceDateRow = referenceDateRows.get(j); 
         var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
         ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(referenceDateRow.get("reference_date"))));
@@ -804,21 +803,25 @@ for (i=0; i<objRows.size(); i++) {
         if (hasValue(spatialScopeId)) {
             var name = TRANSF.getIGCSyslistEntryName(6360, spatialScopeId);
             var data = TRANSF.getISOCodeListEntryData(6360, name);
-            var dataJson;
+            var dataJson = "";
             try {
                 dataJson = JSON.parse(data);
             } catch (err) {
                 log.error("Error getting data from from Spatial Scope in Codelist 6360");
             }
             mdKeywords = DOM.createElement("gmd:MD_Keywords");
-            mdKeywords.addElement("gmd:keyword/gmx:Anchor")
-                .addAttribute("xlink:href", dataJson.url)
-                .addText(name);
+            var anchor = mdKeywords.addElement("gmd:keyword/gmx:Anchor");
+            if (dataJson && dataJson.url) {
+                anchor.addAttribute("xlink:href", dataJson.url)
+            }
+            anchor.addText(name);
 
             var citation = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
-            citation.addElement("gmd:title/gmx:Anchor")
-                .addAttribute("xlink:href", dataJson.thesaurusId)
-                .addText(dataJson.thesaurusTitle);
+            if (dataJson && dataJson.thesaurusId && dataJson.thesaurusTitle) {
+                citation.addElement("gmd:title/gmx:Anchor")
+                    .addAttribute("xlink:href", dataJson.thesaurusId)
+                    .addText(dataJson.thesaurusTitle);
+            }
 
             // TODO: add date if INSPIRE-registry contains it finally
             var citationDate = citation.addElement("gmd:date/gmd:CI_Date");
@@ -1429,7 +1432,7 @@ function getCitationIdentifier(objRow, otherObjId) {
 
     // no namespace
     // namespace set in catalog ?
-    myNamespace = catRow.get("cat_namespace");
+    var myNamespace = catRow.get("cat_namespace");
 
     var myNamespaceLength = 0;
     if (!hasValue(myNamespace)) {
@@ -1732,15 +1735,15 @@ function getIndividualNameFromAddressRow(addressRow) {
     }
     
     if (hasValue(firstName)) {
-        individualName = hasValue(individualName) ? individualName += ", " + firstName : firstName;
+        individualName = hasValue(individualName) ? individualName + ", " + firstName : firstName;
     }
     
     if (hasValue(title) && !hasValue(addressing)) {
-        individualName = hasValue(individualName) ? individualName += ", " + title : title;
+        individualName = hasValue(individualName) ? individualName + ", " + title : title;
     } else if (!hasValue(title) && hasValue(addressing)) {
-        individualName = hasValue(individualName) ? individualName += ", " + addressing : addressing;
+        individualName = hasValue(individualName) ? individualName + ", " + addressing : addressing;
     } else if (hasValue(title) && hasValue(addressing)) {
-        individualName = hasValue(individualName) ? individualName += ", " + addressing + " " + title : addressing + " " + title;
+        individualName = hasValue(individualName) ? individualName + ", " + addressing + " " + title : addressing + " " + title;
     }
     
     if (log.isDebugEnabled()) {

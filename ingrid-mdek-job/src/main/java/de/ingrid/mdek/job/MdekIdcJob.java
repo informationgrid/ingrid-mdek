@@ -65,6 +65,9 @@ public abstract class MdekIdcJob extends MdekJob {
     @Autowired
     private Config config;
 
+    @Autowired
+    private Configuration igeConfig;
+
 	public MdekIdcJob(Logger log, DaoFactory daoFactory) {
 		super(log, daoFactory);
 
@@ -220,6 +223,36 @@ public abstract class MdekIdcJob extends MdekJob {
             return doc.get( key );
         } else {
             return defaultValue;
+        }
+    }
+
+    protected void setDefaultMetadataStandardProperties(IngridDocument doc) {
+        final int geodatensatz = 1;
+        final int geodatendienst = 3;
+
+        int objClass = doc.getInt(MdekKeys.CLASS);
+        if (objClass == geodatensatz) {
+            String name = igeConfig.defaultMdStandardNameGeodata;
+            String version = igeConfig.defaultMdStandardNameVersionGeodata;
+
+            if (name != null && !name.trim().isEmpty()) {
+                doc.put(MdekKeys.METADATA_STANDARD_NAME, name);
+            }
+            if (version != null && !name.trim().isEmpty()) {
+                doc.put(MdekKeys.METADATA_STANDARD_VERSION, version);
+            }
+        }
+
+        if (objClass == geodatendienst) {
+            String name = igeConfig.defaultMdStandardNameGeoservice;
+            String version = igeConfig.defaultMdStandardNameVersionGeoservice;
+
+            if (name != null && !name.trim().isEmpty()) {
+                doc.put(MdekKeys.METADATA_STANDARD_NAME, name);
+            }
+            if (version != null && !name.trim().isEmpty()) {
+                doc.put(MdekKeys.METADATA_STANDARD_VERSION, version);
+            }
         }
     }
 

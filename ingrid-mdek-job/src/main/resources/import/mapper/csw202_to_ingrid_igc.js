@@ -99,10 +99,10 @@ var mappingDescription = {"mappings":[
 				"funct":transformDateIso8601ToIndex
 			}
 		},
-  		{	
-  			
+		{
+
 			"srcXpath":"//gmd:fileIdentifier/gco:CharacterString",
-			// make sure we always have a UUID 
+			// make sure we always have a UUID
 			"defaultValue":createUUID,
 			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/original-control-identifier"
 		},
@@ -671,7 +671,7 @@ var mappingDescription = {"mappings":[
 			  			"targetAttribute":"iso-code",
 			  			"transform":{
 							"funct":transformISOToIgcDomainId,
-							"params":[520, "Could not transform meduim name code: "]
+							"params":[520, "Could not transform medium name code: "]
 						}
 			  		},
 	  				{
@@ -685,7 +685,7 @@ var mappingDescription = {"mappings":[
 			}
   		},
   		{
-  			"srcXpath":"//gmd:distributionInfo/gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format",
+  			"srcXpath":"//gmd:distributionInfo/gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format[gmd:name[not(@gco:nilReason)]]",
   			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information",
   			"newNodeName":"data-format",
   			"subMappings":{
@@ -1386,7 +1386,7 @@ function mapToTarget(mapping, source, target) {
 						}
 						value = call_f(m.transform.funct,args);
 					}
-					
+
 					nodeText += value;
 					
 					if (m.storeValue) {
@@ -2135,7 +2135,6 @@ function transformToIgcDomainId(val, codeListId, languageId, logErrorOnNotFound,
 				log.warn(logErrorOnNotFound + val);
 				protocol(WARN, logErrorOnNotFound + val)
 			}
-			return -1;
 		}
 	}
 }
