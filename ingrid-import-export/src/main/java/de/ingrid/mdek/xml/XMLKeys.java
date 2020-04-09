@@ -233,6 +233,7 @@ public class XMLKeys {
 	public static final String FIELD_DATA = "field-data";
 	public static final String FIELD_KEY_PARENT = "field-key-parent";
 	public static final String ORIGINAL_CONTROL_IDENTIFIER = "original-control-identifier";
+    public static final String METADATA_DATE = "metadata-date";
 	public static final String DATE_OF_CREATION = "date-of-creation";
 	public static final String DATE_OF_LAST_MODIFICATION = "date-of-last-modification";
 	public static final String ABSTRACT = "abstract";

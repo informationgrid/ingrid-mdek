@@ -73,6 +73,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		general.addChild(createObjectClass());
 		general.addChild(createTitle());
 		general.addChild(createAbstract());
+        general.addChild(createMetadataDate());
 		general.addChild(createDateOfLastModification());
 		general.addChild(createDateOfCreation());
 		general.addChild(createOriginalControlIdentifier());
@@ -127,6 +128,10 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	private XMLElement createAbstract() {
 		return new XMLElement(ABSTRACT, getStringForKey(MdekKeys.ABSTRACT));
 	}
+
+    private XMLElement createMetadataDate() {
+        return new XMLElement(METADATA_DATE, getStringForKey(MdekKeys.METADATA_DATE));
+    }
 
 	private XMLElement createDateOfLastModification() {
 		return new XMLElement(DATE_OF_LAST_MODIFICATION, getStringForKey(MdekKeys.DATE_OF_LAST_MODIFICATION));
