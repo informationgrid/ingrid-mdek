@@ -272,7 +272,7 @@ var mappingDescription = {"mappings":[
 						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-cell-geometry",
 						"transform":{
 							"funct":transformISOToIgcDomainId,
-							"params":[516, "Could not transform geometric object type code: "]
+							"params":[509, "Could not transform geometric object type code: "]
 						}
 					},
 					{
