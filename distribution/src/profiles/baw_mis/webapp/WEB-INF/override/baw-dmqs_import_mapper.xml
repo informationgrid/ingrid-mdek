@@ -106,11 +106,14 @@
                 <ref bean="bawIdfMapper"/>
                 <ref bean="scriptedIdfMapperDQ"/>
                 <ref bean="igcProfileIdfMapper"/>
+                <ref bean="isoMetadataDateMapper"/>
             </list>
         </property>
     </bean>
 
     <bean id="bawIdfMapper" class="de.ingrid.mdek.job.mapping.profiles.baw.IgcToIdfMapperBaw" />
-    
+
+    <bean id="isoMetadataDateMapper" class="de.ingrid.mdek.job.mapping.IsoMetadataDateMapper" />
+
 
 </beans>

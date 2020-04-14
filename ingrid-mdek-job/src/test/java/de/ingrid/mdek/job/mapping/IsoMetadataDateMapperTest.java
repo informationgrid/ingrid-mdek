@@ -156,4 +156,17 @@ public class IsoMetadataDateMapperTest extends IgcDbUnitEnabledTestCase {
         Assert.assertEquals("Fingerprints should be identical after changing to be removed elements.", imdm.createFingerprint(iso), imdm.createFingerprint(iso2));
     }
 
-}
+    @Test
+    public void checkIdf2Iso() throws Exception {
+        IsoMetadataDateMapper imdm = new IsoMetadataDateMapper();
+
+        String idfString = new String(Files.readAllBytes(Paths.get("src/test/resources/de/ingrid/mdek/job/mapping/idf2.xml")));
+        Document idfDoc = builder.parse(new InputSource(new StringReader(idfString)));
+        Document iso = imdm.idf2iso(idfDoc);
+
+        Assert.assertEquals("Date in XML must exist.", true, xpathUtils.nodeExists(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:Date"));
+
+    }
+
+
+    }
