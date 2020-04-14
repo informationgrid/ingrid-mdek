@@ -28,15 +28,13 @@ import org.dbunit.database.DatabaseConfig;
 import org.dbunit.dataset.*;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
-import org.junit.After;
-import org.junit.Before;
 
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class IgcDbUnitEnabledTestCase extends DBTestCase {
+public abstract class IgcDbUnitEnabledTestCase extends DBTestCase {
 
     protected String datasourceFileName;
 
@@ -48,14 +46,12 @@ public class IgcDbUnitEnabledTestCase extends DBTestCase {
         System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD, "" );
     }
 
-    @Before
     protected void setUp() throws Exception {
         IDataSet ds = new FlatXmlDataSetBuilder().build(new FileInputStream(datasourceFileName));
         createHsqldbTables(ds, this.getConnection().getConnection());
         super.setUp();
     }
 
-    @After
     protected void tearDown() throws Exception {
         super.tearDown();
         PreparedStatement pp = this.getConnection().getConnection().prepareStatement("DROP SCHEMA PUBLIC CASCADE");
