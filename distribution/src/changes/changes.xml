@@ -29,6 +29,9 @@
   <body>
 
     <release version="5.4.0-SNAPSHOT" date="2020-xx-xx" description="???">
+      <action type="add" dev="wemove" issue="1772">
+        Indroduce Codeliste 5.24 MD_DimensionNameTypeCode.
+      </action>
       <action type="fix" dev="wemove" issue="1801">
         Fix problem when no json exists in CL 6360.
       </action>
