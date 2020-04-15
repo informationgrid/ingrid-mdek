@@ -277,7 +277,7 @@ for (i=0; i<objRows.size(); i++) {
                 if (hasValue(nameDim)) {
                     dimensionNode.addElement("gmd:dimensionName/gmd:MD_DimensionNameTypeCode")
                     .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
-                    .addAttribute("codeListValue", nameDim);                	
+                    .addAttribute("codeListValue", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(514, nameDim)));
                 } else {
                     dimensionNode.addElement("gmd:dimensionName").addAttribute("gco:nilReason", "unknown");
                 }
@@ -292,7 +292,7 @@ for (i=0; i<objRows.size(); i++) {
             if (hasValue(cellGeo)) {
                 gridSpatialRepr.addElement("gmd:cellGeometry/gmd:MD_CellGeometryCode")
                 .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
-                .addAttribute("codeListValue", cellGeo);
+                .addAttribute("codeListValue", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(509, cellGeo));
             } else {
             	gridSpatialRepr.addElement("gmd:cellGeometry").addAttribute("gco:nilReason", "unknown");
             }
