@@ -81,7 +81,7 @@ public class IsoMetadataDateMapperTest extends IgcDbUnitEnabledTestCase {
         String nowDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         // Caution: Can cause failures when run on day boundary. Sorry do not know how to mock LocalDateTime.
-        Assert.assertEquals("Date in XML must hab been set to the current date.", nowDate, xpathUtils.getString(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:Date").substring(0, 10));
+        Assert.assertEquals("Date in XML must have been set to the current date.", nowDate, xpathUtils.getString(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:Date").substring(0, 10));
         try (PreparedStatement p = conn.prepareStatement("SELECT * FROM t01_object WHERE ID=1")) {
             ResultSet rs = p.executeQuery();
             rs.next();
@@ -111,6 +111,32 @@ public class IsoMetadataDateMapperTest extends IgcDbUnitEnabledTestCase {
             rs.next();
             String testSQLDate = rs.getString(3);
             Assert.assertEquals("Date in database must be unchanged with identical fingerprints.", "20191217000000000", testSQLDate);
+        }
+    }
+
+    @Test
+    public void mapNothingChangedForNonPublishedDatasets() throws Exception {
+
+        Connection conn = this.getConnection().getConnection();
+        DatabaseSourceRecord dsr = new DatabaseSourceRecord("3", conn);
+        String idfString = new String(Files.readAllBytes(Paths.get("src/test/resources/de/ingrid/mdek/job/mapping/idf.xml")));
+        Document idfDoc = builder.parse(new InputSource(new StringReader(idfString)));
+
+        IsoMetadataDateMapper imdm = new IsoMetadataDateMapper();
+        Document iso = imdm.idf2iso(idfDoc);
+        imdm.prepareIsoForFingerprinting(iso);
+        String fp = imdm.createFingerprint(iso);
+        String testDate = xpathUtils.getString(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:Date");
+        imdm.map(dsr, idfDoc);
+
+        Assert.assertEquals("Date in XML must be unchanged with non-published datasets.", testDate, xpathUtils.getString(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:Date"));
+        try (PreparedStatement p = conn.prepareStatement("SELECT * FROM t01_object WHERE ID=3")) {
+            ResultSet rs = p.executeQuery();
+            rs.next();
+            String testSQLDate = rs.getString("METADATA_TIME");
+            Assert.assertEquals("Date in database must be unchanged with non-published datasets.", "20191217000000000", testSQLDate);
+            String isoHash = rs.getString("ISO_HASH");
+            Assert.assertEquals("Fingerprint must not be changed with non-published datasets.", "NOT_TO_BE_CHANGED", isoHash);
         }
     }
 

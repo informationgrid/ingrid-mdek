@@ -4,6 +4,7 @@ import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper;
+import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.services.utils.MdekRecordUtils;
 import de.ingrid.utils.tool.XsltUtils;
 import de.ingrid.utils.udk.UtilsCSWDate;
@@ -37,7 +38,7 @@ import java.time.format.DateTimeFormatter;
  * a fingerprint is taken from the ISO 19139 XML format and stored in the
  * database. The Mapper compares the generated ISO 19139 XML format with the
  * stored fingerprint. If the fingerprints differ, the metadata date is changed
- * to the current date.</p>
+ * to the current date. This applies only to published datasets.</p>
  * <p>See https://redmine.informationgrid.eu/issues/1084 for details.</p>
  *
  */
@@ -67,11 +68,55 @@ public class IsoMetadataDateMapper implements IIdfMapper {
 
     }
 
+    /**
+     * <p>Modify the IDF of published records as follows:</p>
+     * <ul>
+     *     <li>Check if the database record is published, skip if not.</li>
+     *     <li>Create a prepared ISO XML document (strip metadata date and random data link gml:id elements).</li>
+     *     <li>Create a finger print (SHA256) from the prepared ISO XML.</li>
+     *     <li>Compare the finger print with the one stored in DB.</li>
+     *     <li>If different, store the new finger print and the current date in database. Set metadata date in IDF to current date.</li>
+     * </ul>
+     *
+     * @param record
+     * @param idf
+     * @throws Exception
+     */
     @Override
     public void map(SourceRecord record, Document idf) throws Exception {
         if (!(record instanceof DatabaseSourceRecord)) {
             throw new IllegalArgumentException("Record is no DatabaseRecord!");
         }
+
+        Object idObj = record.get("id");
+        Number id = null;
+        if (idObj instanceof String) {
+            id = Long.decode((String) idObj);
+        } else if (idObj instanceof Number) {
+            id = (Number) idObj;
+        } else {
+            LOG.error("Error understanding database ID: " + idObj + ". Skipping record!");
+            return;
+        }
+
+        // DO NOT CLOSE. Connection will be closed by the DatabaseSourceRecord in DscRecordCreator
+        Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
+
+        // test if dataset is published, skip if not
+        String sql = "SELECT work_state FROM t01_object WHERE id=?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, id.longValue());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String workState = rs.getString(1);
+                    if (!workState.equals(MdekUtils.WorkState.VEROEFFENTLICHT.getDbValue())) {
+                        return;
+                    }
+                }
+            }
+        }
+
 
         if (!(xpathUtils.nodeExists(idf, "//idf:html"))) {
             throw new IllegalArgumentException("Document is no IDF!");
@@ -106,23 +151,8 @@ public class IsoMetadataDateMapper implements IIdfMapper {
         // create fingerprint from ISO data
         String isoFingerprint = createFingerprint((Document) iso);
 
-        // DO NOT CLOSE. Connection will be closed by the the DatabaseSourceRecord in DscRecordCreator
-        Connection connection = (Connection) record.get(DatabaseSourceRecord.CONNECTION);
-
-        Object idObj = record.get("id");
-        Number id = null;
-        if (idObj instanceof String) {
-            id = Long.decode((String) idObj);
-        } else if (idObj instanceof Number) {
-            id = (Number) idObj;
-        } else {
-            LOG.error("Error understanding database ID: " + idObj + ". Skipping record!");
-            return;
-        }
-
-
         // get stored fingerprint if any
-        String sql = "SELECT iso_hash FROM t01_object WHERE id=?";
+        sql = "SELECT iso_hash FROM t01_object WHERE id=?";
 
         String storedFingerprint = null;
 
