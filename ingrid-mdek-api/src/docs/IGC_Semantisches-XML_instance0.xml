@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <igc xmlns="http://www.portalu.de/igc-import"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://www.portalu.de/igc-import ../main/resources/IGC_Semantisches-XML.xsd" exchange-format="4.0.0">
+ xsi:schemaLocation="http://www.portalu.de/igc-import ../main/resources/IGC_Semantisches-XML.xsd" exchange-format="5.4.0">
     <catalogue>
         <catalogue-identifier>catalogue-identifier0</catalogue-identifier>
         <catalogue-name>catalogue-name0</catalogue-name>
@@ -43,6 +43,7 @@
                     <object-class id="id9"/>
                     <title>title0</title>
                     <abstract>abstract0</abstract>
+                    <metadata-date>metadata-date0</metadata-date>
                     <date-of-last-modification>date-of-last-modification1</date-of-last-modification>
                     <date-of-creation>date-of-creation1</date-of-creation>
                     <original-control-identifier>original-control-identifier0</original-control-identifier>

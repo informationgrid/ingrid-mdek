@@ -77,8 +77,10 @@ public class T01Object implements IEntity {
 	private String responsibleUuid;
 	private Date toBePublishedOn;
 	private Integer spatialScope;
+    private String metadataTime;
+    private String isoHash;
 
-	private Set additionalFieldDatas = new HashSet();
+    private Set additionalFieldDatas = new HashSet();
 	private Set objectAccesss = new HashSet();
 	private Set objectComments = new HashSet();
 	private Set objectConformitys = new HashSet();
@@ -772,4 +774,18 @@ public class T01Object implements IEntity {
 	public void setSpatialScope(Integer spatialScope) {
 		this.spatialScope = spatialScope;
 	}
+
+    public String getMetadataTime() {
+        return metadataTime;
+    }
+    public void setMetadataTime(String metadataTime) {
+        this.metadataTime = metadataTime;
+    }
+
+    public String getIsoHash() {
+        return isoHash;
+    }
+    public void setIsoHash(String isoHash) {
+        this.isoHash = isoHash;
+    }
 }

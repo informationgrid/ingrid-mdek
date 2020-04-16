@@ -209,6 +209,7 @@ public class BeanToDocMapper implements IMapper {
 		// needed when copying objects ! we always map to track in test suite !
 		objectDoc.put(MdekKeys.CATALOGUE_IDENTIFIER, o.getCatId());
 		objectDoc.put(MdekKeys.DATE_OF_LAST_MODIFICATION, o.getModTime());
+        objectDoc.put(MdekKeys.METADATA_DATE, o.getMetadataTime());
 		objectDoc.put(MdekKeys.PUBLICATION_CONDITION, o.getPublishId());
 		objectDoc.put(MdekKeys.TO_BE_PUBLISHED_ON, o.getToBePublishedOn());
 

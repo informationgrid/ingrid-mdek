@@ -94,7 +94,7 @@ var mappingDescription = {"mappings":[
   		},
 		{
 			"srcXpath":"//gmd:dateStamp/gco:DateTime | //gmd:dateStamp/gco:Date[not(../gco:DateTime)]",
-			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/date-of-creation",
+			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/metadata-date",
 			"transform":{
 				"funct":transformDateIso8601ToIndex
 			}

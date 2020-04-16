@@ -181,15 +181,20 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // ---------- <gmd:dateStamp> ----------
-    if (hasValue(objRow.get("mod_time"))) {
-        var isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
-        // do only return the date section, ignore the time part of the date
-        // see CSW 2.0.2 AP ISO 1.0 (p.41)
-        if (isoDate) {
-            mdMetadata.addElement("gmd:dateStamp").addElement(getDate(isoDate));
-        }
+    // use new field metadata_time for gmd:dateStamp see #1084
+    var isoDate;
+    if (hasValue(objRow.get("metadata_time"))) {
+        isoDate = TRANSF.getISODateFromIGCDate(objRow.get("metadata_time"));
+    } else if (hasValue(objRow.get("mod_time"))) {
+        // fall back to mod_time, if no metadata_time exists
+        isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
     }
-    
+    // do only return the date section, ignore the time part of the date
+    // see CSW 2.0.2 AP ISO 1.0 (p.41)
+    if (isoDate) {
+        mdMetadata.addElement("gmd:dateStamp").addElement(getDate(isoDate));
+    }
+
     // ---------- <gmd:metadataStandardName> ----------
     var mdStandardName;
     if (hasValue(objRow.get("metadata_standard_name"))) {

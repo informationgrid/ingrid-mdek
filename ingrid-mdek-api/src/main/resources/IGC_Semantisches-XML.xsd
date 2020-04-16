@@ -3,7 +3,7 @@
     
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
-    <xs:attribute name="exchange-format" default="4.0.0"/>
+    <xs:attribute name="exchange-format" default="5.4.0"/>
   </xs:attributeGroup>
   <!-- InGridCatalog (IGC) containing UDK data -->
   <xs:element name="igc">
@@ -94,6 +94,13 @@
   -->
   <xs:element name="expiry-duration" type="xs:string"/>
   <!--
+    Fachlicher Name: Metadaten-Datum
+    Tabelle.Feld   : T01_object.metadata_time
+    ISO: MD_Metadata/gmd:dateStamp
+    ...
+  -->
+  <xs:element name="metadata-date" type="xs:string"/>
+  <!--
     Fachlicher Name: Zuletzt geaendert am
     Tabelle.Feld   : T03_catalogue.mod_time
     Tabelle.Feld   : T01_object.mod_time
@@ -156,6 +163,7 @@
         <xs:element ref="object-class"/>
         <xs:element ref="title"/>
         <xs:element minOccurs="0" ref="abstract"/>
+        <xs:element minOccurs="0" ref="metadata-date"/>
         <xs:element minOccurs="0" ref="date-of-last-modification"/>
         <xs:element minOccurs="0" ref="date-of-creation"/>
         <xs:element minOccurs="0" ref="original-control-identifier"/>

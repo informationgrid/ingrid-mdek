@@ -29,6 +29,9 @@
   <body>
 
     <release version="5.4.0-SNAPSHOT" date="2020-xx-xx" description="???">
+      <action type="add" dev="wemove" issue="1084">
+        Handle new columns metadata_time and iso_hash in object.
+      </action>
       <action type="add" dev="wemove" issue="1772">
         Indroduce Codeliste 5.24 MD_DimensionNameTypeCode.
       </action>

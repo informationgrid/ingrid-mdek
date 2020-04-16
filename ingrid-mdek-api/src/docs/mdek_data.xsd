@@ -86,6 +86,7 @@
 			<xs:element ref="class"/>
 			<xs:element ref="hasChild"/>
 			<xs:element ref="isPublished"/>
+			<xs:element ref="metadata-date"/>
 			<xs:element ref="date-of-creation"/>
 			<xs:element ref="date-of-last-modification"/>
 			<xs:element ref="work-state"/>
@@ -224,6 +225,7 @@
 	<xs:element name="class" type="xs:integer"/>
 	<xs:element name="hasChild" type="xs:boolean"/>
 	<xs:element name="isPublished" type="xs:boolean"/>
+	<xs:element name="metadata-date" type="TIMESTAMP"/>
 	<xs:element name="date-of-creation" type="TIMESTAMP"/>
 	<xs:element name="date-of-last-modification" type="TIMESTAMP"/>
 	<xs:element name="work-state" type="xs:string"/>
