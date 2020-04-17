@@ -5,12 +5,12 @@
   </properties>
   <body>
 
-    <release version="5.4.0-SNAPSHOT" date="2020-xx-xx" description="???">
+    <release version="5.4.0" date="2020-04-17" description="Release 5.4.0                 ">
       <action type="add" dev="wemove" issue="1084">
         Handle new columns metadata_time and iso_hash in object.
       </action>
       <action type="add" dev="wemove" issue="1772">
-        Indroduce Codeliste 5.24 MD_DimensionNameTypeCode.
+        Introduce Codeliste 5.24 MD_DimensionNameTypeCode.
       </action>
       <action type="fix" dev="wemove" issue="1801">
         Fix problem when no json exists in CL 6360.
@@ -41,6 +41,21 @@
       </action>
       <action type="add" dev="wemove" issue="1443">
         Import of license source note.
+      </action>
+      <action type="add" dev="wemove" issue="1765">
+        Fix import of name-format with gco:nilReason attr.
+      </action>
+      <action type="add" dev="wemove" issue="2615">
+        mCLOUD: Indexing mFUND-Fields
+      </action>
+      <action type="add" dev="wemove" issue="1819">
+        Import of axis description of grid format.
+      </action>
+      <action type="add" dev="wemove" issue="1204">
+        Import parent identifier from ISO XML
+      </action>
+      <action type="add" dev="wemove" issue="1764">
+        Control address overwrite on import per configuration.
       </action>
     </release>
 
