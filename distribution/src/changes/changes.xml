@@ -1,42 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  **************************************************-
-  ingrid-iplug-ige
-  ==================================================
-  Copyright (C) 2014 - 2015 wemove digital solutions GmbH
-  ==================================================
-  Licensed under the EUPL, Version 1.1 or – as soon they will be
-  approved by the European Commission - subsequent versions of the
-  EUPL (the "Licence");
-  
-  You may not use this work except in compliance with the Licence.
-  You may obtain a copy of the Licence at:
-  
-  http://ec.europa.eu/idabc/eupl5
-  
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the Licence is distributed on an "AS IS" basis,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the Licence for the specific language governing permissions and
-  limitations under the Licence.
-  **************************************************#
-  -->
-
 <document>
   <properties>
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
 
+    <release version="5.4.0" date="2020-04-17" description="Release 5.4.0                 ">
+      <action type="add" dev="wemove" issue="1084">
+        Handle new columns metadata_time and iso_hash in object.
+      </action>
+      <action type="add" dev="wemove" issue="1772">
+        Introduce Codeliste 5.24 MD_DimensionNameTypeCode.
+      </action>
+      <action type="fix" dev="wemove" issue="1801">
+        Fix problem when no json exists in CL 6360.
+      </action>
+      <action type="fix" dev="wemove" issue="1762">
+        Fix 5.2.0a strategie eingeführt mit #1274 (Konformitäten). Gilt nur für Updates von InGrid Versionen vor 5.2.0.
+      </action>
+      <action type="add" dev="wemove" issue="1767">
+        Introduce metadata point of contact address.
+      </action>
+      <action type="add" dev="wemove" issue="1763">
+        IGE: Optimize publish of one dataset.
+      </action>
+      <action type="update" dev="wemove" issue="1547">
+        Use connection pooling fo database access in whole import/export process.
+      </action>
+      <action type="add" dev="wemove" issue="1600">
+        Add indexes to table additional_field_data to increase statistics performance.
+      </action>
+      <action type="fix" dev="wemove" issue="1668">
+        IGE: Nicht darzustellende Adressen werden trotzdem indexiert.
+      </action>
+      <action type="update" dev="wemove" issue="1276">
+        Verhalten der Felder zur "Datenqualität" ändern
+      </action>
+      <action type="fix" dev="wemove" issue="1670">
+        Fix highlight summary by search query.
+      </action>
+      <action type="add" dev="wemove" issue="1443">
+        Import of license source note.
+      </action>
+      <action type="add" dev="wemove" issue="1765">
+        Fix import of name-format with gco:nilReason attr.
+      </action>
+      <action type="add" dev="wemove" issue="2615">
+        mCLOUD: Indexing mFUND-Fields
+      </action>
+      <action type="add" dev="wemove" issue="1819">
+        Import of axis description of grid format.
+      </action>
+      <action type="add" dev="wemove" issue="1204">
+        Import parent identifier from ISO XML
+      </action>
+      <action type="add" dev="wemove" issue="1764">
+        Control address overwrite on import per configuration.
+      </action>
+    </release>
+
+    <release version="4.4.4.mCLOUD" date="2020-01-24" description="Release 4.4.4.mCLOUD">
+      <action type="fix" issue="2301">
+        Fix published dataset not showing up in portal.
+      </action>
+    </release>
+
+    <release version="4.4.3.mCLOUD" date="2019-09-16" description="Release 4.4.3.mCLOUD">
+      <action type="add" dev="wemove">
+        Add default attribution to easily filter data in portal.
+      </action>
+    </release>
+
+    <release version="4.4.2.mCLOUD" date="2019-07-10" description="Release 4.4.2.mCLOUD">
+      <action type="update" dev="wemove">
+        Change mapping of temporal field.
+      </action>
+    </release>
+
+    <release version="4.4.1.mCLOUD" date="2019-06-07" description="Release 4.4.1.mCLOUD">
+      <action type="add" dev="wemove" issue="">
+        Modify links for uploaded documents in index
+      </action>
+    </release>
+
+    <release version="4.4.0.mCLOUD" date="2019-04-02" description="Release 4.4.0.mCLOUD">
+      <action type="add" dev="wemove" issue="1590">
+        Profile for mCLOUD
+      </action>
+    </release>
+
     <release version="5.3.0" date="2020-01-13" description="Release 5.3.0">
       <action type="add" dev="wemove" issue="1590">
         UVP: Display of "Verfahrenstyp" in detail view.
       </action>
       <action type="add" dev="wemove" issue="513">
-        WMTS via GetCapabilities-Assistant. Fix double entries in ISO.  
+        WMTS via GetCapabilities-Assistant. Fix double entries in ISO.
       </action>
       <action type="add" dev="wemove" issue="1273">
-        Migrate ""encoding schema" to "application schema".  
+        Migrate ""encoding schema" to "application schema".
       </action>
       <action type="add" dev="wemove" issue="1554">
         Change codelist namespace to http://standards.iso.org/iso/19139/resources/gmxCodelists.xml
@@ -146,7 +207,7 @@
       <action type="fix" dev="wemove" issue="1336">
         Make CSW-T import robuster.
       </action>
-    </release>  
+    </release>
 
     <release version="4.6.0" date="2019-01-14" description="Release InGrid 4.6.0">
       <action type="add" dev="wemove" issue="1202">

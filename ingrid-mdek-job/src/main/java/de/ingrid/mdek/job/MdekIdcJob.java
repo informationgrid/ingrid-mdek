@@ -65,6 +65,9 @@ public abstract class MdekIdcJob extends MdekJob {
     @Autowired
     private Config config;
 
+    @Autowired
+    private Configuration igeConfig;
+
 	public MdekIdcJob(Logger log, DaoFactory daoFactory) {
 		super(log, daoFactory);
 
@@ -150,10 +153,22 @@ public abstract class MdekIdcJob extends MdekJob {
 
             // PUBLISHED entities !
             if (WorkState.VEROEFFENTLICHT.getDbValue().equals( entity.get( MdekKeys.WORK_STATE ) )) {
-                // update search index
-                ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString(), "id" );
-                if (doc != null && !doc.isEmpty()) {
 
+                // update index
+                ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString());
+                /*
+                   Note that the result can be null if the publication conditions are not
+                   met based on the SQL provided in property recordByIdSql in
+                   PlugDescriptionConfiguredDatabaseRecordSetProducer, even if the database ID exists.
+
+                   Example:
+
+                   SELECT DISTINCT id FROM t01_object
+                     WHERE work_state='V' AND publish_id=1
+                     AND (to_be_published_on is null OR to_be_published_on >= CURRENT_DATE)
+                     AND id = ?
+                 */
+                if (doc != null && !doc.isEmpty()) {
                     IndexInfo indexInfo = docProducer.getIndexInfo();
                     String[] datatypes = null;
                     try {
@@ -208,6 +223,36 @@ public abstract class MdekIdcJob extends MdekJob {
             return doc.get( key );
         } else {
             return defaultValue;
+        }
+    }
+
+    protected void setDefaultMetadataStandardProperties(IngridDocument doc) {
+        final int geodatensatz = 1;
+        final int geodatendienst = 3;
+
+        int objClass = doc.getInt(MdekKeys.CLASS);
+        if (objClass == geodatensatz) {
+            String name = igeConfig.defaultMdStandardNameGeodata;
+            String version = igeConfig.defaultMdStandardNameVersionGeodata;
+
+            if (name != null && !name.trim().isEmpty()) {
+                doc.put(MdekKeys.METADATA_STANDARD_NAME, name);
+            }
+            if (version != null && !name.trim().isEmpty()) {
+                doc.put(MdekKeys.METADATA_STANDARD_VERSION, version);
+            }
+        }
+
+        if (objClass == geodatendienst) {
+            String name = igeConfig.defaultMdStandardNameGeoservice;
+            String version = igeConfig.defaultMdStandardNameVersionGeoservice;
+
+            if (name != null && !name.trim().isEmpty()) {
+                doc.put(MdekKeys.METADATA_STANDARD_NAME, name);
+            }
+            if (version != null && !name.trim().isEmpty()) {
+                doc.put(MdekKeys.METADATA_STANDARD_VERSION, version);
+            }
         }
     }
 

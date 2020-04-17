@@ -94,17 +94,21 @@ var mappingDescription = {"mappings":[
   		},
 		{
 			"srcXpath":"//gmd:dateStamp/gco:DateTime | //gmd:dateStamp/gco:Date[not(../gco:DateTime)]",
-			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/date-of-creation",
+			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/metadata-date",
 			"transform":{
 				"funct":transformDateIso8601ToIndex
 			}
 		},
-  		{	
-  			
+		{
+
 			"srcXpath":"//gmd:fileIdentifier/gco:CharacterString",
-			// make sure we always have a UUID 
+			// make sure we always have a UUID
 			"defaultValue":createUUID,
-  			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/original-control-identifier"
+			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/original-control-identifier"
+		},
+  		{
+			"srcXpath":"//gmd:parentIdentifier/gco:CharacterString",
+  			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/parent-identifier-extern"
   		},
   		{	
   			"srcXpath":"//gmd:metadataStandardName/gco:CharacterString",
@@ -155,6 +159,11 @@ var mappingDescription = {"mappings":[
 			  	]
 			}
   		},
+		{
+		    "execute": {
+		    	"funct": handleBoundingPolygon
+			}
+		},
 
   		// ****************************************************
   		//
@@ -242,8 +251,95 @@ var mappingDescription = {"mappings":[
 		      			  	]
 		      			}
 		        	},
-	        		{	
-	        			"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation/gmd:topologyLevel/gmd:MD_TopologyLevelCode/@codeListValue",
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:numberOfDimensions/gco:Integer",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-num-dimensions"
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:axisDimensionProperties/gmd:MD_Dimension/gmd:dimensionName/gmd:MD_DimensionNameTypeCode/@codeListValue",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-axis-name",
+						"transform":{
+							"funct":transformISOToIgcDomainId,
+							"params":[514, "Could not transform dimension name in axisDimensionProperties: "]
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:axisDimensionProperties/gmd:MD_Dimension/gmd:dimensionSize/gco:Integer",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-axis-size"
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:cellGeometry/gmd:MD_CellGeometryCode/@codeListValue",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-cell-geometry",
+						"transform":{
+							"funct":transformISOToIgcDomainId,
+							"params":[509, "Could not transform geometric object type code: "]
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:transformationParameterAvailability/gco:Boolean",
+						"defaultValue": "N",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-transform-param",
+						"transform":{
+							"funct":transformGeneric,
+							"params":[{"true":"Y", "false":"N"}, false, "Could not map transformationParameterAvailability "]
+						}
+					},
+					{
+						"execute":{
+							"funct": determineGridSpatialRepresentationConcreteType
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georectified/gmd:checkPointAvailability/gco:Boolean",
+						"defaultValue": "N",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-rect-checkpoint",
+						"transform":{
+							"funct":transformGeneric,
+							"params":[{"true":"Y", "false":"N"}, false, "Could not map controlPointAvailability "]
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georectified/gmd:checkPointDescription/gco:CharacterString",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-rect-description"
+					},
+					// TODO review import/export of corner point coordinates
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georectified/gmd:cornerPoints/gml:Point/gml:coordinates",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-rect-corner-point"
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georectified/gmd:pointInPixel/gmd:MD_PixelOrientationCode",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-rect-point-in-pixel",
+						"defaultValue": "1",
+						"transform":{
+							"funct":transformISOToIgcDomainId,
+							"params":[2100, "Could not transform point in pixel code: "]
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable/gmd:controlPointAvailability/gco:Boolean",
+						"defaultValue": "N",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-ref-control-point",
+						"transform":{
+							"funct":transformGeneric,
+							"params":[{"true":"Y", "false":"N"}, false, "Could not map controlPointAvailability "]
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable/gmd:orientationParameterAvailability/gco:Boolean",
+						"defaultValue": "N",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-ref-orientation-param",
+						"transform":{
+							"funct":transformGeneric,
+							"params":[{"true":"Y", "false":"N"}, false, "Could not map controlPointAvailability "]
+						}
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable/gmd:georeferencedParameters/gco:Record",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-ref-referenced-param"
+					},
+					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation/gmd:topologyLevel/gmd:MD_TopologyLevelCode/@codeListValue",
 	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/vector-format/vector-topology-level",
 	        			"targetAttribute":"iso-code",
 	        			"transform":{
@@ -662,7 +758,7 @@ var mappingDescription = {"mappings":[
 			  			"targetAttribute":"iso-code",
 			  			"transform":{
 							"funct":transformISOToIgcDomainId,
-							"params":[520, "Could not transform meduim name code: "]
+							"params":[520, "Could not transform medium name code: "]
 						}
 			  		},
 	  				{
@@ -676,7 +772,7 @@ var mappingDescription = {"mappings":[
 			}
   		},
   		{
-  			"srcXpath":"//gmd:distributionInfo/gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format",
+  			"srcXpath":"//gmd:distributionInfo/gmd:MD_Distribution/gmd:distributionFormat/gmd:MD_Format[gmd:name[not(@gco:nilReason)]]",
   			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information",
   			"newNodeName":"data-format",
   			"subMappings":{
@@ -1097,7 +1193,7 @@ var mappingDescription = {"mappings":[
 	  				{
 			  			"srcXpath":"gmd:fileDescription/gco:CharacterString",
 			  			"defaultValue":"grafische Darstellung",
-			  			"targetNode":"linkage-name"
+			  			"targetNode":"linkage-description"
 			  		},
 	  				{
 			  			"srcXpath":"gmd:fileName/gco:CharacterString",
@@ -1377,7 +1473,7 @@ function mapToTarget(mapping, source, target) {
 						}
 						value = call_f(m.transform.funct,args);
 					}
-					
+
 					nodeText += value;
 					
 					if (m.storeValue) {
@@ -1637,7 +1733,7 @@ function addUseLimitation(useLimitation, target) {
         var node = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/use-limitation");
         node = XPATH.createElementFromXPath(node, "terms-of-use");
         XMLUtils.createOrReplaceTextNode(node, useLimitation);
-        XMLUtils.createOrReplaceAttribute(node, "id", "-1");                 
+        XMLUtils.createOrReplaceAttribute(node, "id", "-1");
     }
 }
 
@@ -1666,44 +1762,132 @@ function mapUseConstraints(source, target) {
                     if (isoValue == "otherRestrictions") {
                     	continue;
                     }
-
-                    addUseConstraint(isoValue, target);
+                    addUseConstraint(isoValue, target, null);
                 }
             }
 
             // evaluate otherConstraints
-
+			//since issue 1443 the source note is attached to its constraint
             var otherConstraints = XPATH.getNodeList(legalConstraints.item(i), "./gmd:otherConstraints");
             if (hasValue(otherConstraints)) {
                 for (j=0; j<otherConstraints.getLength(); j++ ) {
-                    var otherConstraint = XPATH.getString(otherConstraints.item(j), "./gco:CharacterString");
-                    if (!otherConstraint) {
+					var otherConstraint = XPATH.getString(otherConstraints.item(j), "./gco:CharacterString");
+
+					if (!otherConstraint) {
+                    	//constraint given with gmx:Anchor tag
                     	otherConstraint = XPATH.getString(otherConstraints.item(j), "./gmx:Anchor");
 					}
-                    addUseConstraint(otherConstraint, target);
+
+					var thisElementIsSourceNote = isSourceNote(otherConstraint);
+					var thisElementIsJson = isJsonString(otherConstraint);
+
+                    if (thisElementIsJson) {
+                    	// add license name and source from JSON
+						addJsonUseConstraint(otherConstraint, target);
+						continue;
+                    }
+
+                    if(thisElementIsSourceNote){
+                    	continue;
+					}
+
+					var hasNextElement = j < otherConstraints.getLength()-1;
+					if (hasNextElement) {
+                    	//check next element
+						var nextElem = XPATH.getString(otherConstraints.item(j+1), "./gco:CharacterString") ;
+						var nextElementIsJson = isJsonString(nextElem) && hasValue(nextElem) ;
+						var secondNextElem = null;
+						var nextElementIsSourceNote = hasValue(nextElem) && isSourceNote(nextElem);
+
+						var hasSecondNextElement = j < otherConstraints.getLength()-2;
+						if (hasSecondNextElement) {
+							//check second next element
+							secondNextElem = XPATH.getString(otherConstraints.item(j+2), "./gco:CharacterString");
+							var hasJsonAndNextElementIsSourceNote = hasValue(nextElem) && isSourceNote(nextElem) && isJsonString(secondNextElem) && hasValue(secondNextElem);
+							var hasNotJsonAndNextElemIsSourceNote =  nextElementIsSourceNote && !isJsonString(secondNextElem) && hasValue(secondNextElem);
+
+							if ( hasJsonAndNextElementIsSourceNote ){
+								// skip, since JSON is handled explicitly
+								continue;
+							}
+
+							if ( hasNotJsonAndNextElemIsSourceNote ){
+								addUseConstraint(otherConstraint, target, nextElem);
+							}
+						}
+						if(nextElementIsJson && !thisElementIsSourceNote){
+							if(compareUseConstraintWithJson(otherConstraint, nextElem)){
+								// skip
+								continue;
+							}
+						}
+
+						if (nextElementIsSourceNote && !hasValue(secondNextElem)){
+							log.debug("Im supposed to be here");
+							addUseConstraint(otherConstraint, target, nextElem);
+							continue;
+						}
+					}
+					addUseConstraint(otherConstraint, target, null);
                 }
             }
         }
     }
 }
-function addUseConstraint(useConstraint, target) {
-    if (hasValue(useConstraint)) {
-    	useConstraint = removeConstraintPraefix(useConstraint);
 
-    	// Do not add JSON, this is handled via Syslist 6500 (data field)
-        if (useConstraint.startsWith( "{" ) && useConstraint.endsWith( "}" )) {
-        	return;
-        }
+function compareUseConstraintWithJson(useConstraint, jsonUseConstraint){
+	jsonUseConstraint = JSON.parse(jsonUseConstraint);
+	if (useConstraint == jsonUseConstraint.name){
+		return true;
+	}
+	return false;
+}
 
-        log.debug("adding '" + "/igc/data-sources/data-source/data-source-instance/additional-information/use-constraint/license" + "' = '" + useConstraint + "' to target document.");
-        var node = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/use-constraint");
-        node = XPATH.createElementFromXPath(node, "license");
-        XMLUtils.createOrReplaceTextNode(node, useConstraint);
-        var useConstraintId = transformToIgcDomainId(useConstraint, 6500, "", "Could not map use-constraint, use as free entry: ");
-        if (hasValue(useConstraintId)) {
-            XMLUtils.createOrReplaceAttribute(node, "id", useConstraintId);                 
-        }
+function addLicenseInfo(node, useConstraint, sourceNote) {
+	node = XPATH.createElementFromXPath(node, "license");
+	XMLUtils.createOrReplaceTextNode(node, useConstraint); //value is set here
+	var useConstraintId = transformToIgcDomainId(useConstraint, 6500, "", "Could not map use-constraint, use as free entry: ");
+
+	if (hasValue(useConstraintId)) {
+		XMLUtils.createOrReplaceAttribute(node, "id", useConstraintId);
+	}
+	if (hasValue(sourceNote)) {
+		XMLUtils.createOrReplaceAttribute(node, "source", sourceNote);
+	}
+}
+
+function isSourceNote(useConstraint) {
+	return useConstraint.startsWith("Quellenvermerk: ");
+}
+
+function isJsonString(useConstraint) {
+	return useConstraint.startsWith("{") && useConstraint.endsWith("}");
+}
+
+function addJsonUseConstraint(useConstraint, target) {
+	// since issue: 1443, json has priority if the same constraint is given in the two formats
+	var useConstraintObj = JSON.parse(useConstraint);
+
+	log.debug("adding '" + "/igc/data-sources/data-source/data-source-instance/additional-information/use-constraint/license" + "' = '" + useConstraintObj.name + "' to target document.");
+	var node = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/use-constraint");
+
+	addLicenseInfo(node, useConstraintObj.name, useConstraintObj.quelle);
+}
+
+function addUseConstraint(useConstraint, target, sourceNote) {
+	// JSON handled through its own function
+	if (!hasValue(useConstraint) || isJsonString(useConstraint)) {
+    	return;
     }
+
+	useConstraint = removeConstraintPraefix(useConstraint);
+	if(hasValue(sourceNote)){
+		sourceNote = removeConstraintPraefix(sourceNote);
+	}
+
+	log.debug("adding '" + "/igc/data-sources/data-source/data-source-instance/additional-information/use-constraint/license" + "' = '" + useConstraint + "' to target document.");
+	var node = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/additional-information/use-constraint");
+	addLicenseInfo(node, useConstraint, sourceNote);
 }
 
 function mapAccessConstraints(source, target) {
@@ -1718,7 +1902,7 @@ function mapAccessConstraints(source, target) {
     }
 
     accConstraints = XPATH.getSiblingsFromXPath(source, "//gmd:identificationInfo//gmd:resourceConstraints/*/gmd:accessConstraints", "gmd:otherConstraints", false);
-    
+
     if (hasValue(accConstraints)) {
         for (i=0; i<accConstraints.size(); i++ ) {
             var accConstraint = XPATH.getString(accConstraints.get(i), "./gco:CharacterString");
@@ -1752,7 +1936,7 @@ function addAccessConstraint(accConstraint, target) {
         XMLUtils.createOrReplaceTextNode(node, accConstraint);
         var accConstraintId = transformToIgcDomainId(accConstraint, 6010, "", "Could not map access-constraint, use as free entry: ");
         if (hasValue(accConstraintId)) {
-            XMLUtils.createOrReplaceAttribute(node, "id", accConstraintId);                 
+            XMLUtils.createOrReplaceAttribute(node, "id", accConstraintId);
         }
     }
 }
@@ -1765,7 +1949,7 @@ function addLegalConstraint(accConstraint, target) {
         XMLUtils.createOrReplaceTextNode(node, accConstraint);
         var accConstraintId = transformToIgcDomainId(accConstraint, 1350, "", "Could not map access-constraint, use as free entry: ");
         if (hasValue(accConstraintId)) {
-            XMLUtils.createOrReplaceAttribute(node, "id", accConstraintId);                 
+            XMLUtils.createOrReplaceAttribute(node, "id", accConstraintId);
         }
     }
 }
@@ -1779,7 +1963,7 @@ function mapAddresses(source, target) {
         	var isoAddressNode = isoAddressNodes.item(i);
         	var organisationName = XPATH.getString(isoAddressNode, "gmd:organisationName/gco:CharacterString");
         	var individualName = XPATH.getString(isoAddressNode, "gmd:individualName/gco:CharacterString");
-        	
+
         	// then create the actual address
         	var uuid = createUUIDFromAddress(isoAddressNode);
     		var igcAddressNode = XPATH.createElementFromXPathAsSibling(igcAdressNodes, "address/address-instance");
@@ -1801,7 +1985,7 @@ function mapAddresses(source, target) {
                 XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "country"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
                 XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "country"), "id", countryCode);
             }
-            
+
             var administrativeAreaValue = XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:administrativeArea/gco:CharacterString");
             if (administrativeAreaValue) {
                 var administrativeAreaKey = codeListService.getSysListEntryKey(6250, administrativeAreaValue, "de");
@@ -1812,7 +1996,7 @@ function mapAddresses(source, target) {
                     XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "administrative-area"), "id", "-1");
                 }
             }
-            
+
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "postal-code"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:postalCode/gco:CharacterString"));
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "street"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:deliveryPoint/gco:CharacterString"));
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "city"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:city/gco:CharacterString"));
@@ -1830,10 +2014,25 @@ function mapAddresses(source, target) {
             XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "entry-id", addressRoleId);
             XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "list-id", "505");
             var addressRoleValue = transformISOToIgcDomainValue(XPATH.getString(isoAddressNode, "gmd:role/gmd:CI_RoleCode/@codeListValue"), 505, "de", "Could not transform ISO address role code to IGC codelist value: ");
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), addressRoleValue);            
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "address-identifier"), uuid);            
-            
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), addressRoleValue);
+            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "address-identifier"), uuid);
+
         }
+
+        // set address type of "gmd:contact" addresses with role "Point of Contact" to pointOfContactMd
+        var contactMdNodes = XPATH.getNodeList(source, "//gmd:contact/gmd:CI_ResponsibleParty");
+        for (var i=0; i<contactMdNodes.getLength(); i++) {
+            var contactMdNode = contactMdNodes.item(i);
+            var ContactMdUUID = createUUIDFromAddress(contactMdNode);
+            // Point Of Contact
+            var relatedAddresses = XPATH.getNodeList(target, "//related-address[./type-of-relation/@entry-id=7 and address-identifier='"+ContactMdUUID+"']");
+            for (var j=0; j<relatedAddresses.getLength(); j++) {
+                var relatedAddressNode = relatedAddresses.item(j);
+                XMLUtils.createOrReplaceAttribute(XPATH.getNode(relatedAddressNode, "./type-of-relation"), "entry-id", "12");
+                XMLUtils.createOrReplaceTextNode(XPATH.getNode(relatedAddressNode, "./type-of-relation"), "pointOfContactMd");
+            }
+        }
+
     }
 
 }
@@ -1844,7 +2043,7 @@ function mapUncontrolledTerms(source, target) {
         for (i=0; i<terms.getLength(); i++ ) {
             var term = XPATH.getString(terms.item(i), ".");
             if (hasValue(term)) {
-        		// make sure that service classification codes are not included in uncontrolled keywords 
+        		// make sure that service classification codes are not included in uncontrolled keywords
             	// transform to IGC domain id
         		var igcCode = null;
         		try {
@@ -1942,7 +2141,7 @@ function parseToInt(val) {
 }
 
 function transformNumberStrToIGCNumber(val) {
-	return UtilsString.transformNumberStrToIGCNumber(val);		
+	return UtilsString.transformNumberStrToIGCNumber(val);
 }
 
 // NOTICE: Also used in other mapping scripts in profiles (BKG ...) !
@@ -1955,6 +2154,7 @@ function removeConstraintPraefix(val) {
     	// remove GDI-DE prefix
     	val = val.replace("Nutzungseinschränkungen: ", "");
     	val = val.replace("Nutzungsbedingungen: ", "");
+    	val = val.replace("Quellenvermerk: ", "");
 
 //    	log.warn("MM OUT constraint : " + val);
 	}
@@ -2022,7 +2222,6 @@ function transformToIgcDomainId(val, codeListId, languageId, logErrorOnNotFound,
 				log.warn(logErrorOnNotFound + val);
 				protocol(WARN, logErrorOnNotFound + val)
 			}
-			return -1;
 		}
 	}
 }
@@ -2243,13 +2442,13 @@ function transformAlternateNameAndProductGroup(source, target) {
     if (hasValue(altTitles)) {
         var productGroups = [];
         var nonProductGroups = [];
-        
+
         for (var i=0; i<altTitles.getLength(); i++ ) {
             var term = XPATH.getString(altTitles.item(i), ".");
-            
+
             var splitted = term.split(';');
             if (splitted.length > 0) {
-                
+
                 // check all entries if they match to a product group and move them to this field
                 for (var j=0; j<splitted.length; j++) {
                     var entry = splitted[j].trim();
@@ -2271,7 +2470,7 @@ function transformAlternateNameAndProductGroup(source, target) {
                 XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPathAsSibling(node, "item"), productGroups[k]);
             }
         }
-        
+
         var finalAlternateName = "";
         if (nonProductGroups.length > 0) {
             finalAlternateName = nonProductGroups.join(";");
@@ -2294,14 +2493,89 @@ function getTypeOfAddress(source, target) {
 	}
 }
 
+function handleBoundingPolygon(source, target) {
+	var gmlPointPosNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:Point/gml:pos");
+	for(var i=0; i<gmlPointPosNodes.getLength(); i++) {
+		var wkt = gmlPosListToWktCoordinates(gmlPointPosNodes.item(i));
+		if (wkt) {
+			wkt = "POINT " + wkt;
+			addPolygonWktToIgc(target, wkt);
+		}
+	}
+
+	var gmlLineStringPosListNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:LineString/gml:posList");
+	for(var i=0; i<gmlLineStringPosListNodes.getLength(); i++) {
+		var wkt = gmlPosListToWktCoordinates(gmlLineStringPosListNodes.item(i));
+		if (wkt) {
+			wkt = "LINESTRING " + wkt;
+			addPolygonWktToIgc(target, wkt);
+		}
+	}
+
+	// Polygon elements
+	var gmlPolygonNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:Polygon");
+	for(var i=0; i<gmlPolygonNodes.getLength(); i++) {
+		var wkt = "";
+	    var polygonNode = gmlPolygonNodes.item(i);
+
+		var exteriorNode = XPATH.getNode(polygonNode, "./gml:exterior/gml:LinearRing/gml:posList");
+		wkt += gmlPosListToWktCoordinates(exteriorNode);
+
+		var interiorNodes = XPATH.getNodeList(polygonNode, "./gml:interior/gml:LinearRing/gml:posList");
+		for(var j=0; j<interiorNodes.getLength(); j++) {
+			var str = gmlPosListToWktCoordinates(interiorNodes.item(j));
+			if (wkt && str)  {
+				wkt += ", ";
+			}
+			wkt += str;
+		}
+		if (wkt) {
+			wkt = "POLYGON (" + wkt + ")";
+			addPolygonWktToIgc(target, wkt);
+		}
+	}
+}
+
+function gmlPosListToWktCoordinates(node) {
+	if (!node) return "";
+
+	var posList = node.getTextContent();
+	if (!hasValue(posList)) return "";
+
+	posList = posList.replace(/[\r\n]/g, ""); // Remove newlines
+	var coords = "";
+	var arr = posList.split(/\s+/);
+	for(var i=0; i<arr.length; i+=2) {
+		if (coords) { // not empty
+			coords += ", ";
+		}
+		coords += arr[i] + " " + arr[i+1];
+	}
+	return "(" + coords + ")";
+}
+
+function addPolygonWktToIgc(target, wkt) {
+	var additionalValues = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
+	var additionalValue = XPATH.createElementFromXPath(additionalValues, "general-additional-value");
+
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key"), "boundingPolygon");
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-data"), wkt);
+}
+
+function determineGridSpatialRepresentationConcreteType(source, target) {
+	var isGeorectified = XPATH.nodeExists(source, ".//gmd:MD_Georectified") ? "Y" : "N";
+	var georectifiedNode = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-geo-rectified");
+	XMLUtils.createOrReplaceTextNode(georectifiedNode, isGeorectified);
+}
+
 
 function hasValue(val) {
 	if (typeof val == "undefined") {
-		return false; 
+		return false;
 	} else if (!val) {
-		return false; 
+		return false;
 	} else if (val == null) {
-		return false; 
+		return false;
 	} else if (val instanceof String && val == "") {
 		return false;
 	} else {
@@ -2326,7 +2600,7 @@ function call_f(f,args)
         return f(args[0], args[1], args[2], args[3], args[4]);
     else
       log.error("Function call does not support number of arguments: " + args.length);
-          
+
   } else {
     return f();
   }
@@ -2343,7 +2617,7 @@ function createUUIDFromAddress(source) {
 	var organisationName = XPATH.getString(source, "gmd:organisationName/gco:CharacterString");
 	var individualName = XPATH.getString(source, "gmd:individualName/gco:CharacterString");
 	var email = XPATH.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString");
-	
+
 	var idString = "";
 	if (hasValue(organisationName)) {
 		idString += organisationName;
@@ -2354,7 +2628,7 @@ function createUUIDFromAddress(source) {
 	if (hasValue(email)) {
 		idString += email;
 	}
-	
+
 	var uuid;
 	// first check for valid uuid to be used for address identification
 	if (hasValue(isoUuid)) {
@@ -2372,7 +2646,7 @@ function createUUIDFromAddress(source) {
 		uuid = createUUID();
 	}
 	log.info("Created UUID from Address:" + uuid);
-	
+
 	return uuid;
 }
 

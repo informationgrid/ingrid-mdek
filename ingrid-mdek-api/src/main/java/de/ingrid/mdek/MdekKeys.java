@@ -230,7 +230,22 @@ public class MdekKeys {
     /** Indicate handled transaction outside of jobs, so job does NOT begin/commit transaction
     *  Value: Boolean */
     public final static String REQUESTINFO_TRANSACTION_IS_HANDLED = "requestinfo_transactionIsHandled";
+    /**
+     * If TRUE the addresses are overwritten when import a dataset.
+     * This setting is used in CSW-T import setting.
+     *
+     * Value: Boolean */
+    public final static String REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT = "requestinfo_overrideAddressOnImport";
 
+    /**
+     * If TRUE (default) the publication conditions of datasets, referencing an
+     * address that will be overwritten by import, are checked.
+     *
+     * see de.ingrid.mdek.job.Configuration for details
+     *
+     * Value: Boolean
+     */
+    public final static String REQUESTINFO_OVERWRITE_ADDRESSES_ON_IMPORT_CHECK_REFERENCING_DATASETS = "requestinfo_overrideAddressOnImportCheckReferencingDatasets";
 
     // URL
     // ------
@@ -598,6 +613,8 @@ public class MdekKeys {
     public final static String DATE_OF_CREATION = "date-of-creation";
     /** Value: String */
     public final static String DATE_OF_LAST_MODIFICATION = "date-of-last-modification";
+    /** Value: String */
+    public final static String METADATA_DATE = "metadata-date";
     /** Value: String */
     public final static String WORK_STATE = "work-state";
 

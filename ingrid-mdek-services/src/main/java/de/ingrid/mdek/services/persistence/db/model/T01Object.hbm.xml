@@ -77,6 +77,8 @@
       <property name="toBePublishedOn" type="date" column="to_be_published_on"/>
       <property name="parentIdentifier" type="string" column="parent_identifier"/>
       <property name="spatialScope" type="integer" column="spatial_scope"/>
+      <property name="metadataTime" type="string" column="metadata_time"/>
+      <property name="isoHash" type="string" column="iso_hash"/>
 
       <set name="additionalFieldDatas" order-by="sort" table="additional_field_data"
            inverse="true"

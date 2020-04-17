@@ -90,7 +90,6 @@ for (i=0; i<objRows.size(); i++) {
     var row = null;
     var rows = null;
     var value = null;
-    var elem = null;
 /*
     // Example iterating all columns !
     var colNames = objRow.keySet().toArray();
@@ -158,42 +157,44 @@ for (i=0; i<objRows.size(); i++) {
     }
     // ---------- <gmd:contact> ----------
     
-    // special contact for metadata from IMPORT
-    // select only adresses associated with syslist 505 entry 12 ("pointOfContactMd")
-    // this is the contact from ISO Import which should not be lost (CSW-T), if set, we do NOT map "responsible user" (see below)
-    var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', objId, 12, 505]);
+    // contact for metadata
+    // select only addresses associated with syslist 505 entry 12 ("pointOfContactMd")
+    // use this address to be able to keep contact address from import/csw-t data
+    // otherwise the responsible user will be used
+    var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', +objId, 12, 505]);
     if (hasValue(addressRow)) {
         // address may be hidden ! then get first visible parent in hierarchy !
         addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
-    }
-    if (hasValue(addressRow)) {
-    	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
-    } else {
-    	log.debug('No responsible party for metadata found!');
-    }
-    
-    // contact for metadata is now responsible user, see INGRID32-46
-    // only map if no contact from import was found (CSW-T, see above)
-    if (!hasValue(addressRow) && hasValue(objRow.get("responsible_uuid"))) {
+    } else if (hasValue(objRow.get("responsible_uuid"))) {
+        // contact for metadata is now responsible user, see INGRID32-46
         // USE WORKING VERSION (pass true) ! user addresses are now separated and NOT published, see INGRID32-36
         addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
-        if (addressRow) {
-            // map only email address (pass true as third parameter), see INGRID32-36
-            // NO, ISO needs more data, see INGRID32-146
-            // do not export all values ... only organisation name and email(s) (INGRID-2256)
-            mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
-        }
     }
+    if (hasValue(addressRow)) {
+        // map only email address (pass true as third parameter), see INGRID32-36
+        // NO, ISO needs more data, see INGRID32-146
+        // do not export all values ... only organisation name and email(s) (INGRID-2256)
+    	// for BAW DMQS export full address
+    	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
+    } else {
+    	log.error('No responsible party for metadata found!');
+    }
+
     // ---------- <gmd:dateStamp> ----------
-    if (hasValue(objRow.get("mod_time"))) {
-        var isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
-        // do only return the date section, ignore the time part of the date
-        // see CSW 2.0.2 AP ISO 1.0 (p.41)
-        if (isoDate) {
-            mdMetadata.addElement("gmd:dateStamp").addElement(getDate(isoDate));
-        }
+    // use new field metadata_time for gmd:dateStamp see #1084
+    var isoDate;
+    if (hasValue(objRow.get("metadata_time"))) {
+        isoDate = TRANSF.getISODateFromIGCDate(objRow.get("metadata_time"));
+    } else if (hasValue(objRow.get("mod_time"))) {
+        // fall back to mod_time, if no metadata_time exists
+        isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
     }
-    
+    // do only return the date section, ignore the time part of the date
+    // see CSW 2.0.2 AP ISO 1.0 (p.41)
+    if (isoDate) {
+        mdMetadata.addElement("gmd:dateStamp").addElement(getDate(isoDate));
+    }
+
     // ---------- <gmd:metadataStandardName> ----------
     var mdStandardName;
     if (hasValue(objRow.get("metadata_standard_name"))) {
@@ -206,15 +207,15 @@ for (i=0; i<objRows.size(); i++) {
     mdMetadata.addElement("gmd:metadataStandardName/gco:CharacterString").addText(mdStandardName);
 
     // ---------- <gmd:metadataStandardVersion> ----------
-    var mdStandardName;
+    var mdStandardVersion;
     if (hasValue(objRow.get("metadata_standard_version"))) {
-        mdStandardName=objRow.get("metadata_standard_version");
+        mdStandardVersion=objRow.get("metadata_standard_version");
     } else if (objClass.equals("3")) {
-        mdStandardName="2005/PDAM 1";
+        mdStandardVersion="2005/PDAM 1";
     } else {
-        mdStandardName="2003/Cor.1:2006";
+        mdStandardVersion="2003/Cor.1:2006";
     }
-    mdMetadata.addElement("gmd:metadataStandardVersion/gco:CharacterString").addText(mdStandardName);
+    mdMetadata.addElement("gmd:metadataStandardVersion/gco:CharacterString").addText(mdStandardVersion);
 
     // ---------- <gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation> ----------
     var objGeoRow = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=?", [+objId]);
@@ -281,7 +282,7 @@ for (i=0; i<objRows.size(); i++) {
                 if (hasValue(nameDim)) {
                     dimensionNode.addElement("gmd:dimensionName/gmd:MD_DimensionNameTypeCode")
                     .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
-                    .addAttribute("codeListValue", nameDim);                	
+                    .addAttribute("codeListValue", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(514, nameDim));
                 } else {
                     dimensionNode.addElement("gmd:dimensionName").addAttribute("gco:nilReason", "unknown");
                 }
@@ -296,7 +297,7 @@ for (i=0; i<objRows.size(); i++) {
             if (hasValue(cellGeo)) {
                 gridSpatialRepr.addElement("gmd:cellGeometry/gmd:MD_CellGeometryCode")
                 .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
-                .addAttribute("codeListValue", cellGeo);
+                .addAttribute("codeListValue", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(509, cellGeo));
             } else {
             	gridSpatialRepr.addElement("gmd:cellGeometry").addAttribute("gco:nilReason", "unknown");
             }
@@ -393,7 +394,7 @@ for (i=0; i<objRows.size(); i++) {
     }
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
     var referenceDateRows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [+objId]);
-    for (j=0; j<referenceDateRows.size(); j++) {
+    for (var j=0; j<referenceDateRows.size(); j++) {
         var referenceDateRow = referenceDateRows.get(j); 
         var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
         ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(referenceDateRow.get("reference_date"))));
@@ -693,11 +694,12 @@ for (i=0; i<objRows.size(); i++) {
     }
     
     // ---------- <gmd:identificationInfo/gmd:graphicOverview> ----------
-    row = SQL.first("SELECT url_link,descr FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [+objId]);
-    if (hasValue(row)) {
+    var previewRows = SQL.all("SELECT url_link,descr FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [+objId]);
+    for (var i=0; i<previewRows.length; i++) {
+        var preview = previewRows.get(i);
         var graphic = identificationInfo.addElement("gmd:graphicOverview/gmd:MD_BrowseGraphic");
-        graphic.addElement("gmd:fileName/gco:CharacterString").addText(row.get("url_link"));
-        var description = row.get("descr");
+        graphic.addElement("gmd:fileName/gco:CharacterString").addText(preview.get("url_link"));
+        var description = preview.get("descr");
         if (hasValue(description)) {
             graphic.addElement("gmd:fileDescription/gco:CharacterString").addText(description);
         }
@@ -805,21 +807,25 @@ for (i=0; i<objRows.size(); i++) {
         if (hasValue(spatialScopeId)) {
             var name = TRANSF.getIGCSyslistEntryName(6360, spatialScopeId);
             var data = TRANSF.getISOCodeListEntryData(6360, name);
-            var dataJson;
+            var dataJson = "";
             try {
                 dataJson = JSON.parse(data);
             } catch (err) {
                 log.error("Error getting data from from Spatial Scope in Codelist 6360");
             }
             mdKeywords = DOM.createElement("gmd:MD_Keywords");
-            mdKeywords.addElement("gmd:keyword/gmx:Anchor")
-                .addAttribute("xlink:href", dataJson.url)
-                .addText(name);
+            var anchor = mdKeywords.addElement("gmd:keyword/gmx:Anchor");
+            if (dataJson && dataJson.url) {
+                anchor.addAttribute("xlink:href", dataJson.url)
+            }
+            anchor.addText(name);
 
             var citation = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
-            citation.addElement("gmd:title/gmx:Anchor")
-                .addAttribute("xlink:href", dataJson.thesaurusId)
-                .addText(dataJson.thesaurusTitle);
+            if (dataJson && dataJson.thesaurusId && dataJson.thesaurusTitle) {
+                citation.addElement("gmd:title/gmx:Anchor")
+                    .addAttribute("xlink:href", dataJson.thesaurusId)
+                    .addText(dataJson.thesaurusTitle);
+            }
 
             // TODO: add date if INSPIRE-registry contains it finally
             var citationDate = citation.addElement("gmd:date/gmd:CI_Date");
@@ -1430,7 +1436,7 @@ function getCitationIdentifier(objRow, otherObjId) {
 
     // no namespace
     // namespace set in catalog ?
-    myNamespace = catRow.get("cat_namespace");
+    var myNamespace = catRow.get("cat_namespace");
 
     var myNamespaceLength = 0;
     if (!hasValue(myNamespace)) {
@@ -1733,15 +1739,15 @@ function getIndividualNameFromAddressRow(addressRow) {
     }
     
     if (hasValue(firstName)) {
-        individualName = hasValue(individualName) ? individualName += ", " + firstName : firstName;
+        individualName = hasValue(individualName) ? individualName + ", " + firstName : firstName;
     }
     
     if (hasValue(title) && !hasValue(addressing)) {
-        individualName = hasValue(individualName) ? individualName += ", " + title : title;
+        individualName = hasValue(individualName) ? individualName + ", " + title : title;
     } else if (!hasValue(title) && hasValue(addressing)) {
-        individualName = hasValue(individualName) ? individualName += ", " + addressing : addressing;
+        individualName = hasValue(individualName) ? individualName + ", " + addressing : addressing;
     } else if (hasValue(title) && hasValue(addressing)) {
-        individualName = hasValue(individualName) ? individualName += ", " + addressing + " " + title : addressing + " " + title;
+        individualName = hasValue(individualName) ? individualName + ", " + addressing + " " + title : addressing + " " + title;
     }
     
     if (log.isDebugEnabled()) {
@@ -2176,6 +2182,85 @@ function addExtent(identificationInfo, objRow) {
         exExtent.addElement("gmd:description/gco:CharacterString").addText(objRow.get("loc_descr"));
     }
 
+    // ---------- <gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon> ----------
+    var wktRow = SQL.first("SELECT fd.data AS data FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'boundingPolygon'", [+objId]);
+    if (hasValue(wktRow)) {
+        var wkt = wktRow.get("data");
+        log.debug("WKT for polygon is: " + wkt);
+
+        // Remove newlines
+        wkt = wkt.replace(/[\r\n]/g, "");
+        var wktLower = wkt.trim().toLowerCase();
+
+        /*
+         * \(     -> opening parenthesis
+         * \s     -> {0,n} whitespace characters
+         * (      -> start capture group
+         * [^()]+  -> one or more characters other than opening and closing parenthesis
+         * )      -> end of capture group
+         * \s*    -> {0,n} whitespace characters
+         * )      -> closing parenthesis
+         */
+        var regex = /\(\s*([^()]+)\s*\)/;
+        if (wktLower.startsWith("point")) {
+            var match = wkt.match(regex);
+            if (hasValue(match)) {
+                var coords = match[1]    // first capture group
+                    .replace(/,/g, " ")  // replace commas with strings
+                    .replace(/  +/g, " "); // replace multiple consecutive spaces with a single space
+
+                var lineString = createAndGetPolygonFirstChild(identificationInfo, extentElemName, "Point");
+                lineString.addElement("gml:pos").addText(coords);
+            }
+        } else if (wktLower.startsWith("linestring")) {
+            var match = wkt.match(regex);
+            if (hasValue(match)) {
+                var coords = match[1]    // first capture group
+                    .replace(/,/g, " ")  // replace commas with strings
+                    .replace(/  +/g, " "); // replace multiple consecutive spaces with a single space
+
+                var lineString = createAndGetPolygonFirstChild(identificationInfo, extentElemName, "LineString");
+                lineString.addElement("gml:posList").addText(coords);
+            }
+        } else if (wktLower.startsWith("polygon")) {
+            /*
+             * \(     -> opening parenthesis
+             * \s     -> {0,n} whitespace characters
+             * (      -> start capture group
+             * [^()]+  -> one or more characters other than opening and closing parentheses ( and )
+             * )      -> end of capture group
+             * \s*    -> {0,n} whitespace characters
+             * )      -> closing parenthesis
+             *
+             * The g flag at the end returns all matches
+             */
+            var ringRegex = /\(\s*([^()]+)\s*\)/g;
+            var arr;
+            var rings = [];
+            while((arr = ringRegex.exec(wkt)) !== null) {
+                if (hasValue(arr[1]) && arr[1].trim()) { // Value exists and isn't empty
+                    var coords = arr[1].replace(/,/g, " ") // Replace all commas with spaces
+                        .replace(/  +/g, " "); // Replace multiple consecutive spaces with single space
+                    rings.push(coords);
+                }
+            }
+
+            // Create the polygon element
+            var polygon;
+            if (rings.length > 0) {
+                polygon = createAndGetPolygonFirstChild(identificationInfo, extentElemName, "Polygon");
+            }
+
+            // add the rings
+            for(var i=0; i<rings.length; i++) {
+                var path = i === 0 ? "gml:exterior/" : "gml:interior/";
+                path += "gml:LinearRing/gml:posList";
+
+                polygon.addElement(path).addText(rings[i]);
+            }
+        }
+    }
+
     // ---------- <gmd:EX_Extent/gmd:geographicElement> ----------
     rows = SQL.all("SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value WHERE spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?", [+objId]);
     for (i=0; i<rows.size(); i++) {
@@ -2265,6 +2350,15 @@ function addExtent(identificationInfo, objRow) {
         verticalDatum.addElement("gml:name").addText(verticalExtentVDatum);
         verticalDatum.addElement("gml:scope");
     }
+}
+
+function createAndGetPolygonFirstChild(idInfoNode, extentElemName, name) {
+    var prefix = name.toLowerCase() + "_ID_";
+
+    var gmdBoundingPolygon = idInfoNode.addElement(extentElemName).addElement("gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon");
+    gmdBoundingPolygon.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
+    return gmdBoundingPolygon.addElement("gmd:polygon/gml:" + name)
+        .addAttribute("gml:id", prefix.concat(TRANSF.getRandomUUID()));
 }
 
 function getGeographicIdentifier(spatialRefValueRow) {
@@ -2521,6 +2615,11 @@ function addDistributionInfo(mdMetadata, objId) {
                     }
                     idfOnlineResource.addElement("gmd:name/gco:CharacterString").addText(serviceName);
                 }
+
+                // add functionCode (#1367)
+                idfOnlineResource.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CI_OnLineFunctionCode")
+                    .addAttribute("codeListValue", "information").addText("information");
             }
         }
     }
@@ -2825,6 +2924,7 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
 function addAttachedToField(row, parentElement, addAsISO) {
     var attachedToFieldKey = row.get("special_ref");
     var attachedToFieldValue = row.get("special_name");
+    var validKeys = ["9990", "5302", "5303", "5304", "5305"];
 
     if (hasValue(attachedToFieldKey) &&
         hasValue(attachedToFieldValue)) {
@@ -2833,20 +2933,29 @@ function addAttachedToField(row, parentElement, addAsISO) {
         if (attachedToFieldKey.equals("-1")) {
             // free entry, only add if ISO
             if (addAsISO) {
-               textContent = attachedToFieldValue;
+                if (validKeys.indexOf(attachedToFieldKey) !== -1) {
+                    textContent = attachedToFieldValue;
+                } else {
+                    textContent = "information";
+                }
             }
         } else if (!attachedToFieldKey.equals("9999")) {
+
             // syslist entry, NOT "unspezifischer Verweis"
             if (addAsISO) {
-                // ISO: first iso value, see INGRID-2317
-            	textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "iso");
-            	// if no iso then english !
-            	if (!hasValue(textContent)) {
-            	   textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "en");
-            	}
+                if (validKeys.indexOf(attachedToFieldKey) !== -1) {
+                    // ISO: first iso value, see INGRID-2317
+                    textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "iso");
+                    // if no iso then english !
+                    if (!hasValue(textContent)) {
+                        textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "en");
+                    }
+                } else {
+                    textContent = "information";
+                }
             } else {
-               // IDF: use catalog language like it was entered
-               textContent = attachedToFieldValue;
+                // IDF: use catalog language like it was entered
+                textContent = attachedToFieldValue;
             }
         }
 

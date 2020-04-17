@@ -80,6 +80,18 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     @Value("${igc.enableIBusCommunication:true}")
     public boolean igcEnableIBusCommunication;
 
+    @Value("${igc.default.metadata.standard.name.geodata:}")
+    public String defaultMdStandardNameGeodata;
+
+    @Value("${igc.default.metadata.standard.version.geodata:}")
+    public String defaultMdStandardNameVersionGeodata;
+
+    @Value("${igc.default.metadata.standard.name.geoservice:}")
+    public String defaultMdStandardNameGeoservice;
+
+    @Value("${igc.default.metadata.standard.version.geoservice:}")
+    public String defaultMdStandardNameVersionGeoservice;
+
     public List<CommunicationCommandObject> igeCommunication;
     
     @Value("${communications.ige.clientName:ige-iplug-test}")
@@ -106,6 +118,45 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
      */
     @Value("${profile.uvp.document.store.base.url:/documents/}")
     public String profileUvpDocumentStoreBaseUrl;
+
+    /**
+     *  If set to true existing addresses are overwritten during import of ISO 19139
+     *  data.
+     *
+     *  The default behavior of the ISO 19139 import is not to overwrite
+     *  existing addresses (see INGRID33-16). This allows address management through
+     *  the editor ans makes sure that the addresses are not accidentally overwritten
+     *  by an ISO 19139 import.
+     *
+     *  This property was introduced because in cases were the datasets are only managed
+     *  by CSW-T imports, there was no way to overwrite existing address data by CSW-T
+     *  transactions.
+     *
+     *  see also https://redmine.informationgrid.eu/issues/1764
+     *
+     */
+    @Value("${import.overwrite.addresses:false}")
+    public Boolean importOverwriteAddresses;
+
+    /**
+     *  If set to true no publication condition check is executed against datasets that
+     *  reference an address that will be overwritten by an ISO 19139 import.
+     *
+     *  This property was introduced because in cases were the datasets are only managed
+     *  by CSW-T imports, this check is not necessary. All datasets are published and have
+     *  the same publication condition. Also this check can be very time consuming in cases
+     *  of addresses referenced by many datasets (HZG use case has 25.000 datasets
+     *  referencing the same address.)
+     *
+     *  This property depends on import.overwrite.addresses:true.
+     *
+     *  see also https://redmine.informationgrid.eu/issues/1764
+     *
+     */
+    @Value("${import.overwrite.addresses.check.referencing.datasets:true}")
+    public Boolean importOverwriteAddressesCheckReferencingDatasets;
+
+
 
 
     @Bean
