@@ -24,7 +24,7 @@
     <ingrid-utils.version>5.4.0</ingrid-utils.version>
     <ingrid-iplug-dsc.version>5.4.0</ingrid-iplug-dsc.version>
     <ingrid-base-webapp.version>5.4.0</ingrid-base-webapp.version>
-    <spring.version>4.3.3.RELEASE</spring.version>
+    <spring.version>5.2.5.RELEASE</spring.version>
   </properties>
 
   <!-- ==================== Source Code Management ==================== -->
