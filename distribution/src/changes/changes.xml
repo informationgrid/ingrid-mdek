@@ -5,7 +5,13 @@
   </properties>
   <body>
 
-    <release version="5.4.0" date="2020-04-17" description="Release 5.4.0                 ">
+    <release version="5.5.0" date="2020-xx-xx" description="Release 5.5.0">
+      <action type="add" dev="wemove" issue="1839">
+        Handle metadata date also for gco:DateTime nodes.
+      </action>
+    </release>
+
+    <release version="5.4.0" date="2020-04-17" description="Release 5.4.0">
       <action type="add" dev="wemove" issue="1084">
         Handle new columns metadata_time and iso_hash in object.
       </action>
