@@ -216,5 +216,47 @@ public class IsoMetadataDateMapperTest extends IgcDbUnitEnabledTestCase {
 
     }
 
+    @Test
+    public void mapDateTime() throws Exception {
 
+        Connection conn = this.getConnection().getConnection();
+
+        DatabaseSourceRecord dsr = new DatabaseSourceRecord("4", conn);
+        String idfString = new String(Files.readAllBytes(Paths.get("src/test/resources/de/ingrid/mdek/job/mapping/idf3_datetime.xml")));
+        Document idfDoc = builder.parse(new InputSource(new StringReader(idfString)));
+
+        IsoMetadataDateMapper imdm = new IsoMetadataDateMapper();
+        imdm.map(dsr, idfDoc);
+
+        String nowDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        // Caution: Can cause failures when run on day boundary. Sorry do not know how to mock LocalDateTime.
+        Assert.assertEquals("Date in XML must have been set to the current date.", nowDate, xpathUtils.getString(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:DateTime").substring(0, 10));
+        try (PreparedStatement p = conn.prepareStatement("SELECT * FROM t01_object WHERE ID=4")) {
+            ResultSet rs = p.executeQuery();
+            rs.next();
+            String testSQLDate = rs.getString(3);
+            Assert.assertEquals("Date in database must be set to the current date.", nowDate.replace("-", "").substring(0, 8), testSQLDate.substring(0, 8));
+        }
     }
+
+    @Test
+    public void mapNoValidNode() throws Exception {
+
+        Connection conn = this.getConnection().getConnection();
+
+        DatabaseSourceRecord dsr = new DatabaseSourceRecord("5", conn);
+        String idfString = new String(Files.readAllBytes(Paths.get("src/test/resources/de/ingrid/mdek/job/mapping/idf4_no_valid_node.xml")));
+        Document idfDoc = builder.parse(new InputSource(new StringReader(idfString)));
+
+        IsoMetadataDateMapper imdm = new IsoMetadataDateMapper();
+        try {
+            imdm.map(dsr, idfDoc);
+            fail("Mapper must throw exception.");
+        } catch (Exception e) {
+        }
+    }
+
+
+
+}
