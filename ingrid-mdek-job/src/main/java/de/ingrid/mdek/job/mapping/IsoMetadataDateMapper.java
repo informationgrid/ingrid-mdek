@@ -191,7 +191,14 @@ public class IsoMetadataDateMapper implements IIdfMapper {
         if (storedFingerprint == null || !storedFingerprint.equals(isoFingerprint)) {
             // set metadata date in IDF
             String nowIgcDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-            XMLUtils.createOrReplaceTextNode(xpathUtils.getNode(idf, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:Date"), UtilsCSWDate.mapFromIgcToIso8601(UtilsCSWDate.getDateWithoutTime(nowIgcDate)));
+            if (xpathUtils.nodeExists(idf, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:Date")) {
+                XMLUtils.createOrReplaceTextNode(xpathUtils.getNode(idf, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:Date"), UtilsCSWDate.mapFromIgcToIso8601(UtilsCSWDate.getDateWithoutTime(nowIgcDate)));
+            } else if (xpathUtils.nodeExists(idf, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:DateTime")) {
+                XMLUtils.createOrReplaceTextNode(xpathUtils.getNode(idf, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:DateTime"), UtilsCSWDate.mapFromIgcToIso8601(nowIgcDate));
+            } else {
+                LOG.error("No compatible node found to add metadata date to the IDF. Supported nodes are: '/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp[./gco:Date or ./gco:DateTime]'");
+                throw new RuntimeException("No compatible node found to add metadata date to the IDF. Supported nodes are: '/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp[./gco:Date or ./gco:DateTime]'");
+            }
 
             sql = "UPDATE t01_object SET iso_hash=?, metadata_time=? WHERE id=?";
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
