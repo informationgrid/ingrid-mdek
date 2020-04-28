@@ -42,7 +42,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
 
@@ -486,10 +485,6 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     }
 
     private IdfElement modelScopedDqDataQualityElement(Element mdMetadata) {
-        if (domUtil.getNS("xs") == null) {
-            domUtil.addNS("xs", "http://www.w3.org/2001/XMLSchema");
-        }
-
         String dqInfoQname = "gmd:dataQualityInfo";
         String dqInfoPath = dqInfoQname + "/gmd:DQ_DataQuality";
 
