@@ -9,6 +9,9 @@
       <action type="add" dev="wemove" issue="1839">
         Handle metadata date also for gco:DateTime nodes.
       </action>
+      <action type="fix" dev="wemove" issue="1084">
+        mCLOUD: Fix mcloud mapping to index, no IDF mapping.
+      </action>
     </release>
 
     <release version="5.4.0" date="2020-04-17" description="Release 5.4.0">
