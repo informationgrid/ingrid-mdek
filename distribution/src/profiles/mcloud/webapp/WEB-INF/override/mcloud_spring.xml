@@ -36,8 +36,7 @@
         <property name="recordMapperList">
             <list>
                 <ref bean="recordMapper"/>
-                <ref bean="recordProfileMapper"/>
-                <ref bean="idfProducerIndexMapper"/>
+<!-- NO recordProfileMapper or idfProducerIndexMapper, not needed in mCLOUD -->
             </list>
         </property>
         <property name="indexInfo" ref="indexInfo"/>
@@ -50,13 +49,6 @@
         <property name="toAlias" value="mcloud" />
     </bean>
 
-    <bean id="indexInfoAddress" class="de.ingrid.elasticsearch.IndexInfo">
-        <property name="toIndex" value="ige-test" />
-        <property name="toType" value="address" />
-        <property name="docIdField" value="t02_address.adr_id" />
-        <property name="toAlias" value="mcloud" />
-    </bean>
-    
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
         <property name="mappingScripts">
             <list>
@@ -69,29 +61,12 @@
     </bean>
 
     <bean id="recordSetProducerAddress" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
+        <!-- No indexing of addresses in mCLOUD, we choose non existing work_state= -->
         <property name="recordSql" value="SELECT DISTINCT id FROM t02_address WHERE work_state='SKIP_ALL_ADDRESSES' AND publish_id=1" />
-    </bean>
-
-    <bean id="scriptedIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
-        <property name="mappingScripts">
-            <list>
-                <value>classpath:mapping/global.js</value>
-                <value>classpath:mapping/idf_utils.js</value>
-                <value>classpath:mapping/igc_to_idf_mcloud.js</value>
-            </list>
-        </property> 
-        <property name="compile" value="false" />
     </bean>
 
     <bean id="recordProducer" class="de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer">
         <property name="indexFieldID" value="uuid" />
-    </bean>
-
-    <bean id="scriptedIdfMapperDQ" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
-        <property name="mappingScripts">
-            <list/>
-        </property>
-        <property name="compile" value="true" />
     </bean>
 
     <!-- enable audit service for logging operations publish and delete -->
