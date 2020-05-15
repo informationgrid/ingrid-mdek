@@ -5,6 +5,12 @@
   </properties>
   <body>
 
+    <release version="5.4.2" date="2020-xx-xx" description="Release 5.4.2">
+      <action type="fix" dev="wemove" issue="1857">
+        IGE: XML Namensraum "xs" fehlt in der ISO-Abbildung
+      </action>
+    </release>
+
     <release version="5.4.1" date="2020-04-30" description="Release 5.4.1">
       <action type="add" dev="wemove" issue="1839">
         Handle metadata date also for gco:DateTime nodes.
