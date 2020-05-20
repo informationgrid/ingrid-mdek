@@ -2045,7 +2045,7 @@ function addResourceConstraints(identificationInfo, objRow) {
         if (hasValue(licenseText)) {
 
             var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-            // i.S.v. ISO 19115
+            // removed codeListValue "license" according to GDI-DE 2.0.1 see #1218
             mdLegalConstraints.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
             	.addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
             	.addAttribute("codeListValue", "otherRestrictions");
