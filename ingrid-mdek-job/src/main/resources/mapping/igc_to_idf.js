@@ -105,6 +105,8 @@ for (i=0; i<objRows.size(); i++) {
         mdMetadata.addElement("gmd:fileIdentifier/gco:CharacterString").addText(value);
     }
 
+    addDOIInfo(mdMetadata, objId);
+
 // ---------- <gmd:language> ----------
     value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
     if (hasValue(value)) {
@@ -2998,6 +3000,26 @@ function getIdfAddressReference(addrRow, elementName) {
     idfAddressReference.addElement("idf:addressType").addText(addrRow.get("adr_type"));
 
     return idfAddressReference;
+}
+
+function addDOIInfo(parent, objId) {
+    var doiId = SQL.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiId'", [objId]);
+    var doiType = SQL.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiType'", [objId]);
+
+    if (hasValue(doiId) || hasValue(doiType)) {
+        var doiElement = parent.addElement("idf:doi");
+
+        if (hasValue(doiId)) {
+            doiElement.addElement("id")
+                .addText(doiId.get("data"));
+        }
+
+        if (hasValue(doiType)) {
+            doiElement.addElement("type")
+                .addAttribute("id", doiType.get("list_item_id"))
+                .addText(doiType.get("data"));
+        }
+    }
 }
 
 function determinePublicationConditionQueryExt(publishId) {
