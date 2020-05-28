@@ -23,10 +23,7 @@
 package de.ingrid.mdek.job.mapping;
 
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
-import de.ingrid.iplug.dsc.utils.DOMUtils;
-import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
-import de.ingrid.iplug.dsc.utils.SQLUtils;
-import de.ingrid.iplug.dsc.utils.TransformationUtils;
+import de.ingrid.iplug.dsc.utils.*;
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
 import de.ingrid.mdek.job.MdekException;
@@ -68,7 +65,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.w3c.dom.Node;
 
 public class ScriptImportDataMapper implements ImportDataMapper<Document, Document>, IConfigurable {
 	
@@ -139,6 +135,8 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
             parameters.put("TRANSF", trafoUtils);
             parameters.put("DOM", domUtils);
             parameters.put("igeCswFolderUtil", igeCswFolderUtil);
+			parameters.put("IDF", new IdfUtils(sqlUtils, domUtils, xpathUtils));
+
             parameters.put("log", log);
 
             // the template represents only one object!

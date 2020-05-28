@@ -110,7 +110,7 @@ function mapAccessConstraintsBkg(source, target) {
                 if (accessNode1 === "otherRestrictions") {
                     var otherConstraintNodes = XPATH.getNodeList(legalNode, "gmd:otherConstraints/gco:CharacterString");
                     if (otherConstraintNodes.getLength() === 1) {
-                        var otherValue = XPATH.getString(otherConstraintNodes.item(0), ".");
+                        var otherValue = getLocalisedCharacterString(otherConstraintNodes.item(0));
                         // could be only selection value
                         entryId = getSysListEntryKey(10002, otherValue);
                         
@@ -120,7 +120,7 @@ function mapAccessConstraintsBkg(source, target) {
                     } else if (otherConstraintNodes.getLength() === 2) {
                         // a selection and a free text is available 
                         var selectValue = XPATH.getString(otherConstraintNodes.item(0), ".");
-                        freeTextValue = XPATH.getString(otherConstraintNodes.item(1), ".");
+                        freeTextValue = getLocalisedCharacterString(otherConstraintNodes.item(1));
                         entryId = getSysListEntryKey(10002, selectValue);
                     }
                     if (addAccessValuesToDoc(target, entryId, freeTextValue)) {
@@ -140,7 +140,7 @@ function mapAccessConstraintsBkg(source, target) {
                 
                     var otherConstraintNodes = XPATH.getNodeList(legalNode, "gmd:otherConstraints/gco:CharacterString");
                     if (otherConstraintNodes.getLength() === 1) {
-                        var otherValue = XPATH.getString(otherConstraintNodes.item(0), ".");
+                        var otherValue = getLocalisedCharacterString(otherConstraintNodes.item(0));
                         // check if value is from codelist
                         entryId = getSysListEntryKey(10002, otherValue);
                         
@@ -151,7 +151,7 @@ function mapAccessConstraintsBkg(source, target) {
                     	
                     } else if (otherConstraintNodes.getLength() === 2) {
                         var selectValue = XPATH.getString(otherConstraintNodes.item(0), ".");
-                        freeTextValue = XPATH.getString(otherConstraintNodes.item(1), ".");
+                        freeTextValue = getLocalisedCharacterString(otherConstraintNodes.item(1));
                         entryId = getSysListEntryKey(10002, selectValue);
                     }
                     
@@ -174,7 +174,7 @@ function mapAccessConstraintsBkg(source, target) {
                 if ( arrayNodes.indexOf("copyright") !== -1 && arrayNodes.indexOf("license") !== -1 && arrayNodes.indexOf("otherRestrictions") !== -1) {
                     var otherConstraintNodes = XPATH.getNodeList(legalNode, "gmd:otherConstraints/gco:CharacterString");
                     if (otherConstraintNodes.getLength() === 1) {
-                        freeTextValue = XPATH.getString(otherConstraintNodes.item(0), ".");
+                        freeTextValue = getLocalisedCharacterString(otherConstraintNodes.item(0));
                         entryId = 7; // "Template für copyright / license"
                     }
                     if (addAccessValuesToDoc(target, entryId, freeTextValue)) {
@@ -237,7 +237,7 @@ function mapUseConstraintsBkg(source, target) {
                 if (accessNode1 === "otherRestrictions") {
                     var otherConstraintNodes = XPATH.getNodeList(legalNode, "gmd:otherConstraints/gco:CharacterString");
                     if (otherConstraintNodes.getLength() === 1) {
-                        var otherValue = XPATH.getString(otherConstraintNodes.item(0), ".");
+                        var otherValue = getLocalisedCharacterString(otherConstraintNodes.item(0));
                         // could be only selection value
                         entryId = getSysListEntryKey(codelistIdBkg, otherValue);
                         
@@ -247,7 +247,7 @@ function mapUseConstraintsBkg(source, target) {
                     } else if (otherConstraintNodes.getLength() === 2) {
                         // a selection and a free text is available 
                         var selectValue = XPATH.getString(otherConstraintNodes.item(0), ".");
-                        freeTextValue = XPATH.getString(otherConstraintNodes.item(1), ".");
+                        freeTextValue = getLocalisedCharacterString(otherConstraintNodes.item(1));
                         entryId = getSysListEntryKey(codelistIdBkg, selectValue);
                     }
                     if (addUseValuesToDoc(target, entryId, freeTextValue)) {
@@ -271,13 +271,13 @@ function mapUseConstraintsBkg(source, target) {
                 	// DEBUG
                 	if (log.isDebugEnabled()) {
                         for (var i=0; i < otherConstraintNodes.getLength(); i++) {
-                            var isoValue = XPATH.getString(otherConstraintNodes.item(i), ".");
+                            var isoValue = getLocalisedCharacterString(otherConstraintNodes.item(i));
                         	log.debug("BKG: Found gmd:otherConstraints/gco:CharacterString: '" + isoValue + "'");
                     	}                		
                 	}
 
                     if (otherConstraintNodes.getLength() === 1) {
-                        var otherValue = XPATH.getString(otherConstraintNodes.item(0), ".");
+                        var otherValue = getLocalisedCharacterString(otherConstraintNodes.item(0));
                         // check if value is from codelist
                         entryId = getSysListEntryKey(codelistIdBkg, otherValue);
                         
@@ -288,7 +288,7 @@ function mapUseConstraintsBkg(source, target) {
                         
                     } else if (otherConstraintNodes.getLength() === 2) {
                         var selectValue = XPATH.getString(otherConstraintNodes.item(0), ".");
-                        freeTextValue = XPATH.getString(otherConstraintNodes.item(1), ".");
+                        freeTextValue = getLocalisedCharacterString(otherConstraintNodes.item(1));
                         entryId = getSysListEntryKey(codelistIdBkg, selectValue);
                         if (checkJSON(freeTextValue)) {
                             freeTextValue = null;
@@ -297,7 +297,7 @@ function mapUseConstraintsBkg(source, target) {
                     } else if (otherConstraintNodes.getLength() === 3) {
                         var selectValue = XPATH.getString(otherConstraintNodes.item(0), ".");
                         // item==1 should be json here, which is not needed
-                        freeTextValue = XPATH.getString(otherConstraintNodes.item(2), ".");
+                        freeTextValue = getLocalisedCharacterString(otherConstraintNodes.item(2));
                         entryId = getSysListEntryKey(codelistIdBkg, selectValue);
                     }
 
@@ -320,7 +320,7 @@ function mapUseConstraintsBkg(source, target) {
                 if ( arrayNodes.indexOf("copyright") !== -1 && arrayNodes.indexOf("license") !== -1 && arrayNodes.indexOf("otherRestrictions") !== -1) {
                     var otherConstraintNodes = XPATH.getNodeList(legalNode, "gmd:otherConstraints/gco:CharacterString");
                     if (otherConstraintNodes.getLength() === 1) {
-                        freeTextValue = XPATH.getString(otherConstraintNodes.item(0), ".");
+                        freeTextValue = getLocalisedCharacterString(otherConstraintNodes.item(0));
                         entryId = 12; // "Template für copyright / license"
                     }
                     log.debug("BKG: Use constraint 3 nodes, add values: " + entryId + " , " + freeTextValue);
@@ -467,4 +467,15 @@ function checkJSON(val) {
 		return true;
 	}
 	return false;
+}
+
+function getLocalisedCharacterString(node) {
+    if (hasValue(node)) {
+        var locStr = IDF.getLocalisedIgcString(node);
+        // check for null, i.e. if no gco:CharacterString could be found
+        if (hasValue(locStr)) {
+            return locStr;
+        }
+    }
+    return '';
 }
