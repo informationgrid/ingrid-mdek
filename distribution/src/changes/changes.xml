@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.5.0" date="2020-xx-xx" description="Release 5.5.0">
+      <action type="add" dev="wemove" issue="1882">
+        Support localisation of fields.
+      </action>
       <action type="add" dev="wemove" issue="1839">
         Handle metadata date also for gco:DateTime nodes.
       </action>
