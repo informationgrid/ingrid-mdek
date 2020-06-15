@@ -34,7 +34,7 @@
                 <value>classpath:mapping/igc_to_lucene.js</value>
             </list>
         </property> 
-        <property name="compile" value="false" />
+        <property name="compile" value="true" />
     </bean>
     <bean id="recordProfileMapper" class="de.ingrid.iplug.dsc.index.mapper.IgcProfileDocumentMapper">
         <property name="sql" value="SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" />
@@ -82,7 +82,7 @@
                 <value>classpath:mapping/igc_to_idf.js</value>
             </list>
         </property> 
-        <property name="compile" value="false" />
+        <property name="compile" value="true" />
     </bean>
 
     <bean id="scriptedIdfMapperDQ" class="de.ingrid.iplug.dsc.record.mapper.ScriptedIdfMapper">
@@ -93,7 +93,7 @@
                 <value>classpath:mapping/igc_to_idf_obj_dq.js</value>
             </list>
         </property> 
-        <property name="compile" value="false" />
+        <property name="compile" value="true" />
     </bean>
 
     <bean id="igcProfileIdfMapper" class="de.ingrid.iplug.dsc.record.mapper.IgcProfileIdfMapper">
