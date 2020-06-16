@@ -28,10 +28,8 @@ if (javaVersion.indexOf( "1.8" ) === 0) {
 importPackage(Packages.org.w3c.dom);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 
-
-
 if (log.isDebugEnabled()) {
-    log.debug("BKG: Mapping source record to idf document: " + sourceRecord.toString());
+    log.debug("Nokis: Mapping source record to idf document: " + sourceRecord.toString());
 }
 
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
@@ -42,19 +40,16 @@ DOM.addNS("igctx", "http://informationgrid.eu/schemas/igctx");
 
 //---------- <idf:idfMdMetadata> ----------
 var body = DOM.getElement(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata");
-mdMetadata.addAttribute("xmlns:igctx", DOM.getNS("igctx"));
+body.addAttribute("xmlns:igctx", DOM.getNS("igctx"));
+var oldSchemaLocation = body.getElement().getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue();
+body.addAttribute("xsi:schemaLocation", oldSchemaLocation + " http://informationgrid.eu/schemas/igctx/igctx.xsd");
+
+var nextSiblingForSpatialRepresentationInfo = searchNextRootSiblingTag(body, "gmd:spatialRepresentationInfo");
 
 var objId = sourceRecord.get("id");
-/*var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
 
-for (i=0; i<objRows.size(); i++) {
-    var objRow = objRows.get(i);
-    var objUuid = objRow.get("obj_uuid");
-    var objClass = objRow.get("obj_class");
-    var objParentUuid = null; // will be set below
-
-}*/
 handleGeoContext();
+addMetadataExtension();
 
 function handleGeoContext() {
 
@@ -62,10 +57,23 @@ function handleGeoContext() {
 
     if (hasValue(content)) {
         for (var i = 0; i < content.length; i++) {
-            log.info("handle geoContext row: " + JSON.stringify(content[i]));
             handleGeoContextRow(content[i]);
         }
     }
+}
+
+function addMetadataExtension() {
+
+    var nextSiblingForMetadataExtensionInfo = searchNextRootSiblingTag(body, "gmd:metadataExtensionInfo");
+    var element;
+    if (nextSiblingForMetadataExtensionInfo) {
+        element = nextSiblingForMetadataExtensionInfo.addElementAsSibling("gmd:metadataExtensionInfo");
+    } else {
+        element = body.addElement("gmd:metadataExtensionInfo");
+    }
+
+    element.addAttribute("xlink:href", "http://informationgrid.eu/igctx/igctx.xsd");
+
 }
 
 function handleGeoContextRow(row) {
@@ -80,7 +88,6 @@ function handleGeoContextRow(row) {
 }
 
 function handleGeoContextNominal(row) {
-    log.info("Handle Nominal");
 
     var featureEl = addGeneralGeometryContext(row, "igctx:NominalFeature");
     addAttributesNotForOther(featureEl, row);
@@ -88,7 +95,6 @@ function handleGeoContextNominal(row) {
 }
 
 function handleGeoContextOrdinal(row) {
-    log.info("Handle Ordinal");
 
     var featureEl = addGeneralGeometryContext(row, "igctx:OrdinalFeature");
     addAttributesNotForOther(featureEl, row);
@@ -100,7 +106,6 @@ function handleGeoContextOrdinal(row) {
 }
 
 function handleGeoContextScalar(row) {
-    log.info("Handle Scalar");
 
     var featureEl = addGeneralGeometryContext(row, "igctx:ScalarFeature");
     addAttributesNotForOther(featureEl, row);
@@ -113,7 +118,7 @@ function handleGeoContextScalar(row) {
 
 }
 function handleGeoContextOther(row) {
-    log.info("Handle Other");
+
     var featureEl = addGeneralGeometryContext(row, "igctx:OtherFeature");
     addAttributesForOther(featureEl, row);
 
@@ -121,11 +126,19 @@ function handleGeoContextOther(row) {
         min: row.min ? row.min.data : null,
         max: row.max ? row.max.data : null
     });
+
 }
 
 
 function addGeneralGeometryContext(row, feature) {
-    var geometryContext = body.addElement("gmd:spatialRepresentationInfo/igctx:MD_GeometryContext");
+
+    var geometryContext;
+    if (nextSiblingForSpatialRepresentationInfo) {
+        geometryContext = nextSiblingForSpatialRepresentationInfo.addElementAsSibling("gmd:spatialRepresentationInfo/igctx:MD_GeometryContext");
+    } else {
+        geometryContext = body.addElement("gmd:spatialRepresentationInfo/igctx:MD_GeometryContext");
+    }
+
     geometryContext.addAttribute("gco:isoType", "AbstractMD_SpatialRepresentation_Type");
 
     geometryContext.addElement("igctx:geometryType")
@@ -149,6 +162,7 @@ function addGeneralGeometryContext(row, feature) {
 }
 
 function _addAttributes(featureEl, row, attributeType, attributeCodeOrContent) {
+
     var attributes = row.attributes;
     if (hasValue(attributes)) {
         var attr = JSON.parse(attributes.data);
@@ -160,17 +174,23 @@ function _addAttributes(featureEl, row, attributeType, attributeCodeOrContent) {
                 .addElement(attributeCodeOrContent + "/gco:CharacterString").addText(attr[i].key);
         }
     }
+
 }
 
 function addAttributesNotForOther(featureEl, row) {
+
     _addAttributes(featureEl, row, "igctx:RegularFeatureAttribute", "igctx:attributeCode");
+
 }
 
 function addAttributesForOther(featureEl, row) {
+
     _addAttributes(featureEl, row, "igctx:OtherFeatureAttribute", "igctx:attributeContent");
+
 }
 
 function addMinMaxUnitGeometryContext(featureEl, row, data) {
+
     if (data.min) {
         featureEl.addElement("igctx:minValue")
             .addElement("gco:CharacterString")
@@ -186,9 +206,11 @@ function addMinMaxUnitGeometryContext(featureEl, row, data) {
             .addElement("gco:CharacterString")
             .addText(data.unit);
     }
+
 }
 
 function getAdditionalFieldFromObject(objId, parentId, fieldId) {
+
     var field;
     if (objId) {
         field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldId]);
@@ -200,35 +222,5 @@ function getAdditionalFieldFromObject(objId, parentId, fieldId) {
     } else {
         return null;
     }
-}
 
-function getAdditionalForTable(objId, tableId) {
-    var result = {};
-
-    var field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, tableId]);
-
-    if (!hasValue(field)) {return}
-
-    var table = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=?", [field.get("id")])
-
-    for (var j=0; j<table.size(); j++) {
-        var row = table.get(j);
-        var rowNumber = row.get("sort");
-        if (!result[rowNumber]) result[rowNumber] = {};
-        result[rowNumber][row.get("field_key")] = {
-            data: row.get("data"),
-            listId: row.get("list_item_id")
-        };
-    }
-
-    log.info("GeoContext-Table:" + JSON.stringify(result));
-
-    var resultArray = [];
-    var rowNumbers = Object.keys(result);
-    for (var i=0; i<rowNumbers.length; i++) {
-        resultArray.push(result[rowNumbers[i]]);
-    }
-    log.info("GeoContext-Table Array:" + JSON.stringify(resultArray));
-
-    return resultArray;
 }
