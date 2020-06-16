@@ -204,5 +204,46 @@
         </configuration>
       </plugin>
     </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>mdek-job-version.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
   </build>
+
+  <profiles>
+    <profile>
+      <id>development</id>
+      <build>
+        <resources>
+          <resource>
+            <directory>src/develop/resources</directory>
+            <!-- We need to set filtering to true here to correctly copy files to target/classes
+                 This might be a problem with multi-module projects or the usage of filtering in
+                 another resource directory -->
+            <filtering>true</filtering>
+          </resource>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+              <include>mdek-job-version.properties</include>
+            </includes>
+          </resource>
+          <resource>
+            <directory>src/main/resources</directory>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+  </profiles>
+
 </project>
