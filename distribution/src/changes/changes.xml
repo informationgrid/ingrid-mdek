@@ -15,6 +15,9 @@
       <action type="fix" dev="wemove" issue="1084">
         mCLOUD: Fix mcloud mapping to index, no IDF mapping.
       </action>
+      <action type="fix" dev="wemove" issue="1922">
+        Show correct version information in IGE
+      </action>
     </release>
 
     <release version="5.4.0" date="2020-04-17" description="Release 5.4.0">
