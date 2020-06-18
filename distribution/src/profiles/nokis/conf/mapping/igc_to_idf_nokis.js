@@ -42,7 +42,7 @@ DOM.addNS("igctx", "http://informationgrid.eu/schemas/igctx");
 var body = DOM.getElement(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata");
 body.addAttribute("xmlns:igctx", DOM.getNS("igctx"));
 var oldSchemaLocation = body.getElement().getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue();
-body.addAttribute("xsi:schemaLocation", oldSchemaLocation + " http://informationgrid.eu/schemas/igctx/igctx.xsd");
+body.addAttribute("xsi:schemaLocation", oldSchemaLocation + " http://informationgrid.eu/igctx http://informationgrid.eu/schemas/igctx/igctx.xsd");
 
 var nextSiblingForSpatialRepresentationInfo = searchNextRootSiblingTag(body, "gmd:spatialRepresentationInfo");
 

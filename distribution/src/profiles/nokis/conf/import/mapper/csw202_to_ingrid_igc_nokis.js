@@ -170,6 +170,10 @@ function getAttributes(feature) {
         var attribute = attributeNodeList.item(i);
         var description = XPATH.getString(attribute, ".//igctx:attributeDescription/gco:CharacterString");
         var code = XPATH.getString(attribute, ".//igctx:attributeCode/gco:CharacterString");
+        if (!hasValue(code)) {
+            code = XPATH.getString(attribute, ".//igctx:attributeContent/gco:CharacterString");
+        }
+
         attributes.push({
             key: code ? code.trim() : code,
             value: description ? description.trim() : description
