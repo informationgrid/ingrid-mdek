@@ -128,8 +128,12 @@ var McloudMapper = /** @class */ (function () {
 
     McloudMapper.prototype.getSpatialText = function () {
         if(this.spatialRows && this.spatialRows.size() > 0){
-            let spatialText = this.spatialRows.map(row => getGeographicIdentifier(row)).filter(s => hasValue(s)).join(', ');
-            return spatialText;
+            var result = [];
+            for(var i = 0; i < this.spatialRows.size(); i++) {
+                var spatialText = getGeographicIdentifier(spatialRows.get(i));
+                if(hasValue(spatialText)) result.push(spatialText);
+            }
+            return result.join(", ")
         }
         return undefined
     };
