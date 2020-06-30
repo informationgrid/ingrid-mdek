@@ -1,14 +1,14 @@
 FROM alpine AS builder
 
-COPY ingrid-iplug-*-installer.jar /
+COPY ingrid-iplug-*-installer.jar ./files /
 RUN unzip ingrid-iplug-*-installer.jar -d /tmp \
     && export INSTALL_DIR=`ls -d1 /tmp/ingrid-iplug-*` \
     && mkdir -p $INSTALL_DIR/logs \
     && touch $INSTALL_DIR/pattern \
+    && cp run.sh $INSTALL_DIR/ \
+    && cp wait-for-it.sh $INSTALL_DIR/ \
     && sed -i -r 's/(<AppenderRef.*\/>)/\1<AppenderRef ref="Console" \/>/g' $INSTALL_DIR/conf/log4j2.xml \
     && echo jetty.port=8080 > $INSTALL_DIR/conf/config.override.properties
-COPY ./files $INSTALL_DIR/
-
 
 FROM docker-registry.wemove.com/ingrid-java:jre-8-alpine
 ENV INGRID_USER=ingrid
