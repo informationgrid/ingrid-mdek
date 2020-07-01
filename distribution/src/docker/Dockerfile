@@ -7,7 +7,6 @@ RUN unzip ingrid-iplug-*-installer.jar -d /tmp \
     && touch $INSTALL_DIR/pattern \
     && cp run.sh $INSTALL_DIR/ \
     && cp wait-for-it.sh $INSTALL_DIR/ \
-    && cp waitFor $INSTALL_DIR/ \
     && sed -i -r 's/(<AppenderRef.*\/>)/\1<AppenderRef ref="Console" \/>/g' $INSTALL_DIR/conf/log4j2.xml \
     && echo jetty.port=8080 > $INSTALL_DIR/conf/config.override.properties
 
