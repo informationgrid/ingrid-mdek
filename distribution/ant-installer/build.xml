@@ -42,7 +42,7 @@
     <property name="config"             value="${installDir}/conf/config.override.properties"/>
 
     <property name="mySqlDriverClass"       value="com.mysql.jdbc.Driver"/>
-    <property name="mySqlDriver.jar"        value="mysql-connector-java-8.0.16.jar"/>
+    <property name="mySqlDriver.jar"        value="mysql-connector-java-5.1.49.jar"/>
     <property name="mySqlHibernateDialect"  value="org.hibernate.dialect.MySQLInnoDBDialect"/>
 
     <property name="postgresDriverClass"       value="org.postgresql.Driver"/>
