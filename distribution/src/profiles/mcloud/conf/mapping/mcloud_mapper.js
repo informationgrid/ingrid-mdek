@@ -337,7 +337,7 @@ var McloudMapper = /** @class */ (function () {
                     // Attention: we map sourceType to format, since this will be used as facet!
                     format: [row['sourceType']],
                     accessURL: link,
-                    description: row['title'],
+                    title: row['title'],
                     // Attention: type, which is the format of the download will be used as extra information for the download
                     type: row['dateFormat']
                 });
