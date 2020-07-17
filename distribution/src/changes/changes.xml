@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.5.0" date="2020-xx-xx" description="Release 5.5.0">
+      <action type="add" dev="wemove" issue="2006">
+        IGE: Increase message size and timeout for IGE communication.
+      </action>
       <action type="fix" dev="wemove" issue="1084">
         Fix UVP profile record mapping.
       </action>
