@@ -66,72 +66,75 @@ var McloudMapper = /** @class */ (function () {
     };
 
     McloudMapper.prototype.getSpatial = function () {
-        var geometries = [];
-        if(this.spatialRows){
-            for(var i = 0; i < this.spatialRows.size(); i++){
-            var row = this.spatialRows.get(i);
+        try {
+            var geometries = [];
+            if (this.spatialRows) {
+                for (var i = 0; i < this.spatialRows.size(); i++) {
+                    var row = this.spatialRows.get(i);
 
-            if (hasValue(row.get("x1")) && hasValue(row.get("x2")) && hasValue(row.get("y1")) && hasValue(row.get("y2"))) {
-                var west = parseFloat(TRANSF.getISODecimalFromIGCNumber(row.get("x1")));
-                var east = parseFloat(TRANSF.getISODecimalFromIGCNumber(row.get("x2")));
-                var south = parseFloat(TRANSF.getISODecimalFromIGCNumber(row.get("y1")));
-                var north = parseFloat(TRANSF.getISODecimalFromIGCNumber(row.get("y2")));
+                    if (hasValue(row.get("x1")) && hasValue(row.get("x2")) && hasValue(row.get("y1")) && hasValue(row.get("y2"))) {
+                        var west = parseFloat(TRANSF.getISODecimalFromIGCNumber(row.get("x1")));
+                        var east = parseFloat(TRANSF.getISODecimalFromIGCNumber(row.get("x2")));
+                        var south = parseFloat(TRANSF.getISODecimalFromIGCNumber(row.get("y1")));
+                        var north = parseFloat(TRANSF.getISODecimalFromIGCNumber(row.get("y2")));
 
-                if (west === east && north === south) {
-                    geometries.push({
-                        'type': 'point',
-                        'coordinates': [west, north]
-                    })
-                } else if (west === east || north === south) {
-                    geometries.push({
-                        'type': 'linestring',
-                        'coordinates': [[west, north], [east, south]]
-                    })
-                } else {
-                    geometries.push({
-                        'type': 'envelope',
-                        'coordinates': [[west, north], [east, south]]
-                    })
+                        if (west === east && north === south) {
+                            geometries.push({
+                                'type': 'point',
+                                'coordinates': [west, north]
+                            })
+                        } else if (west === east || north === south) {
+                            geometries.push({
+                                'type': 'linestring',
+                                'coordinates': [[west, north], [east, south]]
+                            })
+                        } else {
+                            geometries.push({
+                                'type': 'envelope',
+                                'coordinates': [[west, north], [east, south]]
+                            })
+                        }
+                    }
                 }
             }
-            }
-        }
 
-        var boundingPolygon = getAdditionalField(this.objId, 'boundingPolygon');
-        if (boundingPolygon) {
-            var wkt = boundingPolygon.data.toString();
-            var coordsPos = wkt.indexOf("(");
-            var type = wkt.substring(0, coordsPos).trim().toLowerCase();
-            var coords = wkt.substring(coordsPos).trim();
-            coords = coords.replace(/\(/g, "[").replace(/\)/g, "]");
-            coords = coords.replace(/\[(\s*[0-9][^\]]*\,[^\]]*[0-9]\s*)\]/g, "[[$1]]");
-            coords = coords.replace(/([0-9])\s*\,\s*([0-9])/g, "$1], [$2");
-            coords = coords.replace(/([0-9])\s+([0-9])/g, "$1, $2");
-            geometries.push({
-                'type': type,
-                'coordinates': JSON.parse(coords)
-            });
-        }
-
-        if(geometries.length == 1){
-            return geometries[0];
-        }
-        else if(geometries.length > 1){
-            return {
-                'type': 'geometrycollection',
-                'geometries': geometries
+            var boundingPolygon = getAdditionalField(this.objId, 'boundingPolygon');
+            if (boundingPolygon) {
+                var wkt = boundingPolygon.data.toString();
+                var coordsPos = wkt.indexOf("(");
+                var type = wkt.substring(0, coordsPos).trim().toLowerCase();
+                var coords = wkt.substring(coordsPos).trim();
+                coords = coords.replace(/\(/g, "[").replace(/\)/g, "]");
+                coords = coords.replace(/\[(\s*[0-9][^\]]*\,[^\]]*[0-9]\s*)\]/g, "[[$1]]");
+                coords = coords.replace(/([0-9])\s*\,\s*([0-9])/g, "$1], [$2");
+                coords = coords.replace(/([0-9])\s+([0-9])/g, "$1, $2");
+                geometries.push({
+                    'type': type,
+                    'coordinates': JSON.parse(coords)
+                });
             }
+
+            if (geometries.length == 1) {
+                return geometries[0];
+            } else if (geometries.length > 1) {
+                return {
+                    'type': 'geometrycollection',
+                    'geometries': geometries
+                }
+            }
+        } catch (e) {
+            log.error("Error mapping boundingPolygon");
         }
 
         return undefined
     };
 
     McloudMapper.prototype.getSpatialText = function () {
-        if(this.spatialRows && this.spatialRows.size() > 0){
+        if (this.spatialRows && this.spatialRows.size() > 0) {
             var result = [];
-            for(var i = 0; i < this.spatialRows.size(); i++) {
+            for (var i = 0; i < this.spatialRows.size(); i++) {
                 var spatialText = getGeographicIdentifier(spatialRows.get(i));
-                if(hasValue(spatialText)) result.push(spatialText);
+                if (hasValue(spatialText)) result.push(spatialText);
             }
             return result.join(", ")
         }
@@ -159,7 +162,7 @@ var McloudMapper = /** @class */ (function () {
 
         var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
         if (hasValue(licenseJSON)) {
-             url = JSON.parse(licenseJSON).url;
+            url = JSON.parse(licenseJSON).url;
         }
         if (id) {
             return {
@@ -196,7 +199,7 @@ var McloudMapper = /** @class */ (function () {
     McloudMapper.prototype.getTemporal = function () {
         var from = TRANSF.getISODateFromIGCDate(this.objRow.get('time_from'));
         var fromValue = hasValue(from) ? from.substr(0, 10) : undefined;
-        
+
         var to = TRANSF.getISODateFromIGCDate(this.objRow.get('time_to'));
         var toValue = hasValue(to) ? to.substr(0, 10) : fromValue;
 
@@ -272,7 +275,7 @@ var McloudMapper = /** @class */ (function () {
 
         var mfundFkz = getAdditionalField(this.objId, 'mcloudMFundFKZ');
         var mfundProject = getAdditionalField(this.objId, 'mcloudMFundProject');
-        if(mfundFkz || mfundProject) {
+        if (mfundFkz || mfundProject) {
             result = ["mfund"];
             if (mfundFkz) {
                 result.push(["mFUND-FKZ: " + mfundFkz.data]);
@@ -428,7 +431,7 @@ var McloudMapper = /** @class */ (function () {
                 return row;
             }
             return null;
-        } catch(e) {
+        } catch (e) {
             log.error("Error getting additional field", e);
             return null;
         }
