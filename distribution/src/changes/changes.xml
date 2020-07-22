@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.5.0" date="2020-07-22" description="Release 5.5.0">
+      <action type="add" dev="wemove" issue="1234">
+        Add service links to Geodataset IDF from linked services.
+      </action>
       <action type="add" dev="wemove" issue="2006">
         IGE: Increase message size and timeout for IGE communication.
       </action>
@@ -23,6 +26,12 @@
       </action>
       <action type="add" dev="wemove" issue="1839">
         Handle metadata date also for gco:DateTime nodes.
+      </action>
+      <action type="add" dev="wemove" issue="2764">
+        mCLOUD: Indexing Spatial-Data.
+      </action>
+      <action type="fix" dev="wemove" issue="2881">
+        mCLOUD: Try-Catch Errors for Spatial-Mapping.
       </action>
       <action type="fix" dev="wemove" issue="1084">
         mCLOUD: Fix mcloud mapping to index, no IDF mapping.
