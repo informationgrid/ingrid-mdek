@@ -32,7 +32,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IConsistencyCheckerDao;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 
 /**
- * This class checks if Objects have a valid father object.
+ * This class checks if objects have a valid parent object.
  * @author Andre
  *
  */
@@ -57,35 +57,35 @@ public class ObjectHierarchyChecker implements ConsistencyChecker {
 		
 		reportList.clear();
 
-		for (ObjectNode objAdr : resultList) {
-			String objUuid 	  = objAdr.getObjUuid();
-			String parentUuid = objAdr.getFkObjUuid();
-			Long objId		  = objAdr.getId();
+		for (ObjectNode oNode : resultList) {
+			String objUuid 	  = oNode.getObjUuid();
+			String parentUuid = oNode.getFkObjUuid();
+			Long oNodeId	  = oNode.getId();
 			
-			ErrorReport report = generateErrorReport(objUuid, parentUuid, objId);
+			ErrorReport report = generateErrorReport(objUuid, parentUuid, oNodeId);
 			reportList.add(report);
 		}
 
 		LOG.debug(resultList.size() + " invalid entries found!");
 	}
 	
-	private ErrorReport generateErrorReport(String objUuid, String parentUuid, Long objId) {
+	private ErrorReport generateErrorReport(String objUuid, String parentUuid, Long oNodeId) {
 		return new ErrorReport(
 				generateMessage(parentUuid, objUuid),
-				generateSolution(parentUuid, objId));
+				generateSolution(parentUuid, oNodeId));
 	}
 
-	private String generateSolution(String parentUuid, Long objId) {
+	private String generateSolution(String parentUuid, Long oNodeId) {
 		return "Sie koennen das Objekt mit folgendem HQL Query loeschen: " +
-				"< delete ObjectNode where id = "+objId+" > " +
+				"< delete ObjectNode where id = "+oNodeId+" > " +
 				"oder an einem anderen Knoten anhaengen mit:" +
-				"< update versioned ObjectNode set fkAddrUuid = " +
-				"'...' where id = "+objId+" >";
+				"< update versioned ObjectNode set fkObjUuid = " +
+				"'...' where id = "+oNodeId+" >";
 	}
 
 	private String generateMessage(String parentUuid, String objUuid) {
 		return "Das Objekt mit der Uuid '"+objUuid+"' " +
-				"in der Tabelle 'ObjectNode' besitzt kein gueltiges " +
+				"besitzt kein gueltiges " +
 				"uebergeordnetes Objekt: [fk_obj_uuid: '"+parentUuid+"']";
 	}
 }

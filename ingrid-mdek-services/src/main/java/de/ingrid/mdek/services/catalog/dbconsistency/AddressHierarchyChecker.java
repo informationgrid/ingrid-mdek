@@ -32,7 +32,7 @@ import de.ingrid.mdek.services.persistence.db.dao.IConsistencyCheckerDao;
 import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 
 /**
- * This class checks if Objects have a valid father object.
+ * This class checks if addresses  have a valid parent address.
  * @author Andre
  *
  */
@@ -57,35 +57,35 @@ public class AddressHierarchyChecker implements ConsistencyChecker {
 
 		reportList.clear();
 
-		for (AddressNode objAdr : resultList) {
-			String adrUuid 	  = objAdr.getAddrUuid();
-			String parentUuid = objAdr.getFkAddrUuid();
-			Long addrId 	  = objAdr.getId();
+		for (AddressNode aNode : resultList) {
+			String adrUuid 	  = aNode.getAddrUuid();
+			String parentUuid = aNode.getFkAddrUuid();
+			Long aNodeId 	  = aNode.getId();
 			
-			ErrorReport report = generateErrorReport(adrUuid, parentUuid, addrId);
+			ErrorReport report = generateErrorReport(adrUuid, parentUuid, aNodeId);
 			reportList.add(report);
 		}
 
 		LOG.debug(resultList.size() + " invalid entries found!");
 	}
 
-	private ErrorReport generateErrorReport(String addrUuid, String parentUuid, Long addrId) {
+	private ErrorReport generateErrorReport(String addrUuid, String parentUuid, Long aNodeId) {
 		return new ErrorReport(
 				generateMessage(parentUuid, addrUuid),
-				generateSolution(parentUuid, addrId));
+				generateSolution(parentUuid, aNodeId));
 	}
 
-	private String generateSolution(String parentUuid, Long addrId) {
+	private String generateSolution(String parentUuid, Long aNodeId) {
 		return "Sie koennen die Adresse mit folgendem HQL Query loeschen: " +
-				"< delete AddressNode where id = "+addrId+" > " +
+				"< delete AddressNode where id = "+aNodeId+" > " +
 				"oder an einem anderen Knoten anhaengen mit:" +
 				"< update versioned AddressNode set fkAddrUuid = " +
-				"'...' where id = "+addrId+" >";
+				"'...' where id = "+aNodeId+" >";
 	}
 
 	private String generateMessage(String parentUuid, String addrUuid) {
-		return "Das Objekt mit der Uuid '"+addrUuid+"' " +
-				"in der Tabelle 'AddressNode' besitzt kein gueltiges " +
-				"uebergeordnetes Objekt: [fk_obj_uuid: '"+parentUuid+"']";
+		return "Die Adresse mit der Uuid '"+addrUuid+"' " +
+				"besitzt keine gueltige " +
+				"uebergeordnete Adresse: [fk_addr_uuid: '"+parentUuid+"']";
 	}
 }

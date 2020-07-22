@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>5.4.0</version>
+    <version>5.5.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-mdek-api</artifactId>
@@ -39,5 +39,19 @@
         </configuration>
       </plugin>
     </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>mdek-api-version.properties</include>
+          <include>ehcache-ige-api.xml</include>
+          <include>IGC_Semantisches-XML.xsd</include>
+          <!-- Enable for temporary debugging in mdek-api classes, disable for release ! -->
+          <!--include>log4j.properties</include-->
+        </includes>
+      </resource>
+    </resources>
   </build>
 </project>

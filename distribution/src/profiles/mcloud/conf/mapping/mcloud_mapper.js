@@ -26,6 +26,7 @@ var McloudMapper = /** @class */ (function () {
         this.objId = settings.objId;
         this.objUuid = settings.objUuid;
         this.objRow = settings.objRow;
+        this.spatialRows = settings.spatialRows;
         log.debug("ID received: " + this.objId);
     }
 
@@ -63,6 +64,96 @@ var McloudMapper = /** @class */ (function () {
     McloudMapper.prototype.getDistributions = function () {
         return getDistributions(this.objId);
     };
+
+    McloudMapper.prototype.getSpatial = function () {
+        try {
+            var geometries = [];
+            if (this.spatialRows) {
+                for (var i = 0; i < this.spatialRows.size(); i++) {
+                    var row = this.spatialRows.get(i);
+
+                    if (hasValue(row.get("x1")) && hasValue(row.get("x2")) && hasValue(row.get("y1")) && hasValue(row.get("y2"))) {
+                        var west = parseFloat(TRANSF.getISODecimalFromIGCNumber(row.get("x1")));
+                        var east = parseFloat(TRANSF.getISODecimalFromIGCNumber(row.get("x2")));
+                        var south = parseFloat(TRANSF.getISODecimalFromIGCNumber(row.get("y1")));
+                        var north = parseFloat(TRANSF.getISODecimalFromIGCNumber(row.get("y2")));
+
+                        if (west === east && north === south) {
+                            geometries.push({
+                                'type': 'point',
+                                'coordinates': [west, north]
+                            })
+                        } else if (west === east || north === south) {
+                            geometries.push({
+                                'type': 'linestring',
+                                'coordinates': [[west, north], [east, south]]
+                            })
+                        } else {
+                            geometries.push({
+                                'type': 'envelope',
+                                'coordinates': [[west, north], [east, south]]
+                            })
+                        }
+                    }
+                }
+            }
+
+            var boundingPolygon = getAdditionalField(this.objId, 'boundingPolygon');
+            if (boundingPolygon) {
+                var wkt = boundingPolygon.data.toString();
+                var coordsPos = wkt.indexOf("(");
+                var type = wkt.substring(0, coordsPos).trim().toLowerCase();
+                var coords = wkt.substring(coordsPos).trim();
+                coords = coords.replace(/\(/g, "[").replace(/\)/g, "]");
+                coords = coords.replace(/\[(\s*[0-9][^\]]*\,[^\]]*[0-9]\s*)\]/g, "[[$1]]");
+                coords = coords.replace(/([0-9])\s*\,\s*([0-9])/g, "$1], [$2");
+                coords = coords.replace(/([0-9])\s+([0-9])/g, "$1, $2");
+                geometries.push({
+                    'type': type,
+                    'coordinates': JSON.parse(coords)
+                });
+            }
+
+            if (geometries.length == 1) {
+                return geometries[0];
+            } else if (geometries.length > 1) {
+                return {
+                    'type': 'geometrycollection',
+                    'geometries': geometries
+                }
+            }
+        } catch (e) {
+            log.error("Error mapping boundingPolygon");
+        }
+
+        return undefined
+    };
+
+    McloudMapper.prototype.getSpatialText = function () {
+        if (this.spatialRows && this.spatialRows.size() > 0) {
+            var result = [];
+            for (var i = 0; i < this.spatialRows.size(); i++) {
+                var spatialText = getGeographicIdentifier(spatialRows.get(i));
+                if (hasValue(spatialText)) result.push(spatialText);
+            }
+            return result.join(", ")
+        }
+        return undefined
+    };
+
+    function getGeographicIdentifier(spatialRefValueRow) {
+        var retValue = spatialRefValueRow.get("name_value");
+        //var concatNativeKey = " (";
+        //if (!hasValue(retValue)) {
+        //    retValue = "";
+        //    concatNativeKey = "(";
+        //}
+        //if (hasValue(spatialRefValueRow.get("nativekey"))) {
+        //    retValue = retValue.concat(concatNativeKey).concat(spatialRefValueRow.get("nativekey")).concat(")");
+        //}
+        return retValue;
+    }
+
     McloudMapper.prototype.getLicense = function () {
 
         var id = getAdditionalFieldData(this.objId, 'mcloudLicense');
@@ -71,7 +162,7 @@ var McloudMapper = /** @class */ (function () {
 
         var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
         if (hasValue(licenseJSON)) {
-             url = JSON.parse(licenseJSON).url;
+            url = JSON.parse(licenseJSON).url;
         }
         if (id) {
             return {
@@ -108,7 +199,7 @@ var McloudMapper = /** @class */ (function () {
     McloudMapper.prototype.getTemporal = function () {
         var from = TRANSF.getISODateFromIGCDate(this.objRow.get('time_from'));
         var fromValue = hasValue(from) ? from.substr(0, 10) : undefined;
-        
+
         var to = TRANSF.getISODateFromIGCDate(this.objRow.get('time_to'));
         var toValue = hasValue(to) ? to.substr(0, 10) : fromValue;
 
@@ -184,7 +275,7 @@ var McloudMapper = /** @class */ (function () {
 
         var mfundFkz = getAdditionalField(this.objId, 'mcloudMFundFKZ');
         var mfundProject = getAdditionalField(this.objId, 'mcloudMFundProject');
-        if(mfundFkz || mfundProject) {
+        if (mfundFkz || mfundProject) {
             result = ["mfund"];
             if (mfundFkz) {
                 result.push(["mFUND-FKZ: " + mfundFkz.data]);
@@ -249,7 +340,7 @@ var McloudMapper = /** @class */ (function () {
                     // Attention: we map sourceType to format, since this will be used as facet!
                     format: [row['sourceType']],
                     accessURL: link,
-                    description: row['title'],
+                    title: row['title'],
                     // Attention: type, which is the format of the download will be used as extra information for the download
                     type: row['dateFormat']
                 });
@@ -340,7 +431,7 @@ var McloudMapper = /** @class */ (function () {
                 return row;
             }
             return null;
-        } catch(e) {
+        } catch (e) {
             log.error("Error getting additional field", e);
             return null;
         }
