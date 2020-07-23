@@ -21,7 +21,7 @@
     <iplug.type>IPLUG_IGE</iplug.type>
     <ingrid-udk-importer.version>5.4.0</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>5.4.0</ingrid-codelist-service.version>
-    <ingrid-utils.version>5.4.0</ingrid-utils.version>
+    <ingrid-utils.version>5.5.0</ingrid-utils.version>
     <ingrid-iplug-dsc.version>5.4.6-SNAPSHOT</ingrid-iplug-dsc.version>
     <ingrid-base-webapp.version>5.4.0</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>
