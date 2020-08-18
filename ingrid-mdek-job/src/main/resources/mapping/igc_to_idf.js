@@ -871,6 +871,26 @@ for (i=0; i<objRows.size(); i++) {
 	    identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
+
+    // Further legal basis (REDMINE-1815)
+    rows = SQL.all("SELECT legist_value from t015_legist WHERE obj_id=?", [+objId]);
+    if (rows.size() > 0) {
+        mdKeywords = DOM.createElement("gmd:MD_Keywords");
+        for (i=0; i<rows.size(); i++) {
+            mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(rows.get(i).get("legist_value"));
+        }
+        // add thesaurus information
+        var thesCit = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
+        thesCit.addElement("gmd:title/gco:CharacterString").addText("Further legal basis");
+        var thesCitDate = thesCit.addElement("gmd:date/gmd:CI_Date");
+        thesCitDate.addElement("gmd:date/gco:Date").addText("2020-05-05");
+        thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+            .addAttribute("codeListValue", "publication")
+            .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
+            .addText("publication");
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
+
     // ---------- <gmd:identificationInfo/gmd:resourceSpecificUsage> ----------
     value = objRow.get("dataset_usage");
     if (hasValue(value)) {
@@ -2136,36 +2156,28 @@ function addResourceConstraints(identificationInfo, objRow) {
 
         // ---------- <gmd:MD_LegalConstraints/gmd:otherConstraints> ----------
         // then map gmd:otherConstraints
-        for (var i=0; i<otherConstraints.length; i++) {
+        if (otherConstraints.length > 0){
             var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
             mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
                 .addAttribute("codeListValue", "otherRestrictions")
                 .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
                 .addText("otherRestrictions");
+            for (var i=0; i<otherConstraints.length; i++) {
 
-            var constraint = otherConstraints[i];
+                var constraint = otherConstraints[i];
 
-            if (constraint instanceof Object) {
-                var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor");
-                accessAnchor
-                    .addAttribute("xlink:href", constraint.link)
-                    .addText(constraint.text);
-            } else {
-                var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString");
-                accessAnchor.addText(otherConstraints[i]);
+                if (constraint instanceof Object) {
+                    var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor");
+                    accessAnchor
+                        .addAttribute("xlink:href", constraint.link)
+                        .addText(constraint.text);
+                } else {
+                    var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString");
+                    accessAnchor.addText(otherConstraints[i]);
+                }
             }
         }
     }
-
-    rows = SQL.all("SELECT legist_value from t015_legist WHERE obj_id=?", [+objId]);
-    for (var i=0; i<rows.size(); i++) {
-        var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/idf:idfLegalBasisConstraints");
-        mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
-            .addAttribute("codeListValue", "otherRestrictions")
-            .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-            .addText("otherRestrictions");
-        mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(rows.get(i).get("legist_value"));
-    }   
 }
 
 
