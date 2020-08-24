@@ -22,7 +22,7 @@
     <ingrid-udk-importer.version>5.3.7</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>5.3.0</ingrid-codelist-service.version>
     <ingrid-utils.version>5.3.0</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>5.3.0</ingrid-iplug-dsc.version>
+    <ingrid-iplug-dsc.version>5.3.12-SNAPSHOT</ingrid-iplug-dsc.version>
     <ingrid-base-webapp.version>5.2.0</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>
   </properties>

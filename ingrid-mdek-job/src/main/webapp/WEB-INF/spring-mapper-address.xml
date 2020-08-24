@@ -26,7 +26,7 @@
     </bean>
 
     <bean id="recordSetProducerAddress" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
-        <property name="recordSql" value="SELECT DISTINCT id FROM t02_address WHERE work_state='V' AND publish_id=1 AND hide_address='N'" />
+        <property name="recordSql" value="SELECT DISTINCT id FROM t02_address WHERE ((publish_id=1 AND work_state='V' AND hide_address='N') OR (adr_type='1000'))" />
     </bean>
 
     <bean id="recordMapperAddress" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
