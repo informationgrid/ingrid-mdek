@@ -300,18 +300,6 @@ for (i=0; i<objRows.size(); i++) {
         for (j=0; j<rows.size(); j++) {
             addSpatialSystem(rows.get(j));
         }
-        // ---------- object_node CHILDREN ----------
-        // only published ones !
-        var rows = SQL.all("SELECT * FROM object_node WHERE fk_obj_uuid=? AND obj_id_published IS NOT NULL", [objUuid]);
-        for (j=0; j<rows.size(); j++) {
-            addObjectNodeChildren(rows.get(j));
-        }
-        // ---------- object_node PARENT ----------
-        // NOTICE: Has to be published !
-        var rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
-        for (j=0; j<rows.size(); j++) {
-            addObjectNodeParent(rows.get(j));
-        }
         // ---------- object_reference TO ----------
         var rows = SQL.all("SELECT oRef.*, t01.obj_name FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=t01.obj_uuid AND oRef.obj_from_id=? AND t01.work_state='V'", [+objId]);
         for (j=0; j<rows.size(); j++) {
@@ -392,20 +380,21 @@ for (i=0; i<objRows.size(); i++) {
         }
     } else {
         addT01ObjectFolder(objRows.get(i));
-
-        // ---------- object_node CHILDREN ----------
-        // only published ones !
-        var rows = SQL.all("SELECT * FROM object_node WHERE fk_obj_uuid=? AND obj_id_published IS NOT NULL", [objUuid]);
-        for (j=0; j<rows.size(); j++) {
-            addObjectNodeChildren(rows.get(j));
-        }
-        // ---------- object_node PARENT ----------
-        // NOTICE: Has to be published !
-        var rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
-        for (j=0; j<rows.size(); j++) {
-            addObjectNodeParent(rows.get(j));
-        }
     }
+
+    // ---------- object_node CHILDREN ----------
+    // only published ones !
+    var rows = SQL.all("SELECT * FROM object_node WHERE fk_obj_uuid=? AND obj_id_published IS NOT NULL", [objUuid]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectNodeChildren(rows.get(j));
+    }
+    // ---------- object_node PARENT ----------
+    // NOTICE: Has to be published !
+    var rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
+    for (j=0; j<rows.size(); j++) {
+        addObjectNodeParent(rows.get(j));
+    }
+
 }
 
 function addT01ObjectFolder(row) {

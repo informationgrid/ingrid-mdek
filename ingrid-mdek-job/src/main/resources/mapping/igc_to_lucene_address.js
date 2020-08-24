@@ -48,32 +48,14 @@ var addrRows = SQL.all("SELECT * FROM t02_address WHERE id=? and (hide_address I
 for (i=0; i<addrRows.size(); i++) {
 
     var adrType = addrRows.get(i).get("adr_type");
+    var addrUuid = addrRows.get(i).get("adr_uuid");
     if (adrType !== "1000") {
         addT02Address(addrRows.get(i));
-        var addrUuid = addrRows.get(i).get("adr_uuid");
 
         // ---------- t021_communication ----------
         var rows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [+addrId]);
         for (j=0; j<rows.size(); j++) {
             addT021Communication(rows.get(j));
-        }
-        // ---------- address_node CHILDREN ----------
-        // only children published and NOT hidden !
-        var rows = SQL.all("SELECT t02_address.* FROM address_node, t02_address WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id AND (t02_address.hide_address IS NULL OR t02_address.hide_address != 'Y')", [addrUuid]);
-        for (j=0; j<rows.size(); j++) {
-            addAddressNodeChildren(rows.get(j));
-        }
-        // ---------- add all PARENTS ----------
-        var row = SQL.first("SELECT fk_addr_uuid FROM address_node WHERE addr_uuid=?", [addrUuid]);
-        var parentUuid = row.get("fk_addr_uuid");
-        var level = 1;
-        while (hasValue(parentUuid)) {
-            // NOTICE: Parents HAVE TO BE published if child is published ! We do NOT check hidden address cause only persons are hidden and persons cannot be parents
-            //         It's also valid if parent is a folder!
-            var parentRow = SQL.first("SELECT * FROM address_node, t02_address WHERE address_node.addr_uuid=? AND (address_node.addr_id_published=t02_address.id OR (address_node.addr_id=t02_address.id AND t02_address.adr_type=1000))", [parentUuid]);
-            addAddressParent(level, parentRow);
-            parentUuid = parentRow.get("fk_addr_uuid");
-            level++;
         }
         // ---------- searchterm_adr ----------
         var rows = SQL.all("SELECT * FROM searchterm_adr WHERE adr_id=?", [+addrId]);
@@ -98,6 +80,25 @@ for (i=0; i<addrRows.size(); i++) {
     } else {
         addT02AddressFolder(addrRows.get(i));
     }
+
+    // ---------- address_node CHILDREN ----------
+    // only children published and NOT hidden !
+    var rows = SQL.all("SELECT t02_address.* FROM address_node, t02_address WHERE address_node.fk_addr_uuid=? AND address_node.addr_id_published=t02_address.id AND (t02_address.hide_address IS NULL OR t02_address.hide_address != 'Y')", [addrUuid]);
+    for (j=0; j<rows.size(); j++) {
+        addAddressNodeChildren(rows.get(j));
+    }
+    // ---------- add all PARENTS ----------
+    var row = SQL.first("SELECT fk_addr_uuid FROM address_node WHERE addr_uuid=?", [addrUuid]);
+    var parentUuid = row.get("fk_addr_uuid");
+    var level = 1;
+    while (hasValue(parentUuid)) {
+        // NOTICE: Parents HAVE TO BE published if child is published ! We do NOT check hidden address cause only persons are hidden and persons cannot be parents
+        //         It's also valid if parent is a folder!
+        var parentRow = SQL.first("SELECT * FROM address_node, t02_address WHERE address_node.addr_uuid=? AND (address_node.addr_id_published=t02_address.id OR (address_node.addr_id=t02_address.id AND t02_address.adr_type=1000))", [parentUuid]);
+        addAddressParent(level, parentRow);
+        parentUuid = parentRow.get("fk_addr_uuid");
+        level++;
+    }
 }
 
 function addT02AddressFolder(row) {
@@ -105,9 +106,7 @@ function addT02AddressFolder(row) {
     IDX.add("t02_address.adr_id", row.get("adr_uuid"));
     IDX.add("t02_address.org_adr_id", row.get("org_adr_id"));
     IDX.add("t02_address.typ", row.get("adr_type"));
-    IDX.add("title", row.get("institution"));
-    IDX.add("t02_address.lastname", row.get("lastname"));
-    IDX.add("t02_address.firstname", row.get("firstname"));
+    IDX.add("title", row.get("lastname"));
     IDX.add("summary", row.get("job"));
     IDX.add("t02_address.work_state", row.get("work_state"));
     IDX.add("t02_address.create_time", row.get("create_time"));
