@@ -63,339 +63,375 @@ for (i=0; i<objRows.size(); i++) {
     // Example adding additional HTML to result
 //    IDX.add("additional_html_1", "<h1>MEIN ZUSATZ</h1>", false);
 
-	addT01Object(objRows.get(i));
     var catalogId = objRows.get(i).get("cat_id");
     var objUuid = objRows.get(i).get("obj_uuid");
     var objClass = objRows.get(i).get("obj_class");
+    if (objClass !== "1000") {
+        addT01Object(objRows.get(i));
 
-    // ---------- t0110_avail_format ----------
-    var rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT0110AvailFormat(rows.get(j));
-    }
-    // ---------- t0113_dataset_reference ----------
-    var rows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT0113DatasetReference(rows.get(j));
-    }
-    // ---------- t014_info_impart ----------
-    var rows = SQL.all("SELECT * FROM t014_info_impart WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT014InfoImpart(rows.get(j));
-    }
-    // ---------- t015_legist ----------
-    var rows = SQL.all("SELECT * FROM t015_legist WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT015Legist(rows.get(j));
-    }
-    // ---------- t011_obj_literature ----------
-    var rows = SQL.all("SELECT * FROM t011_obj_literature WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT011ObjLiterature(rows.get(j));
-    }
-    // ---------- t011_obj_project ----------
-    var rows = SQL.all("SELECT * FROM t011_obj_project WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT011ObjProject(rows.get(j));
-    }
-    // ---------- object_types_catalogue ----------
-    var subRows = SQL.all("SELECT * FROM object_types_catalogue WHERE obj_id=?", [+objId]);
-    for (k=0; k<subRows.size(); k++) {
-        addObjectTypesCatalogue(subRows.get(k));
-    }
+        // ---------- t0110_avail_format ----------
+        var rows = SQL.all("SELECT * FROM t0110_avail_format WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT0110AvailFormat(rows.get(j));
+        }
+        // ---------- t0113_dataset_reference ----------
+        var rows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT0113DatasetReference(rows.get(j));
+        }
+        // ---------- t014_info_impart ----------
+        var rows = SQL.all("SELECT * FROM t014_info_impart WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT014InfoImpart(rows.get(j));
+        }
+        // ---------- t015_legist ----------
+        var rows = SQL.all("SELECT * FROM t015_legist WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT015Legist(rows.get(j));
+        }
+        // ---------- t011_obj_literature ----------
+        var rows = SQL.all("SELECT * FROM t011_obj_literature WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT011ObjLiterature(rows.get(j));
+        }
+        // ---------- t011_obj_project ----------
+        var rows = SQL.all("SELECT * FROM t011_obj_project WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT011ObjProject(rows.get(j));
+        }
+        // ---------- object_types_catalogue ----------
+        var subRows = SQL.all("SELECT * FROM object_types_catalogue WHERE obj_id=?", [+objId]);
+        for (k=0; k<subRows.size(); k++) {
+            addObjectTypesCatalogue(subRows.get(k));
+        }
 
-    // ---------- t011_obj_data ----------
-    var rows = SQL.all("SELECT * FROM t011_obj_data WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT011ObjData(rows.get(j));
-    }
-    // ---------- t011_obj_data_para ----------
-    var rows = SQL.all("SELECT * FROM t011_obj_data_para WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT011ObjDataPara(rows.get(j));
-    }
-    // ---------- t011_obj_serv ----------
-    var rows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT011ObjServ(rows.get(j));
-        var objServId = rows.get(j).get("id");
+        // ---------- t011_obj_data ----------
+        var rows = SQL.all("SELECT * FROM t011_obj_data WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT011ObjData(rows.get(j));
+        }
+        // ---------- t011_obj_data_para ----------
+        var rows = SQL.all("SELECT * FROM t011_obj_data_para WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT011ObjDataPara(rows.get(j));
+        }
+        // ---------- t011_obj_serv ----------
+        var rows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT011ObjServ(rows.get(j));
+            var objServId = rows.get(j).get("id");
 
-        // ---------- t011_obj_serv_operation ----------
-        var subRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [+objServId]);
-        for (k=0; k<subRows.size(); k++) {
-            addT011ObjServOperation(subRows.get(k));
-            var objServOpId   = subRows.get(k).get("id");
-            var isCapabilityOperation = rows.get(j).get("type_key") == "2" && subRows.get(k).get("name_key") == "1"; // key of "Darstellungsdienste" is "2" and "GetCapabilities" is "1" !
+            // ---------- t011_obj_serv_operation ----------
+            var subRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [+objServId]);
+            for (k=0; k<subRows.size(); k++) {
+                addT011ObjServOperation(subRows.get(k));
+                var objServOpId   = subRows.get(k).get("id");
+                var isCapabilityOperation = rows.get(j).get("type_key") == "2" && subRows.get(k).get("name_key") == "1"; // key of "Darstellungsdienste" is "2" and "GetCapabilities" is "1" !
 
-            // ---------- t011_obj_serv_op_connpoint ----------
-            var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [+objServOpId]);
-            for (l=0; l<subSubRows.size(); l++) {
-                addT011ObjServOpConnpoint(subSubRows.get(l), isCapabilityOperation);
-            }
-            // ---------- t011_obj_serv_op_depends ----------
-            var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_depends WHERE obj_serv_op_id=?", [+objServOpId]);
-            for (l=0; l<subSubRows.size(); l++) {
-                addT011ObjServOpDepends(subSubRows.get(l));
-            }
-            // ---------- t011_obj_serv_op_para ----------
-            var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_para WHERE obj_serv_op_id=?", [+objServOpId]);
-            for (l=0; l<subSubRows.size(); l++) {
-                addT011ObjServOpPara(subSubRows.get(l));
-            }
-            // ---------- t011_obj_serv_op_platform ----------
-            var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [+objServOpId]);
-            for (l=0; l<subSubRows.size(); l++) {
-                addT011ObjServOpPlatform(subSubRows.get(l));
-            }
-        }
-        // ---------- t011_obj_serv_version ----------
-        var subRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
-        for (k=0; k<subRows.size(); k++) {
-            addT011ObjServVersion(subRows.get(k));
-        }
-        // ---------- t011_obj_serv_scale ----------
-        var subRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [+objServId]);
-        for (k=0; k<subRows.size(); k++) {
-            addT011ObjServScale(subRows.get(k));
-        }
-        // ---------- t011_obj_serv_type ----------
-        var subRows = SQL.all("SELECT * FROM t011_obj_serv_type WHERE obj_serv_id=?", [+objServId]);
-        for (k=0; k<subRows.size(); k++) {
-            addT011ObjServType(subRows.get(k));
-        }
-        // ---------- t011_obj_serv_url ----------
-        var subRows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [+objServId]);
-        for (k=0; k<subRows.size(); k++) {
-            addT011ObjServUrl(subRows.get(k));
-        }
-    }
-    // add Capabilities Url from service to coupled data object (INGRID32-81)
-    if (objClass == "1") {
-        var serviceObjects = SQL.all("SELECT * FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=? AND oRef.obj_to_uuid=t01.obj_uuid AND t01.obj_class=1 AND oRef.obj_from_id IN (SELECT t01_b.id FROM t01_object t01_b WHERE t01_b.obj_class=3)", [objUuid]);
-        log.debug("Found ServiceObjects from uuid=" + objUuid + ": " + serviceObjects.size());
-        for (k=0; k<serviceObjects.size(); k++) {
-            // get capabilities urls from service object, who links to this object!
-            var capabilitiesUrls = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3600 AND serv.type_key=2 AND t01obj.work_state='V'", [objUuid, +serviceObjects.get(k).get("obj_from_id")]);
-            for (l=0; l<capabilitiesUrls.size(); l++) {
-                //log.debug("Found capabilitiesUrls for "+k+". service object: " + capabilitiesUrls.size());
-                addCapabilitiesUrl(capabilitiesUrls.get(l));
-            }
-        }
-        // boost this documents according to how many services are connected to this data object
-        boostDocumentsByReferences(serviceObjects.size());
-    }    
-    // ---------- t011_obj_geo ----------
-    var rows = SQL.all("SELECT * FROM t011_obj_geo WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT011ObjGeo(rows.get(j));
-        var objGeoId = rows.get(j).get("id");
-
-        // ---------- t011_obj_geo_scale ----------
-        var subRows = SQL.all("SELECT * FROM t011_obj_geo_scale WHERE obj_geo_id=?", [+objGeoId]);
-        for (k=0; k<subRows.size(); k++) {
-            addT011ObjGeoScale(subRows.get(k));
-        }
-        // ---------- t011_obj_geo_spatial_rep ----------
-        var subRows = SQL.all("SELECT * FROM t011_obj_geo_spatial_rep WHERE obj_geo_id=?", [+objGeoId]);
-        for (k=0; k<subRows.size(); k++) {
-            addT011ObjGeoSpatialRep(subRows.get(k));
-        }
-        // ---------- t011_obj_geo_supplinfo ----------
-        var subRows = SQL.all("SELECT * FROM t011_obj_geo_supplinfo WHERE obj_geo_id=?", [+objGeoId]);
-        for (k=0; k<subRows.size(); k++) {
-            addT011ObjGeoSupplinfo(subRows.get(k));
-        }
-        // ---------- t011_obj_geo_symc ----------
-        var subRows = SQL.all("SELECT * FROM t011_obj_geo_symc WHERE obj_geo_id=?", [+objGeoId]);
-        for (k=0; k<subRows.size(); k++) {
-            addT011ObjGeoSymc(subRows.get(k));
-        }
-        // ---------- t011_obj_geo_vector ----------
-        var subRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [+objGeoId]);
-        for (k=0; k<subRows.size(); k++) {
-            addT011ObjGeoVector(subRows.get(k));
-        }
-    }
-    // ---------- t03_catalogue ----------
-    var rows = SQL.all("SELECT * FROM t03_catalogue WHERE id=?", [+catalogId]);
-    for (j=0; j<rows.size(); j++) {
-        addT03Catalogue(rows.get(j));
-    }
-    // ---------- t0112_media_option ----------
-    var rows = SQL.all("SELECT * FROM t0112_media_option WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT0112MediaOption(rows.get(j));
-    }
-    // ---------- t017_url_ref (except preview image) ----------
-    var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=? AND special_ref!=9000", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT017UrlRef(rows.get(j));
-    }
-    // ---------- t017_url_ref - preview image----------
-    var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        // add complete styling information, so we don't have to make any changes in the portal
-        var previewImageHtmlTag = "<img src='" + rows.get(j).get("url_link") + "' height='100' class='preview_image' ";
-        if (rows.get(j).get("descr")) {
-            previewImageHtmlTag += "alt='" + rows.get(j).get("descr") + "' title='" + rows.get(j).get("descr") + "' >";
-        } else {
-            previewImageHtmlTag += "alt='"+ rows.get(j).get("url_link") + "' >";
-        }
-        IDX.add("additional_html_1", previewImageHtmlTag);
-    }
-    
-    // ---------- searchterm_obj ----------
-    var rows = SQL.all("SELECT * FROM searchterm_obj WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addSearchtermObj(rows.get(j));
-        var searchtermId = rows.get(j).get("searchterm_id");
-
-        // ---------- searchterm_value ----------
-        var subRows = SQL.all("SELECT * FROM searchterm_value WHERE id=?", [+searchtermId]);
-        for (k=0; k<subRows.size(); k++) {
-        	var searchtermRow = subRows.get(k);
-            addSearchtermValue(searchtermRow.get("type"), searchtermRow.get("term"), searchtermRow.get("alternate_term"));
-            var searchtermSnsId = subRows.get(k).get("searchterm_sns_id");           
-            if (hasValue(searchtermSnsId)) {
-	            // ---------- searchterm_sns ----------
-	            var subSubRows = SQL.all("SELECT * FROM searchterm_sns WHERE id=?", [+searchtermSnsId]);
-	            for (l=0; l<subSubRows.size(); l++) {
-	                addSearchtermSns(subSubRows.get(l));
-	            }
-            }
-        }
-    }
-    // ---------- object_open_data_category ----------
-    var rows = SQL.all("SELECT * FROM object_open_data_category WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectOpenDataCategory(rows.get(j));
-    }
-    // ---------- t012_obj_adr ----------
-    var rows = SQL.all("SELECT * FROM t012_obj_adr WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT012ObjAdr(rows.get(j));
-        var adrUuid = rows.get(j).get("adr_uuid");
-
-        // ---------- add referenced address ----------
-        addAddress(adrUuid);
-    }
-    // ---------- spatial_reference ----------
-    var rows = SQL.all("SELECT * FROM spatial_reference WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addSpatialReference(rows.get(j));
-        var spatialRefId = rows.get(j).get("spatial_ref_id");
-
-        // ---------- spatial_ref_value ----------
-        var subRows = SQL.all("SELECT * FROM spatial_ref_value WHERE id=?", [+spatialRefId]);
-        for (k=0; k<subRows.size(); k++) {
-            addSpatialRefValue(subRows.get(k));
-            var spatialRefSnsId = subRows.get(k).get("spatial_ref_sns_id");           
-            if (hasValue(spatialRefSnsId)) {
-                // ---------- spatial_ref_sns ----------
-                var subSubRows = SQL.all("SELECT * FROM spatial_ref_sns WHERE id=?", [+spatialRefSnsId]);
+                // ---------- t011_obj_serv_op_connpoint ----------
+                var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [+objServOpId]);
                 for (l=0; l<subSubRows.size(); l++) {
-                    addSpatialRefSns(subSubRows.get(l));
+                    addT011ObjServOpConnpoint(subSubRows.get(l), isCapabilityOperation);
+                }
+                // ---------- t011_obj_serv_op_depends ----------
+                var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_depends WHERE obj_serv_op_id=?", [+objServOpId]);
+                for (l=0; l<subSubRows.size(); l++) {
+                    addT011ObjServOpDepends(subSubRows.get(l));
+                }
+                // ---------- t011_obj_serv_op_para ----------
+                var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_para WHERE obj_serv_op_id=?", [+objServOpId]);
+                for (l=0; l<subSubRows.size(); l++) {
+                    addT011ObjServOpPara(subSubRows.get(l));
+                }
+                // ---------- t011_obj_serv_op_platform ----------
+                var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_platform WHERE obj_serv_op_id=?", [+objServOpId]);
+                for (l=0; l<subSubRows.size(); l++) {
+                    addT011ObjServOpPlatform(subSubRows.get(l));
+                }
+            }
+            // ---------- t011_obj_serv_version ----------
+            var subRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
+            for (k=0; k<subRows.size(); k++) {
+                addT011ObjServVersion(subRows.get(k));
+            }
+            // ---------- t011_obj_serv_scale ----------
+            var subRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [+objServId]);
+            for (k=0; k<subRows.size(); k++) {
+                addT011ObjServScale(subRows.get(k));
+            }
+            // ---------- t011_obj_serv_type ----------
+            var subRows = SQL.all("SELECT * FROM t011_obj_serv_type WHERE obj_serv_id=?", [+objServId]);
+            for (k=0; k<subRows.size(); k++) {
+                addT011ObjServType(subRows.get(k));
+            }
+            // ---------- t011_obj_serv_url ----------
+            var subRows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [+objServId]);
+            for (k=0; k<subRows.size(); k++) {
+                addT011ObjServUrl(subRows.get(k));
+            }
+        }
+        // add Capabilities Url from service to coupled data object (INGRID32-81)
+        if (objClass == "1") {
+            var serviceObjects = SQL.all("SELECT * FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=? AND oRef.obj_to_uuid=t01.obj_uuid AND t01.obj_class=1 AND oRef.obj_from_id IN (SELECT t01_b.id FROM t01_object t01_b WHERE t01_b.obj_class=3)", [objUuid]);
+            log.debug("Found ServiceObjects from uuid=" + objUuid + ": " + serviceObjects.size());
+            for (k=0; k<serviceObjects.size(); k++) {
+                // get capabilities urls from service object, who links to this object!
+                var capabilitiesUrls = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3600 AND serv.type_key=2 AND t01obj.work_state='V'", [objUuid, +serviceObjects.get(k).get("obj_from_id")]);
+                for (l=0; l<capabilitiesUrls.size(); l++) {
+                    //log.debug("Found capabilitiesUrls for "+k+". service object: " + capabilitiesUrls.size());
+                    addCapabilitiesUrl(capabilitiesUrls.get(l));
+                }
+            }
+            // boost this documents according to how many services are connected to this data object
+            boostDocumentsByReferences(serviceObjects.size());
+        }    
+        // ---------- t011_obj_geo ----------
+        var rows = SQL.all("SELECT * FROM t011_obj_geo WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT011ObjGeo(rows.get(j));
+            var objGeoId = rows.get(j).get("id");
+
+            // ---------- t011_obj_geo_scale ----------
+            var subRows = SQL.all("SELECT * FROM t011_obj_geo_scale WHERE obj_geo_id=?", [+objGeoId]);
+            for (k=0; k<subRows.size(); k++) {
+                addT011ObjGeoScale(subRows.get(k));
+            }
+            // ---------- t011_obj_geo_spatial_rep ----------
+            var subRows = SQL.all("SELECT * FROM t011_obj_geo_spatial_rep WHERE obj_geo_id=?", [+objGeoId]);
+            for (k=0; k<subRows.size(); k++) {
+                addT011ObjGeoSpatialRep(subRows.get(k));
+            }
+            // ---------- t011_obj_geo_supplinfo ----------
+            var subRows = SQL.all("SELECT * FROM t011_obj_geo_supplinfo WHERE obj_geo_id=?", [+objGeoId]);
+            for (k=0; k<subRows.size(); k++) {
+                addT011ObjGeoSupplinfo(subRows.get(k));
+            }
+            // ---------- t011_obj_geo_symc ----------
+            var subRows = SQL.all("SELECT * FROM t011_obj_geo_symc WHERE obj_geo_id=?", [+objGeoId]);
+            for (k=0; k<subRows.size(); k++) {
+                addT011ObjGeoSymc(subRows.get(k));
+            }
+            // ---------- t011_obj_geo_vector ----------
+            var subRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [+objGeoId]);
+            for (k=0; k<subRows.size(); k++) {
+                addT011ObjGeoVector(subRows.get(k));
+            }
+        }
+        // ---------- t03_catalogue ----------
+        var rows = SQL.all("SELECT * FROM t03_catalogue WHERE id=?", [+catalogId]);
+        for (j=0; j<rows.size(); j++) {
+            addT03Catalogue(rows.get(j));
+        }
+        // ---------- t0112_media_option ----------
+        var rows = SQL.all("SELECT * FROM t0112_media_option WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT0112MediaOption(rows.get(j));
+        }
+        // ---------- t017_url_ref (except preview image) ----------
+        var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=? AND special_ref!=9000", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT017UrlRef(rows.get(j));
+        }
+        // ---------- t017_url_ref - preview image----------
+        var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            // add complete styling information, so we don't have to make any changes in the portal
+            var previewImageHtmlTag = "<img src='" + rows.get(j).get("url_link") + "' height='100' class='preview_image' ";
+            if (rows.get(j).get("descr")) {
+                previewImageHtmlTag += "alt='" + rows.get(j).get("descr") + "' title='" + rows.get(j).get("descr") + "' >";
+            } else {
+                previewImageHtmlTag += "alt='"+ rows.get(j).get("url_link") + "' >";
+            }
+            IDX.add("additional_html_1", previewImageHtmlTag);
+        }
+        
+        // ---------- searchterm_obj ----------
+        var rows = SQL.all("SELECT * FROM searchterm_obj WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addSearchtermObj(rows.get(j));
+            var searchtermId = rows.get(j).get("searchterm_id");
+
+            // ---------- searchterm_value ----------
+            var subRows = SQL.all("SELECT * FROM searchterm_value WHERE id=?", [+searchtermId]);
+            for (k=0; k<subRows.size(); k++) {
+                var searchtermRow = subRows.get(k);
+                addSearchtermValue(searchtermRow.get("type"), searchtermRow.get("term"), searchtermRow.get("alternate_term"));
+                var searchtermSnsId = subRows.get(k).get("searchterm_sns_id");           
+                if (hasValue(searchtermSnsId)) {
+                    // ---------- searchterm_sns ----------
+                    var subSubRows = SQL.all("SELECT * FROM searchterm_sns WHERE id=?", [+searchtermSnsId]);
+                    for (l=0; l<subSubRows.size(); l++) {
+                        addSearchtermSns(subSubRows.get(l));
+                    }
                 }
             }
         }
-    }
-    // ---------- spatial_system ----------
-    var rows = SQL.all("SELECT * FROM spatial_system WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addSpatialSystem(rows.get(j));
-    }
-    // ---------- object_node CHILDREN ----------
-    // only published ones !
-    var rows = SQL.all("SELECT * FROM object_node WHERE fk_obj_uuid=? AND obj_id_published IS NOT NULL", [objUuid]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectNodeChildren(rows.get(j));
-    }
-    // ---------- object_node PARENT ----------
-    // NOTICE: Has to be published !
-    var rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectNodeParent(rows.get(j));
-    }
-    // ---------- object_reference TO ----------
-    var rows = SQL.all("SELECT oRef.*, t01.obj_name FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=t01.obj_uuid AND oRef.obj_from_id=? AND t01.work_state='V'", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectReferenceTo(rows.get(j));
-    }
-    // add explicitly coupled resources of a service, for easier extraction on portal side
-    if (objClass == "3") {
-        var numCoupledResources = 0;
+        // ---------- object_open_data_category ----------
+        var rows = SQL.all("SELECT * FROM object_open_data_category WHERE obj_id=?", [+objId]);
         for (j=0; j<rows.size(); j++) {
-            // only add references from coupled resources ( service <-> data )
-            if (rows.get(j).get("special_ref") == "3600") {
-                numCoupledResources++;
-            }
+            addObjectOpenDataCategory(rows.get(j));
         }
-        // boost this documents according to how many data objects are connected to this service
-        boostDocumentsByReferences(numCoupledResources);
-    }
-    // ---------- object_reference FROM ----------
-    var rows = SQL.all("SELECT * FROM object_reference, t01_object WHERE obj_to_uuid=? AND obj_to_uuid=obj_uuid AND work_state='V'", [objUuid]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectReferenceFrom(rows.get(j));
-        var objFromId = rows.get(j).get("obj_from_id");
+        // ---------- t012_obj_adr ----------
+        var rows = SQL.all("SELECT * FROM t012_obj_adr WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT012ObjAdr(rows.get(j));
+            var adrUuid = rows.get(j).get("adr_uuid");
 
-        // ---------- t01_object FROM ----------
-        var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [+objFromId]);
-        for (k=0; k<subRows.size(); k++) {
-            addT01ObjectFrom(subRows.get(k));
-            
-            // service FROM (helps to identify links from services to data-objects)
-            // this kind of link comes from an object of class 3 and has a link type of '3600'
-            if ("3600".equals(rows.get(j).get("special_ref")) && "3".equals(subRows.get(k).get("obj_class"))) {
-                var firstCapabilitiesUrl = SQL.first("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3600 AND serv.type_key=2 AND t01obj.work_state='V'", [rows.get(j).get("obj_to_uuid"), +objFromId]);
-                var dsIdentifier = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=(SELECT id FROM t01_object WHERE obj_uuid=? AND work_state='V')", [objUuid]);
-                var catalog = SQL.first("SELECT * FROM t03_catalogue WHERE id=?", [+catalogId]);
-                addServiceLinkInfo(subRows.get(k), firstCapabilitiesUrl, dsIdentifier, catalog);
+            // ---------- add referenced address ----------
+            addAddress(adrUuid);
+        }
+        // ---------- spatial_reference ----------
+        var rows = SQL.all("SELECT * FROM spatial_reference WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addSpatialReference(rows.get(j));
+            var spatialRefId = rows.get(j).get("spatial_ref_id");
+
+            // ---------- spatial_ref_value ----------
+            var subRows = SQL.all("SELECT * FROM spatial_ref_value WHERE id=?", [+spatialRefId]);
+            for (k=0; k<subRows.size(); k++) {
+                addSpatialRefValue(subRows.get(k));
+                var spatialRefSnsId = subRows.get(k).get("spatial_ref_sns_id");           
+                if (hasValue(spatialRefSnsId)) {
+                    // ---------- spatial_ref_sns ----------
+                    var subSubRows = SQL.all("SELECT * FROM spatial_ref_sns WHERE id=?", [+spatialRefSnsId]);
+                    for (l=0; l<subSubRows.size(); l++) {
+                        addSpatialRefSns(subSubRows.get(l));
+                    }
+                }
             }
         }
-    }
-    // ---------- t0114_env_topic ----------
-    var rows = SQL.all("SELECT * FROM t0114_env_topic WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT0114EnvTopic(rows.get(j));
-    }
-    // ---------- t011_obj_topic_cat ----------
-    var rows = SQL.all("SELECT * FROM t011_obj_topic_cat WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT011ObjTopicCat(rows.get(j));
-    }
-    // ---------- object_access ----------
-    var rows = SQL.all("SELECT * FROM object_access WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectAccess(rows.get(j));
-    }
-    // ---------- object_use ----------
-    var rows = SQL.all("SELECT * FROM object_use WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectUse(rows.get(j));
-    }
-    // ---------- object_use_constraint ----------
-    var rows = SQL.all("SELECT * FROM object_use_constraint WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectUseConstraint(rows.get(j));
-    }
-    // ---------- object_conformity ----------
-    var rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectConformity(rows.get(j));
-    }
-    // ---------- object_data_quality ----------
-    var rows = SQL.all("SELECT * FROM object_data_quality WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectDataQuality(rows.get(j));
-    }
-    // ---------- object data_languages ----------
-    var rows = SQL.all("SELECT * FROM object_data_language WHERE obj_id=?", [+objId]);
-    for (j=0; j<rows.size(); j++) {
-        addObjectDataLanguage(rows.get(j));
+        // ---------- spatial_system ----------
+        var rows = SQL.all("SELECT * FROM spatial_system WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addSpatialSystem(rows.get(j));
+        }
+        // ---------- object_node CHILDREN ----------
+        // only published ones !
+        var rows = SQL.all("SELECT * FROM object_node WHERE fk_obj_uuid=? AND obj_id_published IS NOT NULL", [objUuid]);
+        for (j=0; j<rows.size(); j++) {
+            addObjectNodeChildren(rows.get(j));
+        }
+        // ---------- object_node PARENT ----------
+        // NOTICE: Has to be published !
+        var rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
+        for (j=0; j<rows.size(); j++) {
+            addObjectNodeParent(rows.get(j));
+        }
+        // ---------- object_reference TO ----------
+        var rows = SQL.all("SELECT oRef.*, t01.obj_name FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=t01.obj_uuid AND oRef.obj_from_id=? AND t01.work_state='V'", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addObjectReferenceTo(rows.get(j));
+        }
+        // add explicitly coupled resources of a service, for easier extraction on portal side
+        if (objClass == "3") {
+            var numCoupledResources = 0;
+            for (j=0; j<rows.size(); j++) {
+                // only add references from coupled resources ( service <-> data )
+                if (rows.get(j).get("special_ref") == "3600") {
+                    numCoupledResources++;
+                }
+            }
+            // boost this documents according to how many data objects are connected to this service
+            boostDocumentsByReferences(numCoupledResources);
+        }
+        // ---------- object_reference FROM ----------
+        var rows = SQL.all("SELECT * FROM object_reference, t01_object WHERE obj_to_uuid=? AND obj_to_uuid=obj_uuid AND work_state='V'", [objUuid]);
+        for (j=0; j<rows.size(); j++) {
+            addObjectReferenceFrom(rows.get(j));
+            var objFromId = rows.get(j).get("obj_from_id");
+
+            // ---------- t01_object FROM ----------
+            var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [+objFromId]);
+            for (k=0; k<subRows.size(); k++) {
+                addT01ObjectFrom(subRows.get(k));
+                
+                // service FROM (helps to identify links from services to data-objects)
+                // this kind of link comes from an object of class 3 and has a link type of '3600'
+                if ("3600".equals(rows.get(j).get("special_ref")) && "3".equals(subRows.get(k).get("obj_class"))) {
+                    var firstCapabilitiesUrl = SQL.first("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3600 AND serv.type_key=2 AND t01obj.work_state='V'", [rows.get(j).get("obj_to_uuid"), +objFromId]);
+                    var dsIdentifier = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=(SELECT id FROM t01_object WHERE obj_uuid=? AND work_state='V')", [objUuid]);
+                    var catalog = SQL.first("SELECT * FROM t03_catalogue WHERE id=?", [+catalogId]);
+                    addServiceLinkInfo(subRows.get(k), firstCapabilitiesUrl, dsIdentifier, catalog);
+                }
+            }
+        }
+        // ---------- t0114_env_topic ----------
+        var rows = SQL.all("SELECT * FROM t0114_env_topic WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT0114EnvTopic(rows.get(j));
+        }
+        // ---------- t011_obj_topic_cat ----------
+        var rows = SQL.all("SELECT * FROM t011_obj_topic_cat WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT011ObjTopicCat(rows.get(j));
+        }
+        // ---------- object_access ----------
+        var rows = SQL.all("SELECT * FROM object_access WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addObjectAccess(rows.get(j));
+        }
+        // ---------- object_use ----------
+        var rows = SQL.all("SELECT * FROM object_use WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addObjectUse(rows.get(j));
+        }
+        // ---------- object_use_constraint ----------
+        var rows = SQL.all("SELECT * FROM object_use_constraint WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addObjectUseConstraint(rows.get(j));
+        }
+        // ---------- object_conformity ----------
+        var rows = SQL.all("SELECT * FROM object_conformity WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addObjectConformity(rows.get(j));
+        }
+        // ---------- object_data_quality ----------
+        var rows = SQL.all("SELECT * FROM object_data_quality WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addObjectDataQuality(rows.get(j));
+        }
+        // ---------- object data_languages ----------
+        var rows = SQL.all("SELECT * FROM object_data_language WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addObjectDataLanguage(rows.get(j));
+        }
+    } else {
+        addT01ObjectFolder(objRows.get(i));
+
+        // ---------- object_node CHILDREN ----------
+        // only published ones !
+        var rows = SQL.all("SELECT * FROM object_node WHERE fk_obj_uuid=? AND obj_id_published IS NOT NULL", [objUuid]);
+        for (j=0; j<rows.size(); j++) {
+            addObjectNodeChildren(rows.get(j));
+        }
+        // ---------- object_node PARENT ----------
+        // NOTICE: Has to be published !
+        var rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
+        for (j=0; j<rows.size(); j++) {
+            addObjectNodeParent(rows.get(j));
+        }
     }
 }
 
+function addT01ObjectFolder(row) {
+    IDX.add("t01_object.id", row.get("id"));
+    IDX.add("t01_object.obj_id", row.get("obj_uuid"));
+    IDX.add("title", row.get("obj_name"));
+    IDX.add("t01_object.org_obj_id", row.get("org_obj_id"));
+    IDX.add("t01_object.obj_class", row.get("obj_class"));
+    IDX.add("summary", row.get("obj_descr"));
+    IDX.add("t01_object.cat_id", row.get("cat_id"));
+    IDX.add("t01_object.info_note", row.get("info_note"));
+    IDX.add("t01_object.loc_descr", row.get("loc_descr"));
+
+    IDX.add("t01_object.publish_id", row.get("publish_id"));
+    // also add plain "publish_id" so objects AND addresses can be queried with "publish_id:1" ...
+    IDX.add("publish_id", row.get("publish_id"));
+    IDX.add("t01_object.is_catalog_data", row.get("is_catalog_data"));
+    IDX.add("t01_object.create_time", row.get("create_time"));
+    IDX.add("t01_object.mod_time", row.get("mod_time"));
+    IDX.add("t01_object.metadata_time", row.get("metadata_time"));
+}
 function addT01Object(row) {
     IDX.add("t01_object.id", row.get("id"));
     IDX.add("t01_object.obj_id", row.get("obj_uuid"));
