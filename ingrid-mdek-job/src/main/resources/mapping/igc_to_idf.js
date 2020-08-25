@@ -553,67 +553,76 @@ for (i=0; i<objRows.size(); i++) {
     
     // ---------- <gmd:identificationInfo/gmd:abstract> ----------
     var abstr = objRow.get("obj_descr");
+    var prettyAbstr = abstr;
     var objServRow;
     
     if (objClass.equals("3")) {
-        // More data of the service that cannot be mapped within ISO19119, but must be 
-        // supplied by INSPIRE. Add mapping in abstract
-        var abstractPostfixIntro = "\n\n\nWeitere Daten des Dienstes, die nicht standard-konform (ISO 19119) hinterlegt werden k\u00F6nnen, zum Teil gem\u00E4\u00DF INSPIRE-Direktive aber bereit zu stellen sind*:\n\n\n";
-        var abstractPostfix; 
         objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
-        if (hasValue(objServRow.get("environment"))) {
-            if (!abstractPostfix) {
-                abstractPostfix = abstractPostfixIntro;
+        // More data of the service that cannot be mapped within ISO19119, but must be
+        // supplied by INSPIRE. Add mapping in abstract
+        var abstractPostfix = "";
+
+
+        var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [+objServRow.get("id")]);
+        var completeScaleString = "";
+        var scaleString = "; Ma\u00DFstab: ";
+        var resString = "; Bodenaufl\u00F6sung (Meter): ";
+        var scanString = "; Scanaufl\u00F6sung (DPI): ";
+        var hasScale = false;
+        var hasRes = false;
+        var hasScan = false;
+        for (var j=0; j<objServScaleRows.size(); j++) {
+            var objServScaleRow = objServScaleRows.get(j);
+            log.info('Line 576 "efesgesg": ');
+            if (hasValue(objServScaleRow.get("scale"))) {
+                hasScale = true;
+                scaleString = scaleString + "1:" + objServScaleRow.get("scale") + ", ";
             }
+            if (hasValue(objServScaleRow.get("resolution_ground"))) {
+                hasRes = true;
+                resString = resString + objServScaleRow.get("resolution_ground") + ", ";
+            }
+            if (hasValue(objServScaleRow.get("resolution_scan"))) {
+                hasScan = true;
+                scanString = scanString + objServScaleRow.get("resolution_scan") + ", ";
+            }
+        }
+        if(hasScale){
+            completeScaleString += scaleString.slice(0,-2);
+        }
+        if(hasRes){
+            completeScaleString += resString.slice(0,-2);
+        }
+        if(hasScan){
+            completeScaleString += scanString.slice(0,-2);
+        }
+        if(hasScale || hasRes || hasScan){
+            log.debug(abstr)
+            log.debug(completeScaleString)
+            prettyAbstr = abstr + "\n" + completeScaleString.slice(2) + "\n";
+            log.debug(prettyAbstr)
+            abstr = abstr + completeScaleString.slice(1)  + "\n";
+            log.debug(abstr)
+            log.debug(completeScaleString)
+        }
+
+
+
+        if (hasValue(objServRow.get("environment"))) {
             abstractPostfix = abstractPostfix + "Systemumgebung: " + objServRow.get("environment") + "\n";
-            abstractPostfix = abstractPostfix + "(environmentDescription/gco:CharacterString= " + objServRow.get("environment") + ")\n\n";
         }
         if (hasValue(objServRow.get("description"))) {
-            if (!abstractPostfix) {
-                abstractPostfix = abstractPostfixIntro;
-            }
             abstractPostfix = abstractPostfix + "Erl\u00E4uterung zum Fachbezug: " + objServRow.get("description") + "\n";
-            abstractPostfix = abstractPostfix + "(supplementalInformation/gco:CharacterString= " + objServRow.get("description") + ")\n\n";
         }
-        
-        var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [+objServRow.get("id")]);
-        for (var j=0; j<objServScaleRows.size(); j++) {
-            var objServScaleRow = objServScaleRows.get(j);
-            if (hasValue(objServScaleRow.get("scale"))) {
-                if (!abstractPostfix) {
-                    abstractPostfix = abstractPostfixIntro;
-                }
-                abstractPostfix = abstractPostfix + "Erstellungsma\u00DFstab: " + objServScaleRow.get("scale") + "\n";
-                abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/equivalentScale/MD_RepresentativeFraction/denominator/gco:Integer= " + objServScaleRow.get("scale") + ")\n";
-            }
-        }
-        for (var j=0; j<objServScaleRows.size(); j++) {
-            var objServScaleRow = objServScaleRows.get(j);
-            if (hasValue(objServScaleRow.get("resolution_ground"))) {
-                if (!abstractPostfix) {
-                    abstractPostfix = abstractPostfixIntro;
-                }
-                abstractPostfix = abstractPostfix + "Bodenaufl\u00F6sung (Meter): " + objServScaleRow.get("resolution_ground") + "\n";
-                abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/distance/gco:Distance[@uom=\"meter\"]= " + objServScaleRow.get("resolution_ground") + ")\n";
-            }
-        }
-        for (var j=0; j<objServScaleRows.size(); j++) {
-            var objServScaleRow = objServScaleRows.get(j);
-            if (hasValue(objServScaleRow.get("resolution_scan"))) {
-                if (!abstractPostfix) {
-                    abstractPostfix = abstractPostfixIntro;
-                }
-                abstractPostfix = abstractPostfix + "Scanaufl\u00F6sung (DPI): " + objServScaleRow.get("resolution_scan") + "\n";
-                abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/distance/gco:Distance[@uom=\"dpi\"]= " + objServScaleRow.get("resolution_scan") + ")\n";
-            }
-        }
+
         if (abstractPostfix) {
-            abstractPostfix = abstractPostfix + "\n\n---\n";
-            abstractPostfix = abstractPostfix + "* N\u00E4here Informationen zur INSPIRE-Direktive: http://inspire.jrc.ec.europa.eu/implementingRulesDocs_md.cfm";            
-            abstr = abstr + abstractPostfix;
+            prettyAbstr += abstractPostfix;
+            abstr += abstractPostfix;
         }
     }
     identificationInfo.addElement("gmd:abstract/gco:CharacterString").addText(abstr);
+    // add only the abstract and some prettified additional information (INGRID-2200)
+    mdMetadata.addElement("idf:abstract/gco:CharacterString").addText(prettyAbstr);
 
     // ---------- <gmd:identificationInfo/gmd:purpose> ----------
     
@@ -1390,10 +1399,7 @@ for (i=0; i<objRows.size(); i++) {
             mdMetadata.addElement("idf:exportCriteria").addText(value);
         }
     }
-    
-    // add only the abstract (without extra information) to a special idf-field (INGRID-2200)
-    var abstr = objRow.get("obj_descr");
-    mdMetadata.addElement("idf:abstract/gco:CharacterString").addText(abstr);
+
 }
 
 
