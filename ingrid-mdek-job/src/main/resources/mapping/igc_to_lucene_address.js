@@ -124,6 +124,7 @@ function addT02AddressFolder(row) {
     IDX.add("t02_address.publish_id", row.get("publish_id"));
     // also add plain "publish_id" so objects AND addresses can be queried with "publish_id:1" ...
     IDX.add("publish_id", row.get("publish_id"));
+    IDX.add("isfolder", true);
 }
 function addT02Address(row) {
     IDX.add("t02_address.id", row.get("id"));
@@ -161,6 +162,7 @@ function addT02Address(row) {
     IDX.add("t02_address.publish_id", row.get("publish_id"));
     // also add plain "publish_id" so objects AND addresses can be queried with "publish_id:1" ...
     IDX.add("publish_id", row.get("publish_id"));
+    IDX.add("isfolder", false);
 }
 function addT021Communication(row) {
     IDX.add("t021_communication.line", row.get("line"));
