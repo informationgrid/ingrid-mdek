@@ -415,6 +415,7 @@ function addT01ObjectFolder(row) {
     IDX.add("t01_object.create_time", row.get("create_time"));
     IDX.add("t01_object.mod_time", row.get("mod_time"));
     IDX.add("t01_object.metadata_time", row.get("metadata_time"));
+    IDX.add("isfolder", true);
 }
 function addT01Object(row) {
     IDX.add("t01_object.id", row.get("id"));
@@ -504,6 +505,7 @@ function addT01Object(row) {
     if (hasValue(row.get("is_catalog_data")) && row.get("is_catalog_data")=='Y') {
         IDX.add("datatype", "topics");
     }
+    IDX.add("isfolder", false);
 }
 function addT0110AvailFormat(row) {
     IDX.add("t0110_avail_format.line", row.get("line"));
