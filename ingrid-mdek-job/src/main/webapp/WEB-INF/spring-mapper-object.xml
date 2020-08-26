@@ -28,7 +28,7 @@
 
     <bean id="recordSetProducer" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
         <property name="recordSql" value="SELECT DISTINCT id, obj_uuid, obj_class FROM t01_object WHERE ((publish_id=1 AND work_state='V' AND (to_be_published_on is null OR to_be_published_on &lt;= CURRENT_DATE)) OR (obj_class='1000'))" />
-        <property name="recordSqlValidateFolderChildren" value="SELECT DISTINCT node.obj_uuid, node.obj_id_published FROM object_node node, t01_object obj WHERE node.fk_obj_uuid=? AND node.obj_id = obj.id AND ((node.obj_id_published IS NOT NULL) OR (obj.obj_class = '1000')) ORDER by node.obj_id_published DESC " />
+        <property name="recordSqlValidateFolderChildren" value="SELECT DISTINCT node.obj_uuid, node.obj_id_published FROM object_node node, t01_object obj WHERE node.fk_obj_uuid=? AND node.obj_id = obj.id AND ((node.obj_id_published IS NOT NULL AND obj.publish_id = 1) OR (obj.obj_class = '1000')) ORDER by node.obj_id_published DESC " />
     </bean>
 
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
