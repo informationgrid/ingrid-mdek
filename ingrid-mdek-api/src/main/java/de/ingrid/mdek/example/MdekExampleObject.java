@@ -1690,7 +1690,9 @@ class MdekExampleObjectThread extends Thread {
 				MdekSysList.DQ_120_TemporalConsistency,
 				MdekSysList.DQ_125_ThematicClassificationCorrectness,
 				MdekSysList.DQ_126_NonQuantitativeAttributeAccuracy,
-				MdekSysList.DQ_127_QuantitativeAttributeAccuracy };
+				MdekSysList.DQ_127_QuantitativeAttributeAccuracy,
+				MdekSysList.DQ_128_RelativePositionalAccuracy
+		};
 		docList = (List<IngridDocument>) oDocIn.get(MdekKeys.DATA_QUALITY_LIST);
 		docList = (docList == null) ? new ArrayList<IngridDocument>() : docList;
 		oDocIn.put(MdekKeys.DATA_QUALITY_LIST, docList);

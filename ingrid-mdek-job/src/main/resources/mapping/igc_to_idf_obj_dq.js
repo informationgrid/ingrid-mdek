@@ -653,6 +653,28 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
             }
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
+        } else if (igcDqElementId.equals("128")) {
+            // ---------- <gmd:DQ_DataQuality/gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy> ----------
+
+            if (!dqDataQuality) {
+                dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
+            }
+            var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy");
+            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            // if (igcNameOfMeasureKey.equals("1")) {
+            //     // Attribute value uncertainty at 95 % significance level
+            //     dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("71");
+            // }
+            if (hasValue(igcMeasureDescription)) {
+                dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
+            }
+            var dqQuantitativeResult = dqElem.addElement("gmd:result/gmd:DQ_QuantitativeResult");
+            // if (igcNameOfMeasureKey.equals("1")) {
+            //     dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "inapplicable");
+            // } else {
+                dqQuantitativeResult.addElement("gmd:valueUnit").addAttribute("gco:nilReason", "unknown");
+            // }
+            dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
         }
     }
 }
