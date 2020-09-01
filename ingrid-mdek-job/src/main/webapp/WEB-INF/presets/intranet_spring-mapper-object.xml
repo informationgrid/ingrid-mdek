@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:mvc="http://www.springframework.org/schema/mvc"
-    xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
-                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
-                http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
 
     <!-- SEARCH / INDEX CONFIGURATION -->
     <bean id="dscDocumentProducer" class="de.ingrid.iplug.dsc.index.DscDocumentProducer">
@@ -17,17 +13,19 @@
                 <ref bean="idfProducerIndexMapper"/>
             </list>
         </property>
-        <property name="indexInfo" ref="indexInfo"></property>
+        <property name="indexInfo" ref="indexInfo"/>
     </bean>
     
-    <bean id="indexInfo" class="de.ingrid.admin.elasticsearch.IndexInfo">
-        <property name="toIndex" value="ige-test" />
+    <bean id="indexInfo" class="de.ingrid.elasticsearch.IndexInfo">
+        <property name="toIndex" value="ige-test-object" />
         <property name="toType" value="object" />
         <property name="docIdField" value="t01_object.obj_id" />
     </bean>
 
     <bean id="recordSetProducer" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
-        <property name="recordSql" value="SELECT DISTINCT id FROM t01_object WHERE work_state='V' AND (publish_id=1 OR publish_id=2)" />
+        <property name="recordSql" value="SELECT DISTINCT id, obj_uuid, obj_class FROM t01_object WHERE (((publish_id=1 OR publish_id=2) AND work_state='V' AND (to_be_published_on is null OR to_be_published_on &lt;= CURRENT_DATE)) OR (obj_class='1000'))" />
+        <property name="recordSqlValidateFolderChildren" value="SELECT DISTINCT node.obj_uuid, node.obj_id_published FROM object_node node, t01_object obj WHERE node.fk_obj_uuid=? AND node.obj_id = obj.id AND ((node.obj_id_published IS NOT NULL AND (obj.publish_id=1 OR obj.publish_id=2)) OR (obj.obj_class = '1000')) ORDER by node.obj_id_published DESC" />
+        <property name="recordSqlValidateParentPublishDoc" value="SELECT DISTINCT node.fk_obj_uuid FROM object_node node, t01_object obj WHERE node.obj_uuid=? AND node.obj_id = obj.id AND (obj.publish_id=1 OR obj.publish_id=2)" />
     </bean>
 
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
@@ -52,7 +50,6 @@
     <bean id="idfProducerIndexMapper" class="de.ingrid.iplug.dsc.index.mapper.IdfProducerDocumentMapper">
         <property name="dscRecordCreator" ref="dscRecordCreator" />
     </bean>
-    
 
 
     <!-- <bean id="dscSearchPlug" class="de.ingrid.iplug.dsc.DscSearchPlug">
@@ -67,6 +64,7 @@
                 <ref bean="scriptedIdfMapper"/>
                 <ref bean="scriptedIdfMapperDQ"/>
                 <ref bean="igcProfileIdfMapper"/>
+                <ref bean="isoMetadataDateMapper"/>
             </list>
         </property>
     </bean>
@@ -103,5 +101,6 @@
         <property name="sql" value="SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'" />
     </bean>
 
+    <bean id="isoMetadataDateMapper" class="de.ingrid.mdek.job.mapping.IsoMetadataDateMapper" />
 
 </beans>
