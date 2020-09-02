@@ -21,7 +21,7 @@
  * **************************************************#
  */
 if (javaVersion.indexOf( "1.8" ) === 0) {
-	load("nashorn:mozilla_compat.js");
+    load("nashorn:mozilla_compat.js");
 }
 
 importPackage(Packages.org.apache.lucene.document);
@@ -34,7 +34,7 @@ var BOOST_NO_COUPLED_RESOURCE  = 0.9;
 var BOOST_HAS_COUPLED_RESOURCE = 1.0;
 
 if (log.isDebugEnabled()) {
-	log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
+    log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
 }
 
 if (!(sourceRecord instanceof DatabaseSourceRecord)) {
@@ -58,7 +58,7 @@ for (i=0; i<objRows.size(); i++) {
     for (var i in colNames) {
         var colName = colNames[i];
         IDX.add(colName, objRow.get(colName));
-	}
+    }
 */
     // Example adding additional HTML to result
 //    IDX.add("additional_html_1", "<h1>MEIN ZUSATZ</h1>", false);
@@ -734,7 +734,7 @@ function addT012ObjAdr(row) {
 // Adds address to index. If address is hidden then parent address is added.
 // Also adds address children not hidden (queried from portal ???).
 function addAddress(addrUuid) {
-	// ---------- address_node ----------
+    // ---------- address_node ----------
     var addrNodeRows = SQL.all("SELECT * FROM address_node WHERE addr_uuid=? AND addr_id_published IS NOT NULL", [addrUuid]);
     for (k=0; k<addrNodeRows.size(); k++) {
         var parentAddrUuid = addrNodeRows.get(k).get("fk_addr_uuid");
@@ -768,7 +768,7 @@ if (log.isDebugEnabled()) {
                 addAddress(parentAddrUuid);
             }
         }
-    }	
+    }
 }
 
 function addT02Address(row) {
@@ -804,7 +804,7 @@ function addT021Communication(row) {
     IDX.add("t021_communication.descr", row.get("descr"));
 }
 function addAddressNodeChildren(row) {
-	// QUERIED FROM PORTAL !?
+    // QUERIED FROM PORTAL !?
     IDX.add("t022_adr_adr.adr_from_id", row.get("fk_addr_uuid"));
     IDX.add("t022_adr_adr.adr_to_id", row.get("addr_uuid"));
 }
