@@ -136,6 +136,8 @@ for (i=0; i<objRows.size(); i++) {
         var uvpgCategoriesValueRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [+objId, 'uvpgCategory']);
         if (hasValue(uvpgCategoriesValueRow) && hasValue(uvpgCategoriesValueRow.get("id"))) {
             var uvpgCategoryRows = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? AND field_key=?", [uvpgCategoriesValueRow.get("id"), 'categoryId']);
+            var uvpCategories = [];
+            var uvpCategoryTypes = [];
             for (var i=0; i< uvpgCategoryRows.size(); i++) {
                 var categoryId = uvpgCategoryRows.get(i).get("data");
                 var uvpNo = TRANSF.getIGCSyslistEntryName(codelist, categoryId, "de");
@@ -144,12 +146,23 @@ for (i=0; i<objRows.size(); i++) {
                 if(hasValue(uvpCat)){
                     var uvpCatJson = JSON.parse(uvpCat);
                     if(hasValue(uvpCatJson.cat)){
-                        IDX.add("uvp_category", uvpCatJson.cat);
+                        if(uvpCategories.indexOf(uvpCatJson.cat) === -1){
+                            log.debug("Test: " + uvpCategories.indexOf(uvpCatJson.cat));
+                            uvpCategories.push(uvpCatJson.cat);
+                        }
                     }
-                    if(hasValue(uvpCatJson.type)){
-                        IDX.add("uvp_category_type", uvpCatJson.type);
+                    if(hasValue(uvpCatJson.type)) {
+                        if (uvpCategoryTypes.indexOf(uvpCatJson.type) === -1) {
+                            uvpCategoryTypes.push(uvpCatJson.type);
+                        }
                     }
                 }
+            }
+            for (var i=0; i < uvpCategories.length; i++) {
+                IDX.add("uvp_category", uvpCategories[i]);
+            }
+            for (var i=0; i < uvpCategoryTypes.length; i++) {
+                IDX.add("uvp_category_type", uvpCategoryTypes[i]);
             }
         }
         
