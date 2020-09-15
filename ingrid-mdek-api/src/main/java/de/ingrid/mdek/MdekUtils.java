@@ -169,6 +169,8 @@ public class MdekUtils {
 		DQ_126_NonQuantitativeAttributeAccuracy(7126, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
 		/** dqElementId=127 */
 		DQ_127_QuantitativeAttributeAccuracy(7127, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
+		/** dqElementId=128 */
+		DQ_128_RelativePositionalAccuracy(7128, "ObjectDataQuality:nameOfMeasureKey:nameOfMeasureValue"),
 		OBJ_ADV_PRODUCT_GROUP(8010, "ObjectAdvProductGroup:productKey:productValue"),
 		LANGUAGE(99999999, "T03Catalogue, T01Object:languageKey:languageValue");
 

@@ -86,9 +86,12 @@ if (hasValue(behavioursValueRow)){
 }
 
 // ---------- t01_object ----------
-var objId = sourceRecord.get("id");
-var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
-for (var i=0; i<objRows.size(); i++) {
+// convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
+var objId = +sourceRecord.get("id");
+// log.info("Mapping source record to lucene document ID: " + objId);
+
+var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [+objId]);
+for (i=0; i<objRows.size(); i++) {
 /*
     // Example iterating all columns !
     var objRow = objRows.get(i);
@@ -98,26 +101,167 @@ for (var i=0; i<objRows.size(); i++) {
         IDX.add(colName, objRow.get(colName));
     }
 */
+    var catalogId = objRows.get(i).get("cat_id");
+    var objUuid = objRows.get(i).get("obj_uuid");
     var objClass = objRows.get(i).get("obj_class");
-
     // skip negative examinations if not defined otherwise in catalog settings
     if (!publishNegativeExaminations && objClass === "12") {
         throw new SkipException("Catalog settings say not to publish negative examinations");
     }
 
-    addT01Object(objRows.get(i));
-    var catalogId = objRows.get(i).get("cat_id");
-    var objUuid = objRows.get(i).get("obj_uuid");
+    if (objClass !== "1000") {
+        addT01Object(objRows.get(i));
 
-    // ---------- t012_obj_adr ----------
-    var rows = SQL.all("SELECT * FROM t012_obj_adr WHERE obj_id=?", [objId]);
-    for (j=0; j<rows.size(); j++) {
-        addT012ObjAdr(rows.get(j));
-        var adrUuid = rows.get(j).get("adr_uuid");
+        // ---------- t012_obj_adr ----------
+        var rows = SQL.all("SELECT * FROM t012_obj_adr WHERE obj_id=?", [+objId]);
+        for (j=0; j<rows.size(); j++) {
+            addT012ObjAdr(rows.get(j));
+            var adrUuid = rows.get(j).get("adr_uuid");
 
-        // ---------- add referenced address ----------
-        addAddress(adrUuid);
+            // ---------- add referenced address ----------
+            addAddress(adrUuid);
+        }
+
+        // ---------- t03_catalogue ----------
+        var rows = SQL.all("SELECT * FROM t03_catalogue WHERE id=?", [+catalogId]);
+        for (j=0; j<rows.size(); j++) {
+            addT03Catalogue(rows.get(j));
+        }
+        
+        if(!hasValue(codelist)){
+            codelist = 9000;
+        }
+
+        // UVP Categories
+        var uvpgCategoriesValueRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [+objId, 'uvpgCategory']);
+        if (hasValue(uvpgCategoriesValueRow) && hasValue(uvpgCategoriesValueRow.get("id"))) {
+            var uvpgCategoryRows = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? AND field_key=?", [uvpgCategoriesValueRow.get("id"), 'categoryId']);
+            var uvpCategories = [];
+            var uvpCategoryTypes = [];
+            for (var i=0; i< uvpgCategoryRows.size(); i++) {
+                var categoryId = uvpgCategoryRows.get(i).get("data");
+                var uvpNo = TRANSF.getIGCSyslistEntryName(codelist, categoryId, "de");
+                var uvpCat = TRANSF.getISOCodeListEntryData(codelist, uvpNo);
+                IDX.add("uvp_number", uvpNo);
+                if(hasValue(uvpCat)){
+                    var uvpCatJson = JSON.parse(uvpCat);
+                    if(hasValue(uvpCatJson.cat)){
+                        if(uvpCategories.indexOf(uvpCatJson.cat) === -1){
+                            log.debug("Test: " + uvpCategories.indexOf(uvpCatJson.cat));
+                            uvpCategories.push(uvpCatJson.cat);
+                        }
+                    }
+                    if(hasValue(uvpCatJson.type)) {
+                        if (uvpCategoryTypes.indexOf(uvpCatJson.type) === -1) {
+                            uvpCategoryTypes.push(uvpCatJson.type);
+                        }
+                    }
+                }
+            }
+            for (var i=0; i < uvpCategories.length; i++) {
+                IDX.add("uvp_category", uvpCategories[i]);
+            }
+            for (var i=0; i < uvpCategoryTypes.length; i++) {
+                IDX.add("uvp_category_type", uvpCategoryTypes[i]);
+            }
+        }
+        
+        // Add uvp procedure step
+        var phasesRow = SQL.all("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [+objId, 'UVPPhases']);
+        for (var i=0; i < phasesRow.size(); i++) {
+            var value = phasesRow.get(i).get("id");
+            if (hasValue(value)) {
+                var phaseRow = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? ORDER BY sort", [value]);
+                if (hasValue(phaseRow)){
+                    for (var j=0; j < phaseRow.size(); j++) {
+                        var phaseId = phaseRow.get(j).get("id");
+                        var phaseFieldKey = phaseRow.get(j).get("field_key");
+                        IDX.add("uvp_steps", phaseFieldKey);
+                    }
+                }
+            }
+        }
+
+        // Add UVP addresses
+        var objAdrValueRow = SQL.first("SELECT * FROM t012_obj_adr WHERE obj_id=? ORDER BY line", [+objId]);
+        if (hasValue(objAdrValueRow) && hasValue(objAdrValueRow.get("adr_uuid"))) {
+            var adrValueRow = SQL.first("SELECT * FROM t02_address WHERE adr_uuid=?", [objAdrValueRow.get("adr_uuid")]);
+            var addrId = adrValueRow.get("id");
+            var parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
+
+            var parentAddress = [];
+            
+            if(hasValue(parentAdressRow)){
+                parentAddress.push(parentAdressRow);
+            }
+            while (hasValue(parentAdressRow)) {
+                addrId = parentAdressRow.get("id");
+                parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
+                if(hasValue(parentAdressRow) && !isHiddenAddress(parentAdressRow)){
+                    parentAddress.push(parentAdressRow);
+                }
+            }
+            
+            for (var index = parentAddress.length - 1; index >= 0; --index) {
+                addAddressRow(parentAddress[index]);
+            }
+            
+            if(!isHiddenAddress(adrValueRow)){
+                addAddressRow(adrValueRow);
+            }
+        }
+        
+        // add spatial Bounding Box
+        var uvpSpatialValueRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [+objId, 'uvp_spatialValue']);
+        if (hasValue(uvpSpatialValueRow) && hasValue(uvpSpatialValueRow.get("data"))) {
+            // format <name>: <lon_min, lat_min, lon_max, lat_max>
+            // <name> is optional
+            // Deutschland, Berlin, Berlin: 13.252258300781248, 52.43424610262303, 13.52691650390625, 52.60137941045533
+            var spatialValue = uvpSpatialValueRow.get("data");
+            
+            var spatialLocation = spatialValue.lastIndexOf(": ") === -1 ? false : spatialValue.substr(0, spatialValue.lastIndexOf(": "));
+            if (spatialLocation) {
+                IDX.add("location", spatialLocation);
+            }
+            
+            spatialValue = spatialValue.lastIndexOf(": ") === -1 ? spatialValue : spatialValue.substr(spatialValue.lastIndexOf(": ") + 2);
+            var spatialArray = spatialValue.split(',');
+            // convert to numbers
+            for (var i=0; i<4; i++) {
+                spatialArray[i] = Number(spatialArray[i]);
+            }
+            
+            // [x1, x2, y1, y2] = [lon_min, lon_max, lat_min, lat_max]
+            IDX.add("x1", spatialArray[0]);
+            IDX.add("x2", spatialArray[2]);
+            IDX.add("y1", spatialArray[1]);
+            IDX.add("y2", spatialArray[3]);
+            
+            IDX.add("lon_min", spatialArray[0]);
+            IDX.add("lon_max", spatialArray[2]);
+            IDX.add("lat_min", spatialArray[1]);
+            IDX.add("lat_max", spatialArray[3]);
+            
+            // get center
+            var latCenter = spatialArray[1] + (spatialArray[3] - spatialArray[1])/2;
+            var lonCenter = spatialArray[0] + (spatialArray[2] - spatialArray[0])/2;
+            IDX.add("lon_center", lonCenter);
+            IDX.add("lat_center", latCenter);
+        }
+        
+        // add UVP specific mapping
+        // UVP checkbox examination
+        var uvpNeedsExamination = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [+objId, 'uvpNeedsExamination']);
+        if (hasValue(uvpNeedsExamination) && hasValue(uvpNeedsExamination.get("data"))) {
+            var value = uvpNeedsExamination.get("data");
+            if (value === "true") {
+                IDX.add("needs_examination", true);
+            }
+        }
+    } else {
+        addT01ObjectFolder(objRows.get(i));
     }
+
     // ---------- object_node CHILDREN ----------
     // only published ones !
     var rows = SQL.all("SELECT * FROM object_node WHERE fk_obj_uuid=? AND obj_id_published IS NOT NULL", [objUuid]);
@@ -130,132 +274,29 @@ for (var i=0; i<objRows.size(); i++) {
     for (j=0; j<rows.size(); j++) {
         addObjectNodeParent(rows.get(j));
     }
-    
-    // ---------- t03_catalogue ----------
-    var rows = SQL.all("SELECT * FROM t03_catalogue WHERE id=?", [catalogId]);
-    for (j=0; j<rows.size(); j++) {
-        addT03Catalogue(rows.get(j));
-    }
-    
-    if(!hasValue(codelist)){
-        codelist = 9000;
-    }
 
-    // UVP Categories
-    var uvpgCategoriesValueRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvpgCategory']);
-    if (hasValue(uvpgCategoriesValueRow) && hasValue(uvpgCategoriesValueRow.get("id"))) {
-        var uvpgCategoryRows = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? AND field_key=?", [uvpgCategoriesValueRow.get("id"), 'categoryId']);
-        for (var i=0; i< uvpgCategoryRows.size(); i++) {
-            var categoryId = uvpgCategoryRows.get(i).get("data");
-            var uvpNo = TRANSF.getIGCSyslistEntryName(codelist, categoryId, "de");
-            var uvpCat = TRANSF.getISOCodeListEntryData(codelist, uvpNo);
-            IDX.add("uvp_number", uvpNo);
-            if(hasValue(uvpCat)){
-                var uvpCatJson = JSON.parse(uvpCat);
-                if(hasValue(uvpCatJson.cat)){
-                    IDX.add("uvp_category", uvpCatJson.cat);
-                }
-                if(hasValue(uvpCatJson.type)){
-                    IDX.add("uvp_category_type", uvpCatJson.type);
-                }
-            }
-        }
-    }
-    
-    // Add uvp procedure step
-    var phasesRow = SQL.all("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'UVPPhases']);
-    for (var i=0; i < phasesRow.size(); i++) {
-        var value = phasesRow.get(i).get("id");
-        if (hasValue(value)) {
-            var phaseRow = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? ORDER BY sort", [value]);
-            if (hasValue(phaseRow)){
-                for (var j=0; j < phaseRow.size(); j++) {
-                    var phaseId = phaseRow.get(j).get("id");
-                    var phaseFieldKey = phaseRow.get(j).get("field_key");
-                    IDX.add("uvp_steps", phaseFieldKey);
-                }
-            }
-        }
-    }
-
-    // Add UVP addresses
-    var objAdrValueRow = SQL.first("SELECT * FROM t012_obj_adr WHERE obj_id=? ORDER BY line", [objId]);
-    if (hasValue(objAdrValueRow) && hasValue(objAdrValueRow.get("adr_uuid"))) {
-        var adrValueRow = SQL.first("SELECT * FROM t02_address WHERE adr_uuid=?", [objAdrValueRow.get("adr_uuid")]);
-        var addrId = adrValueRow.get("id");
-        var parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
-
-        var parentAddress = [];
-        
-        if(hasValue(parentAdressRow)){
-            parentAddress.push(parentAdressRow);
-        }
-        while (hasValue(parentAdressRow)) {
-            addrId = parentAdressRow.get("id");
-            parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [addrId, "V"]);
-            if(hasValue(parentAdressRow) && !isHiddenAddress(parentAdressRow)){
-                parentAddress.push(parentAdressRow);
-            }
-        }
-        
-        for (var index = parentAddress.length - 1; index >= 0; --index) {
-            addAddressRow(parentAddress[index]);
-        }
-        
-        if(!isHiddenAddress(adrValueRow)){
-            addAddressRow(adrValueRow);
-        }
-    }
-    
-    // add spatial Bounding Box
-    var uvpSpatialValueRow = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvp_spatialValue']);
-    if (hasValue(uvpSpatialValueRow) && hasValue(uvpSpatialValueRow.get("data"))) {
-        // format <name>: <lon_min, lat_min, lon_max, lat_max>
-        // <name> is optional
-        // Deutschland, Berlin, Berlin: 13.252258300781248, 52.43424610262303, 13.52691650390625, 52.60137941045533
-        var spatialValue = uvpSpatialValueRow.get("data");
-        
-        var spatialLocation = spatialValue.lastIndexOf(": ") === -1 ? false : spatialValue.substr(0, spatialValue.lastIndexOf(": "));
-        if (spatialLocation) {
-            IDX.add("location", spatialLocation);
-        }
-        
-        spatialValue = spatialValue.lastIndexOf(": ") === -1 ? spatialValue : spatialValue.substr(spatialValue.lastIndexOf(": ") + 2);
-        var spatialArray = spatialValue.split(',');
-        // convert to numbers
-        for (var i=0; i<4; i++) {
-            spatialArray[i] = Number(spatialArray[i]);
-        }
-        
-        // [x1, x2, y1, y2] = [lon_min, lon_max, lat_min, lat_max]
-        IDX.add("x1", spatialArray[0]);
-        IDX.add("x2", spatialArray[2]);
-        IDX.add("y1", spatialArray[1]);
-        IDX.add("y2", spatialArray[3]);
-        
-        IDX.add("lon_min", spatialArray[0]);
-        IDX.add("lon_max", spatialArray[2]);
-        IDX.add("lat_min", spatialArray[1]);
-        IDX.add("lat_max", spatialArray[3]);
-        
-        // get center
-        var latCenter = spatialArray[1] + (spatialArray[3] - spatialArray[1])/2;
-        var lonCenter = spatialArray[0] + (spatialArray[2] - spatialArray[0])/2;
-        IDX.add("lon_center", lonCenter);
-        IDX.add("lat_center", latCenter);
-    }
-    
-    // add UVP specific mapping
-    // UVP checkbox examination
-    var uvpNeedsExamination = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'uvpNeedsExamination']);
-    if (hasValue(uvpNeedsExamination) && hasValue(uvpNeedsExamination.get("data"))) {
-        var value = uvpNeedsExamination.get("data");
-        if (value === "true") {
-            IDX.add("needs_examination", true);
-        }
-    }
 }
 
+function addT01ObjectFolder(row) {
+    IDX.add("t01_object.id", row.get("id"));
+    IDX.add("t01_object.obj_id", row.get("obj_uuid"));
+    IDX.add("title", row.get("obj_name"));
+    IDX.add("t01_object.org_obj_id", row.get("org_obj_id"));
+    IDX.add("t01_object.obj_class", row.get("obj_class"));
+    IDX.add("summary", row.get("obj_descr"));
+    IDX.add("t01_object.cat_id", row.get("cat_id"));
+    IDX.add("t01_object.info_note", row.get("info_note"));
+    IDX.add("t01_object.loc_descr", row.get("loc_descr"));
+
+    IDX.add("t01_object.publish_id", row.get("publish_id"));
+    // also add plain "publish_id" so objects AND addresses can be queried with "publish_id:1" ...
+    IDX.add("publish_id", row.get("publish_id"));
+    IDX.add("t01_object.is_catalog_data", row.get("is_catalog_data"));
+    IDX.add("t01_object.create_time", row.get("create_time"));
+    IDX.add("t01_object.mod_time", row.get("mod_time"));
+    IDX.add("t01_object.metadata_time", row.get("metadata_time"));
+    IDX.add("isfolder", true);
+}
 function isHiddenAddress(adrRow) {
     return adrRow["hide_address"] === "Y";
 }
@@ -319,7 +360,7 @@ function addT01Object(row) {
     IDX.add("modified", TRANSF.getISODateFromIGCDate(row.get("mod_time")));
     IDX.add("t01_object.mod_uuid", row.get("mod_uuid"));
     IDX.add("t01_object.responsible_uuid", row.get("responsible_uuid"));
-
+    IDX.add("isfolder", false);
 }
 function addT03Catalogue(row) {
     IDX.add("t03_catalogue.cat_uuid", row.get("cat_uuid"));
@@ -357,13 +398,13 @@ function addAddress(addrUuid) {
         var addrIdPublished = addrNodeRows.get(k).get("addr_id_published");
 
         // ---------- t02_address ----------
-        var addrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [addrIdPublished]);
+        var addrRow = SQL.first("SELECT * FROM t02_address WHERE id=? and (hide_address IS NULL OR hide_address != 'Y')", [+addrIdPublished]);
         if (hasValue(addrRow)) {
             // address not hidden, add all data
             addT02Address(addrRow);
 
             // ---------- t021_communication ----------
-            var commRows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [addrIdPublished]);
+            var commRows = SQL.all("SELECT * FROM t021_communication WHERE adr_id=?", [+addrIdPublished]);
             for (l=0; l<commRows.size(); l++) {
                 addT021Communication(commRows.get(l));
             }
@@ -384,7 +425,7 @@ function addAddress(addrUuid) {
                 addAddress(parentAddrUuid);
             }
         }
-    }   
+    }
 }
 
 function addT02Address(row) {

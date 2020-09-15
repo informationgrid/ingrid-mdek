@@ -175,7 +175,7 @@ prepareJavaStatement()
     fi
 
     export CLASSPATH="$CLASSPATH"
-    INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME -XX:MaxPermSize=128M"
+    INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME $JAVA_OPTS"
 }
 
 startIplug()

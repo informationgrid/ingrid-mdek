@@ -39,5 +39,19 @@
         </configuration>
       </plugin>
     </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>mdek-api-version.properties</include>
+          <include>ehcache-ige-api.xml</include>
+          <include>IGC_Semantisches-XML.xsd</include>
+          <!-- Enable for temporary debugging in mdek-api classes, disable for release ! -->
+          <!--include>log4j.properties</include-->
+        </includes>
+      </resource>
+    </resources>
   </build>
 </project>

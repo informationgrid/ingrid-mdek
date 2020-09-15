@@ -630,7 +630,11 @@ public class MdekKeyValueHandler {
 			} else if (dqElemId.equals(MdekSysList.DQ_127_QuantitativeAttributeAccuracy.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
 						MdekSysList.DQ_127_QuantitativeAttributeAccuracy.getDbValue(),
-						catalogService.getCatalogLanguage());				
+						catalogService.getCatalogLanguage());
+			} else if (dqElemId.equals(MdekSysList.DQ_128_RelativePositionalAccuracy.getDqElementId())) {
+				keyNameMap = catalogService.getSysListKeyNameMap(
+						MdekSysList.DQ_128_RelativePositionalAccuracy.getDbValue(),
+						catalogService.getCatalogLanguage());
 			} else if (dqElemId.equals(MdekSysList.DQ_120_TemporalConsistency.getDqElementId())) {
 				keyNameMap = catalogService.getSysListKeyNameMap(
 						MdekSysList.DQ_120_TemporalConsistency.getDbValue(),

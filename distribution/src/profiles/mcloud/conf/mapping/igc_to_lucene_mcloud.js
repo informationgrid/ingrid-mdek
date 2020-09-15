@@ -83,6 +83,8 @@ function map(mapper) {
             license: mapper.getLicense(),
             harvested_data: mapper.getHarvestedData(),
             subsection: mapper.getSubSections(),
+            spatial: mapper.getSpatial(),
+            spatialText: mapper.getSpatialText(),
             temporal: mapper.getTemporal(),
             groups: mapper.getGroups(),
             displayContact: mapper.getDisplayContacts(),
@@ -98,6 +100,7 @@ function map(mapper) {
 // ---------- t01_object ----------
 var objId = +sourceRecord.get('id');
 var objRows = SQL.all('SELECT * FROM t01_object WHERE id=?', [objId]);
+var spatialRows = SQL.all("SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value WHERE spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?", [+objId]);
 for (var i=0; i<objRows.size(); i++) {
 
     var objRow = objRows.get(i);
@@ -108,7 +111,8 @@ for (var i=0; i<objRows.size(); i++) {
     var mapper = new McloudMapper({
         objId: objId,
         objUuid: objUuid,
-        objRow: objRow
+        objRow: objRow,
+        spatialRows: spatialRows
     });
     var doc = map(mapper);
 

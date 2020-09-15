@@ -265,85 +265,88 @@ for (i=0; i<objRows.size(); i++) {
             var nameDim = objGeoRow.get("axis_dim_name");
             var sizeDim = objGeoRow.get("axis_dim_size");
             var cellGeo = objGeoRow.get("cell_geometry");
-            var isGeoRectified = "Y".equals(objGeoRow.get("geo_rectified"));
-            
-            var gridSpatialRepr = isGeoRectified
-                ? mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_Georectified")
-                : mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable");
-                
-            /* numberOfDimensions */
-            if (hasValue(numDim)) {
-            	gridSpatialRepr.addElement("gmd:numberOfDimensions/gco:Integer").addText(numDim);
-            } else {
-            	gridSpatialRepr.addElement("gmd:numberOfDimensions").addAttribute("gco:nilReason", "unknown");
-            }
-            
-            /* axisDimensionProperties */
-            if (hasValue(nameDim) || hasValue(sizeDim)) {
-                var dimensionNode = gridSpatialRepr.addElement("gmd:axisDimensionProperties/gmd:MD_Dimension");
-                if (hasValue(nameDim)) {
-                    dimensionNode.addElement("gmd:dimensionName/gmd:MD_DimensionNameTypeCode")
-                    .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
-                    .addAttribute("codeListValue", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(514, nameDim));
-                } else {
-                    dimensionNode.addElement("gmd:dimensionName").addAttribute("gco:nilReason", "unknown");
-                }
-                if (hasValue(sizeDim)) {
-                	dimensionNode.addElement("gmd:dimensionSize/gco:Integer").addText(sizeDim);
-                } else {
-                    dimensionNode.addElement("gmd:dimensionSize").addAttribute("gco:nilReason", "unknown");
-                }
-            }
+            // only add ISO XML elements if at least one field is supplied, #1934
+            if (hasValue(numDim) || hasValue(nameDim) || hasValue(sizeDim) || hasValue(cellGeo)) {
+                var isGeoRectified = "Y".equals(objGeoRow.get("geo_rectified"));
 
-            /* cellGeometry */
-            if (hasValue(cellGeo)) {
-                gridSpatialRepr.addElement("gmd:cellGeometry/gmd:MD_CellGeometryCode")
-                .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
-                .addAttribute("codeListValue", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(509, cellGeo));
-            } else {
-            	gridSpatialRepr.addElement("gmd:cellGeometry").addAttribute("gco:nilReason", "unknown");
-            }
-            
-            /* transformationParameterAvailability */
-            gridSpatialRepr.addElement("gmd:transformationParameterAvailability/gco:Boolean").addText("Y".equals(transformParam));
-            
-            if (isGeoRectified) {
-                var rectCheckpoint = objGeoRow.get("geo_rect_checkpoint");
-                var rectDescription = objGeoRow.get("geo_rect_description");
-                var rectCornerPoint = objGeoRow.get("geo_rect_corner_point");
-                var rectPointInPixel = objGeoRow.get("geo_rect_point_in_pixel");
-                
-                gridSpatialRepr.addElement("gmd:checkPointAvailability/gco:Boolean").addText("Y".equals(rectCheckpoint));
-                if (hasValue(rectDescription)) {
-                    IDF_UTIL.addLocalizedCharacterstring(gridSpatialRepr.addElement("gmd:checkPointDescription"), rectDescription);
-                }
-                if (hasValue(rectCornerPoint)) {
-                    gridSpatialRepr.addElement("gmd:cornerPoints/gml:Point").addAttribute("gml:id", "cornerPointId1").addElement("gml:coordinates").addText(rectCornerPoint);
-                }
-                //gridSpatialRepr.addElement("gmd:centerPoint")
-                if (hasValue(rectPointInPixel)) {
-                    var pixelOrientCodeList = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(2100, rectPointInPixel);
-                    gridSpatialRepr.addElement("gmd:pointInPixel/gmd:MD_PixelOrientationCode").addText(pixelOrientCodeList);
+                var gridSpatialRepr = isGeoRectified
+                    ? mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_Georectified")
+                    : mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable");
+
+                /* numberOfDimensions */
+                if (hasValue(numDim)) {
+                    gridSpatialRepr.addElement("gmd:numberOfDimensions/gco:Integer").addText(numDim);
                 } else {
-                	gridSpatialRepr.addElement("gmd:pointInPixel").addAttribute("gco:nilReason", "unknown");
+                    gridSpatialRepr.addElement("gmd:numberOfDimensions").addAttribute("gco:nilReason", "unknown");
                 }
-                //gridSpatialRepr.addElement("gmd:transformationDimensionDescription")
-                //gridSpatialRepr.addElement("gmd:transformationDimensionMapping")
-                
-            } else {
-                var refControlPoint = objGeoRow.get("geo_ref_control_point");
-                var refOrientationParameter = objGeoRow.get("geo_ref_orientation_parameter");
-                var refParameter = objGeoRow.get("geo_ref_parameter");
-                
-                gridSpatialRepr.addElement("gmd:controlPointAvailability/gco:Boolean").addText("Y".equals(refControlPoint));
-                gridSpatialRepr.addElement("gmd:orientationParameterAvailability/gco:Boolean").addText("Y".equals(refOrientationParameter));
-                //gridSpatialRepr.addElement("gmd:orientationParameterDescription")
-                if (hasValue(refParameter)) {
-                	gridSpatialRepr.addElement("gmd:georeferencedParameters/gco:Record/gco:CharacterString").addText(refParameter);
+
+                /* axisDimensionProperties */
+                if (hasValue(nameDim) || hasValue(sizeDim)) {
+                    var dimensionNode = gridSpatialRepr.addElement("gmd:axisDimensionProperties/gmd:MD_Dimension");
+                    if (hasValue(nameDim)) {
+                        dimensionNode.addElement("gmd:dimensionName/gmd:MD_DimensionNameTypeCode")
+                        .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
+                        .addAttribute("codeListValue", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(514, nameDim));
+                    } else {
+                        dimensionNode.addElement("gmd:dimensionName").addAttribute("gco:nilReason", "unknown");
+                    }
+                    if (hasValue(sizeDim)) {
+                        dimensionNode.addElement("gmd:dimensionSize/gco:Integer").addText(sizeDim);
+                    } else {
+                        dimensionNode.addElement("gmd:dimensionSize").addAttribute("gco:nilReason", "unknown");
+                    }
+                }
+
+                /* cellGeometry */
+                if (hasValue(cellGeo)) {
+                    gridSpatialRepr.addElement("gmd:cellGeometry/gmd:MD_CellGeometryCode")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
+                    .addAttribute("codeListValue", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(509, cellGeo));
                 } else {
-                	gridSpatialRepr.addElement("gmd:georeferencedParameters").addAttribute("gco:nilReason", "unknown");
+                    gridSpatialRepr.addElement("gmd:cellGeometry").addAttribute("gco:nilReason", "unknown");
                 }
-                //gridSpatialRepr.addElement("gmd:parameterCitation")
+
+                /* transformationParameterAvailability */
+                gridSpatialRepr.addElement("gmd:transformationParameterAvailability/gco:Boolean").addText("Y".equals(transformParam));
+
+                if (isGeoRectified) {
+                    var rectCheckpoint = objGeoRow.get("geo_rect_checkpoint");
+                    var rectDescription = objGeoRow.get("geo_rect_description");
+                    var rectCornerPoint = objGeoRow.get("geo_rect_corner_point");
+                    var rectPointInPixel = objGeoRow.get("geo_rect_point_in_pixel");
+
+                    gridSpatialRepr.addElement("gmd:checkPointAvailability/gco:Boolean").addText("Y".equals(rectCheckpoint));
+                    if (hasValue(rectDescription)) {
+                        gridSpatialRepr.addElement("gmd:checkPointDescription/gco:CharacterString").addText(rectDescription);
+                    }
+                    if (hasValue(rectCornerPoint)) {
+                        gridSpatialRepr.addElement("gmd:cornerPoints/gml:Point").addAttribute("gml:id", "cornerPointId1").addElement("gml:coordinates").addText(rectCornerPoint);
+                    }
+                    //gridSpatialRepr.addElement("gmd:centerPoint")
+                    if (hasValue(rectPointInPixel)) {
+                        var pixelOrientCodeList = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(2100, rectPointInPixel);
+                        gridSpatialRepr.addElement("gmd:pointInPixel/gmd:MD_PixelOrientationCode").addText(pixelOrientCodeList);
+                    } else {
+                        gridSpatialRepr.addElement("gmd:pointInPixel").addAttribute("gco:nilReason", "unknown");
+                    }
+                    //gridSpatialRepr.addElement("gmd:transformationDimensionDescription")
+                    //gridSpatialRepr.addElement("gmd:transformationDimensionMapping")
+
+                } else {
+                    var refControlPoint = objGeoRow.get("geo_ref_control_point");
+                    var refOrientationParameter = objGeoRow.get("geo_ref_orientation_parameter");
+                    var refParameter = objGeoRow.get("geo_ref_parameter");
+
+                    gridSpatialRepr.addElement("gmd:controlPointAvailability/gco:Boolean").addText("Y".equals(refControlPoint));
+                    gridSpatialRepr.addElement("gmd:orientationParameterAvailability/gco:Boolean").addText("Y".equals(refOrientationParameter));
+                    //gridSpatialRepr.addElement("gmd:orientationParameterDescription")
+                    if (hasValue(refParameter)) {
+                        gridSpatialRepr.addElement("gmd:georeferencedParameters/gco:Record/gco:CharacterString").addText(refParameter);
+                    } else {
+                        gridSpatialRepr.addElement("gmd:georeferencedParameters").addAttribute("gco:nilReason", "unknown");
+                    }
+                    //gridSpatialRepr.addElement("gmd:parameterCitation")
+                }
             }
         }
     }
@@ -551,72 +554,76 @@ for (i=0; i<objRows.size(); i++) {
     
     // ---------- <gmd:identificationInfo/gmd:abstract> ----------
     var abstr = objRow.get("obj_descr");
-    // handle localization (#1882), abstractPostix will be put only in gco:CharacterString element
-    var abstractElement = identificationInfo.addElement("gmd:abstract");
-    IDF_UTIL.addLocalizedCharacterstring(abstractElement, abstr);
-
+    var prettyAbstr = abstr;
     var objServRow;
     
     if (objClass.equals("3")) {
-        // More data of the service that cannot be mapped within ISO19119, but must be 
-        // supplied by INSPIRE. Add mapping in abstract
-        var abstractPostfixIntro = "\n\n\nWeitere Daten des Dienstes, die nicht standard-konform (ISO 19119) hinterlegt werden k\u00F6nnen, zum Teil gem\u00E4\u00DF INSPIRE-Direktive aber bereit zu stellen sind*:\n\n\n";
-        var abstractPostfix; 
         objServRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
-        if (hasValue(objServRow.get("environment"))) {
-            if (!abstractPostfix) {
-                abstractPostfix = abstractPostfixIntro;
+        // More data of the service that cannot be mapped within ISO19119, but must be
+        // supplied by INSPIRE. Add mapping in abstract
+        var abstractPostfix = "";
+
+
+        var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [+objServRow.get("id")]);
+        var completeScaleString = "";
+        var scaleString = "; Ma\u00DFstab: ";
+        var resString = "; Bodenaufl\u00F6sung (Meter): ";
+        var scanString = "; Scanaufl\u00F6sung (DPI): ";
+        var hasScale = false;
+        var hasRes = false;
+        var hasScan = false;
+        for (var j=0; j<objServScaleRows.size(); j++) {
+            var objServScaleRow = objServScaleRows.get(j);
+            log.info('Line 576 "efesgesg": ');
+            if (hasValue(objServScaleRow.get("scale"))) {
+                hasScale = true;
+                scaleString = scaleString + "1:" + objServScaleRow.get("scale") + ", ";
             }
+            if (hasValue(objServScaleRow.get("resolution_ground"))) {
+                hasRes = true;
+                resString = resString + objServScaleRow.get("resolution_ground") + ", ";
+            }
+            if (hasValue(objServScaleRow.get("resolution_scan"))) {
+                hasScan = true;
+                scanString = scanString + objServScaleRow.get("resolution_scan") + ", ";
+            }
+        }
+        if(hasScale){
+            completeScaleString += scaleString.slice(0,-2);
+        }
+        if(hasRes){
+            completeScaleString += resString.slice(0,-2);
+        }
+        if(hasScan){
+            completeScaleString += scanString.slice(0,-2);
+        }
+        if(hasScale || hasRes || hasScan){
+            log.debug(abstr)
+            log.debug(completeScaleString)
+            prettyAbstr = abstr + "\n" + completeScaleString.slice(2) + "\n";
+            log.debug(prettyAbstr)
+            abstr = abstr + completeScaleString.slice(1)  + "\n";
+            log.debug(abstr)
+            log.debug(completeScaleString)
+        }
+
+
+
+        if (hasValue(objServRow.get("environment"))) {
             abstractPostfix = abstractPostfix + "Systemumgebung: " + objServRow.get("environment") + "\n";
-            abstractPostfix = abstractPostfix + "(environmentDescription/gco:CharacterString= " + objServRow.get("environment") + ")\n\n";
         }
         if (hasValue(objServRow.get("description"))) {
-            if (!abstractPostfix) {
-                abstractPostfix = abstractPostfixIntro;
-            }
             abstractPostfix = abstractPostfix + "Erl\u00E4uterung zum Fachbezug: " + objServRow.get("description") + "\n";
-            abstractPostfix = abstractPostfix + "(supplementalInformation/gco:CharacterString= " + objServRow.get("description") + ")\n\n";
         }
-        
-        var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [+objServRow.get("id")]);
-        for (var j=0; j<objServScaleRows.size(); j++) {
-            var objServScaleRow = objServScaleRows.get(j);
-            if (hasValue(objServScaleRow.get("scale"))) {
-                if (!abstractPostfix) {
-                    abstractPostfix = abstractPostfixIntro;
-                }
-                abstractPostfix = abstractPostfix + "Erstellungsma\u00DFstab: " + objServScaleRow.get("scale") + "\n";
-                abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/equivalentScale/MD_RepresentativeFraction/denominator/gco:Integer= " + objServScaleRow.get("scale") + ")\n";
-            }
-        }
-        for (var j=0; j<objServScaleRows.size(); j++) {
-            var objServScaleRow = objServScaleRows.get(j);
-            if (hasValue(objServScaleRow.get("resolution_ground"))) {
-                if (!abstractPostfix) {
-                    abstractPostfix = abstractPostfixIntro;
-                }
-                abstractPostfix = abstractPostfix + "Bodenaufl\u00F6sung (Meter): " + objServScaleRow.get("resolution_ground") + "\n";
-                abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/distance/gco:Distance[@uom=\"meter\"]= " + objServScaleRow.get("resolution_ground") + ")\n";
-            }
-        }
-        for (var j=0; j<objServScaleRows.size(); j++) {
-            var objServScaleRow = objServScaleRows.get(j);
-            if (hasValue(objServScaleRow.get("resolution_scan"))) {
-                if (!abstractPostfix) {
-                    abstractPostfix = abstractPostfixIntro;
-                }
-                abstractPostfix = abstractPostfix + "Scanaufl\u00F6sung (DPI): " + objServScaleRow.get("resolution_scan") + "\n";
-                abstractPostfix = abstractPostfix + "(spatialResolution/MD_Resolution/distance/gco:Distance[@uom=\"dpi\"]= " + objServScaleRow.get("resolution_scan") + ")\n";
-            }
-        }
-        if (abstractPostfix) {
-            abstractPostfix = abstractPostfix + "\n\n---\n";
-            abstractPostfix = abstractPostfix + "* N\u00E4here Informationen zur INSPIRE-Direktive: http://inspire.jrc.ec.europa.eu/implementingRulesDocs_md.cfm";            
 
-            // handle abstractPostfix, put only in gco:CharacterString element
-            abstractElement.addText(abstr + abstractPostfix);
+        if (abstractPostfix) {
+            prettyAbstr += abstractPostfix;
+            abstr += abstractPostfix;
         }
     }
+    identificationInfo.addElement("gmd:abstract/gco:CharacterString").addText(abstr);
+    // add only the abstract and some prettified additional information (INGRID-2200)
+    mdMetadata.addElement("idf:abstract/gco:CharacterString").addText(prettyAbstr);
 
     // ---------- <gmd:identificationInfo/gmd:purpose> ----------
     
@@ -872,6 +879,26 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
             .addText("publication");
 	    identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
+
+
+    // Further legal basis (REDMINE-1815)
+    rows = SQL.all("SELECT legist_value from t015_legist WHERE obj_id=?", [+objId]);
+    if (rows.size() > 0) {
+        mdKeywords = DOM.createElement("gmd:MD_Keywords");
+        for (i=0; i<rows.size(); i++) {
+            mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(rows.get(i).get("legist_value"));
+        }
+        // add thesaurus information
+        var thesCit = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
+        thesCit.addElement("gmd:title/gco:CharacterString").addText("Further legal basis");
+        var thesCitDate = thesCit.addElement("gmd:date/gmd:CI_Date");
+        thesCitDate.addElement("gmd:date/gco:Date").addText("2020-05-05");
+        thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+            .addAttribute("codeListValue", "publication")
+            .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
+            .addText("publication");
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
     // ---------- <gmd:identificationInfo/gmd:resourceSpecificUsage> ----------
@@ -1373,13 +1400,7 @@ for (i=0; i<objRows.size(); i++) {
             mdMetadata.addElement("idf:exportCriteria").addText(value);
         }
     }
-    
-    // add only the abstract (without extra information) to a special idf-field (INGRID-2200)
-    var abstr = objRow.get("obj_descr");
-    mdMetadata.addElement("idf:abstract/gco:CharacterString").addText(abstr);
 
-    // finally add PT_LOCALE elements
-    IDF_UTIL.addPTLocaleDefinitions(idfDoc);
 }
 
 
@@ -2056,7 +2077,7 @@ function addResourceConstraints(identificationInfo, objRow) {
         if (hasValue(licenseText)) {
 
             var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-            // i.S.v. ISO 19115
+            // removed codeListValue "license" according to GDI-DE 2.0.1 see #1218
             mdLegalConstraints.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
             	.addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
             	.addAttribute("codeListValue", "otherRestrictions");
@@ -2143,34 +2164,27 @@ function addResourceConstraints(identificationInfo, objRow) {
 
         // ---------- <gmd:MD_LegalConstraints/gmd:otherConstraints> ----------
         // then map gmd:otherConstraints
-        for (var i=0; i<otherConstraints.length; i++) {
+        if (otherConstraints.length > 0){
             var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
             mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
                 .addAttribute("codeListValue", "otherRestrictions")
                 .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
                 .addText("otherRestrictions");
+            for (var i=0; i<otherConstraints.length; i++) {
 
-            var constraint = otherConstraints[i];
+                var constraint = otherConstraints[i];
 
-            if (constraint instanceof Object) {
-                var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor");
-                accessAnchor
-                    .addAttribute("xlink:href", constraint.link)
-                    .addText(constraint.text);
-            } else {
-                IDF_UTIL.addLocalizedCharacterstring(mdLegalConstraints.addElement("gmd:otherConstraints"),otherConstraints[i]);
+                if (constraint instanceof Object) {
+                    var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gmx:Anchor");
+                    accessAnchor
+                        .addAttribute("xlink:href", constraint.link)
+                        .addText(constraint.text);
+                } else {
+                    var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString");
+                    accessAnchor.addText(otherConstraints[i]);
+                }
             }
         }
-    }
-
-    rows = SQL.all("SELECT legist_value from t015_legist WHERE obj_id=?", [+objId]);
-    for (var i=0; i<rows.size(); i++) {
-        var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/idf:idfLegalBasisConstraints");
-        mdLegalConstraints.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
-            .addAttribute("codeListValue", "otherRestrictions")
-            .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-            .addText("otherRestrictions");
-        IDF_UTIL.addLocalizedCharacterstring(mdLegalConstraints.addElement("gmd:otherConstraints"), rows.get(i).get("legist_value"));
     }
 }
 
@@ -2496,6 +2510,11 @@ function addDistributionInfo(mdMetadata, objId) {
      * ACHTUNG: Eintrag 9000 gibt es nicht in der Sysliste 2000, die hier eigentlich verwendet wird. Der Eintrag soll auch nicht bei den Verweistypen auftauchen !
      */
     rows = SQL.all("SELECT * FROM T017_url_ref WHERE obj_id=? AND special_ref!=9000", [+objId]);
+
+    // Add url_refs of linked Geoservices (of type 'other' or 'download') for Geodatasets
+    if (objClass.equals("1")){
+        rows.addAll(SQL.all("SELECT t01obj.obj_name, urlref.* FROM object_reference oref, t01_object t01obj, t011_obj_serv t011_object, t017_url_ref urlref WHERE obj_to_uuid=? AND oref.special_ref=3600 AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=3 AND t01obj.work_state='V' AND urlref.obj_id=t01obj.id AND (urlref.special_ref=5066 OR urlref.special_ref=9990) AND t011_object.obj_id=t01obj.id AND (t011_object.type_key=3 OR t011_object.type_key=6)", [objUuid]));
+    }
     for (i=0; i<rows.size(); i++) {
         if (hasValue(rows.get(i).get("url_link"))) {
             if (!mdDistribution) {

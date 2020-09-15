@@ -26,8 +26,10 @@
     </bean>
 
     <bean id="recordSetProducerAddress" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
-        <property name="recordSql" value="SELECT DISTINCT id FROM t02_address WHERE work_state='V' AND publish_id=1 AND hide_address='N'" />
-        <property name="recordByIdSql" value="SELECT DISTINCT id FROM t02_address WHERE work_state='V' AND publish_id=1 AND hide_address='N' AND id=?" />
+        <property name="recordSql" value="SELECT DISTINCT id, adr_uuid, adr_type FROM t02_address WHERE ((publish_id=1 AND work_state='V' AND hide_address='N') OR (adr_type='1000'))" />
+        <property name="recordByIdSql" value="SELECT DISTINCT id, adr_uuid, adr_type FROM t02_address WHERE ((publish_id=1 AND work_state='V' AND hide_address='N') OR (adr_type='1000')) AND id=?" />
+        <property name="recordSqlValidateFolderChildren" value="SELECT DISTINCT node.addr_uuid, node.addr_id_published FROM address_node node, t02_address addr WHERE node.fk_addr_uuid=? AND node.addr_id = addr.id AND ((node.addr_id_published IS NOT NULL AND addr.publish_id=1) OR (addr.adr_type = '1000')) ORDER by node.addr_id_published DESC" />
+        <property name="recordSqlValidateParentPublishDoc" value="SELECT DISTINCT node.fk_addr_uuid FROM address_node node, t02_address addr WHERE node.addr_uuid=? AND node.addr_id = addr.id AND (addr.publish_id = 1  OR addr.adr_type = '1000')" />
     </bean>
 
     <bean id="recordMapperAddress" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
@@ -49,7 +51,6 @@
     <bean id="idfProducerIndexMapperAddress" class="de.ingrid.iplug.dsc.index.mapper.IdfProducerDocumentMapper">
         <property name="dscRecordCreator" ref="dscRecordCreatorAddress" />
     </bean>
-    
 
 <!--     <bean id="dscSearchPlug" class="de.ingrid.iplug.dsc.DscSearchPlug">
         <property name="dscRecordProducer" ref="dscRecordCreatorAddress" />
