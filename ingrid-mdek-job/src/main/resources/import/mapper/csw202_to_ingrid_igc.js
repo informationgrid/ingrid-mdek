@@ -237,6 +237,9 @@ var mappingDescription = {"mappings":[
 	        		},
 	        		{	
 	        			"srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:statement/gco:CharacterString",
+						"srcXpathTransform": {
+							"funct":getLocalisedCharacterString
+						 },
 	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/technical-base"
 	        		},
 	        		{
@@ -391,6 +394,13 @@ var mappingDescription = {"mappings":[
 	      	  				]
 	      				}
 	        		},
+					{
+						"srcXpath":"//gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceSpecificUsage/gmd:MD_Usage/gmd:specificUsage/gco:CharacterString",
+						"srcXpathTransform": {
+							"funct":getLocalisedCharacterString
+					    },
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information/dataset-usage"
+					},
 	        		{
 	        			"execute":{
 	        				"funct":mapRSIdentifier
@@ -857,6 +867,9 @@ var mappingDescription = {"mappings":[
 			  		},
 	  				{
 			  			"srcXpath":"gmd:specification/gmd:CI_Citation/gmd:title/gco:CharacterString",
+			  			"srcXpathTransform": {
+			  				"funct":getLocalisedCharacterString
+			  			},
 			  			"targetNode":"conformity-specification"
 			  		},
 	  				{

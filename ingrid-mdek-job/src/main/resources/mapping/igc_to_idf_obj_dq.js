@@ -186,7 +186,7 @@ for (i=0; i<objRows.size(); i++) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
             }
             liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-            liLineage.addElement("gmd:statement/gco:CharacterString").addText(objGeoRow.get("special_base"));
+            IDF_UTIL.addLocalizedCharacterstring(liLineage.addElement("gmd:statement"), objGeoRow.get("special_base"));
         }
 
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description> ----------
@@ -197,7 +197,7 @@ for (i=0; i<objRows.size(); i++) {
             if (!liLineage) {
                 liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
             }
-            liLineage.addElement("gmd:processStep/gmd:LI_ProcessStep/gmd:description/gco:CharacterString").addText(objGeoRow.get("method"));
+            IDF_UTIL.addLocalizedCharacterstring(liLineage.addElement("gmd:processStep/gmd:LI_ProcessStep/gmd:description"),objGeoRow.get("method"));
         }
 
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
@@ -208,7 +208,7 @@ for (i=0; i<objRows.size(); i++) {
             if (!liLineage) {
                 liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
             }
-            liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(objGeoRow.get("data_base"));
+            IDF_UTIL.addLocalizedCharacterstring(liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description"),objGeoRow.get("data_base"));
         }
 
 // GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
@@ -237,7 +237,7 @@ for (i=0; i<objRows.size(); i++) {
         if (hasValue(objServRow.get("history"))) {
             dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
             liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-            liLineage.addElement("gmd:processStep/gmd:LI_ProcessStep/gmd:description/gco:CharacterString").addText(objServRow.get("history"));
+            IDF_UTIL.addLocalizedCharacterstring(liLineage.addElement("gmd:processStep/gmd:LI_ProcessStep/gmd:description"),objServRow.get("history"));
         }
 
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
@@ -248,7 +248,7 @@ for (i=0; i<objRows.size(); i++) {
             if (!liLineage) {
                 liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
             }
-            liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(objServRow.get("base"));
+            IDF_UTIL.addLocalizedCharacterstring(liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description"),objServRow.get("base"));
         }
 
 // DATENSAMMLUNG/DATENBANK(5)
@@ -260,7 +260,7 @@ for (i=0; i<objRows.size(); i++) {
             if (hasValue(value)) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
                 liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-                liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
+                IDF_UTIL.addLocalizedCharacterstring(liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description"),value);
             }
         }
 
@@ -273,7 +273,7 @@ for (i=0; i<objRows.size(); i++) {
             if (hasValue(value)) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
                 liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
-                liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(value);
+                IDF_UTIL.addLocalizedCharacterstring(liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description"),value);
             }
         }
     }
@@ -329,7 +329,7 @@ function getDqConformanceResultElement(conformityRow) {
     }
 
     if (hasValue(specification)) {
-        ciCitation.addElement("gmd:title/gco:CharacterString").addText(specification);
+        IDF_UTIL.addLocalizedCharacterstring(ciCitation.addElement("gmd:title"),specification);
     } else {
         ciCitation.addElement("gmd:title").addAttribute("gco:nilReason", "missing");
     }
@@ -378,7 +378,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_CompletenessCommission");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            IDF_UTIL.addLocalizedCharacterstring(dqElem.addElement("gmd:nameOfMeasure"),igcNameOfMeasureValue);
             if (igcNameOfMeasureKey.equals("1")) {
                 // Rate of excess items
                 dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("3");
@@ -411,7 +411,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_ConceptualConsistency");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            IDF_UTIL.addLocalizedCharacterstring(dqElem.addElement("gmd:nameOfMeasure"),igcNameOfMeasureValue);
             if (igcNameOfMeasureKey.equals("1")) {
                 // Number of invalid overlaps of surfaces
                 dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("11");
@@ -444,7 +444,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_DomainConsistency");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            IDF_UTIL.addLocalizedCharacterstring(dqElem.addElement("gmd:nameOfMeasure"),igcNameOfMeasureValue);
             if (igcNameOfMeasureKey.equals("1")) {
                 // Value domain conformance rate
                 dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("17");
@@ -472,7 +472,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_FormatConsistency");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            IDF_UTIL.addLocalizedCharacterstring(dqElem.addElement("gmd:nameOfMeasure"),igcNameOfMeasureValue);
             if (igcNameOfMeasureKey.equals("1")) {
                 // Physical structure conflict rate
                 dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("20");
@@ -500,7 +500,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_TopologicalConsistency");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            IDF_UTIL.addLocalizedCharacterstring(dqElem.addElement("gmd:nameOfMeasure"),igcNameOfMeasureValue);
             if (igcNameOfMeasureKey.equals("1")) {
                 // Number of invalid overlaps of surfaces
                 dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("11");
@@ -553,7 +553,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_TemporalConsistency");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            IDF_UTIL.addLocalizedCharacterstring(dqElem.addElement("gmd:nameOfMeasure"),igcNameOfMeasureValue);
             if (igcNameOfMeasureKey.equals("1")) {
                 // Percentage of items that are correctly events ordered
                 // -> INSPIRE: Measure identifier: There is no measure for temporal accuracy in ISO 19138
@@ -582,7 +582,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_ThematicClassificationCorrectness");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            IDF_UTIL.addLocalizedCharacterstring(dqElem.addElement("gmd:nameOfMeasure"),igcNameOfMeasureValue);
             if (igcNameOfMeasureKey.equals("1")) {
                 // Misclassification rate
                 dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("61");
@@ -610,7 +610,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_NonQuantitativeAttributeAccuracy");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            IDF_UTIL.addLocalizedCharacterstring(dqElem.addElement("gmd:nameOfMeasure"),igcNameOfMeasureValue);
             if (igcNameOfMeasureKey.equals("1")) {
                 // Rate of incorrect attributes names values
                 dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("67");
@@ -638,7 +638,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_QuantitativeAttributeAccuracy");
-            dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
+            IDF_UTIL.addLocalizedCharacterstring(dqElem.addElement("gmd:nameOfMeasure"),igcNameOfMeasureValue);
             if (igcNameOfMeasureKey.equals("1")) {
                 // Attribute value uncertainty at 95 % significance level
                 dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("71");
