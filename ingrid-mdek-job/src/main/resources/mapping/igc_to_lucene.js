@@ -383,6 +383,8 @@ for (i=0; i<objRows.size(); i++) {
         for (j=0; j<rows.size(); j++) {
             addObjectDataLanguage(rows.get(j));
         }
+        // add DOI if present
+        addDOIInfo(+objId);
     } else {
         addT01ObjectFolder(objRows.get(i));
     }

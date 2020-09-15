@@ -317,7 +317,7 @@ for (i=0; i<objRows.size(); i++) {
 
                     gridSpatialRepr.addElement("gmd:checkPointAvailability/gco:Boolean").addText("Y".equals(rectCheckpoint));
                     if (hasValue(rectDescription)) {
-                        gridSpatialRepr.addElement("gmd:checkPointDescription/gco:CharacterString").addText(rectDescription);
+                        IDF_UTIL.addLocalizedCharacterstring(gridSpatialRepr.addElement("gmd:checkPointDescription"), rectDescription);
                     }
                     if (hasValue(rectCornerPoint)) {
                         gridSpatialRepr.addElement("gmd:cornerPoints/gml:Point").addAttribute("gml:id", "cornerPointId1").addElement("gml:coordinates").addText(rectCornerPoint);
@@ -621,7 +621,8 @@ for (i=0; i<objRows.size(); i++) {
             abstr += abstractPostfix;
         }
     }
-    identificationInfo.addElement("gmd:abstract/gco:CharacterString").addText(abstr);
+    // handle localization (#1882), abstractPostix will be put only in gco:CharacterString element
+    IDF_UTIL.addLocalizedCharacterstring(identificationInfo.addElement("gmd:abstract"), abstr);
     // add only the abstract and some prettified additional information (INGRID-2200)
     mdMetadata.addElement("idf:abstract/gco:CharacterString").addText(prettyAbstr);
 
@@ -1380,6 +1381,8 @@ for (i=0; i<objRows.size(); i++) {
         }
         mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference", "IN", srvRow));
     }
+    // finally add PT_LOCALE elements
+    IDF_UTIL.addPTLocaleDefinitions(idfDoc);
     
 
 // GEODATENDIENST(3)
@@ -2180,8 +2183,7 @@ function addResourceConstraints(identificationInfo, objRow) {
                         .addAttribute("xlink:href", constraint.link)
                         .addText(constraint.text);
                 } else {
-                    var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString");
-                    accessAnchor.addText(otherConstraints[i]);
+                    IDF_UTIL.addLocalizedCharacterstring(mdLegalConstraints.addElement("gmd:otherConstraints"),otherConstraints[i]);
                 }
             }
         }
