@@ -18,6 +18,12 @@
       <action type="fix" dev="wemove" issue="2104">
         Clean up old indices after indexing.
       </action>
+      <action type="add" dev="wemove" issue="1882">
+        Support localisation of fields.
+      </action>
+      <action type="add" dev="wemove" issue="1846">
+        Nokis: Import/Export geometry context table
+      </action>
     </release>
 
     <release version="5.5.0" date="2020-07-22" description="Release 5.5.0">
