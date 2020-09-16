@@ -18,6 +18,9 @@
       <action type="fix" dev="wemove" issue="2104">
         Clean up old indices after indexing.
       </action>
+      <action type="fix" dev="wemove" issue="1843">
+        Import spatial scope value from CSW-ISO
+      </action>
     </release>
 
     <release version="5.5.0" date="2020-07-22" description="Release 5.5.0">
