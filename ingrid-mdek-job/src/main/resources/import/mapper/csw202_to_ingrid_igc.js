@@ -1167,6 +1167,29 @@ var mappingDescription = {"mappings":[
   		                     ]
   		    }		
   		},
+		// INSPIRE - Räumlicher Anwendungsbereich
+  		{
+  		    "srcXpath":"//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[gmd:thesaurusName/gmd:CI_Citation/gmd:title/gmx:Anchor/@xlink:href='http://inspire.ec.europa.eu/metadata-codelist/SpatialScope']/gmd:keyword/gmx:Anchor",
+  		    "targetNode":"/igc/data-sources/data-source/data-source-instance/spatial-scope",
+			"subMappings": {
+				"mappings": [
+					{
+						"srcXpath": ".",
+						"targetNode": ""
+					},
+					{
+						"srcXpath": ".",
+						"targetNode": "",
+						"targetAttribute": "id",
+						"transform": {
+							"funct": transformToIgcDomainId,
+							// PASS "" as language to check all localized values !!!
+							"params": [6360, "", "Could not map Spatial scope:", true]
+						}
+					}
+				]
+			}
+  		},
         {
             "execute":{
                 "funct":mapUncontrolledTerms

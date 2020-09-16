@@ -248,6 +248,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_TEMPORAL_DATASET_REFERENCE_DATE = "dataset-reference-date/text()";
 	private static final String X_TEMPORAL_DATASET_REFERENCE_TYPE = "dataset-reference-type/@iso-code";
 	private static final String X_SUBJECT_TERMS = X_DATA_SOURCE + "/subject-terms";
+	private static final String X_SPATIAL_SCOPE = X_DATA_SOURCE + "/spatial-scope";
 	private static final String X_LINK_LIST = X_DATA_SOURCE + "/available-linkage";
 	private static final String X_LINK_NAME = "linkage-name/text()";
 	private static final String X_LINK_URL = "linkage-url/text()";
@@ -281,6 +282,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		mapSpatialDomain(source, dataSource);
 		mapTemporalDomain(source, dataSource);
 		mapSubjectTerms(source, dataSource);
+		mapSpatialScope(source, dataSource);
 		mapAvailableLinkages(source, dataSource);
 		mapParentDataSource(source, dataSource);
 		mapRelatedAddresses(source, dataSource);
@@ -1059,6 +1061,14 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		Node subjectTermsNode = XPathUtils.getNode(source, X_SUBJECT_TERMS);
 		if (subjectTermsNode != null) {
 			mapSubjectTerms(subjectTermsNode.getChildNodes(), target);			
+		}
+	}
+
+	private static void mapSpatialScope(Document source, IngridDocument target) {
+		Node spatialScope = XPathUtils.getNode(source, X_SPATIAL_SCOPE);
+		if (spatialScope != null) {
+			Integer id = Integer.valueOf(spatialScope.getAttributes().getNamedItem("id").getNodeValue());
+			putInt(MdekKeys.SPATIAL_SCOPE, id, target);
 		}
 	}
 
