@@ -554,6 +554,12 @@ for (i=0; i<objRows.size(); i++) {
     
     // ---------- <gmd:identificationInfo/gmd:abstract> ----------
     var abstr = objRow.get("obj_descr");
+    var localeString = "";
+    var locIndex = abstr.indexOf("#locale-");
+    if ( locIndex != -1){
+        localeString = abstr.substring(locIndex);
+        abstr = abstr.substring(0, locIndex);
+    }
     var prettyAbstr = abstr;
     var objServRow;
     
@@ -598,13 +604,8 @@ for (i=0; i<objRows.size(); i++) {
             completeScaleString += scanString.slice(0,-2);
         }
         if(hasScale || hasRes || hasScan){
-            log.debug(abstr)
-            log.debug(completeScaleString)
             prettyAbstr = abstr + "\n" + completeScaleString.slice(2) + "\n";
-            log.debug(prettyAbstr)
             abstr = abstr + completeScaleString.slice(1)  + "\n";
-            log.debug(abstr)
-            log.debug(completeScaleString)
         }
 
 
@@ -620,6 +621,9 @@ for (i=0; i<objRows.size(); i++) {
             prettyAbstr += abstractPostfix;
             abstr += abstractPostfix;
         }
+    }
+    if (localeString) {
+        abstr += localeString;
     }
     // handle localization (#1882), abstractPostix will be put only in gco:CharacterString element
     IDF_UTIL.addLocalizedCharacterstring(identificationInfo.addElement("gmd:abstract"), abstr);
