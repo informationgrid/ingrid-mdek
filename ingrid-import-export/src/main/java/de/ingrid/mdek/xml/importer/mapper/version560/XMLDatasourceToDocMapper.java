@@ -71,6 +71,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADV_PRODUCT_GROUP_ITEMS = X_DATA_SOURCE + "/general/adv-product-group/item/text()";
 	private static final String X_IS_OPEN_DATA = X_DATA_SOURCE + "/general/is-open-data/text()";
 	private static final String X_OPEN_DATA_CATEGORIES = X_DATA_SOURCE + "/general/open-data-categories/open-data-category";
+	private static final String X_DOI = X_DATA_SOURCE + "/general/doiId";
 	private static final String X_TECHNICAL_DOMAIN_DATASET = X_DATA_SOURCE + "/technical-domain/dataset";
 	private static final String X_TECHNICAL_DOMAIN_SERVICE = X_DATA_SOURCE + "/technical-domain/service";
 	private static final String X_TECHNICAL_DOMAIN_DOCUMENT = X_DATA_SOURCE + "/technical-domain/document";
@@ -318,6 +319,15 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		mapOpenDataCategories(source, target);
 		mapEnvTopics(source, target);
 		mapProductGroup(source, target);
+		mapDOI(source, target);
+	}
+
+	private static void mapDOI(Document source, IngridDocument target) {
+		String doi = XPathUtils.getString(source, X_DOI);
+		IngridDocument additionalDOI = new IngridDocument();
+		putString(MdekKeys.ADDITIONAL_FIELD_KEY, "doiId", additionalDOI);
+		putString(MdekKeys.ADDITIONAL_FIELD_DATA, doi, additionalDOI);
+		target.addToList(MdekKeys.ADDITIONAL_FIELDS, additionalDOI);
 	}
 
 	private static void mapGeneralAdditionalValues(Document source, IngridDocument target) {
