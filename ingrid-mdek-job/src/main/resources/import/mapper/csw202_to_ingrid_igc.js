@@ -232,7 +232,10 @@ var mappingDescription = {"mappings":[
 	        		},
 	        		{	
 	        		    "srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString",
-	        		    "targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/data-basis-text",
+						"srcXpathTransform": {
+							"funct":getLocalisedCharacterString
+						},
+	        		    "targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/data",
         		        "concatEntriesWith":"; "
 	        		},
 	        		{	
