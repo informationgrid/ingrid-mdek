@@ -91,6 +91,13 @@ var mappingDescription = {"mappings":[
 			},
 			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/title"
   		},
+		{
+  			"srcXpath":"//gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:identifier//gmd:code/gco:CharacterString",
+			"srcXpathTransform": {
+			    "funct":getDoiId
+			},
+			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/doiId"
+  		},
   		{
   			"srcXpath":"//gmd:identificationInfo//gmd:abstract/gco:CharacterString",
 			"srcXpathTransform": {
@@ -2667,6 +2674,15 @@ function getLocalisedCharacterString(node) {
         }
     }
     return '';
+}
+
+function getDoiId(node) {
+	if (hasValue(node)) {
+		var content = node.getTextContent();
+		if (content.indexOf("https://doi.org/") === 0) {
+			return content.substring(16);
+		}
+	}
 }
 
 

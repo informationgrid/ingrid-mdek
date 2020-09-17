@@ -105,7 +105,7 @@ for (i=0; i<objRows.size(); i++) {
         mdMetadata.addElement("gmd:fileIdentifier/gco:CharacterString").addText(value);
     }
 
-    addDOIInfo(mdMetadata, objId);
+    var doiId = addDOIInfo(mdMetadata, objId);
 
 // ---------- <gmd:language> ----------
     value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
@@ -436,6 +436,10 @@ for (i=0; i<objRows.size(); i++) {
     // only put/generate a resource identifier for class Geoinformation/Karte (Class 1) (INGRID32-184)
     if (objClass.equals("1")) {
         ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(getCitationIdentifier(objRow));
+    }
+
+    if (hasValue(doiId)) {
+        ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("https://doi.org/" + doiId);
     }
     
     // continue mapping literature properties
@@ -3033,10 +3037,11 @@ function addDOIInfo(parent, objId) {
 
     if (hasValue(doiId) || hasValue(doiType)) {
         var doiElement = parent.addElement("idf:doi");
+        var doiId = doiId.get("data");
 
         if (hasValue(doiId)) {
             doiElement.addElement("id")
-                .addText(doiId.get("data"));
+                .addText(doiId);
         }
 
         if (hasValue(doiType)) {
@@ -3044,6 +3049,8 @@ function addDOIInfo(parent, objId) {
                 .addAttribute("id", doiType.get("list_item_id"))
                 .addText(doiType.get("data"));
         }
+
+        return doiId;
     }
 }
 
