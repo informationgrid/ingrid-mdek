@@ -55,10 +55,10 @@ abstract public class AbstractXMLToDocMapper {
 	private static final String OPENDATA = "OpenData";
 
 	protected static void mapSubjectTerms(NodeList terms, IngridDocument target) {
-		List<IngridDocument> termList = new ArrayList<IngridDocument>();
-		List<IngridDocument> termInspireList = new ArrayList<IngridDocument>();
-		List<IngridDocument> openDataList = new ArrayList<IngridDocument>();
-		List<Integer> envTopicsList = new ArrayList<Integer>();
+		List<IngridDocument> termList = new ArrayList<>();
+		List<IngridDocument> termInspireList = new ArrayList<>();
+		List<IngridDocument> openDataList = new ArrayList<>();
+		List<Integer> envTopicsList = new ArrayList<>();
 
 		for (int index = 0; index < terms.getLength(); index++) {
 			Node term = terms.item(index);

@@ -24,6 +24,9 @@
       <action type="add" dev="wemove" issue="1846">
         Nokis: Import/Export geometry context table
       </action>
+      <action type="fix" dev="wemove" issue="1843">
+        Import spatial scope value from CSW-ISO
+      </action>
     </release>
 
     <release version="5.5.0" date="2020-07-22" description="Release 5.5.0">
