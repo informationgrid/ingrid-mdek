@@ -1123,6 +1123,8 @@ public class MdekKeys {
     public final static String LINKAGE_NAME = "linkage-name";
     /** Value: Integer */
     public final static String LINKAGE_URL_TYPE = "linkage-url-type";
+    /** Value: String */
+    public final static String LINKAGE_UUID = "linkage-uuid";
 
     /** Value: String */
     public final static String ORIGINAL_CONTROL_IDENTIFIER = "original-control-identifier";

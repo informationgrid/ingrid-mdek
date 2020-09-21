@@ -258,6 +258,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_LINK_DATATYPE = "linkage-datatype/text()";
 	private static final String X_LINK_DATATYPE_KEY = "linkage-datatype/@id";
 	private static final String X_LINK_DESCRIPTION = "linkage-description/text()";
+	private static final String X_LINK_UUID = "linkage-uuid/text()";
 	private static final String X_PARENT_IDENTIFIER = X_DATA_SOURCE + "/parent-data-source/object-identifier/text()";
 	private static final String X_RELATED_ADDRESS_LIST = X_DATA_SOURCE + "/related-address";
 	private static final String X_RELATED_ADDRESS_TYPE_OF_RELATION = "type-of-relation/text()";
@@ -1087,6 +1088,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			putString(MdekKeys.LINKAGE_DATATYPE, XPathUtils.getString(linkage, X_LINK_DATATYPE), linkageDoc);
 			putInt(MdekKeys.LINKAGE_DATATYPE_KEY, XPathUtils.getInt(linkage, X_LINK_DATATYPE_KEY), linkageDoc);
 			putString(MdekKeys.LINKAGE_DESCRIPTION, XPathUtils.getString(linkage, X_LINK_DESCRIPTION), linkageDoc);
+			putString(MdekKeys.LINKAGE_UUID, XPathUtils.getString(linkage, X_LINK_UUID), linkageDoc);
 
 			linkagesList.add(linkageDoc);
 		}

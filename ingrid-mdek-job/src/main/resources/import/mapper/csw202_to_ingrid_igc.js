@@ -1262,6 +1262,10 @@ var mappingDescription = {"mappings":[
 			  			"defaultValue":"-1",
 			  			"targetNode":"linkage-reference",
 			  			"targetAttribute":"id"
+			  		},
+	  				{
+			  			"srcXpath":"./@uuidref",
+			  			"targetNode":"linkage-uuid"
 			  		}
 			  	]
 			}

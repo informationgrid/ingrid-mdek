@@ -21,6 +21,9 @@
       <action type="fix" dev="wemove" issue="1843">
         Import spatial scope value from CSW-ISO
       </action>
+      <action type="add" dev="wemove" issue="1855">
+        Improve import of operatesOn element
+      </action>
     </release>
 
     <release version="5.5.0" date="2020-07-22" description="Release 5.5.0">
