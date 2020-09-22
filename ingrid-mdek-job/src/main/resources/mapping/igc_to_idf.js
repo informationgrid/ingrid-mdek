@@ -105,7 +105,7 @@ for (i=0; i<objRows.size(); i++) {
         mdMetadata.addElement("gmd:fileIdentifier/gco:CharacterString").addText(value);
     }
 
-    var doiId = addDOIInfo(mdMetadata, objId);
+    var doi = addDOIInfo(mdMetadata, objId);
 
 // ---------- <gmd:language> ----------
     value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
@@ -438,8 +438,12 @@ for (i=0; i<objRows.size(); i++) {
         ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(getCitationIdentifier(objRow));
     }
 
-    if (hasValue(doiId)) {
-        ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("https://doi.org/" + doiId);
+    if (hasValue(doi)) {
+        var citationIdentifier = ciCitation.addElement("gmd:identifier/gmd:MD_Identifier");
+        if (hasValue(doi.type)) {
+            citationIdentifier.addElement("gmd:authority/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(doi.type);
+        }
+        citationIdentifier.addElement("gmd:code/gco:CharacterString").addText("https://doi.org/" + doi.id);
     }
     
     // continue mapping literature properties
@@ -3032,12 +3036,12 @@ function getIdfAddressReference(addrRow, elementName) {
 }
 
 function addDOIInfo(parent, objId) {
-    var doiId = SQL.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiId'", [objId]);
+    var doiIdData = SQL.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiId'", [objId]);
     var doiType = SQL.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiType'", [objId]);
 
-    if (hasValue(doiId) || hasValue(doiType)) {
+    if (hasValue(doiIdData) || hasValue(doiType)) {
         var doiElement = parent.addElement("idf:doi");
-        var doiId = doiId.get("data");
+        var doiId = doiIdData.get("data");
 
         if (hasValue(doiId)) {
             doiElement.addElement("id")
@@ -3050,7 +3054,13 @@ function addDOIInfo(parent, objId) {
                 .addText(doiType.get("data"));
         }
 
-        return doiId;
+        log.debug("doiType-ID: " + doiType.get("list_item_id"));
+        log.debug("doiType-data: " + doiType.get("data"));
+
+        return {
+            id: doiId,
+            type: doiType.get("data")
+        };
     }
 }
 

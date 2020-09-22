@@ -92,11 +92,11 @@ var mappingDescription = {"mappings":[
 			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/title"
   		},
 		{
-  			"srcXpath":"//gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:identifier//gmd:code/gco:CharacterString",
-			"srcXpathTransform": {
-			    "funct":getDoiId
-			},
-			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/doiId"
+			// DOI - Id and Type
+  			"execute": {
+				"funct":handleDoi
+			}
+			// "targetNode":"/igc/data-sources/data-source/data-source-instance/general/doiId"
   		},
   		{
   			"srcXpath":"//gmd:identificationInfo//gmd:abstract/gco:CharacterString",
@@ -2699,15 +2699,25 @@ function getLocalisedCharacterString(node) {
     return '';
 }
 
-function getDoiId(node) {
-	if (hasValue(node)) {
-		var content = node.getTextContent();
-		if (content.indexOf("https://doi.org/") === 0) {
-			return content.substring(16);
+function handleDoi(source, target) {
+	var identCodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:identifier//gmd:code/gco:CharacterString");
+	for (var i = 0; i < identCodes.getLength(); i++) {
+		var codeNode = identCodes.item(i);
+		if (hasValue(codeNode)) {
+			var content = codeNode.getTextContent();
+			if (content.indexOf("https://doi.org/") === 0) {
+				var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/doiId");
+				XMLUtils.createOrReplaceTextNode(node, content.substring(16));
+
+				var doiTypeNode = XPATH.getNode(codeNode, "../../gmd:authority/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString");
+				if (hasValue(doiTypeNode)) {
+					var nodeType = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/doiType");
+					XMLUtils.createOrReplaceTextNode(nodeType, doiTypeNode.getTextContent());
+				}
+			}
 		}
 	}
 }
-
 
 function hasValue(val) {
 	if (typeof val == "undefined") {
