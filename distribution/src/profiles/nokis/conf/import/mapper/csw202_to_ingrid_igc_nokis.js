@@ -31,7 +31,18 @@ importPackage(Packages.org.w3c.dom);
 importClass(Packages.de.ingrid.utils.xml.XMLUtils);
 importClass(Packages.de.ingrid.mdek.job.protocol.ProtocolHandler);
 
+
+
+
 var mappingDescriptionNokis = {"mappings":[
+        {
+            // check if document type is supported
+            // we only allow geoservice and dataset
+            "srcXpath":"//gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue",
+            "transform":{
+                "funct":checkForSupportedClasses
+            }
+        },
         {
             "execute": {
                 "funct": mapGeometryContext
@@ -45,6 +56,11 @@ if (log.isDebugEnabled()) {
 
 mapToTarget(mappingDescriptionNokis, source, target.getDocumentElement());
 
+function checkForSupportedClasses(val) {
+    if (!(hasValue(val) && (val.toLowerCase() === "service" || val.toLowerCase() === "dataset"))) {
+        throw new Error("Object class is not supported. Only service and dataset are allowed");
+    }
+}
 
 function mapGeometryContext(source, target) {
 
