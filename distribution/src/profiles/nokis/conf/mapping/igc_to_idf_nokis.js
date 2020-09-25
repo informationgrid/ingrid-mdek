@@ -36,13 +36,13 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
 
-DOM.addNS("igctx", "http://informationgrid.eu/schemas/igctx");
+DOM.addNS("igctx", "https://www.ingrid-oss.eu/schemas/igctx");
 
 //---------- <idf:idfMdMetadata> ----------
 var body = DOM.getElement(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata");
 body.addAttribute("xmlns:igctx", DOM.getNS("igctx"));
 var oldSchemaLocation = body.getElement().getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue();
-body.addAttribute("xsi:schemaLocation", oldSchemaLocation + " http://informationgrid.eu/igctx http://informationgrid.eu/schemas/igctx/igctx.xsd");
+body.addAttribute("xsi:schemaLocation", oldSchemaLocation + " https://www.ingrid-oss.eu/schemas/igctx https://www.ingrid-oss.eu/schemas/igctx/igctx.xsd");
 
 var nextSiblingForSpatialRepresentationInfo = searchNextRootSiblingTag(body, "gmd:spatialRepresentationInfo");
 
@@ -72,7 +72,7 @@ function addMetadataExtension() {
         element = body.addElement("gmd:metadataExtensionInfo");
     }
 
-    element.addAttribute("xlink:href", "http://informationgrid.eu/igctx/igctx.xsd");
+    element.addAttribute("xlink:href", "https://www.ingrid-oss.eu/schemas/igctx/igctx.xsd");
 
 }
 
