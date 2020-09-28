@@ -24,8 +24,10 @@
 
     <bean id="recordSetProducer" class="de.ingrid.iplug.dsc.index.producer.PlugDescriptionConfiguredDatabaseRecordSetProducer">
         <property name="recordSql" value="SELECT DISTINCT id, obj_uuid, obj_class FROM t01_object WHERE ((publish_id=1 AND work_state='V' AND (to_be_published_on is null OR to_be_published_on &lt;= CURRENT_DATE)) OR (obj_class='1000'))" />
-        <property name="recordSqlValidateFolderChildren" value="SELECT DISTINCT node.obj_uuid, node.obj_id_published FROM object_node node, t01_object obj WHERE node.fk_obj_uuid=? AND node.obj_id = obj.id AND ((node.obj_id_published IS NOT NULL AND obj.publish_id=1) OR (obj.obj_class = '1000')) ORDER by node.obj_id_published DESC" />
-        <property name="recordSqlValidateParentPublishDoc" value="SELECT DISTINCT node.fk_obj_uuid FROM object_node node, t01_object obj WHERE node.obj_uuid=? AND node.obj_id = obj.id AND obj.publish_id=1" />
+        <property name="recordSqlValidateFolderChildren" value="SELECT DISTINCT node.obj_uuid, node.obj_id_published FROM object_node node, t01_object obj WHERE node.obj_id = obj.id AND ((node.obj_id_published IS NOT NULL AND obj.publish_id=1) OR (obj.obj_class = '1000')) AND node.fk_obj_uuid=? ORDER by node.obj_id_published DESC" />
+        <property name="recordSqlValidateParentPublishDoc" value="SELECT DISTINCT node.fk_obj_uuid FROM object_node node, t01_object obj WHERE node.obj_id = obj.id AND obj.publish_id=1 AND node.obj_uuid=?" />
+        <property name="recordParentFolderByIdSql" value="SELECT DISTINCT obj.id, obj.obj_uuid, obj.obj_class FROM object_node node, t01_object obj WHERE node.fk_obj_uuid = obj.obj_uuid AND obj.obj_class = 1000 AND node.obj_id=?" />
+        <property name="recordParentFolderByUuidSql" value="SELECT DISTINCT obj.id, obj.obj_uuid, obj.obj_class FROM object_node node, t01_object obj WHERE node.fk_obj_uuid = obj.obj_uuid AND obj.obj_class = 1000 AND node.obj_uuid=?" />
     </bean>
 
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">

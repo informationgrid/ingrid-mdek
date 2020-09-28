@@ -830,10 +830,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 			}
 
             if (!transactionInProgress) {
-                daoObjectNode.commitTransaction();
-                
                 // Update search index
                 updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId));
+
+                daoObjectNode.commitTransaction();
             }
 
 			return result;
