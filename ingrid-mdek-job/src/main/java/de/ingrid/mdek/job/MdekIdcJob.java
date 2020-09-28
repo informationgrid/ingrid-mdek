@@ -145,10 +145,12 @@ public abstract class MdekIdcJob extends MdekJob {
 	protected void updateSearchIndexAndAudit(List<HashMap> changedEntities) {
         for (Map entity : changedEntities) {
 
+            boolean isObject = true;
             // use document producer according to entity type
             DscDocumentProducer docProducer = docProducerObject;
             if (IdcEntityType.ADDRESS.getDbValue().equals( entity.get( MdekKeys.JOBINFO_ENTITY_TYPE ) )) {
                 docProducer = docProducerAddress;
+                isObject = false;
             }
 
             // PUBLISHED entities !
@@ -187,6 +189,12 @@ public abstract class MdekIdcJob extends MdekJob {
                     doc.put( "organisation", config.organisation );
                     doc.put( "iPlugId", config.communicationProxyUrl );
                     indexManager.update( indexInfo, doc, false );
+                    if (doc.containsKey("parent.object_node.obj_uuid")) {
+                        this.updateParentFolder(entity.get( MdekKeys.ID ).toString(), doc, docProducer, indexManager, true, isObject);
+                    }
+                    if (doc.containsKey("parent.address_node.addr_uuid")) {
+                        this.updateParentFolder(entity.get( MdekKeys.ID ).toString(), doc, docProducer, indexManager, true, isObject);
+                    }
                     indexManager.flush();
                 }
 
@@ -206,6 +214,7 @@ public abstract class MdekIdcJob extends MdekJob {
                 String uuid = (String) entity.get( MdekKeys.UUID );
                 if (log.isDebugEnabled()) log.debug( "Going to remove it from the index using uuId: " + uuid );
                 indexManager.delete( docProducer.getIndexInfo(), uuid, true );
+                this.updateParentFolder(uuid, null, docProducer, indexManager, false, isObject, true);
                 indexManager.flush();
 
                 if (AuditService.instance != null) {
@@ -216,6 +225,78 @@ public abstract class MdekIdcJob extends MdekJob {
             }
         }
 	}
+
+    private void updateParentFolder(String id, ElasticDocument doc, DscDocumentProducer docProducer, IIndexManager indexManager, boolean isUpdate, boolean isObject) {
+        this.updateParentFolder(id, doc, docProducer, indexManager, isUpdate, isObject, false);
+    }
+
+    private void updateParentFolder(String id, ElasticDocument doc, DscDocumentProducer docProducer, IIndexManager indexManager, boolean isUpdate, boolean isObject, boolean isUuid) {
+        if(id != null) {
+            String docId = "t01_object.id";
+            String docUuid = "t01_object.obj_id";
+            String parentNodeUuid = "parent.object_node.obj_uuid";
+            String childrenNodeUuid = "children.object_node.obj_uuid";
+            
+            if(!isObject) {
+                docId = "t02_address.id";
+                docUuid = "t02_address.adr_id";
+                parentNodeUuid = "parent.address_node.addr_uuid";
+                childrenNodeUuid = "children.address_node.addr_uuid";
+            }
+            if(isUpdate) {
+                ElasticDocument parentDoc = docProducer.getParentFolderById(id, isUuid);
+                if(parentDoc != null && doc != null) {
+                    parentDoc.put( "datatype", doc.get("datatype") );
+                    parentDoc.put( "partner", doc.get("partner") );
+                    parentDoc.put( "provider", doc.get("provider") );
+                    parentDoc.put( "dataSourceName", doc.get("dataSourceName") );
+                    parentDoc.put( "organisation", doc.get("organisation") );
+                    parentDoc.put( "iPlugId", doc.get("iPlugId") );
+                    
+                    indexManager.update( docProducer.getIndexInfo(), parentDoc, false );
+                    if (parentDoc.containsKey(parentNodeUuid)) {
+                        if (parentDoc.containsKey(docId)) {
+                           this.updateParentFolder(parentDoc.get(docId).toString(), doc, docProducer, indexManager, isUpdate, isObject);
+                        }
+                    }
+                }
+            } else {
+                ElasticDocument parentDoc = docProducer.getParentFolderById(id, isUuid);
+                boolean hasDeletedParent = false;
+                if(parentDoc != null) {
+                    String uuid = parentDoc.get(docUuid).toString();
+                    if(parentDoc.get(childrenNodeUuid) instanceof ArrayList) {
+                        ArrayList<String> children = (ArrayList<String>) parentDoc.get(childrenNodeUuid);
+                        children.remove(id);
+                        if(children.isEmpty()) {
+                            indexManager.delete( docProducer.getIndexInfo(), uuid, true);
+                            hasDeletedParent = true;
+                        }
+                    } else if (parentDoc.get(childrenNodeUuid) instanceof String){
+                        String children = ((String) parentDoc.get(childrenNodeUuid)).replace(id, "");
+                        if(children.isEmpty()) {
+                            indexManager.delete( docProducer.getIndexInfo(), uuid, true);
+                            hasDeletedParent = true;
+                        }
+                    } else {
+                        if(!docProducer.isFolderWithPublishDoc(uuid)) {
+                            indexManager.delete( docProducer.getIndexInfo(), uuid, true);
+                            hasDeletedParent = true;
+                        }
+                    }
+                    
+                    if(hasDeletedParent) {
+                        if (parentDoc.containsKey(parentNodeUuid)) {
+                            if (parentDoc.containsKey(docId)) {
+                               this.updateParentFolder(parentDoc.get(docUuid).toString(), doc, docProducer, indexManager, isUpdate, isObject, true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
 
     /** Returns value of key in given doc or defaultValue if key not set ! */
     protected Object getOrDefault(IngridDocument doc, String key, Object defaultValue) {

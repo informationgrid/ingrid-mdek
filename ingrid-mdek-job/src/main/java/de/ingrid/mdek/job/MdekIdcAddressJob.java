@@ -1057,10 +1057,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 			IngridDocument result = addressService.deleteAddressFull(uuid, forceDeleteReferences, userId);
 
             if (!transactionInProgress) {
-                daoAddressNode.commitTransaction();
-                
                 // Update search index
                 updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId));
+
+                daoAddressNode.commitTransaction();
             }
 			
 			return result;
