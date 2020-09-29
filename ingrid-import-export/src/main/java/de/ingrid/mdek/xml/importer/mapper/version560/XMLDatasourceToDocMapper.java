@@ -212,6 +212,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADDITIONAL_CONFORMITY_DEGREE = "conformity-degree/text()";
 	private static final String X_ADDITIONAL_CONFORMITY_DEGREE_KEY = "conformity-degree/@id";
 	private static final String X_ADDITIONAL_CONFORMITY_PUBLICATION_DATE = "conformity-publication-date";
+	private static final String X_ADDITIONAL_CONFORMITY_EXPLANATION = "conformity-explanation/text()";
 	private static final String X_ADDITIONAL_DQ_LIST = X_DATA_SOURCE + "/additional-information/data-quality";
 	private static final String X_ADDITIONAL_DQ_ELEMENT_ID = "dq-element-id/text()";
 	private static final String X_ADDITIONAL_DQ_NAME_OF_MEASURE_KEY = "dq-name-of-measure/@id";
@@ -923,6 +924,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			putString(MdekKeys.CONFORMITY_DEGREE_VALUE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_DEGREE), conformityDoc);
 			putInt(MdekKeys.CONFORMITY_DEGREE_KEY, XPathUtils.getInt(conformity, X_ADDITIONAL_CONFORMITY_DEGREE_KEY), conformityDoc);
 			putString(MdekKeys.CONFORMITY_PUBLICATION_DATE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_PUBLICATION_DATE), conformityDoc);
+			putString(MdekKeys.CONFORMITY_EXPLANATION, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_EXPLANATION), conformityDoc);
 
 			conformityList.add(conformityDoc);
 		}

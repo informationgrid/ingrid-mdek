@@ -1282,6 +1282,8 @@ public class MdekKeys {
     public final static String CONFORMITY_DEGREE_VALUE = "conformity-degree-value";
     /** Value: String */
     public final static String CONFORMITY_PUBLICATION_DATE = "conformity-publication-date";
+    /** Value: String */
+    public final static String CONFORMITY_EXPLANATION = "conformity-explanation";
 
     /** Value: List< IngridDocument > */
     public final static String ACCESS_LIST = "access_list";

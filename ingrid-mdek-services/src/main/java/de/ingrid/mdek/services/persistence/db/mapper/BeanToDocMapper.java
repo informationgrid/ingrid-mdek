@@ -1977,6 +1977,7 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, ref.getDegreeKey());
 		refDoc.put(MdekKeys.CONFORMITY_DEGREE_VALUE, ref.getDegreeValue());
 		refDoc.put(MdekKeys.CONFORMITY_PUBLICATION_DATE, ref.getPublicationDate());
+		refDoc.put(MdekKeys.CONFORMITY_EXPLANATION, ref.getExplanation());
 
 		return refDoc;
 	}
