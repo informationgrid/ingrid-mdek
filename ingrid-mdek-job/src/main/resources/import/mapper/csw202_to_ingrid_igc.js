@@ -882,6 +882,10 @@ var mappingDescription = {"mappings":[
 						"transform":{
 							"funct":transformDateIso8601ToIndex
 						}
+			  		},
+	  				{
+			  			"srcXpath":"gmd:explanation/gco:CharacterString",
+			  			"targetNode":"conformity-explanation"
 			  		}
 			  	]
 			}

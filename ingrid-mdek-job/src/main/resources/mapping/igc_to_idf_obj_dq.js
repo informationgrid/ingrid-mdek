@@ -345,8 +345,13 @@ function getDqConformanceResultElement(conformityRow) {
         .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
         .addAttribute("codeListValue", "publication")
         .addText("publication");
-    dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText("see the referenced specification");
-    
+
+    var explanation = conformityRow.get("explanation");
+    if (!hasValue(explanation)) {
+        explanation  = "see the referenced specification"; // use standard value
+    }
+    dqConformanceResult.addElement("gmd:explanation/gco:CharacterString").addText(explanation);
+
     // REDMINE-86: If conformity "not evaluated" then set "unknown" attribute according to GDI-DE !
     if (conformityRow.get("degree_key").equals("3")) {
         // not evaluated
