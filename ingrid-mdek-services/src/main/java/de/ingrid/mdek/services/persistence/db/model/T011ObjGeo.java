@@ -59,6 +59,7 @@ public class T011ObjGeo implements IEntity {
 	private Integer keycInclWDataset;
 	private String datasourceUuid;
 
+	private Set t011ObjGeoAxisDim = new HashSet();
 	private Set t011ObjGeoScales = new HashSet();
 	private Set t011ObjGeoSpatialReps = new HashSet();
 	private Set t011ObjGeoSupplinfos = new HashSet();
@@ -171,6 +172,14 @@ public class T011ObjGeo implements IEntity {
 		this.datasourceUuid = datasourceUuid;
 	}
 
+
+	public Set getT011ObjGeoAxisDim() {
+		return t011ObjGeoAxisDim;
+	}
+
+	public void setT011ObjGeoAxisDim(Set t011ObjGeoAxisDim) {
+		this.t011ObjGeoAxisDim = t011ObjGeoAxisDim;
+	}
 
 	public Set getT011ObjGeoScales() {
 		return t011ObjGeoScales;

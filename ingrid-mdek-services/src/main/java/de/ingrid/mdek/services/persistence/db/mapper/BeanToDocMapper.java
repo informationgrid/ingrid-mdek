@@ -1048,8 +1048,6 @@ public class BeanToDocMapper implements IMapper {
 		
 		domainDoc.put( MdekKeys.TRANSFORMATION_PARAMETER, objGeo.getTransfParam() );
         domainDoc.put( MdekKeys.NUM_DIMENSIONS, (Integer) objGeo.getNumDimensions() );
-        domainDoc.put( MdekKeys.AXIS_DIM_NAME, objGeo.getAxisDimName() );
-        domainDoc.put( MdekKeys.AXIS_DIM_SIZE, objGeo.getAxisDimSize() );
         domainDoc.put( MdekKeys.CELL_GEOMETRY, objGeo.getCellGeometry() );
         domainDoc.put( MdekKeys.GEO_RECTIFIED, objGeo.getGeoRectified() );
         domainDoc.put( MdekKeys.GEO_RECT_CHECKPOINT, objGeo.getRectCheckpoint() );
@@ -1069,6 +1067,8 @@ public class BeanToDocMapper implements IMapper {
 		
 		// add key catalogs
 		mapObjectTypesCatalogues(obj.getObjectTypesCatalogues(), domainDoc);
+		// add axis dimensions
+		mapT011ObjGeoAxisDim(objGeo.getT011ObjGeoAxisDim(), domainDoc);
 		// add publication scales
 		mapT011ObjGeoScales(objGeo.getT011ObjGeoScales(), domainDoc);
 		// add symbol catalogs
@@ -1083,6 +1083,23 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
+	private IngridDocument mapT011ObjGeoAxisDim(Set<T011ObjGeoAxisDim> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> locList = new ArrayList<>(refs.size());
+		for (T011ObjGeoAxisDim ref : refs) {
+			IngridDocument doc = new IngridDocument();
+			doc.put(MdekKeys.AXIS_DIM_NAME, ref.getName());
+			doc.put(MdekKeys.AXIS_DIM_SIZE, ref.getCount());
+			doc.put(MdekKeys.AXIS_DIM_RESOLUTION, ref.getAxisResolution());
+			locList.add(doc);					
+		}
+		objectDoc.put(MdekKeys.AXIS_DIMENSION_LIST, locList);
+		
+		return objectDoc;
+	}
+
 	private IngridDocument mapT011ObjGeoScales(Set<T011ObjGeoScale> refs, IngridDocument objectDoc) {
 		if (refs == null) {
 			return objectDoc;
@@ -1093,10 +1110,10 @@ public class BeanToDocMapper implements IMapper {
 			doc.put(MdekKeys.SCALE, ref.getScale());
 			doc.put(MdekKeys.RESOLUTION_GROUND, ref.getResolutionGround());
 			doc.put(MdekKeys.RESOLUTION_SCAN, ref.getResolutionScan());
-			locList.add(doc);					
+			locList.add(doc);
 		}
 		objectDoc.put(MdekKeys.PUBLICATION_SCALE_LIST, locList);
-		
+
 		return objectDoc;
 	}
 	

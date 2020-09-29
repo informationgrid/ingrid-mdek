@@ -837,10 +837,16 @@ public class MdekKeys {
     public final static String TRANSFORMATION_PARAMETER = "transformation-parameter";
     /** Value: Integer  */
     public final static String NUM_DIMENSIONS = "num-dimensions";
+
+    /** Value: List< IngridDocument >  */
+    public final static String AXIS_DIMENSION_LIST = "axis-dimension-list";
     /** Value: String  */
     public final static String AXIS_DIM_NAME = "axis-dim-name";
     /** Value: Integer  */
     public final static String AXIS_DIM_SIZE = "axis-dim-size";
+    /** Value: Integer  */
+    public final static String AXIS_DIM_RESOLUTION = "axis-dim-resolution";
+
     /** Value: String  */
     public final static String CELL_GEOMETRY = "cell-geometry";
     /** Value: Boolean  */

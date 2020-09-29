@@ -1256,8 +1256,6 @@ public class DocToBeanMapper implements IMapper {
 			
 			ref.setTransfParam( refDoc.getString( MdekKeys.TRANSFORMATION_PARAMETER ) );
 			ref.setNumDimensions( (Integer)refDoc.get( MdekKeys.NUM_DIMENSIONS ) );
-			ref.setAxisDimName( refDoc.getString( MdekKeys.AXIS_DIM_NAME ) );
-			ref.setAxisDimSize( (Integer)refDoc.get( MdekKeys.AXIS_DIM_SIZE ) );
 			ref.setCellGeometry( refDoc.getString( MdekKeys.CELL_GEOMETRY ) );
 			ref.setGeoRectified( refDoc.getString( MdekKeys.GEO_RECTIFIED ) );
 			ref.setRectCheckpoint( refDoc.getString( MdekKeys.GEO_RECT_CHECKPOINT ) );
@@ -1277,6 +1275,7 @@ public class DocToBeanMapper implements IMapper {
 			dao.makePersistent(ref);
 			
 			// map 1:N relations
+			updateT011ObjGeoAxisDim(refDoc, ref);
 			updateT011ObjGeoScales(refDoc, ref);
 			updateT011ObjGeoSymcs(refDoc, ref);
 			updateT011ObjGeoSupplinfos(refDoc, ref);
@@ -1286,7 +1285,35 @@ public class DocToBeanMapper implements IMapper {
 			refs.add(ref);
 		}
 	}
-	
+
+	private void updateT011ObjGeoAxisDim(IngridDocument docIn, T011ObjGeo in) {
+		Set<T011ObjGeoAxisDim> refs = in.getT011ObjGeoAxisDim();
+		ArrayList<T011ObjGeoAxisDim> refs_unprocessed = new ArrayList<>(refs);
+		// remove all !
+		for (T011ObjGeoAxisDim ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);
+		}
+
+		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.AXIS_DIMENSION_LIST);
+		if (refDocs != null) {
+			// and add all new ones !
+			int line = 1;
+			for (IngridDocument refDoc : refDocs) {
+				// add all as new ones
+				T011ObjGeoAxisDim ref = new T011ObjGeoAxisDim();
+				ref.setObjGeoId(in.getId());
+				ref.setName((String)refDoc.get(MdekKeys.AXIS_DIM_NAME));
+				ref.setCount((Integer) refDoc.get(MdekKeys.AXIS_DIM_SIZE));
+				ref.setAxisResolution((Double)refDoc.get(MdekKeys.AXIS_DIM_RESOLUTION));
+				ref.setLine(line);
+				refs.add(ref);
+				line++;
+			}
+		}
+	}
+
 	private void updateT011ObjGeoScales(IngridDocument docIn, T011ObjGeo in) {
 		Set<T011ObjGeoScale> refs = in.getT011ObjGeoScales();
 		ArrayList<T011ObjGeoScale> refs_unprocessed = new ArrayList<T011ObjGeoScale>(refs);
