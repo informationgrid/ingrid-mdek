@@ -79,6 +79,7 @@ public class XMLKeys {
 	public static final String CONFORMITY_DEGREE = "conformity-degree";
 	public static final String CONFORMITY_IS_INSPIRE = "conformity-is-inspire";
 	public static final String CONFORMITY_PUBLICATION_DATE = "conformity-publication-date";
+	public static final String CONFORMITY_EXPLANATION = "conformity-explanation";
 	public static final String CONFORMITY_SPECIFICATION = "conformity-specification";
 	public static final String CONFORMITY = "conformity";
 	public static final String DATA_QUALITY = "data-quality";

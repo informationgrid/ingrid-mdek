@@ -938,6 +938,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		conformity.addChild(createConformitySpecification(conformityContext));
 		conformity.addChild(createConformityDegree(conformityContext));
 		conformity.addChild(createConformityPublicationDate(conformityContext));
+		conformity.addChild(createConformityExplanation(conformityContext));
 		return conformity;
 	}
 
@@ -961,6 +962,11 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	private XMLElement createConformityPublicationDate(IngridDocument conformityContext) {
 		XMLElement conformityPublicationDate = new XMLElement(CONFORMITY_PUBLICATION_DATE, getStringForKey(MdekKeys.CONFORMITY_PUBLICATION_DATE, conformityContext));
 		return conformityPublicationDate;
+	}
+
+	private XMLElement createConformityExplanation(IngridDocument conformityContext) {
+		XMLElement conformityExplanation = new XMLElement(CONFORMITY_EXPLANATION, getStringForKey(MdekKeys.CONFORMITY_EXPLANATION, conformityContext));
+		return conformityExplanation;
 	}
 
 	private List<XMLElement> createDQs() {
