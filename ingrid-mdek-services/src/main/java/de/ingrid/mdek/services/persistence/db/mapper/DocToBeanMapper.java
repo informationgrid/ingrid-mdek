@@ -1252,8 +1252,7 @@ public class DocToBeanMapper implements IMapper {
 			ref.setRecExact((Double)refDoc.get(MdekKeys.RESOLUTION));
 			ref.setRecGrade((Double)refDoc.get(MdekKeys.DEGREE_OF_RECORD));
 			ref.setHierarchyLevel((Integer)refDoc.get(MdekKeys.HIERARCHY_LEVEL));
-			ref.setVectorTopologyLevel((Integer)refDoc.get(MdekKeys.VECTOR_TOPOLOGY_LEVEL));
-			
+
 			ref.setTransfParam( refDoc.getString( MdekKeys.TRANSFORMATION_PARAMETER ) );
 			ref.setNumDimensions( (Integer)refDoc.get( MdekKeys.NUM_DIMENSIONS ) );
 			ref.setCellGeometry( refDoc.getString( MdekKeys.CELL_GEOMETRY ) );
@@ -1416,6 +1415,7 @@ public class DocToBeanMapper implements IMapper {
 				// add all as new ones
 				T011ObjGeoVector ref = new T011ObjGeoVector();
 				ref.setObjGeoId(in.getId());
+				ref.setVectorTopologyLevel((Integer)refDoc.get(MdekKeys.VECTOR_TOPOLOGY_LEVEL));
 				ref.setGeometricObjectType((Integer)refDoc.get(MdekKeys.GEOMETRIC_OBJECT_TYPE));
 				ref.setGeometricObjectCount((Integer)refDoc.get(MdekKeys.GEOMETRIC_OBJECT_COUNT));
 				ref.setLine(line);

@@ -364,22 +364,22 @@ var mappingDescription = {"mappings":[
 						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-ref-referenced-param"
 					},
 					{
-						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation/gmd:topologyLevel/gmd:MD_TopologyLevelCode/@codeListValue",
-	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/vector-format/vector-topology-level",
-	        			"targetAttribute":"iso-code",
-	        			"transform":{
-		      				"funct":transformISOToIgcDomainId,
-		      				"params":[528, "Could not transform vector topology level: "]
-	      				}
-	        		},
-	        		{
-	        			"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation/gmd:geometricObjects",
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation",
 	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/vector-format",
-	        			"newNodeName":"geo-vector",
-	        			"subMappings":{
-	        				"mappings": [
+						"newNodeName":"geo-vector",
+						"subMappings": {
+							"mappings": [
+								{
+									"srcXpath": "gmd:topologyLevel/gmd:MD_TopologyLevelCode/@codeListValue",
+									"targetNode": "vector-topology-level",
+	        						"targetAttribute":"iso-code",
+									"transform":{
+										"funct":transformISOToIgcDomainId,
+										"params":[528, "Could not transform vector topology level: "]
+									}
+								},
 		      	  				{
-		      			  			"srcXpath":"gmd:MD_GeometricObjects/gmd:geometricObjectType/gmd:MD_GeometricObjectTypeCode/@codeListValue",
+		      			  			"srcXpath":"gmd:geometricObjects/gmd:MD_GeometricObjects/gmd:geometricObjectType/gmd:MD_GeometricObjectTypeCode/@codeListValue",
 		      			  			"targetNode":"geometric-object-type",
 		      			  			"targetAttribute":"iso-code",
 		      			  			"transform":{
@@ -388,11 +388,11 @@ var mappingDescription = {"mappings":[
 		      						}
 		      			  		},
 		      	  				{
-		      			  			"srcXpath":"gmd:MD_GeometricObjects/gmd:geometricObjectCount/gco:Integer",
+		      			  			"srcXpath":"gmd:geometricObjects/gmd:MD_GeometricObjects/gmd:geometricObjectCount/gco:Integer",
 		      			  			"targetNode":"geometric-object-count"
 		      			  		}
-	      			  		]
-	      				}
+							]
+						}
 	        		},
 	        		{
 	        			"srcXpath":"//gmd:contentInfo/gmd:MD_FeatureCatalogueDescription/gmd:featureTypes",

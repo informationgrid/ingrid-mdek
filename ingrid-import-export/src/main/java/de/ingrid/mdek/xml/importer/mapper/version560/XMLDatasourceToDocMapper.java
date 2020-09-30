@@ -146,7 +146,6 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_MAP_SYMBOL_CATALOGUE_DATE = "symbol-date/text()";
 	private static final String X_MAP_SYMBOL_CATALOGUE_EDITION = "edition/text()";
 	private static final String X_MAP_SPATIAL_REPRESENTATION_TYPE_LIST = "spatial-representation-type/@iso-code";
-	private static final String X_MAP_VECTOR_TOPOLOGY_LEVEL = "vector-format/vector-topology-level/@iso-code";
 	private static final String X_MAP_GEO_VECTOR_LIST = "vector-format/geo-vector";
 	private static final String X_MAP_GEO_GRID_TRANSFORM_PARAM = "grid-format/grid-transform-param";
 	private static final String X_MAP_GEO_GRID_NUM_DIMENSIONS = "grid-format/grid-num-dimensions";
@@ -163,6 +162,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_MAP_GEO_GRID_REF_CONTROL_POINT = "grid-format/grid-ref-control-point";
 	private static final String X_MAP_GEO_GRID_REF_ORIENTATION_PARAM = "grid-format/grid-ref-orientation-param";
 	private static final String X_MAP_GEO_GRID_REF_PARAMETER = "grid-format/grid-ref-referenced-param";
+	private static final String X_MAP_GEO_VECTOR_TOPOLOGY_LEVEL = "vector-topology-level/@iso-code";
 	private static final String X_MAP_GEO_VECTOR_OBJECT_COUNT = "geometric-object-count/text()";
 	private static final String X_MAP_GEO_VECTOR_OBJECT_TYPE = "geometric-object-type/@iso-code";
 	private static final String X_MAP_POS_ACCURACY_VERTICAL = "pos-accuracy-vertical/text()";
@@ -671,8 +671,8 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		mapSymbolCatalogue(map, target);
 		mapIntList(map, X_MAP_SPATIAL_REPRESENTATION_TYPE_LIST, target,
 				new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST});
-		putInt(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.VECTOR_TOPOLOGY_LEVEL},
-				XPathUtils.getInt(map, X_MAP_VECTOR_TOPOLOGY_LEVEL), target);
+//		putInt(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.VECTOR_TOPOLOGY_LEVEL},
+//				XPathUtils.getInt(map, X_MAP_VECTOR_TOPOLOGY_LEVEL), target);
 		mapGeoVectors(map, target);
 		mapGeoGrid(map, target);
 		putDouble(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.POS_ACCURACY_VERTICAL},
@@ -727,6 +727,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		for (int index = 0; index < geoVectors.getLength(); index++) {
 			Node geoVector = geoVectors.item(index);
 			IngridDocument geoVectorDoc = new IngridDocument();
+			putInt(MdekKeys.VECTOR_TOPOLOGY_LEVEL, XPathUtils.getInt(geoVector, X_MAP_GEO_VECTOR_TOPOLOGY_LEVEL), geoVectorDoc);
 			putInt(MdekKeys.GEOMETRIC_OBJECT_COUNT, XPathUtils.getInt(geoVector, X_MAP_GEO_VECTOR_OBJECT_COUNT), geoVectorDoc);
 			putInt(MdekKeys.GEOMETRIC_OBJECT_TYPE, XPathUtils.getInt(geoVector, X_MAP_GEO_VECTOR_OBJECT_TYPE), geoVectorDoc);
 

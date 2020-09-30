@@ -222,32 +222,38 @@ for (i=0; i<objRows.size(); i++) {
     var objGeoId;
     if (hasValue(objGeoRow)) {
         objGeoId = objGeoRow.get("id");
-        var mdVectorSpatialRepresentation;
-        var vectorTopologyLevel = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(528, objGeoRow.get("vector_topology_level"));
-        if (hasValue(vectorTopologyLevel)) {
-            if (!mdVectorSpatialRepresentation) mdVectorSpatialRepresentation = mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
-            mdVectorSpatialRepresentation.addElement("gmd:topologyLevel/gmd:MD_TopologyLevelCode")
-                .addAttribute("codeList", globalCodeListAttrURL + "#MD_TopologyLevelCode")
-                .addAttribute("codeListValue", vectorTopologyLevel);
-        }
-        
+
         // ---------- <gmd:MD_GeometricObjects> ----------
         var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [+objGeoId]);
         for (var j=0; j<objGeoVectorRows.size(); j++) {
             var objGeoVectorRow = objGeoVectorRows.get(j);
+            var geoTopologyLevel = objGeoVectorRow.get("vector_topology_level");
             var geoObjType = objGeoVectorRow.get("geometric_object_type");
             var geoObjCount = objGeoVectorRow.get("geometric_object_count");
-            if (hasValue(geoObjType) || hasValue(geoObjCount)) {
-                if (!mdVectorSpatialRepresentation) {
-                    mdVectorSpatialRepresentation = mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
+
+
+            if (hasValue(geoTopologyLevel) || hasValue(geoObjType) || hasValue(geoObjCount)) {
+                var mdVectorSpatialRepresentation = mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation");
+
+                var vectorTopologyLevel = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(528, geoTopologyLevel);
+                if (hasValue(vectorTopologyLevel)) {
+                    mdVectorSpatialRepresentation.addElement("gmd:topologyLevel/gmd:MD_TopologyLevelCode")
+                        .addAttribute("codeList", globalCodeListAttrURL + "#MD_TopologyLevelCode")
+                        .addAttribute("codeListValue", vectorTopologyLevel);
                 }
-                var mdGeometricObjects = mdVectorSpatialRepresentation.addElement("gmd:geometricObjects/gmd:MD_GeometricObjects");
-                var geometricObjectTypeCode = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(515, geoObjType); 
-                mdGeometricObjects.addElement("gmd:geometricObjectType/gmd:MD_GeometricObjectTypeCode")
-                    .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
-                    .addAttribute("codeListValue", geometricObjectTypeCode);
-                if (hasValue(geoObjCount)) {
-                    mdGeometricObjects.addElement("gmd:geometricObjectCount/gco:Integer").addText(geoObjCount);
+
+                if (hasValue(geoObjType) || hasValue(geoObjCount)) {
+                    var mdGeometricObjects = mdVectorSpatialRepresentation.addElement("gmd:geometricObjects/gmd:MD_GeometricObjects");
+                    var geometricObjectTypeCode = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(515, geoObjType);
+                    if (hasValue(geometricObjectTypeCode)) {
+                        mdGeometricObjects.addElement("gmd:geometricObjectType/gmd:MD_GeometricObjectTypeCode")
+                            .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
+                            .addAttribute("codeListValue", geometricObjectTypeCode);
+                    }
+
+                    if (hasValue(geoObjCount)) {
+                        mdGeometricObjects.addElement("gmd:geometricObjectCount/gco:Integer").addText(geoObjCount);
+                    }
                 }
             }
         }
