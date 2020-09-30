@@ -6,8 +6,11 @@
   <body>
 
     <release version="5.6.0-SNAPSHOT" date="2020-xx-xx" description="Release 5.6.0">
+      <action type="add" dev="wemove" issue="1817">
+        Add explanation column to confirmity table
+      </action>
       <action type="add" dev="wemove" issue="1783">
-        Add data quality table 'Relative Pisitional Accuracy'
+        Add data quality table 'Relative Positional Accuracy'
       </action>
       <action type="fix" dev="wemove" issue="2092">
         UVP: Fix display of categories in teaser.
@@ -26,6 +29,12 @@
       </action>
       <action type="fix" dev="wemove" issue="1843">
         Import spatial scope value from CSW-ISO
+      </action>
+      <action type="add" dev="wemove" issue="1855">
+        Improve import of operatesOn element
+      </action>
+      <action type="add" dev="wemove" issue="1267">
+        Adapt storing of multiple grid axis elements
       </action>
     </release>
 

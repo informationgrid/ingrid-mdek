@@ -262,16 +262,18 @@ for (i=0; i<objRows.size(); i++) {
         if (rows.size() > 0) {
             var transformParam = objGeoRow.get("transformation_parameter");
             var numDim = objGeoRow.get("num_dimensions");
-            var nameDim = objGeoRow.get("axis_dim_name");
-            var sizeDim = objGeoRow.get("axis_dim_size");
             var cellGeo = objGeoRow.get("cell_geometry");
+
+            var axisDimRows = SQL.all("SELECT * FROM t011_obj_geo_axisdim WHERE obj_geo_id=?", [+objGeoId]);
             // only add ISO XML elements if at least one field is supplied, #1934
-            if (hasValue(numDim) || hasValue(nameDim) || hasValue(sizeDim) || hasValue(cellGeo)) {
+            if (hasValue(numDim) || axisDimRows.size() > 0 || hasValue(cellGeo)) {
                 var isGeoRectified = "Y".equals(objGeoRow.get("geo_rectified"));
+                var isGeoReferenced = "N".equals(objGeoRow.get("geo_rectified"));
 
                 var gridSpatialRepr = isGeoRectified
                     ? mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_Georectified")
-                    : mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable");
+                    : isGeoReferenced ? mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable")
+                    : mdMetadata.addElement("gmd:spatialRepresentationInfo/gmd:MD_GridSpatialRepresentation");
 
                 /* numberOfDimensions */
                 if (hasValue(numDim)) {
@@ -281,19 +283,29 @@ for (i=0; i<objRows.size(); i++) {
                 }
 
                 /* axisDimensionProperties */
-                if (hasValue(nameDim) || hasValue(sizeDim)) {
-                    var dimensionNode = gridSpatialRepr.addElement("gmd:axisDimensionProperties/gmd:MD_Dimension");
-                    if (hasValue(nameDim)) {
-                        dimensionNode.addElement("gmd:dimensionName/gmd:MD_DimensionNameTypeCode")
-                        .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
-                        .addAttribute("codeListValue", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(514, nameDim));
-                    } else {
-                        dimensionNode.addElement("gmd:dimensionName").addAttribute("gco:nilReason", "unknown");
-                    }
-                    if (hasValue(sizeDim)) {
-                        dimensionNode.addElement("gmd:dimensionSize/gco:Integer").addText(sizeDim);
-                    } else {
-                        dimensionNode.addElement("gmd:dimensionSize").addAttribute("gco:nilReason", "unknown");
+                if (axisDimRows.size() > 0) {
+                    for (j=0; j<axisDimRows.size(); j++) {
+                        var axisDimRow = axisDimRows.get(j);
+                        var nameDim = axisDimRow.get("name");
+                        var sizeDim = axisDimRow.get("count");
+                        var resolutionDim = axisDimRow.get("axis_resolution");
+
+                        var dimensionNode = gridSpatialRepr.addElement("gmd:axisDimensionProperties/gmd:MD_Dimension");
+                        if (hasValue(nameDim)) {
+                            dimensionNode.addElement("gmd:dimensionName/gmd:MD_DimensionNameTypeCode")
+                                .addAttribute("codeList", globalCodeListAttrURL + "#MD_GeometricObjectTypeCode")
+                                .addAttribute("codeListValue", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(514, nameDim));
+                        } else {
+                            dimensionNode.addElement("gmd:dimensionName").addAttribute("gco:nilReason", "unknown");
+                        }
+                        if (hasValue(sizeDim)) {
+                            dimensionNode.addElement("gmd:dimensionSize/gco:Integer").addText(sizeDim);
+                        } else {
+                            dimensionNode.addElement("gmd:dimensionSize").addAttribute("gco:nilReason", "unknown");
+                        }
+                        if (hasValue(resolutionDim)) {
+                            dimensionNode.addElement("gmd:resolution/gco:Scale").addText(resolutionDim);
+                        }
                     }
                 }
 
@@ -332,7 +344,7 @@ for (i=0; i<objRows.size(); i++) {
                     //gridSpatialRepr.addElement("gmd:transformationDimensionDescription")
                     //gridSpatialRepr.addElement("gmd:transformationDimensionMapping")
 
-                } else {
+                } else if (isGeoReferenced) {
                     var refControlPoint = objGeoRow.get("geo_ref_control_point");
                     var refOrientationParameter = objGeoRow.get("geo_ref_orientation_parameter");
                     var refParameter = objGeoRow.get("geo_ref_parameter");
@@ -578,10 +590,10 @@ for (i=0; i<objRows.size(); i++) {
         var abstractPostfix = "";
 
 
-        var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=?", [+objServRow.get("id")]);
+        var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=? ORDER BY line", [+objServRow.get("id")]);
         var completeScaleString = "";
         var scaleString = "; Ma\u00DFstab: ";
-        var resString = "; Bodenaufl\u00F6sung (Meter): ";
+        var resString = "; Bodenaufl\u00F6sung: ";
         var scanString = "; Scanaufl\u00F6sung (DPI): ";
         var hasScale = false;
         var hasRes = false;
@@ -595,7 +607,7 @@ for (i=0; i<objRows.size(); i++) {
             }
             if (hasValue(objServScaleRow.get("resolution_ground"))) {
                 hasRes = true;
-                resString = resString + objServScaleRow.get("resolution_ground") + ", ";
+                resString = resString + objServScaleRow.get("resolution_ground") + "m, ";
             }
             if (hasValue(objServScaleRow.get("resolution_scan"))) {
                 hasScan = true;

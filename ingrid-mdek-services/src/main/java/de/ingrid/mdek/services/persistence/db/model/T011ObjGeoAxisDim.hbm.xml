@@ -25,20 +25,16 @@
 <!DOCTYPE hibernate-mapping
   PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
-   <class name="ObjectConformity" table="object_conformity">
+   <class name="T011ObjGeoAxisDim" table="t011_obj_geo_axisdim">
       <id name="id" type="long" column="id">
          <generator class="hilo"/>
       </id>
       <version name="version" type="integer" column="version"/>
-      <property name="objId" type="long" column="obj_id"/>
+      <property name="objGeoId" type="long" column="obj_geo_id"/>
       <property name="line" type="integer" column="line"/>
-      <property name="isInspire" type="string" column="is_inspire"/>
-      <property name="specificationKey" type="integer" column="specification_key"/>
-      <property name="specificationValue" type="string" column="specification_value"/>
-      <property name="degreeKey" type="integer" column="degree_key"/>
-      <property name="degreeValue" type="string" column="degree_value"/>
-      <property name="publicationDate" type="string" column="publication_date"/>
-      <property name="explanation" type="string" column="explanation"/>
+      <property name="name" type="string" column="name"/>
+      <property name="count" type="integer" column="count"/>
+      <property name="axisResolution" type="double" column="axis_resolution"/>
 
    </class>
 

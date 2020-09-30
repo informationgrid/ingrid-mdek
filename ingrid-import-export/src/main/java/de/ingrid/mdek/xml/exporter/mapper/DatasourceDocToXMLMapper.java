@@ -164,7 +164,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 					rowNum++;
 					for (IngridDocument col : row) {
 					    if (col.get(MdekKeys.ADDITIONAL_FIELD_ROWS) != null) {
-                            List<IngridDocument> listDyn = new ArrayList<IngridDocument>();
+                            List<IngridDocument> listDyn = new ArrayList<>();
 					        listDyn.add( col );
 					        createAdditionalValues(parent, listDyn, rowNum);
 					    }
@@ -256,7 +256,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
     
     private XMLElement createAdvProductGroup() {
         List<IngridDocument> productList = getIngridDocumentListForKey( MdekKeys.ADV_PRODUCT_LIST );
-        List<XMLElement> products = new ArrayList<XMLElement>();
+        List<XMLElement> products = new ArrayList<>();
         if (productList != null && productList.size() > 0) {
             for (IngridDocument product : productList) {
                 XMLElement xmlElement = new XMLElement( ADV_PRODUCT_GROUP_ITEM );
@@ -274,7 +274,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 	
 	private List<XMLElement> createEnvTopics() {
-		List<XMLElement> envTopics = new ArrayList<XMLElement>();
+		List<XMLElement> envTopics = new ArrayList<>();
 		List<Integer> envTopicIds = getIntegerListForKey(MdekKeys.ENV_TOPICS);
 
 		for (Integer envTopicId : envTopicIds) {
@@ -308,7 +308,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private List<XMLElement> createDatasetParameters(IngridDocument context) {
 		List<IngridDocument> parameterList = getIngridDocumentListForKey(MdekKeys.PARAMETERS, context);
-		List<XMLElement> resultList = new ArrayList<XMLElement>();
+		List<XMLElement> resultList = new ArrayList<>();
 		for (IngridDocument parameter : parameterList) {
 			resultList.add(createDatasetParameter(parameter));
 		}
@@ -367,7 +367,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
     }
 
 	private List<XMLElement> createServiceClassifications(IngridDocument serviceContext) {
-		List<XMLElement> serviceClassifications = new ArrayList<XMLElement>();
+		List<XMLElement> serviceClassifications = new ArrayList<>();
 		List<IngridDocument> serviceClassificationDocs = getIngridDocumentListForKey(MdekKeys.SERVICE_TYPE2_LIST, serviceContext);
 		for (IngridDocument serviceClassificationDoc : serviceClassificationDocs) {
 			serviceClassifications.add(createServiceClassification(serviceClassificationDoc));
@@ -381,8 +381,25 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		return serviceClassific;
 	}
 
+	private List<XMLElement> createGridFormatAxis(IngridDocument serviceContext) {
+		List<XMLElement> axisDimensions = new ArrayList<>();
+		List<IngridDocument> axisDimensionList = getIngridDocumentListForKey(MdekKeys.AXIS_DIMENSION_LIST, serviceContext);
+		for (IngridDocument axisDimension : axisDimensionList) {
+			axisDimensions.add(createAxisDimension(axisDimension));
+		}
+		return axisDimensions;
+	}
+
+	private XMLElement createAxisDimension(IngridDocument axisDimContext) {
+		XMLElement axisDim = new XMLElement(GRID_AXIS);
+		axisDim.addChild(new XMLElement(GRID_AXIS_NAME, getStringForKey(MdekKeys.AXIS_DIM_NAME, axisDimContext)));
+		axisDim.addChild(new XMLElement(GRID_AXIS_SIZE, getIntegerForKey(MdekKeys.AXIS_DIM_SIZE, axisDimContext)));
+		axisDim.addChild(new XMLElement(GRID_AXIS_RESOLUTION, getDoubleForKey(MdekKeys.AXIS_DIM_RESOLUTION, axisDimContext)));
+		return axisDim;
+	}
+
 	private List<XMLElement> createPublicationScales(IngridDocument serviceContext) {
-		List<XMLElement> publicationScales = new ArrayList<XMLElement>();
+		List<XMLElement> publicationScales = new ArrayList<>();
 		List<IngridDocument> publicationScaleDocs = getIngridDocumentListForKey(MdekKeys.PUBLICATION_SCALE_LIST, serviceContext);
 		for (IngridDocument publicationScale : publicationScaleDocs) {
 			publicationScales.add(createPublicationScale(publicationScale));
@@ -399,7 +416,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createServiceVersions(IngridDocument serviceContext) {
-		List<XMLElement> resultList = new ArrayList<XMLElement>();
+		List<XMLElement> resultList = new ArrayList<>();
 		List<IngridDocument> serviceVersionList = getIngridDocumentListForKey(MdekKeys.SERVICE_VERSION_LIST, serviceContext);
 		for (IngridDocument serviceDoc : serviceVersionList) {
             resultList.add(createServiceVersion(serviceDoc));
@@ -414,7 +431,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 
 	private List<XMLElement> createServiceOperations(IngridDocument serviceContext) {
-		List<XMLElement> serviceOperations = new ArrayList<XMLElement>();
+		List<XMLElement> serviceOperations = new ArrayList<>();
 		List<IngridDocument> serviceOperationList = getIngridDocumentListForKey(MdekKeys.SERVICE_OPERATION_LIST, serviceContext);
 		for (IngridDocument serviceOperation : serviceOperationList) {
 			serviceOperations.add(createServiceOperation(serviceOperation));
@@ -441,7 +458,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createPlatforms(IngridDocument serviceOperationContext) {
-		List<XMLElement> resultList = new ArrayList<XMLElement>();
+		List<XMLElement> resultList = new ArrayList<>();
 		List<IngridDocument> platformList = getIngridDocumentListForKey(MdekKeys.PLATFORM_LIST, serviceOperationContext);
 		for (IngridDocument platformDoc : platformList) {
 			resultList.add(createPlatform(platformDoc));
@@ -455,7 +472,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createConnectionPoints(IngridDocument serviceOperationContext) {
-		List<XMLElement> resultList = new ArrayList<XMLElement>();
+		List<XMLElement> resultList = new ArrayList<>();
 		List<String> connectionPointIds = getStringListForKey(MdekKeys.CONNECT_POINT_LIST, serviceOperationContext);
 		for (String connectionPointId : connectionPointIds) {
 			resultList.add(new XMLElement(CONNECTION_POINT, connectionPointId));
@@ -464,7 +481,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createParametersOfOperation(IngridDocument serviceOperationContext) {
-		List<XMLElement> parametersOfOperation = new ArrayList<XMLElement>();
+		List<XMLElement> parametersOfOperation = new ArrayList<>();
 		List<IngridDocument> parameterOfOperationList = getIngridDocumentListForKey(MdekKeys.PARAMETER_LIST, serviceOperationContext);
 		for (IngridDocument parameterOfOperation : parameterOfOperationList) {
 			parametersOfOperation.add(createParameterOfOperation(parameterOfOperation));
@@ -483,7 +500,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createDependsOn(IngridDocument serviceOperationContext) {
-		List<XMLElement> resultList = new ArrayList<XMLElement>();
+		List<XMLElement> resultList = new ArrayList<>();
 		List<String> dependsOnIds = getStringListForKey(MdekKeys.DEPENDS_ON_LIST, serviceOperationContext);
 		for (String dependsOnId : dependsOnIds) {
 			resultList.add(new XMLElement(DEPENDS_ON, dependsOnId));
@@ -492,7 +509,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createServiceUrls(IngridDocument contextDoc) {
-		List<XMLElement> elements = new ArrayList<XMLElement>();
+		List<XMLElement> elements = new ArrayList<>();
 		List<IngridDocument> docs = getIngridDocumentListForKey(MdekKeys.URL_LIST, contextDoc);
 		for (IngridDocument doc : docs) {
 			elements.add(createServiceUrl(doc));
@@ -562,7 +579,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createKeyCatalogues(IngridDocument mapContext) {
-		List<XMLElement> keyCatalogues = new ArrayList<XMLElement>();
+		List<XMLElement> keyCatalogues = new ArrayList<>();
 		List<IngridDocument> keyCatalogueList = getIngridDocumentListForKey(MdekKeys.KEY_CATALOG_LIST, mapContext);
 		for (IngridDocument keyCatalogue : keyCatalogueList) {
 			keyCatalogues.add(createKeyCatalogue(keyCatalogue));
@@ -585,7 +602,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createSymbolCatalogues(IngridDocument mapContext) {
-		List<XMLElement> symbolCatalogues = new ArrayList<XMLElement>();
+		List<XMLElement> symbolCatalogues = new ArrayList<>();
 		List<IngridDocument> symbolCatalogueList = getIngridDocumentListForKey(MdekKeys.SYMBOL_CATALOG_LIST, mapContext);
 		for (IngridDocument symbolCatalogue : symbolCatalogueList) {
 			symbolCatalogues.add(createSymbolCatalogue(symbolCatalogue));
@@ -608,7 +625,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createSpatialRepresentationTypes(IngridDocument mapContext) {
-		List<XMLElement> spatialRepresentationTypes = new ArrayList<XMLElement>();
+		List<XMLElement> spatialRepresentationTypes = new ArrayList<>();
 		List<Integer> spatialRepIds = getIntegerListForKey(MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST, mapContext);
 		for (Integer spatialRepId : spatialRepIds) {
 			XMLElement spatialRepType = new XMLElement(SPATIAL_REPRESENTATION_TYPE);
@@ -629,8 +646,9 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	    XMLElement gridFormat = new XMLElement(GRID_FORMAT);
 	    gridFormat.addChild(new XMLElement(GRID_TRANSFORM_PARAMETER, getStringForKey(MdekKeys.TRANSFORMATION_PARAMETER, mapContext)));
 	    gridFormat.addChild(new XMLElement(GRID_NUM_DIMENSIONS, getIntegerForKey(MdekKeys.NUM_DIMENSIONS, mapContext)));
-	    gridFormat.addChild(new XMLElement(GRID_AXIS_NAME, getStringForKey(MdekKeys.AXIS_DIM_NAME, mapContext)));
-	    gridFormat.addChild(new XMLElement(GRID_AXIS_SIZE, getIntegerForKey(MdekKeys.AXIS_DIM_SIZE, mapContext)));
+//	    gridFormat.addChild(new XMLElement(GRID_AXIS_NAME, getStringForKey(MdekKeys.AXIS_DIM_NAME, mapContext)));
+//	    gridFormat.addChild(new XMLElement(GRID_AXIS_SIZE, getIntegerForKey(MdekKeys.AXIS_DIM_SIZE, mapContext)));
+		gridFormat.addChildren(createGridFormatAxis(mapContext));
 	    gridFormat.addChild(new XMLElement(GRID_CELL_GEOMETRY, getStringForKey(MdekKeys.CELL_GEOMETRY, mapContext)));
 	    gridFormat.addChild(new XMLElement(GRID_GEO_RECTIFIED, getStringForKey(MdekKeys.GEO_RECTIFIED, mapContext)));
 	    gridFormat.addChild(new XMLElement(GRID_RECT_CHECKPOINT, getStringForKey(MdekKeys.GEO_RECT_CHECKPOINT, mapContext)));
@@ -650,7 +668,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createGeoVectors(IngridDocument mapContext) {
-		List<XMLElement> geoVectors = new ArrayList<XMLElement>();
+		List<XMLElement> geoVectors = new ArrayList<>();
 		List<IngridDocument> geoVectorList = getIngridDocumentListForKey(MdekKeys.GEO_VECTOR_LIST, mapContext);
 		for (IngridDocument geoVector : geoVectorList) {
 			geoVectors.add(createGeoVector(geoVector));
@@ -672,7 +690,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createFeatureTypes(IngridDocument mapContext) {
-		List<XMLElement> featureTypes = new ArrayList<XMLElement>();
+		List<XMLElement> featureTypes = new ArrayList<>();
 		List<String> featureTypeList = getStringListForKey(MdekKeys.FEATURE_TYPE_LIST, mapContext);
 		for (String featureType : featureTypeList) {
 			featureTypes.add(new XMLElement(FEATURE_TYPE, featureType));
@@ -710,7 +728,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
     private List<XMLElement> createDataLanguages() {
-        List<XMLElement> dataLanguages = new ArrayList<XMLElement>();
+        List<XMLElement> dataLanguages = new ArrayList<>();
         List<IngridDocument> dataLanguageDocs = getIngridDocumentListForKey(MdekKeys.DATA_LANGUAGE_LIST);
         for (IngridDocument dataLanguageDoc : dataLanguageDocs) {
             dataLanguages.add(createDataLanguage(dataLanguageDoc));
@@ -730,7 +748,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createExportTos() {
-		List<XMLElement> exportTos = new ArrayList<XMLElement>();
+		List<XMLElement> exportTos = new ArrayList<>();
 		List<IngridDocument> exportToIds = getIngridDocumentListForKey(MdekKeys.EXPORT_CRITERIA);
 		for (IngridDocument exportTo : exportToIds) {
 			exportTos.add(createExportTo(exportTo));
@@ -745,7 +763,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 	
 	private List<XMLElement> createLegislations() {
-		List<XMLElement> legislations = new ArrayList<XMLElement>();
+		List<XMLElement> legislations = new ArrayList<>();
 		List<IngridDocument> legislationIds = getIngridDocumentListForKey(MdekKeys.LEGISLATIONS);
 		for (IngridDocument legislation : legislationIds) {
 			legislations.add(createLegislation(legislation));
@@ -764,7 +782,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createAccessConstraints() {
-		List<XMLElement> accessConstraints = new ArrayList<XMLElement>();
+		List<XMLElement> accessConstraints = new ArrayList<>();
 		List<IngridDocument> accessConstraintList = getIngridDocumentListForKey(MdekKeys.ACCESS_LIST);
 		for (IngridDocument accessConstraint : accessConstraintList) {
 			accessConstraints.add(createAccessConstraint(accessConstraint));
@@ -785,7 +803,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
     private List<XMLElement> createUseLimitations() {
-        List<XMLElement> useLimitations = new ArrayList<XMLElement>();
+        List<XMLElement> useLimitations = new ArrayList<>();
         List<IngridDocument> useLimitationList = getIngridDocumentListForKey(MdekKeys.USE_LIST);
         for (IngridDocument useLimitation : useLimitationList) {
             useLimitations.add(createUseLimitation(useLimitation));
@@ -806,7 +824,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
     }
 
 	private List<XMLElement> createUseConstraints() {
-		List<XMLElement> useConstraints = new ArrayList<XMLElement>();
+		List<XMLElement> useConstraints = new ArrayList<>();
 		List<IngridDocument> useConstraintList = getIngridDocumentListForKey(MdekKeys.USE_CONSTRAINTS);
 		for (IngridDocument useConstraint : useConstraintList) {
 			useConstraints.add(createUseConstraint(useConstraint));
@@ -843,7 +861,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createMediumOptions() {
-		List<XMLElement> mediumOptions = new ArrayList<XMLElement>();
+		List<XMLElement> mediumOptions = new ArrayList<>();
 		List<IngridDocument> mediumOptionList = getIngridDocumentListForKey(MdekKeys.MEDIUM_OPTIONS);
 		for (IngridDocument mediumOption : mediumOptionList) {
 			mediumOptions.add(createMediumOption(mediumOption));
@@ -866,7 +884,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createDataFormats() {
-		List<XMLElement> dataFormats = new ArrayList<XMLElement>();
+		List<XMLElement> dataFormats = new ArrayList<>();
 		List<IngridDocument> dataFormatList = getIngridDocumentListForKey(MdekKeys.DATA_FORMATS);
 		for (IngridDocument dataFormat : dataFormatList) {
 			dataFormats.add(createDataFormat(dataFormat));
@@ -902,7 +920,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createComments() {
-		List<XMLElement> comments = new ArrayList<XMLElement>();
+		List<XMLElement> comments = new ArrayList<>();
 		List<IngridDocument> commentList = getIngridDocumentListForKey(MdekKeys.COMMENT_LIST);
 		for (IngridDocument comment : commentList) {
 			comments.add(createComment(comment));
@@ -924,7 +942,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createConformities() {
-		List<XMLElement> conformities = new ArrayList<XMLElement>();
+		List<XMLElement> conformities = new ArrayList<>();
 		List<IngridDocument> conformityList = getIngridDocumentListForKey(MdekKeys.CONFORMITY_LIST);
 		for (IngridDocument conformity : conformityList) {
 			conformities.add(createConformity(conformity));
@@ -938,6 +956,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		conformity.addChild(createConformitySpecification(conformityContext));
 		conformity.addChild(createConformityDegree(conformityContext));
 		conformity.addChild(createConformityPublicationDate(conformityContext));
+		conformity.addChild(createConformityExplanation(conformityContext));
 		return conformity;
 	}
 
@@ -963,8 +982,13 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		return conformityPublicationDate;
 	}
 
+	private XMLElement createConformityExplanation(IngridDocument conformityContext) {
+		XMLElement conformityExplanation = new XMLElement(CONFORMITY_EXPLANATION, getStringForKey(MdekKeys.CONFORMITY_EXPLANATION, conformityContext));
+		return conformityExplanation;
+	}
+
 	private List<XMLElement> createDQs() {
-		List<XMLElement> elementList = new ArrayList<XMLElement>();
+		List<XMLElement> elementList = new ArrayList<>();
 		List<IngridDocument> dqList = getIngridDocumentListForKey(MdekKeys.DATA_QUALITY_LIST);
 		for (IngridDocument dq : dqList) {
 			elementList.add(createDQ(dq));
@@ -998,7 +1022,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createCoordinateSystems() {
-		List<XMLElement> elements = new ArrayList<XMLElement>();
+		List<XMLElement> elements = new ArrayList<>();
 		List<IngridDocument> docs = getIngridDocumentListForKey(MdekKeys.SPATIAL_SYSTEM_LIST);
 		for (IngridDocument doc : docs) {
 			elements.add(createCoordinateSystem(doc));
@@ -1038,7 +1062,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createGeoLocations() {
-		List<XMLElement> geoLocations = new ArrayList<XMLElement>();
+		List<XMLElement> geoLocations = new ArrayList<>();
 		List<IngridDocument> geoLocationList = getIngridDocumentListForKey(MdekKeys.LOCATIONS);
 		for (IngridDocument geoLocation : geoLocationList) {
 			geoLocations.add(createGeoLocation(geoLocation));
@@ -1148,7 +1172,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createDatasetReferences() {
-		List<XMLElement> datasetReferences = new ArrayList<XMLElement>();
+		List<XMLElement> datasetReferences = new ArrayList<>();
 		List<IngridDocument> datasetReferenceList = getIngridDocumentListForKey(MdekKeys.DATASET_REFERENCES);
 		for (IngridDocument datasetReference : datasetReferenceList) {
 			datasetReferences.add(createDatasetReference(datasetReference));
@@ -1170,7 +1194,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createAvailableLinkages() {
-		List<XMLElement> availableLinkages = new ArrayList<XMLElement>();
+		List<XMLElement> availableLinkages = new ArrayList<>();
 		List<IngridDocument> availableLinkageList = getIngridDocumentListForKey(MdekKeys.LINKAGES);
 		for (IngridDocument linkage : availableLinkageList) {
 			availableLinkages.add(createAvailableLinkage(linkage));
@@ -1208,7 +1232,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createRelatedAddresses() {
-		List<XMLElement> relatedAddresses = new ArrayList<XMLElement>();
+		List<XMLElement> relatedAddresses = new ArrayList<>();
 		List<IngridDocument> relatedAddressList = getIngridDocumentListForKey(MdekKeys.ADR_REFERENCES_TO);
 
 		for (IngridDocument relatedAddress : relatedAddressList) {
@@ -1233,7 +1257,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 	}
 
 	private List<XMLElement> createLinkDataSources() {
-		List<XMLElement> linkDataSources = new ArrayList<XMLElement>();
+		List<XMLElement> linkDataSources = new ArrayList<>();
 		List<IngridDocument> linkDataSourceList = getIngridDocumentListForKey(MdekKeys.OBJ_REFERENCES_TO);
 		for (IngridDocument linkDataSource : linkDataSourceList) {
 			linkDataSources.add(createLinkDataSource(linkDataSource));

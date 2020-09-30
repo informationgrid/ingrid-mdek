@@ -205,6 +205,31 @@ var mappingDescription = {"mappings":[
 		        			}
 		        	},
 	        		{
+	        			"srcXpath":"//gmd:spatialRepresentationInfo//gmd:axisDimensionProperties",
+	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format",
+	        			"newNodeName":"axis-dimension",
+	        			"subMappings":{
+	        				"mappings": [
+		      	  				{
+		      			  			"srcXpath":"gmd:MD_Dimension/gmd:dimensionName/gmd:MD_DimensionNameTypeCode/@codeListValue",
+		      			  			"targetNode":"name",
+									"transform":{
+										"funct":transformISOToIgcDomainId,
+										"params":[514, "Could not transform dimension name in axisDimensionProperties: "]
+									}
+		      			  		},
+		      	  				{
+		      			  			"srcXpath":"gmd:MD_Dimension/gmd:dimensionSize/gco:Integer",
+		      			  			"targetNode":"size"
+		      			  		},
+		      	  				{
+		      			  			"srcXpath":"gmd:MD_Dimension/gmd:resolution/gco:Scale",
+		      			  			"targetNode":"resolution"
+		      			  		}
+	      			  		]
+		      			}
+		        	},
+	        		{
 	        			"srcXpath":"//gmd:identificationInfo/gmd:MD_DataIdentification/gmd:spatialResolution",
 	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map",
 	        			"newNodeName":"publication-scale",
@@ -274,8 +299,8 @@ var mappingDescription = {"mappings":[
 						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:numberOfDimensions/gco:Integer",
 						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-num-dimensions"
 					},
-					{
-						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:axisDimensionProperties/gmd:MD_Dimension/gmd:dimensionName/gmd:MD_DimensionNameTypeCode/@codeListValue",
+/*					{
+						"srcXpath":"//gmd:spatialRepresentationInfo/!*!/gmd:axisDimensionProperties/gmd:MD_Dimension/gmd:dimensionName/gmd:MD_DimensionNameTypeCode/@codeListValue",
 						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-axis-name",
 						"transform":{
 							"funct":transformISOToIgcDomainId,
@@ -283,9 +308,9 @@ var mappingDescription = {"mappings":[
 						}
 					},
 					{
-						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:axisDimensionProperties/gmd:MD_Dimension/gmd:dimensionSize/gco:Integer",
+						"srcXpath":"//gmd:spatialRepresentationInfo/!*!/gmd:axisDimensionProperties/gmd:MD_Dimension/gmd:dimensionSize/gco:Integer",
 						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-axis-size"
-					},
+					},*/
 					{
 						"srcXpath":"//gmd:spatialRepresentationInfo/*/gmd:cellGeometry/gmd:MD_CellGeometryCode/@codeListValue",
 						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-cell-geometry",
@@ -932,6 +957,10 @@ var mappingDescription = {"mappings":[
 						"transform":{
 							"funct":transformDateIso8601ToIndex
 						}
+			  		},
+	  				{
+			  			"srcXpath":"gmd:explanation/gco:CharacterString",
+			  			"targetNode":"conformity-explanation"
 			  		}
 			  	]
 			}
@@ -1336,6 +1365,10 @@ var mappingDescription = {"mappings":[
 			  			"defaultValue":"-1",
 			  			"targetNode":"linkage-reference",
 			  			"targetAttribute":"id"
+			  		},
+	  				{
+			  			"srcXpath":"./@uuidref",
+			  			"targetNode":"linkage-uuid"
 			  		}
 			  	]
 			}
@@ -2683,9 +2716,12 @@ function addPolygonWktToIgc(target, wkt) {
 }
 
 function determineGridSpatialRepresentationConcreteType(source, target) {
-	var isGeorectified = XPATH.nodeExists(source, ".//gmd:MD_Georectified") ? "Y" : "N";
-	var georectifiedNode = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-geo-rectified");
-	XMLUtils.createOrReplaceTextNode(georectifiedNode, isGeorectified);
+	var isGeorectified = XPATH.nodeExists(source, ".//gmd:spatialRepresentationInfo/gmd:MD_Georectified");
+	var isGeoreferenced = XPATH.nodeExists(source, ".//gmd:spatialRepresentationInfo/gmd:MD_Georeferenceable");
+	if (isGeorectified || isGeoreferenced) {
+		var georectifiedNode = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-geo-rectified");
+		XMLUtils.createOrReplaceTextNode(georectifiedNode, isGeorectified ? "Y" : "N");
+	}
 }
 
 function getLocalisedCharacterString(node) {

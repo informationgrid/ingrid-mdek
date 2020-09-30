@@ -152,8 +152,10 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_MAP_GEO_VECTOR_LIST = "vector-format/geo-vector";
 	private static final String X_MAP_GEO_GRID_TRANSFORM_PARAM = "grid-format/grid-transform-param";
 	private static final String X_MAP_GEO_GRID_NUM_DIMENSIONS = "grid-format/grid-num-dimensions";
-	private static final String X_MAP_GEO_GRID_AXIS_NAME = "grid-format/grid-axis-name";
-	private static final String X_MAP_GEO_GRID_AXIS_SIZE = "grid-format/grid-axis-size";
+	private static final String X_MAP_GEO_GRID_AXIS_DIMENSION = "grid-format/axis-dimension";
+	private static final String X_MAP_GEO_GRID_AXIS_DIM_NAME = "name";
+	private static final String X_MAP_GEO_GRID_AXIS_DIM_SIZE = "size";
+	private static final String X_MAP_GEO_GRID_AXIS_DIM_RESOLUTION = "resolution";
 	private static final String X_MAP_GEO_GRID_CELL_GEOMETRY = "grid-format/grid-cell-geometry";
 	private static final String X_MAP_GEO_GRID_GEO_RECTIFIED = "grid-format/grid-geo-rectified";
 	private static final String X_MAP_GEO_GRID_RECT_CHECKPOINT = "grid-format/grid-rect-checkpoint";
@@ -214,6 +216,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_ADDITIONAL_CONFORMITY_DEGREE = "conformity-degree/text()";
 	private static final String X_ADDITIONAL_CONFORMITY_DEGREE_KEY = "conformity-degree/@id";
 	private static final String X_ADDITIONAL_CONFORMITY_PUBLICATION_DATE = "conformity-publication-date";
+	private static final String X_ADDITIONAL_CONFORMITY_EXPLANATION = "conformity-explanation/text()";
 	private static final String X_ADDITIONAL_DQ_LIST = X_DATA_SOURCE + "/additional-information/data-quality";
 	private static final String X_ADDITIONAL_DQ_ELEMENT_ID = "dq-element-id/text()";
 	private static final String X_ADDITIONAL_DQ_NAME_OF_MEASURE_KEY = "dq-name-of-measure/@id";
@@ -260,6 +263,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_LINK_DATATYPE = "linkage-datatype/text()";
 	private static final String X_LINK_DATATYPE_KEY = "linkage-datatype/@id";
 	private static final String X_LINK_DESCRIPTION = "linkage-description/text()";
+	private static final String X_LINK_UUID = "linkage-uuid/text()";
 	private static final String X_PARENT_IDENTIFIER = X_DATA_SOURCE + "/parent-data-source/object-identifier/text()";
 	private static final String X_RELATED_ADDRESS_LIST = X_DATA_SOURCE + "/related-address";
 	private static final String X_RELATED_ADDRESS_TYPE_OF_RELATION = "type-of-relation/text()";
@@ -510,6 +514,22 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 		putDocList(new String[] {MdekKeys.TECHNICAL_DOMAIN_SERVICE, MdekKeys.SERVICE_TYPE2_LIST}, serviceClassificDocs, target);
 	}
 
+	private static void mapGeoGridAxisDimension(Node context, IngridDocument target) {
+		NodeList axisDimensionsNodeList = XPathUtils.getNodeList(context, X_MAP_GEO_GRID_AXIS_DIMENSION);
+		List<IngridDocument> axisDimensions = new ArrayList<>();
+
+		for (int index = 0; index < axisDimensionsNodeList.getLength(); index++) {
+			Node axisDimension = axisDimensionsNodeList.item(index);
+			IngridDocument axisDimensionDoc = new IngridDocument();
+			putString(MdekKeys.AXIS_DIM_NAME, XPathUtils.getString(axisDimension, X_MAP_GEO_GRID_AXIS_DIM_NAME), axisDimensionDoc);
+			putInt(MdekKeys.AXIS_DIM_SIZE, XPathUtils.getInt(axisDimension, X_MAP_GEO_GRID_AXIS_DIM_SIZE), axisDimensionDoc);
+			putDouble(MdekKeys.AXIS_DIM_RESOLUTION, XPathUtils.getDouble(axisDimension, X_MAP_GEO_GRID_AXIS_DIM_RESOLUTION), axisDimensionDoc);
+			axisDimensions.add(axisDimensionDoc);
+		}
+
+		putDocList(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.AXIS_DIMENSION_LIST}, axisDimensions, target);
+	}
+
 	private static void mapPublicationScales(Node context, IngridDocument target) {
 		NodeList publicationScaleNodeList = XPathUtils.getNodeList(context, X_PUBLICATION_SCALE_LIST);
 		List<IngridDocument> publicationScales = new ArrayList<>();
@@ -737,8 +757,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	    
 	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.TRANSFORMATION_PARAMETER}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_TRANSFORM_PARAM), target);
 	    putInt(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.NUM_DIMENSIONS}, XPathUtils.getInt(mapContext, X_MAP_GEO_GRID_NUM_DIMENSIONS), target);
-	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.AXIS_DIM_NAME}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_AXIS_NAME), target);
-	    putInt(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.AXIS_DIM_SIZE}, XPathUtils.getInt(mapContext, X_MAP_GEO_GRID_AXIS_SIZE), target);
+		mapGeoGridAxisDimension(mapContext, target);
 	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.CELL_GEOMETRY}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_CELL_GEOMETRY), target);
 	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GEO_RECTIFIED}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_GEO_RECTIFIED), target);
 	    putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.GEO_RECT_CHECKPOINT}, XPathUtils.getString(mapContext, X_MAP_GEO_GRID_RECT_CHECKPOINT), target);
@@ -939,6 +958,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			putString(MdekKeys.CONFORMITY_DEGREE_VALUE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_DEGREE), conformityDoc);
 			putInt(MdekKeys.CONFORMITY_DEGREE_KEY, XPathUtils.getInt(conformity, X_ADDITIONAL_CONFORMITY_DEGREE_KEY), conformityDoc);
 			putString(MdekKeys.CONFORMITY_PUBLICATION_DATE, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_PUBLICATION_DATE), conformityDoc);
+			putString(MdekKeys.CONFORMITY_EXPLANATION, XPathUtils.getString(conformity, X_ADDITIONAL_CONFORMITY_EXPLANATION), conformityDoc);
 
 			conformityList.add(conformityDoc);
 		}
@@ -1104,6 +1124,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 			putString(MdekKeys.LINKAGE_DATATYPE, XPathUtils.getString(linkage, X_LINK_DATATYPE), linkageDoc);
 			putInt(MdekKeys.LINKAGE_DATATYPE_KEY, XPathUtils.getInt(linkage, X_LINK_DATATYPE_KEY), linkageDoc);
 			putString(MdekKeys.LINKAGE_DESCRIPTION, XPathUtils.getString(linkage, X_LINK_DESCRIPTION), linkageDoc);
+			putString(MdekKeys.LINKAGE_UUID, XPathUtils.getString(linkage, X_LINK_UUID), linkageDoc);
 
 			linkagesList.add(linkageDoc);
 		}

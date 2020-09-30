@@ -41,8 +41,6 @@
       
       <property name="transfParam" type="string" column="transformation_parameter"/>
       <property name="numDimensions" type="integer" column="num_dimensions"/>
-      <property name="axisDimName" type="string" column="axis_dim_name"/>
-      <property name="axisDimSize" type="integer" column="axis_dim_size"/>
       <property name="cellGeometry" type="string" column="cell_geometry"/>
       <property name="geoRectified" type="string" column="geo_rectified"/>
       <property name="rectCheckpoint" type="string" column="geo_rect_checkpoint"/>
@@ -58,6 +56,12 @@
       <property name="keycInclWDataset" type="integer" column="keyc_incl_w_dataset"/>
       <property name="datasourceUuid" type="string" column="datasource_uuid"/>
 
+      <set name="t011ObjGeoAxisDim" order-by="line" table="t011_obj_geo_axisdim"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_geo_id"/>
+         <one-to-many class="T011ObjGeoAxisDim" not-found="ignore"/>
+      </set>
       <set name="t011ObjGeoScales" order-by="line" table="t011_obj_geo_scale"
            inverse="true"
            cascade="all-delete-orphan">
