@@ -1874,6 +1874,7 @@ function mapUseConstraints(source, target) {
 
 							if ( hasNotJsonAndNextElemIsSourceNote ){
 								addUseConstraint(otherConstraint, target, nextElem);
+								continue;
 							}
 						}
 						if(nextElementIsJson && !thisElementIsSourceNote){

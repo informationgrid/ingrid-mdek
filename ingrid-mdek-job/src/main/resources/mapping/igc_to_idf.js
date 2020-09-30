@@ -2073,6 +2073,12 @@ function addResourceConstraints(identificationInfo, objRow) {
     }
 
     // mapping of object_use_constraint see https://dev.informationgrid.eu/redmine/issues/13
+    var mdLegalConstraints =  DOM.createElement("gmd:MD_LegalConstraints");
+    // removed codeListValue "license" according to GDI-DE 2.0.1 see #1218
+    mdLegalConstraints.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
+        .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
+        .addAttribute("codeListValue", "otherRestrictions");
+    var hasUseConstraints = false;
     rows = SQL.all("SELECT * FROM object_use_constraint WHERE obj_id=?", [+objId]);
     for (var i=0; i<rows.size(); i++) {
         row = rows.get(i);
@@ -2082,14 +2088,9 @@ function addResourceConstraints(identificationInfo, objRow) {
         if (!hasValue(licenseText)) {
         	licenseText = row.get("license_value");
         }
-        
-        if (hasValue(licenseText)) {
 
-            var mdLegalConstraints = identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-            // removed codeListValue "license" according to GDI-DE 2.0.1 see #1218
-            mdLegalConstraints.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
-            	.addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-            	.addAttribute("codeListValue", "otherRestrictions");
+        if (hasValue(licenseText)) {
+            hasUseConstraints = true;
             // i.S.v. ISO 19115
         	// also add "Nutzungsbedingungen: " according to GDI-DE Konventionen page 17 !
             // Use gmx:Anchor element for more information (https://redmine.informationgrid.eu/issues/1218)
@@ -2108,9 +2109,9 @@ function addResourceConstraints(identificationInfo, objRow) {
             }
 
             var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
+            var licenseSource = row.get("source");
+            log.debug("licenseSource: " + licenseSource);
             if (hasValue(licenseJSON)) {
-                var licenseSource = row.get("source");
-                log.debug("licenseSource: " + licenseSource);
                 if (licenseSource) {
                     var licenseJSONParsed = JSON.parse(licenseJSON);
                     licenseJSONParsed.quelle = licenseSource;
@@ -2120,9 +2121,13 @@ function addResourceConstraints(identificationInfo, objRow) {
                     mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText("Quellenvermerk: " + licenseSource);
                 }
                 mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText(licenseJSON);
+            } else if (licenseSource) {
+                // add license source also as additional otherConstraint (#1066)
+                mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString").addText("Quellenvermerk: " + licenseSource);
             }
         }
     }
+    if(hasUseConstraints) identificationInfo.addElement("gmd:resourceConstraints").addElement(mdLegalConstraints);
 
     rows = SQL.all("SELECT * FROM object_access WHERE obj_id=?", [+objId]);
     if (rows.size() > 0) {
