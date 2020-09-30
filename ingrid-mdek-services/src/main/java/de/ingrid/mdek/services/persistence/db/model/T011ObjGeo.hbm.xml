@@ -37,7 +37,6 @@
       <property name="recExact" type="double" column="rec_exact"/>
       <property name="recGrade" type="double" column="rec_grade"/>
       <property name="hierarchyLevel" type="integer" column="hierarchy_level"/>
-      <property name="vectorTopologyLevel" type="integer" column="vector_topology_level"/>
       
       <property name="transfParam" type="string" column="transformation_parameter"/>
       <property name="numDimensions" type="integer" column="num_dimensions"/>

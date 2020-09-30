@@ -38,8 +38,7 @@ public class T011ObjGeo implements IEntity {
 	private Double recExact;
 	private Double recGrade;
 	private Integer hierarchyLevel;
-	private Integer vectorTopologyLevel;
-	
+
 	private String transfParam;
     private Integer numDimensions;
     private String axisDimName;
@@ -138,14 +137,6 @@ public class T011ObjGeo implements IEntity {
 
 	public void setHierarchyLevel(Integer hierarchyLevel) {
 		this.hierarchyLevel = hierarchyLevel;
-	}
-
-	public Integer getVectorTopologyLevel() {
-		return vectorTopologyLevel;
-	}
-
-	public void setVectorTopologyLevel(Integer vectorTopologyLevel) {
-		this.vectorTopologyLevel = vectorTopologyLevel;
 	}
 
 	public Double getPosAccuracyVertical() {

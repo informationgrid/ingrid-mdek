@@ -36,6 +36,9 @@
       <action type="add" dev="wemove" issue="1267">
         Adapt storing of multiple grid axis elements
       </action>
+      <action type="add" dev="wemove" issue="1398">
+        Add new column to table t011_obj_geo_vector
+      </action>
     </release>
 
     <release version="5.5.0" date="2020-07-22" description="Release 5.5.0">

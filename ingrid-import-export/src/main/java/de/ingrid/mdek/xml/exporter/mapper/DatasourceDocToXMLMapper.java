@@ -637,7 +637,6 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createVectorFormat(IngridDocument mapContext) {
 		XMLElement vectorFormat = new XMLElement(VECTOR_FORMAT);
-		vectorFormat.addChild(createVectorTopologyLevel(mapContext));
 		vectorFormat.addChildren(createGeoVectors(mapContext));
 		return vectorFormat;
 	}
@@ -678,6 +677,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 
 	private XMLElement createGeoVector(IngridDocument geoVectorContext) {
 		XMLElement geoVector = new XMLElement(GEO_VECTOR);
+		geoVector.addChild(createVectorTopologyLevel(geoVectorContext));
 		geoVector.addChild(createGeometricObjectType(geoVectorContext));
 		geoVector.addChild(new XMLElement(GEOMETRIC_OBJECT_COUNT, getIntegerForKey(MdekKeys.GEOMETRIC_OBJECT_COUNT, geoVectorContext)));
 		return geoVector;

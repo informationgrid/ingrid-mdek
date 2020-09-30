@@ -32,6 +32,7 @@
       <version name="version" type="integer" column="version"/>
       <property name="objGeoId" type="long" column="obj_geo_id"/>
       <property name="line" type="integer" column="line"/>
+      <property name="vectorTopologyLevel" type="integer" column="vector_topology_level"/>
       <property name="geometricObjectType" type="integer" column="geometric_object_type"/>
       <property name="geometricObjectCount" type="integer" column="geometric_object_count"/>
 

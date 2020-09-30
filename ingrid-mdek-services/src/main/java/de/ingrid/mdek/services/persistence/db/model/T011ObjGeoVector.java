@@ -30,6 +30,7 @@ public class T011ObjGeoVector implements IEntity {
 	private int version;
 	private Long objGeoId;
 	private Integer line;
+	private Integer vectorTopologyLevel;
 	private Integer geometricObjectType;
 	private Integer geometricObjectCount;
 
@@ -85,4 +86,11 @@ public class T011ObjGeoVector implements IEntity {
 	}
 
 
+	public Integer getVectorTopologyLevel() {
+		return vectorTopologyLevel;
+	}
+
+	public void setVectorTopologyLevel(Integer vectorTopologyLevel) {
+		this.vectorTopologyLevel = vectorTopologyLevel;
+	}
 }

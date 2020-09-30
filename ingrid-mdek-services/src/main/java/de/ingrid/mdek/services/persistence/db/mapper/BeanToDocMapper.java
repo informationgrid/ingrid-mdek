@@ -1044,8 +1044,7 @@ public class BeanToDocMapper implements IMapper {
 		domainDoc.put(MdekKeys.RESOLUTION, objGeo.getRecExact());
 		domainDoc.put(MdekKeys.DEGREE_OF_RECORD, objGeo.getRecGrade());
 		domainDoc.put(MdekKeys.HIERARCHY_LEVEL, objGeo.getHierarchyLevel());
-		domainDoc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, objGeo.getVectorTopologyLevel());
-		
+
 		domainDoc.put( MdekKeys.TRANSFORMATION_PARAMETER, objGeo.getTransfParam() );
         domainDoc.put( MdekKeys.NUM_DIMENSIONS, (Integer) objGeo.getNumDimensions() );
         domainDoc.put( MdekKeys.CELL_GEOMETRY, objGeo.getCellGeometry() );
@@ -1155,6 +1154,7 @@ public class BeanToDocMapper implements IMapper {
 		ArrayList<IngridDocument> locList = new ArrayList<>(refs.size());
 		for (T011ObjGeoVector ref : refs) {
 			IngridDocument doc = new IngridDocument();
+			doc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, ref.getVectorTopologyLevel());
 			doc.put(MdekKeys.GEOMETRIC_OBJECT_TYPE, ref.getGeometricObjectType());
 			doc.put(MdekKeys.GEOMETRIC_OBJECT_COUNT, ref.getGeometricObjectCount());
 			locList.add(doc);					
