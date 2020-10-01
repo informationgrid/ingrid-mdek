@@ -568,6 +568,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		map.addChild(new XMLElement(POS_ACCURACY_VERTICAL, getDoubleForKey(MdekKeys.POS_ACCURACY_VERTICAL, mapContext)));
 		map.addChild(new XMLElement(KEYC_INCL_W_DATASET, getIntegerForKey(MdekKeys.KEYC_INCL_W_DATASET, mapContext)));
 		map.addChildren(createFeatureTypes(mapContext));
+		map.addChildren(createDataBases(mapContext));
 		map.addChild(new XMLElement(DATASOURCE_IDENTIFICATOR, getStringForKey(MdekKeys.DATASOURCE_UUID, mapContext)));
 		return map;
 	}
@@ -697,6 +698,17 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		}
 		return featureTypes;
 	}
+
+
+	private List<XMLElement> createDataBases(IngridDocument mapContext) {
+		List<XMLElement> resultList = new ArrayList<>();
+		List<String> data_bases = getStringListForKey(MdekKeys.DATA, mapContext);
+		for (String data_base : data_bases) {
+			resultList.add(new XMLElement(DATA_ITEM, data_base));
+		}
+		return resultList;
+	}
+
 
 	private XMLElement createProject(IngridDocument projectContext) {
 		XMLElement project = new XMLElement(PROJECT);

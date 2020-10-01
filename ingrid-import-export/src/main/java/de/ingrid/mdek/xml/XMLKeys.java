@@ -157,6 +157,7 @@ public class XMLKeys {
 	public static final String DEGREE_OF_RECORD = "degree-of-record";
 	public static final String RESOLUTION = "resolution";
 	public static final String DATA = "data";
+	public static final String DATA_ITEM = "data-item";
 	public static final String MAP = "map";
 	public static final String TYPE_OF_DOCUMENT = "type-of-document";
 	public static final String PUBLISHED_IN = "published-in";

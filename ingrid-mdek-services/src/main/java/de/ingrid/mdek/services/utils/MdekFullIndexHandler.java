@@ -24,6 +24,7 @@ package de.ingrid.mdek.services.utils;
 
 import java.util.Set;
 
+import de.ingrid.mdek.services.persistence.db.model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,51 +40,6 @@ import de.ingrid.mdek.services.persistence.db.DaoFactory;
 import de.ingrid.mdek.services.persistence.db.IEntity;
 import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.hibernate.IFullIndexAccess;
-import de.ingrid.mdek.services.persistence.db.model.AdditionalFieldData;
-import de.ingrid.mdek.services.persistence.db.model.AddressComment;
-import de.ingrid.mdek.services.persistence.db.model.AddressNode;
-import de.ingrid.mdek.services.persistence.db.model.FullIndexAddr;
-import de.ingrid.mdek.services.persistence.db.model.FullIndexObj;
-import de.ingrid.mdek.services.persistence.db.model.ObjectAccess;
-import de.ingrid.mdek.services.persistence.db.model.ObjectAdvProductGroup;
-import de.ingrid.mdek.services.persistence.db.model.ObjectComment;
-import de.ingrid.mdek.services.persistence.db.model.ObjectConformity;
-import de.ingrid.mdek.services.persistence.db.model.ObjectDataLanguage;
-import de.ingrid.mdek.services.persistence.db.model.ObjectDataQuality;
-import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
-import de.ingrid.mdek.services.persistence.db.model.ObjectOpenDataCategory;
-import de.ingrid.mdek.services.persistence.db.model.ObjectTypesCatalogue;
-import de.ingrid.mdek.services.persistence.db.model.ObjectUse;
-import de.ingrid.mdek.services.persistence.db.model.ObjectUseConstraint;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
-import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
-import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
-import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
-import de.ingrid.mdek.services.persistence.db.model.SpatialSystem;
-import de.ingrid.mdek.services.persistence.db.model.T0110AvailFormat;
-import de.ingrid.mdek.services.persistence.db.model.T0112MediaOption;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjData;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjDataPara;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeo;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjGeoSymc;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjLiterature;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjProject;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServ;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpConnpoint;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpDepends;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPara;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOpPlatform;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServOperation;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServType;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServUrl;
-import de.ingrid.mdek.services.persistence.db.model.T011ObjServVersion;
-import de.ingrid.mdek.services.persistence.db.model.T014InfoImpart;
-import de.ingrid.mdek.services.persistence.db.model.T015Legist;
-import de.ingrid.mdek.services.persistence.db.model.T017UrlRef;
-import de.ingrid.mdek.services.persistence.db.model.T01Object;
-import de.ingrid.mdek.services.persistence.db.model.T021Communication;
-import de.ingrid.mdek.services.persistence.db.model.T02Address;
 
 
 /**
@@ -370,7 +326,6 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 		Set<T011ObjGeo> oGeos = o.getT011ObjGeos();
 		for (T011ObjGeo oGeo : oGeos) {
 			extendFullData(data, oGeo.getSpecialBase());
-			extendFullData(data, oGeo.getDataBase());
 			extendFullData(data, oGeo.getMethod());
 			extendFullData(data, oGeo.getDatasourceUuid());
 			Set<T011ObjGeoSymc> oGeoSymcs = oGeo.getT011ObjGeoSymcs();
@@ -379,6 +334,10 @@ public class MdekFullIndexHandler implements IFullIndexAccess {
 				extendFullData(data, oGeoSymc.getEdition());
 				extendFullDataWithSysList(data, MdekSysList.OBJ_GEO_SYMC,
 						oGeoSymc.getSymbolCatKey(), oGeoSymc.getSymbolCatValue());
+			}
+			Set<T011ObjGeoDataBase> objGeoDataBases = oGeo.getT011ObjGeoDataBase();
+			for ( T011ObjGeoDataBase objGeoDataBase : objGeoDataBases){
+				extendFullData(data, objGeoDataBase.getDataBase());
 			}
 		}
 		// T011ObjLiterature
