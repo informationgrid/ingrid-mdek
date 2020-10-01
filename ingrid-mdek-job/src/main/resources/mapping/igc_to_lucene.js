@@ -238,7 +238,12 @@ for (i=0; i<objRows.size(); i++) {
             // add complete styling information, so we don't have to make any changes in the portal
             var previewImageHtmlTag = "<img src='" + rows.get(j).get("url_link") + "' height='100' class='preview_image' ";
             if (rows.get(j).get("descr")) {
-                previewImageHtmlTag += "alt='" + rows.get(j).get("descr") + "' title='" + rows.get(j).get("descr") + "' >";
+                var descr = rows.get(j).get("descr");
+                if (descr.indexOf("#locale-") !== -1){
+                    descr = descr.substring(0,descr.indexOf("#locale-"));
+                }
+                previewImageHtmlTag += "alt='" + descr + "' title='" + descr + "' >";
+
             } else {
                 previewImageHtmlTag += "alt='"+ rows.get(j).get("url_link") + "' >";
             }
