@@ -554,7 +554,6 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		XMLElement map = new XMLElement(MAP);
 		map.addChild(createHierarchyLevel(mapContext));
 		map.addChild(new XMLElement(DESCRIPTION_OF_TECH_DOMAIN, getStringForKey(MdekKeys.DESCRIPTION_OF_TECH_DOMAIN, mapContext)));
-		map.addChild(new XMLElement(DATA, getStringForKey(MdekKeys.DATA, mapContext)));
 		map.addChild(new XMLElement(RESOLUTION, getDoubleForKey(MdekKeys.RESOLUTION, mapContext)));
 		map.addChildren(createPublicationScales(mapContext));
 		map.addChildren(createKeyCatalogues(mapContext));
@@ -704,7 +703,7 @@ public class DatasourceDocToXMLMapper extends AbstractDocToXMLMapper {
 		List<XMLElement> resultList = new ArrayList<>();
 		List<String> data_bases = getStringListForKey(MdekKeys.DATA, mapContext);
 		for (String data_base : data_bases) {
-			resultList.add(new XMLElement(DATA_ITEM, data_base));
+			resultList.add(new XMLElement(DATA, data_base));
 		}
 		return resultList;
 	}
