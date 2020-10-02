@@ -201,14 +201,18 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // ---------- <gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_Source/gmd:description> ----------
-        if (hasValue(objGeoRow.get("data_base"))) {
+        // rows = SQL.all("SELECT t011_obj_geo_data_bases.data_base FROM t011_obj_geo_data_bases, t011_obj_geo WHERE t011_obj_geo.obj_id=? AND t011_obj_geo_data_bases.obj_geo_id=t011_obj_geo.id", [+objId, objGeoRow.get("id")]);
+        rows = SQL.all("SELECT data_base FROM t011_obj_geo_data_bases WHERE t011_obj_geo_data_bases.obj_geo_id=?", [+objGeoRow.get("id")]);
+        if (rows.size() > 0) {
             if (!dqDataQuality) {
                 dqDataQuality = addDataQualityInfoElement().addElement(getDqDataQualityElement(objClass));
             }
             if (!liLineage) {
                 liLineage = dqDataQuality.addElement("gmd:lineage/gmd:LI_Lineage");
             }
-            liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(objGeoRow.get("data_base"));
+            for (i=0; i<rows.size(); i++) {
+                liLineage.addElement("gmd:source/gmd:LI_Source/gmd:description/gco:CharacterString").addText(rows.get(i).get("data_base"));
+            }
         }
 
 // GEODATENDIENST(3) + INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)

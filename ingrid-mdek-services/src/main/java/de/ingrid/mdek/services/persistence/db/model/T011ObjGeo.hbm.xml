@@ -32,7 +32,6 @@
       <version name="version" type="integer" column="version"/>
       <property name="objId" type="long" column="obj_id"/>
       <property name="specialBase" type="string" column="special_base"/>
-      <property name="dataBase" type="string" column="data_base"/>
       <property name="method" type="string" column="method"/>
       <property name="recExact" type="double" column="rec_exact"/>
       <property name="recGrade" type="double" column="rec_grade"/>
@@ -89,6 +88,12 @@
            cascade="all-delete-orphan">
          <key column="obj_geo_id"/>
          <one-to-many class="T011ObjGeoVector" not-found="ignore"/>
+      </set>
+      <set name="t011ObjGeoDataBase" order-by="line" table="t011_obj_geo_data_bases"
+           inverse="true"
+           cascade="all-delete-orphan">
+         <key column="obj_geo_id"/>
+         <one-to-many class="T011ObjGeoDataBase" not-found="ignore"/>
       </set>
    </class>
 

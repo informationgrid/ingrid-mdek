@@ -820,7 +820,7 @@ public class MdekKeys {
     
     /** Value: String  */
     public final static String TECHNICAL_BASE = "technical-base";
-    /** Value: String  */
+    /** Value: List<String>  */
     public final static String DATA = "data";
     /** Value: String  */
     public final static String METHOD_OF_PRODUCTION = "method-of-production";

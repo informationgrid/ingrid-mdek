@@ -33,7 +33,6 @@ public class T011ObjGeo implements IEntity {
 	private int version;
 	private Long objId;
 	private String specialBase;
-	private String dataBase;
 	private String method;
 	private Double recExact;
 	private Double recGrade;
@@ -58,6 +57,7 @@ public class T011ObjGeo implements IEntity {
 	private Integer keycInclWDataset;
 	private String datasourceUuid;
 
+	private Set t011ObjGeoDataBase = new HashSet();
 	private Set t011ObjGeoAxisDim = new HashSet();
 	private Set t011ObjGeoScales = new HashSet();
 	private Set t011ObjGeoSpatialReps = new HashSet();
@@ -97,14 +97,6 @@ public class T011ObjGeo implements IEntity {
 
 	public void setSpecialBase(String specialBase) {
 		this.specialBase = specialBase;
-	}
-
-	public String getDataBase() {
-		return dataBase;
-	}
-
-	public void setDataBase(String dataBase) {
-		this.dataBase = dataBase;
 	}
 
 	public String getMethod() {
@@ -161,6 +153,14 @@ public class T011ObjGeo implements IEntity {
 
 	public void setDatasourceUuid(String datasourceUuid) {
 		this.datasourceUuid = datasourceUuid;
+	}
+
+	public Set getT011ObjGeoDataBase() {
+		return t011ObjGeoDataBase;
+	}
+
+	public void setT011ObjGeoDataBase(Set t011ObjGeoDataBase) {
+		this.t011ObjGeoDataBase = t011ObjGeoDataBase;
 	}
 
 
