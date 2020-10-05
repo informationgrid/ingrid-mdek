@@ -174,7 +174,7 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
     
     // add hours of service (REDMINE-380, REDMINE-1284) 
     if (hasValue(addressRow.get("hours_of_service"))) {
-    	ciContact.addElement("gmd:hoursOfService/gco:CharacterString").addText(addressRow.get("hours_of_service"));
+        IDF_UTIL.addLocalizedCharacterstring(ciContact.addElement("gmd:hoursOfService"), addressRow.get("hours_of_service"));
     }
 
     if (hasValue(role)) {
