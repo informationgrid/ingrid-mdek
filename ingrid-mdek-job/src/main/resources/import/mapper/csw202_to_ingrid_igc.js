@@ -268,7 +268,6 @@ var mappingDescription = {"mappings":[
 							"funct":getLocalisedCharacterString
 						},
 	        		    "targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/data",
-        		        "concatEntriesWith":"; "
 	        		},
 	        		{	
 	        			"srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:statement/gco:CharacterString",

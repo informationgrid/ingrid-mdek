@@ -132,7 +132,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 	private static final String X_DOCUMENT_VOLUME = "volume/text()";
 	private static final String X_DOCUMENT_PUBLISHED_IN = "published-in/text()";
 	private static final String X_MAP_HIERARCHY_LEVEL = "hierarchy-level/@iso-code";
-	private static final String X_MAP_DATA = "data/text()";
+	private static final String X_MAP_DATA = "data";
 	private static final String X_MAP_RESOLUTION = "resolution/text()";
 	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE_LIST = "key-catalogue";
 	private static final String X_MAP_AND_DATASET_KEY_CATALOGUE = "key-cat/text()";
@@ -673,8 +673,7 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 				XPathUtils.getInt(map, X_MAP_HIERARCHY_LEVEL), target);
 		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.DESCRIPTION_OF_TECH_DOMAIN},
 				XPathUtils.getString(map, X_TECHNICAL_DOMAIN_DESCRIPTION_OF_TECH_DOMAIN), target);
-		putString(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.DATA},
-				XPathUtils.getString(map, X_MAP_DATA), target);
+		mapStringList(map, X_MAP_DATA, target, new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.DATA});
 		putDouble(new String[] {MdekKeys.TECHNICAL_DOMAIN_MAP, MdekKeys.RESOLUTION},
 				XPathUtils.getDouble(map, X_MAP_RESOLUTION), target);
 		mapPublicationScales(map, (IngridDocument) target.get(MdekKeys.TECHNICAL_DOMAIN_MAP));

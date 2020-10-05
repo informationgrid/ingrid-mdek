@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.6.0-SNAPSHOT" date="2020-xx-xx" description="Release 5.6.0">
+      <action type="update" dev="wemove" issue="1429">
+        Change 'Datengrundlage' Field from single entry to list.
+      </action>
       <action type="add" dev="wemove" issue="1817">
         Add explanation column to confirmity table
       </action>
