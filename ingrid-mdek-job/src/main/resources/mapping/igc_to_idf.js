@@ -2345,12 +2345,12 @@ function addExtent(identificationInfo, objRow) {
         if (hasValue(timeRange.beginDate)) {
             timePeriod.addElement("gml:beginPosition").addText(TRANSF.getISODateFromIGCDate(timeRange.beginDate));
         } else {
-            timePeriod.addElement("gml:beginPosition").addText("");
+            timePeriod.addElement("gml:beginPosition").addAttribute("indeterminatePosition", "unknown").addText("");
         }
         if (hasValue(timeRange.endDate)) {
             timePeriod.addElement("gml:endPosition").addText(TRANSF.getISODateFromIGCDate(timeRange.endDate));
         } else {
-            timePeriod.addElement("gml:endPosition").addText("");
+            timePeriod.addElement("gml:endPosition").addAttribute("indeterminatePosition", "unknown").addText("");
         }
     }        
 
@@ -2432,9 +2432,6 @@ function getTimeRange(objRow) {
             retValue.beginDate = timeMap.get("t1");
         } else if (myDateType.equals("bis")) {
             retValue.endDate = timeMap.get("t2");
-        } else if (myDateType.equals("am")) {
-            retValue.beginDate = timeMap.get("t0");
-            retValue.endDate = timeMap.get("t0");
         }
     }
 
