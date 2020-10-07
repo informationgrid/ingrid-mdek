@@ -105,6 +105,8 @@ for (i=0; i<objRows.size(); i++) {
         mdMetadata.addElement("gmd:fileIdentifier/gco:CharacterString").addText(value);
     }
 
+    var doi = addDOIInfo(mdMetadata, objId);
+
 // ---------- <gmd:language> ----------
     value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
     if (hasValue(value)) {
@@ -333,7 +335,7 @@ for (i=0; i<objRows.size(); i++) {
 
                     gridSpatialRepr.addElement("gmd:checkPointAvailability/gco:Boolean").addText("Y".equals(rectCheckpoint));
                     if (hasValue(rectDescription)) {
-                        gridSpatialRepr.addElement("gmd:checkPointDescription/gco:CharacterString").addText(rectDescription);
+                        IDF_UTIL.addLocalizedCharacterstring(gridSpatialRepr.addElement("gmd:checkPointDescription"), rectDescription);
                     }
                     if (hasValue(rectCornerPoint)) {
                         gridSpatialRepr.addElement("gmd:cornerPoints/gml:Point").addAttribute("gml:id", "cornerPointId1").addElement("gml:coordinates").addText(rectCornerPoint);
@@ -399,19 +401,19 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation> ----------
     var ciCitation = identificationInfo.addElement("gmd:citation/gmd:CI_Citation");
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:title> ----------
-    ciCitation.addElement("gmd:title/gco:CharacterString").addText(objRow.get("obj_name"));
+    IDF_UTIL.addLocalizedCharacterstring(ciCitation.addElement("gmd:title"), objRow.get("obj_name"));
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:alternateTitle> ----------
     // collect all entries from the AdV Product Group and append the defined short title (#388)
     var productGroupRows = SQL.all("SELECT * FROM adv_product_group WHERE obj_id=? ORDER BY adv_product_group.line ASC", [+objId]);
     for (var j=0; j<productGroupRows.size(); j++) {
         var productGroupRow = productGroupRows.get(j);
         var productValue = productGroupRow.get("product_value");
-        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(productValue);
+        IDF_UTIL.addLocalizedCharacterstring(ciCitation.addElement("gmd:alternateTitle"), productValue);
     }
     
     if (hasValue(objRow.get("dataset_alternate_name"))) {
         var alternateName = objRow.get("dataset_alternate_name");
-        ciCitation.addElement("gmd:alternateTitle/gco:CharacterString").addText(alternateName);
+        IDF_UTIL.addLocalizedCharacterstring(ciCitation.addElement("gmd:alternateTitle"), alternateName);
     }
     // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
     var referenceDateRows = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=?", [+objId]);
@@ -453,6 +455,14 @@ for (i=0; i<objRows.size(); i++) {
     if (objClass.equals("1")) {
         ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(getCitationIdentifier(objRow));
     }
+
+    if (hasValue(doi)) {
+        var citationIdentifier = ciCitation.addElement("gmd:identifier/gmd:MD_Identifier");
+        if (hasValue(doi.type)) {
+            citationIdentifier.addElement("gmd:authority/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(doi.type);
+        }
+        citationIdentifier.addElement("gmd:code/gco:CharacterString").addText("https://doi.org/" + doi.id);
+    }
     
     // continue mapping literature properties
     if (objClass.equals("2")) {
@@ -469,9 +479,8 @@ for (i=0; i<objRows.size(); i++) {
             // ---------- <gmd:identificationInfo/gmd:citation/gmd:CI_Citation/gmd:citedResponsibleParty/gmd:role/@codeListValue=resourceProvider> ----------
             if (hasValue(literatureRow.get("loc"))) {
                 var responsiblePartyResourceProvider = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
-                responsiblePartyResourceProvider.addElement("gmd:organisationName/gco:CharacterString").addText("Contact intructions for the location of resource");
-                responsiblePartyResourceProvider.addElement("gmd:contactInfo/gmd:CI_Contact/gmd:contactInstructions/gco:CharacterString")
-                    .addText(literatureRow.get("loc"));
+                responsiblePartyResourceProvider.addElement("gmd:organisationName/gco:CharacterString").addText("Contact instructions for the location of resource");
+                IDF_UTIL.addLocalizedCharacterstring(responsiblePartyResourceProvider.addElement("gmd:contactInfo/gmd:CI_Contact/gmd:contactInstructions"), literatureRow.get("loc"));
                 responsiblePartyResourceProvider.addElement("gmd:role/gmd:CI_RoleCode")
                     .addAttribute("codeList", globalCodeListAttrURL + "#CI_RoleCode")
                     .addAttribute("codeListValue", "resourceProvider");
@@ -523,7 +532,7 @@ for (i=0; i<objRows.size(); i++) {
                 citationSeries.addElement("gmd:page/gco:CharacterString").addText(literatureRow.get("sides"));
             }
             if (hasValue(literatureRow.get("doc_info"))) {
-                ciCitation.addElement("gmd:otherCitationDetails/gco:CharacterString").addText(literatureRow.get("doc_info"));
+                IDF_UTIL.addLocalizedCharacterstring(ciCitation.addElement("gmd:otherCitationDetails"), literatureRow.get("doc_info"));
             }
             if (hasValue(literatureRow.get("isbn"))) {
                 if (!citationSeries) citationSeries = ciCitation.addElement("gmd:series/gmd:CI_Series");
@@ -571,6 +580,12 @@ for (i=0; i<objRows.size(); i++) {
     
     // ---------- <gmd:identificationInfo/gmd:abstract> ----------
     var abstr = objRow.get("obj_descr");
+    var localeString = "";
+    var locIndex = abstr.indexOf("#locale-");
+    if ( locIndex != -1){
+        localeString = abstr.substring(locIndex);
+        abstr = abstr.substring(0, locIndex);
+    }
     var prettyAbstr = abstr;
     var objServRow;
     
@@ -615,13 +630,8 @@ for (i=0; i<objRows.size(); i++) {
             completeScaleString += scanString.slice(0,-2);
         }
         if(hasScale || hasRes || hasScan){
-            log.debug(abstr)
-            log.debug(completeScaleString)
             prettyAbstr = abstr + "\n" + completeScaleString.slice(2) + "\n";
-            log.debug(prettyAbstr)
             abstr = abstr + completeScaleString.slice(1)  + "\n";
-            log.debug(abstr)
-            log.debug(completeScaleString)
         }
 
 
@@ -638,7 +648,11 @@ for (i=0; i<objRows.size(); i++) {
             abstr += abstractPostfix;
         }
     }
-    identificationInfo.addElement("gmd:abstract/gco:CharacterString").addText(abstr);
+    if (localeString) {
+        abstr += localeString;
+    }
+    // handle localization (#1882), abstractPostix will be put only in gco:CharacterString element
+    IDF_UTIL.addLocalizedCharacterstring(identificationInfo.addElement("gmd:abstract"), abstr);
     // add only the abstract and some prettified additional information (INGRID-2200)
     mdMetadata.addElement("idf:abstract/gco:CharacterString").addText(prettyAbstr);
 
@@ -646,7 +660,7 @@ for (i=0; i<objRows.size(); i++) {
     
     value = getPurpose(objRow);
     if (hasValue(value)) {
-        identificationInfo.addElement("gmd:purpose/gco:CharacterString").addText(value);
+        IDF_UTIL.addLocalizedCharacterstring(identificationInfo.addElement("gmd:purpose"), value);
     }
 
     // ---------- <gmd:identificationInfo/gmd:status> ----------
@@ -720,7 +734,7 @@ for (i=0; i<objRows.size(); i++) {
             .addAttribute("codeListValue", getHierarchLevel(objClass))
             .addAttribute("codeList", globalCodeListAttrURL + "#MD_ScopeCode");
         }
-        mdMaintenanceInformation.addElement("gmd:maintenanceNote/gco:CharacterString").addText(objRow.get("time_descr"));
+        IDF_UTIL.addLocalizedCharacterstring(mdMaintenanceInformation.addElement("gmd:maintenanceNote"), objRow.get("time_descr"));
     }
     
     // ---------- <gmd:identificationInfo/gmd:graphicOverview> ----------
@@ -731,7 +745,7 @@ for (i=0; i<objRows.size(); i++) {
         graphic.addElement("gmd:fileName/gco:CharacterString").addText(preview.get("url_link"));
         var description = preview.get("descr");
         if (hasValue(description)) {
-            graphic.addElement("gmd:fileDescription/gco:CharacterString").addText(description);
+            IDF_UTIL.addLocalizedCharacterstring(graphic.addElement("gmd:fileDescription"), description);
         }
     }
     
@@ -875,7 +889,7 @@ for (i=0; i<objRows.size(); i++) {
     mdKeywords = DOM.createElement("gmd:MD_Keywords");
     rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=?", [+objId]);
     for (i=0; i<rows.size(); i++) {
-        mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(rows.get(i).get("category_value"));
+        IDF_UTIL.addLocalizedCharacterstring(mdKeywords.addElement("gmd:keyword"), rows.get(i).get("category_value"));
     }
     
     // only add thesaurus information if any category is available
@@ -922,7 +936,7 @@ for (i=0; i<objRows.size(); i++) {
     value = objRow.get("dataset_usage");
     if (hasValue(value)) {
         var mdUsage = identificationInfo.addElement("gmd:resourceSpecificUsage").addElement("gmd:MD_Usage");
-        mdUsage.addElement("gmd:specificUsage/gco:CharacterString").addText(value);
+        IDF_UTIL.addLocalizedCharacterstring(mdUsage.addElement("gmd:specificUsage"), value);
         // unknown contact info, see INGRID-2331
         mdUsage.addElement("gmd:userContactInfo").addAttribute("gco:nilReason", "unknown");
     }
@@ -994,7 +1008,7 @@ for (i=0; i<objRows.size(); i++) {
 
         // ---------- <gmd:identificationInfo/gmd:environmentDescription> ----------
         if (hasValue(objServRow.get("environment"))) {
-            identificationInfo.addElement("gmd:environmentDescription/gco:CharacterString").addText(objServRow.get("environment"));
+            IDF_UTIL.addLocalizedCharacterstring(identificationInfo.addElement("gmd:environmentDescription"), objServRow.get("environment"));
         }
 
 
@@ -1170,7 +1184,7 @@ for (i=0; i<objRows.size(); i++) {
         if (hasValue(rs)) {
             value = rs.get("description");
             if (hasValue(value)) {
-                identificationInfo.addElement("gmd:supplementalInformation/gco:CharacterString").addText(value);
+                IDF_UTIL.addLocalizedCharacterstring(identificationInfo.addElement("gmd:supplementalInformation"), value);
             }
         }
     }
@@ -1210,7 +1224,7 @@ for (i=0; i<objRows.size(); i++) {
                 // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation> ----------
                 var ciCitation = mdFeatureCatalogueDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
                     // ---------- <gmd:CI_Citation/gmd:title> ----------
-                ciCitation.addElement("gmd:title/gco:CharacterString").addText(objKeycRows.get(i).get("title_value"));
+                IDF_UTIL.addLocalizedCharacterstring(ciCitation.addElement("gmd:title"), objKeycRows.get(i).get("title_value"));
                     // ---------- <gmd:CI_Citation/gmd:CI_Date> ----------
                 var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
                 if (hasValue(objKeycRows.get(i).get("type_date"))) {
@@ -1275,7 +1289,7 @@ for (i=0; i<objRows.size(); i++) {
             for (i=0; i<objKeycRows.size(); i++) {
                 // ---------- <gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation> ----------
                 var ciCitation = mdFeatureCatalogueDescription.addElement("gmd:featureCatalogueCitation/gmd:CI_Citation");
-                ciCitation.addElement("gmd:title/gco:CharacterString").addText(objKeycRows.get(i).get("title_value"));
+                IDF_UTIL.addLocalizedCharacterstring(ciCitation.addElement("gmd:title"), objKeycRows.get(i).get("title_value"));
                 var ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
                 if (hasValue(objKeycRows.get(i).get("type_date"))) {
                     ciDate.addElement("gmd:date").addElement(getDateOrDateTime(TRANSF.getISODateFromIGCDate(objKeycRows.get(i).get("type_date"))));
@@ -1324,7 +1338,7 @@ for (i=0; i<objRows.size(); i++) {
         rows = SQL.all("SELECT * FROM t011_obj_geo_symc WHERE obj_geo_id=?", [+objGeoId]);
         for (i=0; i<rows.size(); i++) {
             var portrayalCICitation = mdMetadata.addElement("gmd:portrayalCatalogueInfo/gmd:MD_PortrayalCatalogueReference/gmd:portrayalCatalogueCitation/gmd:CI_Citation");
-            portrayalCICitation.addElement("gmd:title/gco:CharacterString").addText(rows.get(i).get("symbol_cat_value"));
+            IDF_UTIL.addLocalizedCharacterstring(portrayalCICitation.addElement("gmd:title"), rows.get(i).get("symbol_cat_value"));
 
             // ---------- <gmd:CI_Citation/gmd:date/gmd:CI_Date> ----------
             var ciDate = portrayalCICitation.addElement("gmd:date/gmd:CI_Date");
@@ -1342,7 +1356,7 @@ for (i=0; i<objRows.size(); i++) {
 
             // ---------- <gmd:CI_Citation/gmd:edition> ----------
             if (hasValue(rows.get(i).get("edition"))) {
-                portrayalCICitation.addElement("gmd:edition/gco:CharacterString").addText(rows.get(i).get("edition"));
+                IDF_UTIL.addLocalizedCharacterstring(portrayalCICitation.addElement("gmd:edition"), rows.get(i).get("edition"));
             }
         }
         // ---------- <idf:idfMdMetadata/gmd:portrayalCatalogueInfo#uuidref> ----------
@@ -1397,6 +1411,8 @@ for (i=0; i<objRows.size(); i++) {
         }
         mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference", "IN", srvRow));
     }
+    // finally add PT_LOCALE elements
+    IDF_UTIL.addPTLocaleDefinitions(idfDoc);
     
 
 // GEODATENDIENST(3)
@@ -1611,17 +1627,17 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
         var individualName = getIndividualNameFromAddressRow(addressRow);
         if (hasValue(individualName)) {
             individualName = filterUserPostfix(individualName);
-            idfResponsibleParty.addElement("gmd:individualName").addElement("gco:CharacterString").addText(individualName);
+            IDF_UTIL.addLocalizedCharacterstring(idfResponsibleParty.addElement("gmd:individualName"), individualName);
         }
     }
     var institution = getInstitution(parentAddressRowPathArray);
     if (hasValue(institution)) {
         institution = filterUserPostfix(institution);
-        idfResponsibleParty.addElement("gmd:organisationName").addElement("gco:CharacterString").addText(institution);
+        IDF_UTIL.addLocalizedCharacterstring(idfResponsibleParty.addElement("gmd:organisationName"), institution);
     }
     if (!mapOnlyEmails) {
         if (hasValue(addressRow.get("job"))) {
-            idfResponsibleParty.addElement("gmd:positionName").addElement("gco:CharacterString").addText(addressRow.get("job"));
+            IDF_UTIL.addLocalizedCharacterstring(idfResponsibleParty.addElement("gmd:positionName"), addressRow.get("job"));
         }
     }
 
@@ -1691,7 +1707,7 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
     }
     // add hours of service (REDMINE-380, REDMINE-1284) 
     if (hasValue(addressRow.get("hours_of_service"))) {
-    	ciContact.addElement("gmd:hoursOfService/gco:CharacterString").addText(addressRow.get("hours_of_service"));
+        IDF_UTIL.addLocalizedCharacterstring(ciContact.addElement("gmd:hoursOfService"), addressRow.get("hours_of_service"));
     }
 
     if (hasValue(role)) {
@@ -1924,7 +1940,8 @@ function getMdKeywords(rows) {
                     .addAttribute("xlink:href", keywordLink)
                     .addText(keywordValue);
             } else {
-                mdKeyword.addElement("gco:CharacterString").addText(keywordValue);
+                // handle also manual added localizations #1822
+                IDF_UTIL.addLocalizedCharacterstring(mdKeyword, keywordValue);
             }
 
             // add localized keyword, see https://dev.informationgrid.eu/redmine/issues/363
@@ -2072,9 +2089,10 @@ function addResourceConstraints(identificationInfo, objRow) {
         if (hasValue(termsOfUse)) {
         	// also add "Nutzungseinschränkungen: " according to GDI-DE Konventionen page 17 !
             // #1220: remove prefix
-            identificationInfo
-                .addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString")
-                .addText(termsOfUse);
+            IDF_UTIL.addLocalizedCharacterstring(
+                identificationInfo.addElement("gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation"),
+                termsOfUse
+            );
         }
     }
 
@@ -2110,8 +2128,7 @@ function addResourceConstraints(identificationInfo, objRow) {
                     .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
                     .addText(licenseText);
             } else {
-                mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString")
-                    .addText( licenseText);
+                IDF_UTIL.addLocalizedCharacterstring(mdLegalConstraints.addElement("gmd:otherConstraints"),licenseText);
             }
 
             var licenseJSON = TRANSF.getISOCodeListEntryData(6500, licenseText);
@@ -2201,8 +2218,7 @@ function addResourceConstraints(identificationInfo, objRow) {
                         .addAttribute("xlink:href", constraint.link)
                         .addText(constraint.text);
                 } else {
-                    var accessAnchor = mdLegalConstraints.addElement("gmd:otherConstraints/gco:CharacterString");
-                    accessAnchor.addText(otherConstraints[i]);
+                    IDF_UTIL.addLocalizedCharacterstring(mdLegalConstraints.addElement("gmd:otherConstraints"),otherConstraints[i]);
                 }
             }
         }
@@ -2223,7 +2239,7 @@ function addExtent(identificationInfo, objRow) {
     var exExtent;
     if (hasValue(objRow.get("loc_descr"))) {
         exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
-        exExtent.addElement("gmd:description/gco:CharacterString").addText(objRow.get("loc_descr"));
+        IDF_UTIL.addLocalizedCharacterstring(exExtent.addElement("gmd:description"), objRow.get("loc_descr"));
     }
 
     // ---------- <gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon> ----------
@@ -2319,7 +2335,7 @@ function addExtent(identificationInfo, objRow) {
             // Spatial_ref_value.name_value + nativekey MD_Metadata/gmd:identificationInfo/srv:CSW_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:MD_Identifier/code/gco:CharacterString
             var exGeographicDescription = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicDescription");
             exGeographicDescription.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
-            exGeographicDescription.addElement("gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(geoIdentifier);
+            IDF_UTIL.addLocalizedCharacterstring(exGeographicDescription.addElement("gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code"), geoIdentifier);
         }
         // ---------- <gmd:geographicElement/gmd:EX_GeographicBoundingBox> ----------
         if (hasValue(row.get("x1")) && hasValue(row.get("x2")) && hasValue(row.get("y1")) && hasValue(row.get("y2"))) {
@@ -2496,8 +2512,9 @@ function addDistributionInfo(mdMetadata, objId) {
         var distributorWritten = true;
         // MD_Distributor needs a distributorContact, will be set below !
         distributorContact = mdDistributor.addElement("gmd:distributorContact");
-        mdDistributor.addElement("gmd:distributionOrderProcess/gmd:MD_StandardOrderProcess/gmd:orderingInstructions/gco:CharacterString")
-            .addText(objRow.get("ordering_instructions"));
+        IDF_UTIL.addLocalizedCharacterstring(
+            mdDistributor.addElement("gmd:distributionOrderProcess/gmd:MD_StandardOrderProcess/gmd:orderingInstructions"),
+            objRow.get("ordering_instructions"));
     }
 
     // ---------- <gmd:MD_Distributor/gmd:distributorContact/gmd:CI_ResponsibleParty> ----------
@@ -2548,10 +2565,10 @@ function addDistributionInfo(mdMetadata, objId) {
                 idfOnlineResource.addElement("gmd:applicationProfile/gco:CharacterString").addText(rows.get(i).get("datatype_value"));
             }
             if (hasValue(rows.get(i).get("content"))) {
-                idfOnlineResource.addElement("gmd:name/gco:CharacterString").addText(rows.get(i).get("content"));
+                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:name"), rows.get(i).get("content"));
             }
             if (hasValue(rows.get(i).get("descr"))) {
-                idfOnlineResource.addElement("gmd:description/gco:CharacterString").addText(rows.get(i).get("descr"));
+                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:description"), rows.get(i).get("descr"));
             }
             
             // Verweistyp added 2 times, as gmd:function (ISO) and as idf:attachedToField (InGrid detail)
@@ -2580,10 +2597,10 @@ function addDistributionInfo(mdMetadata, objId) {
             var idfOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/idf:idfOnlineResource");
             idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(row.get("url"));
             if (hasValue(row.get("name"))) {
-                idfOnlineResource.addElement("gmd:name/gco:CharacterString").addText(row.get("name"));
+                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:name"), rows.get(i).get("name"));
             }
             if (hasValue(row.get("description"))) {
-                idfOnlineResource.addElement("gmd:description/gco:CharacterString").addText(row.get("description"));
+                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:description"), rows.get(i).get("description"));
             }
             
             // HACK: Simulate URL row to add correct function code ... !!!
@@ -2702,7 +2719,7 @@ function addDistributionInfo(mdMetadata, objId) {
             if (!mdMedium) {
                 mdMedium = mdDigitalTransferOptions.addElement("gmd:offLine/gmd:MD_Medium");
             }
-            mdMedium.addElement("gmd:mediumNote/gco:CharacterString").addText(rows.get(i).get("medium_note"));
+            IDF_UTIL.addLocalizedCharacterstring(mdMedium.addElement("gmd:mediumNote"), rows.get(i).get("medium_note"));
         }
     }
 }
@@ -2756,7 +2773,7 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
 
         // ---------- <srv:SV_OperationMetadata/srv:operationDescription> ----------
                 if (hasValue(svOpRow.get("descr"))) {
-                    svOperationMetadata.addElement("srv:operationDescription/gco:CharacterString").addText(svOpRow.get("descr"));
+                    IDF_UTIL.addLocalizedCharacterstring(svOperationMetadata.addElement("srv:operationDescription"), svOpRow.get("descr"));
                 }
 
         // ---------- <srv:SV_OperationMetadata/srv:invocationName> ----------
@@ -2786,7 +2803,7 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                         srvParameter.addElement("srv:direction/srv:SV_ParameterDirection").addText(isoDirection);
                     }
             // ---------- <srv:SV_Parameter/srv:description ----------
-                    srvParameter.addElement("srv:description/gco:CharacterString").addText(paramRow.get("descr"));
+                    IDF_UTIL.addLocalizedCharacterstring(srvParameter.addElement("srv:description"), paramRow.get("descr"));
             // ---------- <srv:SV_Parameter/srv:optionality ----------
                     srvParameter.addElement("srv:optionality/gco:CharacterString").addText(paramRow.get("optional"));
             // ---------- <srv:SV_Parameter/srv:repeatability ----------
@@ -3036,6 +3053,35 @@ function getIdfAddressReference(addrRow, elementName) {
     idfAddressReference.addElement("idf:addressType").addText(addrRow.get("adr_type"));
 
     return idfAddressReference;
+}
+
+function addDOIInfo(parent, objId) {
+    var doiIdData = SQL.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiId'", [objId]);
+    var doiType = SQL.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiType'", [objId]);
+
+    if (hasValue(doiIdData) || hasValue(doiType)) {
+        var doiElement = parent.addElement("idf:doi");
+        var doiId = doiIdData.get("data");
+
+        if (hasValue(doiId)) {
+            doiElement.addElement("id")
+                .addText(doiId);
+        }
+
+        if (hasValue(doiType)) {
+            doiElement.addElement("type")
+                .addAttribute("id", doiType.get("list_item_id"))
+                .addText(doiType.get("data"));
+        }
+
+        log.debug("doiType-ID: " + doiType.get("list_item_id"));
+        log.debug("doiType-data: " + doiType.get("data"));
+
+        return {
+            id: doiId,
+            type: doiType.get("data")
+        };
+    }
 }
 
 function determinePublicationConditionQueryExt(publishId) {

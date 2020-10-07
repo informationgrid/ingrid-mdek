@@ -27,6 +27,12 @@
       <action type="fix" dev="wemove" issue="2104">
         Clean up old indices after indexing.
       </action>
+      <action type="add" dev="wemove" issue="1882">
+        Support localisation of fields.
+      </action>
+      <action type="add" dev="wemove" issue="1846">
+        Nokis: Import/Export geometry context table
+      </action>
       <action type="fix" dev="wemove" issue="1843">
         Import spatial scope value from CSW-ISO
       </action>

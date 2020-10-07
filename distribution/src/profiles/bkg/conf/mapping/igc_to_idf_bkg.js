@@ -226,9 +226,7 @@ function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherC
                         .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
                         .addText(otherConstraints[j]);
                 } else {
-                    legalConstraint
-                        .addElement("gmd:otherConstraints/gco:CharacterString")
-                        .addText(otherConstraints[j]);
+                    IDF_UTIL.addLocalizedCharacterstring(legalConstraint.addElement("gmd:otherConstraints"), otherConstraints[j]);
                 }
 
             }

@@ -238,7 +238,12 @@ for (i=0; i<objRows.size(); i++) {
             // add complete styling information, so we don't have to make any changes in the portal
             var previewImageHtmlTag = "<img src='" + rows.get(j).get("url_link") + "' height='100' class='preview_image' ";
             if (rows.get(j).get("descr")) {
-                previewImageHtmlTag += "alt='" + rows.get(j).get("descr") + "' title='" + rows.get(j).get("descr") + "' >";
+                var descr = rows.get(j).get("descr");
+                if (descr.indexOf("#locale-") !== -1){
+                    descr = descr.substring(0,descr.indexOf("#locale-"));
+                }
+                previewImageHtmlTag += "alt='" + descr + "' title='" + descr + "' >";
+
             } else {
                 previewImageHtmlTag += "alt='"+ rows.get(j).get("url_link") + "' >";
             }
@@ -383,6 +388,8 @@ for (i=0; i<objRows.size(); i++) {
         for (j=0; j<rows.size(); j++) {
             addObjectDataLanguage(rows.get(j));
         }
+        // add DOI if present
+        addDOIInfo(+objId);
     } else {
         addT01ObjectFolder(objRows.get(i));
     }
@@ -1006,5 +1013,20 @@ function boostDocumentsByReferences(num) {
     } else {
         // boost document if it has more than one coupled resource
         IDX.addDocumentBoost(BOOST_HAS_COUPLED_RESOURCE);
+    }
+}
+
+function addDOIInfo(objId) {
+    var doiId = SQL.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiId'", [objId]);
+    var doiType = SQL.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiType'", [objId]);
+    if (hasValue(doiId)) {
+        IDX.add("doi.id", doiId.get("data"));
+    }
+    if (hasValue(doiType)) {
+        IDX.add("doi.type", doiType.get("data"));
+        var typeId = doiType.get("list_item_id");
+        if (typeId !== "-1") {
+            IDX.add("doi.typeId", typeId);
+        }
     }
 }

@@ -20,6 +20,38 @@
  * limitations under the Licence.
  * **************************************************#
  */
+
+var mdMetadataChildrenReverseOrder = [
+    "gmd:featureAttribute",
+    "gmd:featureType",
+    "gmd:propertyType",
+    "gmd:describes",
+    "gmd:series",
+    "gmd:metadataMaintenance",
+    "gmd:applicationSchemaInfo",
+    "gmd:metadataConstraints",
+    "gmd:portrayalCatalogueInfo",
+    "gmd:dataQualityInfo",
+    "gmd:distributionInfo",
+    "gmd:contentInfo",
+    "gmd:identificationInfo",
+    "gmd:metadataExtensionInfo",
+    "gmd:referenceSystemInfo",
+    "gmd:spatialRepresentationInfo",
+    "gmd:locale",
+    "gmd:dataSetURI",
+    "gmd:metadataStandardVersion",
+    "gmd:metadataStandardName",
+    "gmd:dateStamp",
+    "gmd:contact",
+    "gmd:hierarchyLevelName",
+    "gmd:hierarchyLevel",
+    "gmd:parentIdentifier",
+    "gmd:characterSet",
+    "gmd:language",
+    "gmd:fileIdentifier"
+];
+
 // Return gco:Date OR gco:DateTime element dependent from passed date format.
 function getDateOrDateTime(dateValue) {
     var gcoElement;
@@ -63,3 +95,41 @@ function getHierarchLevel(objClass) {
     return hierarchyLevel;
 }
 
+function searchNextRootSiblingTag(parentNode, tagName) {
+    var index = mdMetadataChildrenReverseOrder.indexOf(tagName);
+    var nextSibling = null;
+    for (var i=index; i<mdMetadataChildrenReverseOrder.length && !nextSibling; i++) {
+        nextSibling = DOM.getElement(parentNode, mdMetadataChildrenReverseOrder[i] + "[last()]");
+    }
+    return nextSibling;
+}
+
+function getAdditionalForTable(objId, tableId) {
+
+    var result = {};
+
+    var field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, tableId]);
+
+    if (!hasValue(field)) {return}
+
+    var table = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=?", [field.get("id")])
+
+    for (var j=0; j<table.size(); j++) {
+        var row = table.get(j);
+        var rowNumber = row.get("sort");
+        if (!result[rowNumber]) result[rowNumber] = {};
+        result[rowNumber][row.get("field_key")] = {
+            data: row.get("data"),
+            listId: row.get("list_item_id")
+        };
+    }
+
+    var resultArray = [];
+    var rowNumbers = Object.keys(result);
+    for (var i=0; i<rowNumbers.length; i++) {
+        resultArray.push(result[rowNumbers[i]]);
+    }
+
+    return resultArray;
+
+}
