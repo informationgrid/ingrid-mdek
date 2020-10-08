@@ -606,7 +606,6 @@ for (i=0; i<objRows.size(); i++) {
         var hasScan = false;
         for (var j=0; j<objServScaleRows.size(); j++) {
             var objServScaleRow = objServScaleRows.get(j);
-            log.info('Line 576 "efesgesg": ');
             if (hasValue(objServScaleRow.get("scale"))) {
                 hasScale = true;
                 scaleString = scaleString + "1:" + objServScaleRow.get("scale") + ", ";
