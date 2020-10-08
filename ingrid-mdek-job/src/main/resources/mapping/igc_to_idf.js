@@ -1630,14 +1630,20 @@ function getIdfResponsibleParty(addressRow, role, onlyEmails) {
             IDF_UTIL.addLocalizedCharacterstring(idfResponsibleParty.addElement("gmd:individualName"), individualName);
         }
     }
-    var institution = getInstitution(parentAddressRowPathArray);
-    if (hasValue(institution)) {
-        institution = filterUserPostfix(institution);
-        IDF_UTIL.addLocalizedCharacterstring(idfResponsibleParty.addElement("gmd:organisationName"), institution);
+    var organisationName = getOrganisationNameFromAddressRow(parentAddressRowPathArray[parentAddressRowPathArray.length - 1]);
+    if (hasValue(organisationName)) {
+        organisationName = filterUserPostfix(organisationName);
+        IDF_UTIL.addLocalizedCharacterstring(idfResponsibleParty.addElement("gmd:organisationName"), organisationName);
     }
     if (!mapOnlyEmails) {
         if (hasValue(addressRow.get("job"))) {
             IDF_UTIL.addLocalizedCharacterstring(idfResponsibleParty.addElement("gmd:positionName"), addressRow.get("job"));
+        } else if (parentAddressRowPathArray.length > 1) {
+            // get address hierarchy except highest, which already is in organisationName
+            var firstElement = parentAddressRowPathArray.pop();
+            var institution = getInstitution(parentAddressRowPathArray);
+            IDF_UTIL.addLocalizedCharacterstring(idfResponsibleParty.addElement("gmd:positionName"), institution);
+            parentAddressRowPathArray.push(firstElement);
         }
     }
 
