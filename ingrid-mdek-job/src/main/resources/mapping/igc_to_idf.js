@@ -581,8 +581,8 @@ for (i=0; i<objRows.size(); i++) {
     // ---------- <gmd:identificationInfo/gmd:abstract> ----------
     var abstr = objRow.get("obj_descr");
     var localeString = "";
-    var locIndex = abstr.indexOf("#locale-");
-    if ( locIndex != -1){
+    var locIndex = abstr ? abstr.indexOf("#locale-") : -1;
+    if ( locIndex !== -1){
         localeString = abstr.substring(locIndex);
         abstr = abstr.substring(0, locIndex);
     }
