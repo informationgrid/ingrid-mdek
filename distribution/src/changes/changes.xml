@@ -5,15 +5,15 @@
   </properties>
   <body>
 
-    <release version="5.6.0-SNAPSHOT" date="2020-xx-xx" description="Release 5.6.0">
+    <release version="5.6.0" date="2020-10-15" description="Release 5.6.0">
       <action type="update" dev="wemove" issue="1215">
-        Remove 'am' time type and update mapping.
+        Update timespan ISO and remove 'am' time type.
       </action>
       <action type="update" dev="wemove" issue="1429">
         Change 'Datengrundlage' Field from single entry to list.
       </action>
       <action type="add" dev="wemove" issue="1817">
-        Add explanation column to confirmity table
+        Add explanation column to confirmity table.
       </action>
       <action type="add" dev="wemove" issue="1783">
         Add data quality table 'Relative Positional Accuracy'
@@ -31,22 +31,31 @@
         Support localisation of fields.
       </action>
       <action type="add" dev="wemove" issue="1846">
-        Nokis: Import/Export geometry context table
+        Adapt namespace for igctx.
       </action>
       <action type="fix" dev="wemove" issue="1843">
-        Import spatial scope value from CSW-ISO
+        Import spatial scope value from CSW-ISO.
       </action>
       <action type="add" dev="wemove" issue="1855">
-        Improve import of operatesOn element
+        Improve import of operatesOn element.
       </action>
       <action type="add" dev="wemove" issue="1267">
-        Adapt storing of multiple grid axis elements
+        Adapt storing of multiple grid axis elements.
       </action>
       <action type="add" dev="wemove" issue="1398">
-        Add new column to table t011_obj_geo_vector
+        Add new column to table t011_obj_geo_vector.
+      </action>
+      <action type="fix" dev="wemove" issue="1875">
+        Change useConstraints export structure and fix import.
       </action>
       <action type="add" dev="wemove" issue="1834">
-        Update mapping of positionName
+        Update mapping of positionName.
+      </action>
+      <action type="add" dev="wemove" issue="1838">
+        Import/Export DoiType from ISO.
+      </action>
+      <action type="add" dev="wemove" issue="1849">
+        IGE (nokis): Only allow service and dataset for imports.
       </action>
     </release>
 
