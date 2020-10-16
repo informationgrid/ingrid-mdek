@@ -1247,17 +1247,13 @@ public class DocToBeanMapper implements IMapper {
 			T011ObjGeo ref = new T011ObjGeo();
 			ref.setObjId(oIn.getId());
 			ref.setSpecialBase(refDoc.getString(MdekKeys.TECHNICAL_BASE));
-			ref.setDataBase(refDoc.getString(MdekKeys.DATA));
 			ref.setMethod(refDoc.getString(MdekKeys.METHOD_OF_PRODUCTION));
 			ref.setRecExact((Double)refDoc.get(MdekKeys.RESOLUTION));
 			ref.setRecGrade((Double)refDoc.get(MdekKeys.DEGREE_OF_RECORD));
 			ref.setHierarchyLevel((Integer)refDoc.get(MdekKeys.HIERARCHY_LEVEL));
-			ref.setVectorTopologyLevel((Integer)refDoc.get(MdekKeys.VECTOR_TOPOLOGY_LEVEL));
-			
+
 			ref.setTransfParam( refDoc.getString( MdekKeys.TRANSFORMATION_PARAMETER ) );
 			ref.setNumDimensions( (Integer)refDoc.get( MdekKeys.NUM_DIMENSIONS ) );
-			ref.setAxisDimName( refDoc.getString( MdekKeys.AXIS_DIM_NAME ) );
-			ref.setAxisDimSize( (Integer)refDoc.get( MdekKeys.AXIS_DIM_SIZE ) );
 			ref.setCellGeometry( refDoc.getString( MdekKeys.CELL_GEOMETRY ) );
 			ref.setGeoRectified( refDoc.getString( MdekKeys.GEO_RECTIFIED ) );
 			ref.setRectCheckpoint( refDoc.getString( MdekKeys.GEO_RECT_CHECKPOINT ) );
@@ -1267,7 +1263,7 @@ public class DocToBeanMapper implements IMapper {
 			ref.setRefControlPoint( refDoc.getString( MdekKeys.GEO_REF_CONTROL_POINT ) );
 			ref.setRefOrientationParam( refDoc.getString( MdekKeys.GEO_REF_ORIENTATION_PARAM ) );
 			ref.setRefGeoreferencedParam( refDoc.getString( MdekKeys.GEO_REF_PARAMETER ) );
-			
+
 			ref.setPosAccuracyVertical((Double)refDoc.get(MdekKeys.POS_ACCURACY_VERTICAL));
 			ref.setGridPosAccuracy((Double)refDoc.get(MdekKeys.GRID_POS_ACCURACY));
 			ref.setKeycInclWDataset((Integer)refDoc.get(MdekKeys.KEYC_INCL_W_DATASET));
@@ -1275,8 +1271,10 @@ public class DocToBeanMapper implements IMapper {
 
 			// save the object and get ID from database (cascading insert do not work??)
 			dao.makePersistent(ref);
-			
+
 			// map 1:N relations
+			updateT011ObjGeoDataBase(refDoc, ref);
+			updateT011ObjGeoAxisDim(refDoc, ref);
 			updateT011ObjGeoScales(refDoc, ref);
 			updateT011ObjGeoSymcs(refDoc, ref);
 			updateT011ObjGeoSupplinfos(refDoc, ref);
@@ -1286,7 +1284,35 @@ public class DocToBeanMapper implements IMapper {
 			refs.add(ref);
 		}
 	}
-	
+
+	private void updateT011ObjGeoAxisDim(IngridDocument docIn, T011ObjGeo in) {
+		Set<T011ObjGeoAxisDim> refs = in.getT011ObjGeoAxisDim();
+		ArrayList<T011ObjGeoAxisDim> refs_unprocessed = new ArrayList<>(refs);
+		// remove all !
+		for (T011ObjGeoAxisDim ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);
+		}
+
+		List<IngridDocument> refDocs = (List<IngridDocument>)docIn.get(MdekKeys.AXIS_DIMENSION_LIST);
+		if (refDocs != null) {
+			// and add all new ones !
+			int line = 1;
+			for (IngridDocument refDoc : refDocs) {
+				// add all as new ones
+				T011ObjGeoAxisDim ref = new T011ObjGeoAxisDim();
+				ref.setObjGeoId(in.getId());
+				ref.setName((String)refDoc.get(MdekKeys.AXIS_DIM_NAME));
+				ref.setCount((Integer) refDoc.get(MdekKeys.AXIS_DIM_SIZE));
+				ref.setAxisResolution((Double)refDoc.get(MdekKeys.AXIS_DIM_RESOLUTION));
+				ref.setLine(line);
+				refs.add(ref);
+				line++;
+			}
+		}
+	}
+
 	private void updateT011ObjGeoScales(IngridDocument docIn, T011ObjGeo in) {
 		Set<T011ObjGeoScale> refs = in.getT011ObjGeoScales();
 		ArrayList<T011ObjGeoScale> refs_unprocessed = new ArrayList<T011ObjGeoScale>(refs);
@@ -1369,7 +1395,33 @@ public class DocToBeanMapper implements IMapper {
 				line++;
 			}
 		}
-	}	
+	}
+
+	private void updateT011ObjGeoDataBase(IngridDocument docIn, T011ObjGeo in) {
+		Set<T011ObjGeoDataBase> refs = in.getT011ObjGeoDataBase();
+		ArrayList<T011ObjGeoDataBase> refs_unprocessed = new ArrayList<T011ObjGeoDataBase>(refs);
+		// remove all !
+		for (T011ObjGeoDataBase ref : refs_unprocessed) {
+			refs.remove(ref);
+			// delete-orphan doesn't work !!!?????
+			dao.makeTransient(ref);
+		}
+
+		List<String> refStrs = (List<String>)docIn.get(MdekKeys.DATA);
+		if (refStrs != null) {
+			// and add all new ones !
+			int line = 1;
+			for (String refStr : refStrs) {
+				// add all as new ones
+				T011ObjGeoDataBase ref = new T011ObjGeoDataBase();
+				ref.setObjGeoId(in.getId());
+				ref.setDataBase(refStr);
+				ref.setLine(line);
+				refs.add(ref);
+				line++;
+			}
+		}
+	}
 
 	private void updateT011ObjGeoVectors(IngridDocument docIn, T011ObjGeo in) {
 		Set<T011ObjGeoVector> refs = in.getT011ObjGeoVectors();
@@ -1389,6 +1441,7 @@ public class DocToBeanMapper implements IMapper {
 				// add all as new ones
 				T011ObjGeoVector ref = new T011ObjGeoVector();
 				ref.setObjGeoId(in.getId());
+				ref.setVectorTopologyLevel((Integer)refDoc.get(MdekKeys.VECTOR_TOPOLOGY_LEVEL));
 				ref.setGeometricObjectType((Integer)refDoc.get(MdekKeys.GEOMETRIC_OBJECT_TYPE));
 				ref.setGeometricObjectCount((Integer)refDoc.get(MdekKeys.GEOMETRIC_OBJECT_COUNT));
 				ref.setLine(line);
@@ -2523,6 +2576,7 @@ public class DocToBeanMapper implements IMapper {
 		ref.setDegreeKey((Integer)refDoc.get(MdekKeys.CONFORMITY_DEGREE_KEY));
 		ref.setDegreeValue(refDoc.getString(MdekKeys.CONFORMITY_DEGREE_VALUE));
 		ref.setPublicationDate(refDoc.getString(MdekKeys.CONFORMITY_PUBLICATION_DATE));
+		ref.setExplanation(refDoc.getString(MdekKeys.CONFORMITY_EXPLANATION));
 		ref.setLine(line);
 		keyValueService.processKeyValue(ref);
 

@@ -820,7 +820,7 @@ public class MdekKeys {
     
     /** Value: String  */
     public final static String TECHNICAL_BASE = "technical-base";
-    /** Value: String  */
+    /** Value: List<String>  */
     public final static String DATA = "data";
     /** Value: String  */
     public final static String METHOD_OF_PRODUCTION = "method-of-production";
@@ -837,10 +837,16 @@ public class MdekKeys {
     public final static String TRANSFORMATION_PARAMETER = "transformation-parameter";
     /** Value: Integer  */
     public final static String NUM_DIMENSIONS = "num-dimensions";
+
+    /** Value: List< IngridDocument >  */
+    public final static String AXIS_DIMENSION_LIST = "axis-dimension-list";
     /** Value: String  */
     public final static String AXIS_DIM_NAME = "axis-dim-name";
     /** Value: Integer  */
     public final static String AXIS_DIM_SIZE = "axis-dim-size";
+    /** Value: Integer  */
+    public final static String AXIS_DIM_RESOLUTION = "axis-dim-resolution";
+
     /** Value: String  */
     public final static String CELL_GEOMETRY = "cell-geometry";
     /** Value: Boolean  */
@@ -1123,6 +1129,8 @@ public class MdekKeys {
     public final static String LINKAGE_NAME = "linkage-name";
     /** Value: Integer */
     public final static String LINKAGE_URL_TYPE = "linkage-url-type";
+    /** Value: String */
+    public final static String LINKAGE_UUID = "linkage-uuid";
 
     /** Value: String */
     public final static String ORIGINAL_CONTROL_IDENTIFIER = "original-control-identifier";
@@ -1280,6 +1288,8 @@ public class MdekKeys {
     public final static String CONFORMITY_DEGREE_VALUE = "conformity-degree-value";
     /** Value: String */
     public final static String CONFORMITY_PUBLICATION_DATE = "conformity-publication-date";
+    /** Value: String */
+    public final static String CONFORMITY_EXPLANATION = "conformity-explanation";
 
     /** Value: List< IngridDocument > */
     public final static String ACCESS_LIST = "access_list";

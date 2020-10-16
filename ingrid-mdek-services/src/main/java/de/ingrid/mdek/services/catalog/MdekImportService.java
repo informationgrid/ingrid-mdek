@@ -43,7 +43,6 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
-import de.ingrid.mdek.MdekUtils.ObjectType;
 import de.ingrid.mdek.MdekUtils.PublishType;
 import de.ingrid.mdek.MdekUtils.WorkState;
 import de.ingrid.mdek.job.IJob.JobType;
@@ -73,6 +72,7 @@ public class MdekImportService implements IImporterCallback {
 	private static final Logger LOG = LogManager.getLogger(MdekImportService.class);
 
 	private static MdekImportService myInstance;
+	private final ImportLinkHandler importLinkHandler;
 
 	private MdekObjectService objectService;
 	private MdekAddressService addressService;
@@ -152,6 +152,7 @@ public class MdekImportService implements IImporterCallback {
 		docToBeanMapper = DocToBeanMapper.getInstance(daoFactory);
 
 		dao = daoFactory.getDao(IEntity.class);
+		importLinkHandler = new ImportLinkHandler(objectService);
 	}
 
 	// ----------------------------------- IImporterCallback START ------------------------------------
@@ -737,6 +738,12 @@ public class MdekImportService implements IImporterCallback {
 		}
 
 		inDoc.put(TMP_ENTITY_IDENTIFIER, EntityHelper.getEntityIdentifierFromDoc(whichType, inDoc));
+
+		boolean hasLinkages = inDoc.containsKey(MdekKeys.LINKAGES);
+
+		if (hasLinkages) {
+			importLinkHandler.handleCoupledResources(inDoc);
+		}
 
 		return inDoc;
 	}

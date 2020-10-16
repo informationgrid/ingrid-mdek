@@ -56,15 +56,15 @@ Contribute
 * choose action "Add Maven Projects" and select pom.xml
 * in Maven panel expand "Profiles" (global entry on top of the project tree) and make sure "development" is checked
 * run compile task from Maven panel or run "mvn compile -Pdevelopment" from Commandline (unpacks base-webapp)
-* run de.ingrid.mdek.MdekServer
+* run ingrid-mdek-job.src.main.java.de.ingrid.mdek.MdekServer
 ** A new run configuration "MdekServer" should appear
-** Make sure in "Edit Configurations" (Run configuration) that the working directory is set to the module directory
-** Restart the MdekServer run configuration after changes to the configuration
+** Make sure in "Edit Configurations" (Run configuration) that the working directory (ingrid-mdek-job) is set to the module directory 
+** Restart the MdekServer run configuration after any configuration change
 * in browser call "http://localhost:10017" with login "admin/admin"
 
 ### Run with elastic search component
 
-To test the index capabilities of the iPlug, a elastic search node is required. Please see the docker-compose.yml 
+To test the index capabilities of the iPlug, an elastic search node is required. Please see the docker-compose.yml 
 to get a fully configured elastic search node, ibus and database running.     
 
 ### Run with a profile
@@ -72,7 +72,7 @@ to get a fully configured elastic search node, ibus and database running.
 In order to run the configuration for a specific profile to create the correct index documents, you need to do the following steps:
 
 * uncomment profile directory from `baseResource` in `ingrid-mdek-job\src\main\webapp\WEB-INF\jetty-web.xml`
-* add `../distribution/src/profiles/<profile>/conf` as `Resources Folder` (IntelliJ) or as Classpath (Eclipse)
+* add `../distribution/src/profiles/<profile>/conf` as `Resources Folder` (IntelliJ) or as `Classpath` (Eclipse)
 ** rebuild the project (mvn compile)
 
 ### Start/Debug iPlug for another profile

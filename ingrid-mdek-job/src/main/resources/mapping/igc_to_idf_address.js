@@ -94,14 +94,14 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
     }   
     var individualName = getIndividualNameFromAddressRow(addressRow);
     if (hasValue(individualName)) {
-        idfResponsibleParty.addElement("gmd:individualName").addElement("gco:CharacterString").addText(individualName);
+        IDF_UTIL.addLocalizedCharacterstring(idfResponsibleParty.addElement("gmd:individualName"), individualName);
     }
     var institution = getInstitution(parentAddressRowPathArray);
     if (hasValue(institution)) {
-        idfResponsibleParty.addElement("gmd:organisationName").addElement("gco:CharacterString").addText(institution);
+        IDF_UTIL.addLocalizedCharacterstring(idfResponsibleParty.addElement("gmd:organisationName"), institution);
     }
     if (hasValue(addressRow.get("job"))) {
-        idfResponsibleParty.addElement("gmd:positionName").addElement("gco:CharacterString").addText(addressRow.get("job"));
+        IDF_UTIL.addLocalizedCharacterstring(idfResponsibleParty.addElement("gmd:positionName"), addressRow.get("job"));
     }
     var ciContact = idfResponsibleParty.addElement("gmd:contactInfo").addElement("gmd:CI_Contact");
     var communicationsRows = SQL.all("SELECT t021_communication.* FROM t021_communication WHERE t021_communication.adr_id=? order by line", [+addressRow.get("id")]);
@@ -130,7 +130,7 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
         if (hasValue(administrativeAreaKey)) {
             
             if (administrativeAreaKey == -1) {
-                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(addressRow.get("administrative_area_value"));
+                IDF_UTIL.addLocalizedCharacterstring(ciAddress.addElement("gmd:administrativeArea"), addressRow.get("administrative_area_value"));
             } else {
                 ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, addressRow.get("administrative_area_key")));
             }
@@ -174,7 +174,7 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
     
     // add hours of service (REDMINE-380, REDMINE-1284) 
     if (hasValue(addressRow.get("hours_of_service"))) {
-    	ciContact.addElement("gmd:hoursOfService/gco:CharacterString").addText(addressRow.get("hours_of_service"));
+        IDF_UTIL.addLocalizedCharacterstring(ciContact.addElement("gmd:hoursOfService"), addressRow.get("hours_of_service"));
     }
 
     if (hasValue(role)) {

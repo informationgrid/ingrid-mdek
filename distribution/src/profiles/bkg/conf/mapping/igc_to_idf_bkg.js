@@ -212,12 +212,12 @@ function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherC
             .addText(restrictionCodeValues[i]);
     }
     
-    legalConstraint.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
-        .addAttribute("codeListValue", "otherRestrictions")
-        .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
-        .addText("otherRestrictions");
 
     if (hasValue(otherConstraints)) {
+        legalConstraint.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
+            .addAttribute("codeListValue", "otherRestrictions")
+            .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
+            .addText("otherRestrictions");
         for (var j=0; j<otherConstraints.length; j++) {
             if (otherConstraints[j]) {
                 if (isInspireRelevant() && otherConstraints[j] === "Es gelten keine Bedingungen") {
@@ -226,9 +226,7 @@ function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherC
                         .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
                         .addText(otherConstraints[j]);
                 } else {
-                    legalConstraint
-                        .addElement("gmd:otherConstraints/gco:CharacterString")
-                        .addText(otherConstraints[j]);
+                    IDF_UTIL.addLocalizedCharacterstring(legalConstraint.addElement("gmd:otherConstraints"), otherConstraints[j]);
                 }
 
             }

@@ -9,7 +9,7 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>5.5.0</version>
+  <version>5.6.0</version>
   <name>InGrid iPlug IGE</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.
   </description>
@@ -19,11 +19,11 @@
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
-    <ingrid-udk-importer.version>5.4.0</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>5.4.0</ingrid-codelist-service.version>
-    <ingrid-utils.version>5.4.0</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>5.4.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>5.4.0</ingrid-base-webapp.version>
+    <ingrid-udk-importer.version>5.6.0</ingrid-udk-importer.version>
+    <ingrid-codelist-service.version>5.6.0</ingrid-codelist-service.version>
+    <ingrid-utils.version>5.6.0</ingrid-utils.version>
+    <ingrid-iplug-dsc.version>5.6.0</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>5.6.0</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
 
@@ -50,9 +50,11 @@
     </repository>
 
     <repository>
-      <id>geotools</id>
-      <name>OSGeo Repository</name>
-      <url>http://download.osgeo.org/webdav/geotools/</url>
+      <id>osgeo</id>
+      <name>OSGeo Release Repository</name>
+      <url>https://repo.osgeo.org/repository/release/</url>
+      <snapshots><enabled>false</enabled></snapshots>
+      <releases><enabled>true</enabled></releases>
     </repository>
   </repositories>
 

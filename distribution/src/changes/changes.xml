@@ -5,6 +5,60 @@
   </properties>
   <body>
 
+    <release version="5.6.0" date="2020-10-15" description="Release 5.6.0">
+      <action type="update" dev="wemove" issue="1215">
+        Update timespan ISO and remove 'am' time type.
+      </action>
+      <action type="update" dev="wemove" issue="1429">
+        Change 'Datengrundlage' Field from single entry to list.
+      </action>
+      <action type="add" dev="wemove" issue="1817">
+        Add explanation column to confirmity table.
+      </action>
+      <action type="add" dev="wemove" issue="1783">
+        Add data quality table 'Relative Positional Accuracy'
+      </action>
+      <action type="fix" dev="wemove" issue="2092">
+        UVP: Fix display of categories in teaser.
+      </action>
+      <action type="add" dev="wemove" issue="1102">
+        Add display folder on portal catalog tree.
+      </action>
+      <action type="fix" dev="wemove" issue="2104">
+        Clean up old indices after indexing.
+      </action>
+      <action type="add" dev="wemove" issue="1882">
+        Support localisation of fields.
+      </action>
+      <action type="add" dev="wemove" issue="1846">
+        Adapt namespace for igctx.
+      </action>
+      <action type="fix" dev="wemove" issue="1843">
+        Import spatial scope value from CSW-ISO.
+      </action>
+      <action type="add" dev="wemove" issue="1855">
+        Improve import of operatesOn element.
+      </action>
+      <action type="add" dev="wemove" issue="1267">
+        Adapt storing of multiple grid axis elements.
+      </action>
+      <action type="add" dev="wemove" issue="1398">
+        Add new column to table t011_obj_geo_vector.
+      </action>
+      <action type="fix" dev="wemove" issue="1875">
+        Change useConstraints export structure and fix import.
+      </action>
+      <action type="add" dev="wemove" issue="1834">
+        Update mapping of positionName.
+      </action>
+      <action type="add" dev="wemove" issue="1838">
+        Import/Export DoiType from ISO.
+      </action>
+      <action type="add" dev="wemove" issue="1849">
+        IGE (nokis): Only allow service and dataset for imports.
+      </action>
+    </release>
+
     <release version="5.5.0" date="2020-07-22" description="Release 5.5.0">
       <action type="add" dev="wemove" issue="1234">
         Add service links to Geodataset IDF from linked services.

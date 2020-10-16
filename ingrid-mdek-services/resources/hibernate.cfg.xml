@@ -51,6 +51,8 @@
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjDataPara.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjGeo.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjGeoKeyc.hbm.xml"/>
+            <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjGeoAxisDim.hbm.xml"/>
+            <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjGeoDataBase.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjGeoScale.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSpatialRep.hbm.xml"/>
             <mapping resource="de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSupplinfo.hbm.xml"/>

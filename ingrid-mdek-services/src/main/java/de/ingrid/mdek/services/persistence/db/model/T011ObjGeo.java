@@ -33,13 +33,11 @@ public class T011ObjGeo implements IEntity {
 	private int version;
 	private Long objId;
 	private String specialBase;
-	private String dataBase;
 	private String method;
 	private Double recExact;
 	private Double recGrade;
 	private Integer hierarchyLevel;
-	private Integer vectorTopologyLevel;
-	
+
 	private String transfParam;
     private Integer numDimensions;
     private String axisDimName;
@@ -59,6 +57,8 @@ public class T011ObjGeo implements IEntity {
 	private Integer keycInclWDataset;
 	private String datasourceUuid;
 
+	private Set t011ObjGeoDataBase = new HashSet();
+	private Set t011ObjGeoAxisDim = new HashSet();
 	private Set t011ObjGeoScales = new HashSet();
 	private Set t011ObjGeoSpatialReps = new HashSet();
 	private Set t011ObjGeoSupplinfos = new HashSet();
@@ -99,14 +99,6 @@ public class T011ObjGeo implements IEntity {
 		this.specialBase = specialBase;
 	}
 
-	public String getDataBase() {
-		return dataBase;
-	}
-
-	public void setDataBase(String dataBase) {
-		this.dataBase = dataBase;
-	}
-
 	public String getMethod() {
 		return method;
 	}
@@ -139,14 +131,6 @@ public class T011ObjGeo implements IEntity {
 		this.hierarchyLevel = hierarchyLevel;
 	}
 
-	public Integer getVectorTopologyLevel() {
-		return vectorTopologyLevel;
-	}
-
-	public void setVectorTopologyLevel(Integer vectorTopologyLevel) {
-		this.vectorTopologyLevel = vectorTopologyLevel;
-	}
-
 	public Double getPosAccuracyVertical() {
 		return posAccuracyVertical;
 	}
@@ -171,6 +155,22 @@ public class T011ObjGeo implements IEntity {
 		this.datasourceUuid = datasourceUuid;
 	}
 
+	public Set getT011ObjGeoDataBase() {
+		return t011ObjGeoDataBase;
+	}
+
+	public void setT011ObjGeoDataBase(Set t011ObjGeoDataBase) {
+		this.t011ObjGeoDataBase = t011ObjGeoDataBase;
+	}
+
+
+	public Set getT011ObjGeoAxisDim() {
+		return t011ObjGeoAxisDim;
+	}
+
+	public void setT011ObjGeoAxisDim(Set t011ObjGeoAxisDim) {
+		this.t011ObjGeoAxisDim = t011ObjGeoAxisDim;
+	}
 
 	public Set getT011ObjGeoScales() {
 		return t011ObjGeoScales;

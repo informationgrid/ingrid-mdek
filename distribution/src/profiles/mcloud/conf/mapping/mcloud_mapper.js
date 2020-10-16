@@ -203,10 +203,10 @@ var McloudMapper = /** @class */ (function () {
         var to = TRANSF.getISODateFromIGCDate(this.objRow.get('time_to'));
         var toValue = hasValue(to) ? to.substr(0, 10) : fromValue;
 
-        return {
-            start: from,
-            end: to
-        };
+        return (from || to)?[{
+            gte: from,
+            lte: to
+        }]: [];
     };
     McloudMapper.prototype.getCategories = function () {
         return getCategories(this.objId);

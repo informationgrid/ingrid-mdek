@@ -79,6 +79,7 @@ public class XMLKeys {
 	public static final String CONFORMITY_DEGREE = "conformity-degree";
 	public static final String CONFORMITY_IS_INSPIRE = "conformity-is-inspire";
 	public static final String CONFORMITY_PUBLICATION_DATE = "conformity-publication-date";
+	public static final String CONFORMITY_EXPLANATION = "conformity-explanation";
 	public static final String CONFORMITY_SPECIFICATION = "conformity-specification";
 	public static final String CONFORMITY = "conformity";
 	public static final String DATA_QUALITY = "data-quality";
@@ -125,8 +126,10 @@ public class XMLKeys {
 	public static final String GRID_FORMAT = "grid-format";
 	public static final String GRID_TRANSFORM_PARAMETER = "grid-transform-param";
 	public static final String GRID_NUM_DIMENSIONS = "grid-num-dimensions";
+	public static final String GRID_AXIS = "grid-axis";
 	public static final String GRID_AXIS_NAME = "grid-axis-name";
 	public static final String GRID_AXIS_SIZE = "grid-axis-size";
+	public static final String GRID_AXIS_RESOLUTION = "grid-axis-resolution";
 	public static final String GRID_CELL_GEOMETRY = "grid-cell-geometry";
 	public static final String GRID_GEO_RECTIFIED = "grid-geo-rectified";
 	public static final String GRID_RECT_CHECKPOINT = "grid-rect-checkpoint";

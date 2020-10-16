@@ -1039,17 +1039,13 @@ public class BeanToDocMapper implements IMapper {
 		// get first object from iterator
 		T011ObjGeo objGeo = objGeos.iterator().next();
 		domainDoc.put(MdekKeys.TECHNICAL_BASE, objGeo.getSpecialBase());
-		domainDoc.put(MdekKeys.DATA, objGeo.getDataBase());
 		domainDoc.put(MdekKeys.METHOD_OF_PRODUCTION, objGeo.getMethod());
 		domainDoc.put(MdekKeys.RESOLUTION, objGeo.getRecExact());
 		domainDoc.put(MdekKeys.DEGREE_OF_RECORD, objGeo.getRecGrade());
 		domainDoc.put(MdekKeys.HIERARCHY_LEVEL, objGeo.getHierarchyLevel());
-		domainDoc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, objGeo.getVectorTopologyLevel());
-		
+
 		domainDoc.put( MdekKeys.TRANSFORMATION_PARAMETER, objGeo.getTransfParam() );
         domainDoc.put( MdekKeys.NUM_DIMENSIONS, (Integer) objGeo.getNumDimensions() );
-        domainDoc.put( MdekKeys.AXIS_DIM_NAME, objGeo.getAxisDimName() );
-        domainDoc.put( MdekKeys.AXIS_DIM_SIZE, objGeo.getAxisDimSize() );
         domainDoc.put( MdekKeys.CELL_GEOMETRY, objGeo.getCellGeometry() );
         domainDoc.put( MdekKeys.GEO_RECTIFIED, objGeo.getGeoRectified() );
         domainDoc.put( MdekKeys.GEO_RECT_CHECKPOINT, objGeo.getRectCheckpoint() );
@@ -1059,16 +1055,20 @@ public class BeanToDocMapper implements IMapper {
         domainDoc.put( MdekKeys.GEO_REF_CONTROL_POINT, objGeo.getRefControlPoint() );
         domainDoc.put( MdekKeys.GEO_REF_ORIENTATION_PARAM, objGeo.getRefOrientationParam() );
         domainDoc.put( MdekKeys.GEO_REF_PARAMETER, objGeo.getRefGeoreferencedParam() );
-		
+
 		domainDoc.put(MdekKeys.POS_ACCURACY_VERTICAL, objGeo.getPosAccuracyVertical());
 		domainDoc.put(MdekKeys.GRID_POS_ACCURACY, objGeo.getGridPosAccuracy());
 		domainDoc.put(MdekKeys.KEYC_INCL_W_DATASET, objGeo.getKeycInclWDataset());
 		domainDoc.put(MdekKeys.DATASOURCE_UUID, objGeo.getDatasourceUuid());
 
 		objectDoc.put(MdekKeys.TECHNICAL_DOMAIN_MAP, domainDoc);
-		
+
+		// add data base texts
+		mapT011ObjGeoDataBase(objGeo.getT011ObjGeoDataBase(), domainDoc);
 		// add key catalogs
 		mapObjectTypesCatalogues(obj.getObjectTypesCatalogues(), domainDoc);
+		// add axis dimensions
+		mapT011ObjGeoAxisDim(objGeo.getT011ObjGeoAxisDim(), domainDoc);
 		// add publication scales
 		mapT011ObjGeoScales(objGeo.getT011ObjGeoScales(), domainDoc);
 		// add symbol catalogs
@@ -1083,6 +1083,23 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
+	private IngridDocument mapT011ObjGeoAxisDim(Set<T011ObjGeoAxisDim> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<IngridDocument> locList = new ArrayList<>(refs.size());
+		for (T011ObjGeoAxisDim ref : refs) {
+			IngridDocument doc = new IngridDocument();
+			doc.put(MdekKeys.AXIS_DIM_NAME, ref.getName());
+			doc.put(MdekKeys.AXIS_DIM_SIZE, ref.getCount());
+			doc.put(MdekKeys.AXIS_DIM_RESOLUTION, ref.getAxisResolution());
+			locList.add(doc);					
+		}
+		objectDoc.put(MdekKeys.AXIS_DIMENSION_LIST, locList);
+		
+		return objectDoc;
+	}
+
 	private IngridDocument mapT011ObjGeoScales(Set<T011ObjGeoScale> refs, IngridDocument objectDoc) {
 		if (refs == null) {
 			return objectDoc;
@@ -1093,10 +1110,10 @@ public class BeanToDocMapper implements IMapper {
 			doc.put(MdekKeys.SCALE, ref.getScale());
 			doc.put(MdekKeys.RESOLUTION_GROUND, ref.getResolutionGround());
 			doc.put(MdekKeys.RESOLUTION_SCAN, ref.getResolutionScan());
-			locList.add(doc);					
+			locList.add(doc);
 		}
 		objectDoc.put(MdekKeys.PUBLICATION_SCALE_LIST, locList);
-		
+
 		return objectDoc;
 	}
 	
@@ -1131,6 +1148,19 @@ public class BeanToDocMapper implements IMapper {
 		return objectDoc;
 	}
 
+	private IngridDocument mapT011ObjGeoDataBase(Set<T011ObjGeoDataBase> refs, IngridDocument objectDoc) {
+		if (refs == null) {
+			return objectDoc;
+		}
+		ArrayList<String> locList = new ArrayList<>(refs.size());
+		for (T011ObjGeoDataBase ref : refs) {
+			locList.add(ref.getDataBase());
+		}
+		objectDoc.put(MdekKeys.DATA, locList);
+
+		return objectDoc;
+	}
+
 	private IngridDocument mapT011ObjGeoVectors(Set<T011ObjGeoVector> refs, IngridDocument objectDoc) {
 		if (refs == null) {
 			return objectDoc;
@@ -1138,6 +1168,7 @@ public class BeanToDocMapper implements IMapper {
 		ArrayList<IngridDocument> locList = new ArrayList<>(refs.size());
 		for (T011ObjGeoVector ref : refs) {
 			IngridDocument doc = new IngridDocument();
+			doc.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, ref.getVectorTopologyLevel());
 			doc.put(MdekKeys.GEOMETRIC_OBJECT_TYPE, ref.getGeometricObjectType());
 			doc.put(MdekKeys.GEOMETRIC_OBJECT_COUNT, ref.getGeometricObjectCount());
 			locList.add(doc);					
@@ -1977,6 +2008,7 @@ public class BeanToDocMapper implements IMapper {
 		refDoc.put(MdekKeys.CONFORMITY_DEGREE_KEY, ref.getDegreeKey());
 		refDoc.put(MdekKeys.CONFORMITY_DEGREE_VALUE, ref.getDegreeValue());
 		refDoc.put(MdekKeys.CONFORMITY_PUBLICATION_DATE, ref.getPublicationDate());
+		refDoc.put(MdekKeys.CONFORMITY_EXPLANATION, ref.getExplanation());
 
 		return refDoc;
 	}
