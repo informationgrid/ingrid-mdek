@@ -5,6 +5,12 @@
   </properties>
   <body>
 
+    <release version="5.7.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.7.0">
+      <action type="fix" dev="wemove" issue="1566">
+        iPlug IDs can have capitalized letters now.
+      </action>
+    </release>
+
     <release version="5.6.0" date="2020-10-15" description="Release 5.6.0">
       <action type="update" dev="wemove" issue="1215">
         Update timespan ISO and remove 'am' time type.
