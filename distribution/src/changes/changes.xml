@@ -12,6 +12,9 @@
       <action type="update" dev="wemove" issue="1855">
         Improve handling of coupled resource detection during import.
       </action>
+      <action type="fix" dev="wemove" issue="">
+        Improve isCSWDate function to better match ISO 8601
+      </action>
     </release>
 
     <release version="5.6.0" date="2020-10-15" description="Release 5.6.0">
