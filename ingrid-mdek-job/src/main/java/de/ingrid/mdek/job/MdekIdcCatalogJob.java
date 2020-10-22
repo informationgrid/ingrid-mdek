@@ -41,6 +41,7 @@ import java.util.zip.GZIPOutputStream;
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IBusIndexManager;
 import de.ingrid.mdek.*;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -900,10 +901,15 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 				// before starting import of single files !
 				xmlImporter.countEntities(importDataList, userId);
 
-				for(int i=0; i<importDataList.size(); i++){
-					// import
-					xmlImporter.importEntities(importDataList.get(i), userId);
-				}				
+				// merge all documents into one so that we can determine the order for hierarchy correctly
+				byte[] mergedDataList;
+				if (importDataList.size() > 1) {
+					mergedDataList = mergeDataList(importDataList);
+				} else {
+					mergedDataList = importDataList.get(0);
+				}
+				// import
+				xmlImporter.importEntities(mergedDataList, userId);
 			} else {
 				xmlImporter.importEntities((byte[])importData, userId);
 			}
@@ -945,7 +951,59 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			}
 		}
 	}
-	
+
+	private byte[] mergeDataList(List<byte[]> importDataList) {
+		String completeContent = "";
+		for (byte[] docInBytes : importDataList) {
+			try {
+				InputStream in = new GZIPInputStream(new ByteArrayInputStream(docInBytes));
+				String textContent = IOUtils.toString(in);
+				completeContent = addContentToMergedData(completeContent, textContent);
+			} catch (IOException e) {
+				log.error("Exception getting analyzed data for import");
+			}
+		}
+
+		InputStream mappedData = new ByteArrayInputStream(completeContent.getBytes(StandardCharsets.UTF_8));
+		try {
+			return compress(mappedData).toByteArray();
+		} catch (IOException e) {
+			log.error(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	private String addContentToMergedData(String completeContent, String textContent) {
+		if (completeContent.isEmpty()) {
+			return textContent;
+		}
+
+		// handle document
+		String beginOfDataSource = "<data-source>";
+		String endOfDataSource = "</data-source>";
+		int index = completeContent.indexOf(beginOfDataSource);
+		StringBuilder str = new StringBuilder(completeContent);
+
+		String anotherDoc = textContent.substring(
+				textContent.indexOf(beginOfDataSource),
+				textContent.indexOf(endOfDataSource) + endOfDataSource.length());
+
+		str.insert(index, anotherDoc);
+
+		// handle addresses
+		String beginOfAddresses = "<addresses>";
+		String endOfAddresses = "</addresses>";
+		int indexAddress = str.indexOf(beginOfAddresses) + beginOfAddresses.length();
+
+		String otherAddresses = textContent.substring(
+				textContent.indexOf(beginOfAddresses) + beginOfAddresses.length(),
+				textContent.indexOf(endOfAddresses));
+
+		str.insert(indexAddress, otherAddresses);
+
+		return str.toString();
+	}
+
 	// Compress (zip) any data on InputStream and write it to a ByteArrayOutputStream
     public static ByteArrayOutputStream compress(InputStream is) throws IOException {
         BufferedInputStream bin = new BufferedInputStream(is);
