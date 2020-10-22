@@ -9,6 +9,9 @@
       <action type="fix" dev="wemove" issue="1566">
         iPlug IDs can have capitalized letters now.
       </action>
+      <action type="fix" dev="wemove" issue="2194">
+        Retain hierarchy when importing CSW 2.0.2 documents.
+      </action>
     </release>
 
     <release version="5.6.0" date="2020-10-15" description="Release 5.6.0">
