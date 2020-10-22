@@ -30,7 +30,10 @@ import de.ingrid.utils.xml.ConfigurableNamespaceContext;
 import de.ingrid.utils.xml.Csw202NamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -39,11 +42,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ImportLinkHandler {
+
+    private static final Logger LOG = LogManager.getLogger(ImportLinkHandler.class);
 
     private final MdekObjectService objectService;
 
@@ -80,6 +86,13 @@ public class ImportLinkHandler {
                     ns.addNamespaceContext(new Csw202NamespaceContext());
                     XPathUtils xPathUtils = new XPathUtils(ns);
 
+                    // skip documents that do not have a hierarchyLevel
+                    Node hierarchyLevelNode = xPathUtils.getNode(content, "//gmd:MD_Metadata/gmd:hierarchyLevel");
+                    if (hierarchyLevelNode == null) {
+                        LOG.debug("XML Document does not contain hierarchyLevel-element: " + link);
+                        continue;
+                    }
+
                     boolean isDataset = "dataset".equals(xPathUtils.getString(content, "//gmd:MD_Metadata/gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue"));
                     if (isDataset) {
                         String fileIdentifier = xPathUtils.getString(content, "//gmd:MD_Metadata/gmd:fileIdentifier/gco:CharacterString");
@@ -100,8 +113,10 @@ public class ImportLinkHandler {
                     }
                 }
 
-            } catch (SAXException | IOException | ParserConfigurationException e) {
-                e.printStackTrace();
+            } catch (SAXException | FileNotFoundException e) {
+                LOG.debug("Content could not be parsed, so we assume it's not a coupled resource or not available: " + link);
+            } catch (IOException | ParserConfigurationException e) {
+                LOG.error("Error handling coupled resource during import", e);
             }
         }
 
@@ -110,8 +125,10 @@ public class ImportLinkHandler {
 
     private Document getDocumentFromUrl(String urlStr, boolean namespaceAware) throws SAXException, IOException, ParserConfigurationException {
         URL url = new URL(urlStr);
+        URLConnection con = url.openConnection();
+        con.setConnectTimeout(3000);
         // get the content in UTF-8 format, to avoid "MalformedByteSequenceException: Invalid byte 1 of 1-byte UTF-8 sequence"
-        InputStream input = checkForUtf8BOMAndDiscardIfAny(url.openStream());
+        InputStream input = checkForUtf8BOMAndDiscardIfAny(con.getInputStream());
         Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8);
         InputSource inputSource = new InputSource(reader);
         // Build a document from the xml response
