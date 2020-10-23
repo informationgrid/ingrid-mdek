@@ -12,6 +12,9 @@
       <action type="fix" dev="wemove" issue="2194">
         Retain hierarchy when importing CSW 2.0.2 documents.
       </action>
+      <action type="fix" dev="wemove" issue="2197">
+        Fix broken communication connection after IOException.
+      </action>
     </release>
 
     <release version="5.6.0" date="2020-10-15" description="Release 5.6.0">
