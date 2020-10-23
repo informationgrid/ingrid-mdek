@@ -1103,6 +1103,12 @@ public class MdekImportService implements IImporterCallback {
 				" Neue UUID \"" + newUuid + "\" generiert !", userUuid);
 			// Update Identifier shown in frontend messages !
 			inDoc.put (TMP_ENTITY_IDENTIFIER, "" + newUuid + " (" + inDoc.get(TMP_ENTITY_IDENTIFIER) + ")");
+		} else if (existingNode == null) {
+			updateImportJobInfoMessages(MSG_WARN + tag +
+					"UUID not found, ORIG_ID not found, using given " + whichType + " UUID:" + inUuid, userUuid);
+			updateImportJobInfoFrontendMessages(
+					"Import-" + whichType.toGerman() + " \"" + inDoc.get(TMP_ENTITY_IDENTIFIER) + "\" im Katalog nicht gefunden (keine UUID, ORIG-ID)." +
+							" Verwende mitgelieferte UUID \"" + inUuid + "\"", userUuid);
 		}
 
 		// modifying and responsible user already processed in preprocessDoc !
