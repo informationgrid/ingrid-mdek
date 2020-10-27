@@ -84,9 +84,14 @@ var contentLabel = SQL.all("SELECT add2.data, add2.list_item_id FROM additional_
 if ( contentLabel && contentLabel.size() > 0) {
     var i;
     var dataMetadata = DOM.getElement(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo");
-    var dataIdentification = DOM.getElement(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo/gmd:MD_DataIdentification");
-
-    if (!dataIdentification) dataIdentification = dataMetadata.addElement("gmd:MD_DataIdentification");
+    var dataIdentification;
+    if (objClass.equals("3")) {
+        dataIdentification = DOM.getElement(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo/srv:SV_ServiceIdentification");
+        if (!dataIdentification) dataIdentification = dataMetadata.addElement("srv:SV_ServiceIdentification");
+    } else {
+        dataIdentification = DOM.getElement(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo/gmd:MD_DataIdentification");
+        if (!dataIdentification) dataIdentification = dataMetadata.addElement("gmd:MD_DataIdentification");
+    }
 
     var path = ["gmd:resourceFormat", "gmd:graphicOverview", "gmd:resourceMaintenance","gmd:pointOfContact", "gmd:status","gmd:credit","gmd:purpose"];
 
