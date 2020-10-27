@@ -105,7 +105,6 @@
                 <ref bean="scriptedIdfMapper"/>
                 <ref bean="bawIdfMapper"/>
                 <ref bean="scriptedIdfMapperDQ"/>
-                <ref bean="igcProfileIdfMapper"/>
                 <ref bean="isoMetadataDateMapper"/>
             </list>
         </property>
