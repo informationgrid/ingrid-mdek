@@ -2246,6 +2246,10 @@ function mapDistributionLinkages(source, target) {
             linkage.referenceId = isCoupled ? "3600" : "-1";
             //referenceName = "";
             linkage.description = getLocalisedCharacterString(XPATH.getNode(linkages.item(i), "./gmd:description/gco:CharacterString"));
+            if (isCoupled) {
+				linkage.datatype_key=-1;
+				linkage.datatype_value="coupled";
+			}
             addAvailableLinkage(linkage, target);
         }
     }
@@ -2270,6 +2274,12 @@ function addAvailableLinkage(linkage, target) {
         if (hasValue(linkage.description)) {
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-description"), linkage.description);
         }
+		if (hasValue(linkage.datatype_key)) {
+			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), "id", linkage.datatype_key);
+			if (hasValue(linkage.datatype_value)) {
+				XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), linkage.datatype_value);
+			}
+		}
     }
 }
 
