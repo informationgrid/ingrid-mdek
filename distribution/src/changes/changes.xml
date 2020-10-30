@@ -5,7 +5,7 @@
   </properties>
   <body>
 
-    <release version="5.6.1-SNAPSHOT" date="2021-xx-xx" description="Release 5.6.1">
+    <release version="5.6.1" date="2020-10-30" description="Release 5.6.1">
       <action type="fix" dev="wemove" issue="2194">
         Retain hierarchy when importing CSW 2.0.2 documents.
       </action>
