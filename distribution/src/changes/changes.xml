@@ -21,6 +21,9 @@
       <action type="fix" dev="wemove" issue="2955">
         mCLOUD: map accrualPeriodicity with type keyword.
       </action>
+      <action type="update" dev="wemove" issue="1367">
+        Add gmd:function for atom feed
+      </action>
     </release>
 
     <release version="5.6.0" date="2020-10-15" description="Release 5.6.0">
