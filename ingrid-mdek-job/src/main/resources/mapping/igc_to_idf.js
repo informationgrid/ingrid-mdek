@@ -2636,7 +2636,13 @@ function addDistributionInfo(mdMetadata, objId) {
                 formatWritten = true;
             }
             // we use "gmd:CI_OnlineResource" cause NO "idf:attachedToField" !
-            mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url") + objUuid);
+            var atomOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource");
+            atomOnlineResource.addElement("gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url") + objUuid);
+            atomOnlineResource.addElement("gmd:name/gco:CharacterString").addText("Get Download Service Metadata");
+            atomOnlineResource.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
+                .addAttribute("codeList", "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_OnLineFunctionCode")
+                .addAttribute("codeListValue", "information")
+                .addText("information");
         }
 
         // write distributionInfo
