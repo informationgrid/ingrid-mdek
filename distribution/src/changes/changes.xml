@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.7.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.7.0">
+      <action type="add" dev="wemove" issue="2215">
+        Add CI_OnLineFunctionCode handling in csw import
+      </action>
       <action type="fix" dev="wemove" issue="1566">
         iPlug IDs can have capitalized letters now.
       </action>
