@@ -2247,9 +2247,23 @@ function mapDistributionLinkages(source, target) {
             //referenceName = "";
             linkage.description = getLocalisedCharacterString(XPATH.getNode(linkages.item(i), "./gmd:description/gco:CharacterString"));
             if (isCoupled) {
-				linkage.datatype_key=-1;
-				linkage.datatype_value="coupled";
-			}
+                linkage.datatype_key=-1;
+                linkage.datatype_value="coupled";
+            } else {
+                var linkType = XPATH.getString(linkages.item(i), "./gmd:function/gmd:CI_OnLineFunctionCode/@codeListValue");
+                if (linkType === "download" ){
+                    linkage.referenceId = 9990
+                } else if ( linkType === "information" ) {
+                    linkage.referenceId = 5302
+                } else if ( linkType === "offlineAccess" ) {
+                    linkage.referenceId = 5303
+                } else if ( linkType === "order" ) {
+                    linkage.referenceId = 5304
+                } else if ( linkType === "search" ) {
+                    linkage.referenceId = 5305
+                }
+            }
+
             addAvailableLinkage(linkage, target);
         }
     }
