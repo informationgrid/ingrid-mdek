@@ -44,6 +44,11 @@ var mappingDescriptionNokis = {"mappings":[
             }
         },
         {
+            "execute":{
+                "funct": mapNokisThesaurus
+            }
+        },
+        {
             "execute": {
                 "funct": mapGeometryContext
             }
@@ -101,6 +106,39 @@ function mapGeometryContext(source, target) {
 
 }
 
+function mapNokisThesaurus(source, target) {
+
+    var keywords = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString");
+    var lineCounter = 1;
+    for (var i = 0; i < keywords.getLength(); i++) {
+        var keyword = keywords.item(i).getTextContent();
+        if (hasValue(keyword)) {
+            var key = getKeyFromNokisThesaurus(keyword);
+            if (key !== null) {
+                var additionalTarget = getOrCreateAdditionalFields(target);
+                addAdditionalValue(additionalTarget, lineCounter++, "name", {key: "-1", value: key}, "nokisThesaurus");
+                removeNormalKeyword(keyword);
+            }
+        }
+    }
+
+}
+
+function removeNormalKeyword(keyword) {
+    // remove as normal keyword
+    var terms = XPATH.getNodeList(target, "/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term");
+    for (var j=0; j<terms.getLength(); j++ ) {
+        var termNode = terms.item(j);
+        if (termNode.getTextContent() === keyword) {
+            XPATH.removeElementAtXPath(termNode, ".");
+        }
+    }
+}
+
+function getKeyFromNokisThesaurus(keyword) {
+    return codeListService.getSysListEntryKey(20000, keyword, "de", false);
+}
+
 function getFeatureType(featureNode) {
 
     var children = featureNode.getChildNodes();
@@ -118,33 +156,33 @@ function getFeatureType(featureNode) {
 function handleNominalFeature(target, row, feature, geometryType) {
 
     addGeneralGeometryContextValues(target, row, feature, geometryType);
-    addAdditionalValue(target, row, "featureType", { key: "nominal", value: "nominal"});
+    addAdditionalValue(target, row, "featureType", { key: "nominal", value: "nominal"}, "geometryContext");
 
 }
 
 function handleOrdinalFeature(target, row, feature, geometryType) {
 
     addGeneralGeometryContextValues(target, row, feature, geometryType);
-    addAdditionalValue(target, row, "featureType", { key: "ordinal", value: "ordinal"});
-    addAdditionalValue(target, row, "min", getGeometryContextString(feature, "minValue"));
-    addAdditionalValue(target, row, "max", getGeometryContextString(feature, "maxValue"));
+    addAdditionalValue(target, row, "featureType", { key: "ordinal", value: "ordinal"}, "geometryContext");
+    addAdditionalValue(target, row, "min", getGeometryContextString(feature, "minValue"), "geometryContext");
+    addAdditionalValue(target, row, "max", getGeometryContextString(feature, "maxValue"), "geometryContext");
 
 }
 
 function handleScalarFeature(target, row, feature, geometryType) {
 
     addGeneralGeometryContextValues(target, row, feature, geometryType);
-    addAdditionalValue(target, row, "featureType", { key: "scalar", value: "skalar"});
-    addAdditionalValue(target, row, "min", getGeometryContextString(feature, "minValue"));
-    addAdditionalValue(target, row, "max", getGeometryContextString(feature, "maxValue"));
-    addAdditionalValue(target, row, "unit", getGeometryContextString(feature, "units"));
+    addAdditionalValue(target, row, "featureType", { key: "scalar", value: "skalar"}, "geometryContext");
+    addAdditionalValue(target, row, "min", getGeometryContextString(feature, "minValue"), "geometryContext");
+    addAdditionalValue(target, row, "max", getGeometryContextString(feature, "maxValue"), "geometryContext");
+    addAdditionalValue(target, row, "unit", getGeometryContextString(feature, "units"), "geometryContext");
 
 }
 
 function handleOtherFeature(target, row, feature, geometryType) {
 
     addGeneralGeometryContextValues(target, row, feature, geometryType);
-    addAdditionalValue(target, row, "featureType", { key: "other", value: "sonstiges"});
+    addAdditionalValue(target, row, "featureType", { key: "other", value: "sonstiges"}, "geometryContext");
 
 }
 
@@ -161,11 +199,11 @@ function addGeneralGeometryContextValues(target, row, feature, geometryType) {
     var featureDataType = getGeometryContextString(feature, "featureDataType");
     var attributes = getAttributes(feature);
 
-    addAdditionalValue(target, row, "name", featureName);
-    addAdditionalValue(target, row, "description", featureDescription);
-    addAdditionalValue(target, row, "geometryType", geometryType);
-    addAdditionalValue(target, row, "dataType", featureDataType);
-    addAdditionalValue(target, row, "attributes", JSON.stringify(attributes));
+    addAdditionalValue(target, row, "name", featureName, "geometryContext");
+    addAdditionalValue(target, row, "description", featureDescription, "geometryContext");
+    addAdditionalValue(target, row, "geometryType", geometryType, "geometryContext");
+    addAdditionalValue(target, row, "dataType", featureDataType, "geometryContext");
+    addAdditionalValue(target, row, "attributes", JSON.stringify(attributes), "geometryContext");
 
 }
 
@@ -199,12 +237,12 @@ function getAttributes(feature) {
 
 }
 
-function addAdditionalValue(target, line, key, data) {
+function addAdditionalValue(target, line, key, data, parent) {
 
     var additionalValue = DOM.addElement(target, "general-additional-value");
     DOM.addAttribute(additionalValue.getElement(), "line", line);
     additionalValue.addElement("field-key").addText(key);
-    additionalValue.addElement("field-key-parent").addText("geometryContext");
+    additionalValue.addElement("field-key-parent").addText(parent);
     if (data instanceof Object) {
         additionalValue.addElement("field-data").addAttribute("id", data.key).addText(data.value);
     } else {

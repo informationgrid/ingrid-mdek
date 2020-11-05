@@ -52,6 +52,22 @@ var mdMetadataChildrenReverseOrder = [
     "gmd:fileIdentifier"
 ];
 
+var identificationInfoChildrenReverseOrder = [
+    "gmd:aggregationInfo",
+    "gmd:resourceConstraints",
+    "gmd:resourceSpecificUsage",
+    "gmd:descriptiveKeywords",
+    "gmd:resourceFormat",
+    "gmd:graphicOverview",
+    "gmd:resourceMaintenance",
+    "gmd:pointOfContact",
+    "gmd:status",
+    "gmd:credit",
+    "gmd:purpose",
+    "gmd:abstract",
+    "gmd:citation"
+];
+
 // Return gco:Date OR gco:DateTime element dependent from passed date format.
 function getDateOrDateTime(dateValue) {
     var gcoElement;
@@ -95,11 +111,12 @@ function getHierarchLevel(objClass) {
     return hierarchyLevel;
 }
 
-function searchNextRootSiblingTag(parentNode, tagName) {
-    var index = mdMetadataChildrenReverseOrder.indexOf(tagName);
+function searchNextRootSiblingTag(parentNode, tagName, reversedElementChildren) {
+    var list = reversedElementChildren ? reversedElementChildren : mdMetadataChildrenReverseOrder;
+    var index = list.indexOf(tagName);
     var nextSibling = null;
-    for (var i=index; i<mdMetadataChildrenReverseOrder.length && !nextSibling; i++) {
-        nextSibling = DOM.getElement(parentNode, mdMetadataChildrenReverseOrder[i] + "[last()]");
+    for (var i = index; i < list.length && !nextSibling; i++) {
+        nextSibling = DOM.getElement(parentNode, list[i] + "[last()]");
     }
     return nextSibling;
 }

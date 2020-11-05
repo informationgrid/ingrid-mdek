@@ -50,6 +50,7 @@ var objId = sourceRecord.get("id");
 
 handleGeoContext();
 addMetadataExtension();
+addNokisThesaurus();
 
 function handleGeoContext() {
 
@@ -223,4 +224,24 @@ function getAdditionalFieldFromObject(objId, parentId, fieldId) {
         return null;
     }
 
+}
+
+function addNokisThesaurus() {
+
+    var content = getAdditionalForTable(objId, 'nokisThesaurus');
+    if (hasValue(content)) {
+        var mdKeywords = DOM.createElement("gmd:MD_Keywords");
+        for (var i = 0; i < content.length; i++) {
+            handleThesaurusItem(mdKeywords, content[i]);
+        }
+        var insertNode = searchNextRootSiblingTag(identificationInfo, "gmd:descriptiveKeywords", identificationInfoChildrenReverseOrder);
+        insertNode.addElementAsSibling("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
+
+}
+
+function handleThesaurusItem(keywordsElement, keywordItem) {
+    var mdKeyword = keywordsElement.addElement("gmd:keyword");
+    var name = TRANSF.getCodeListEntryFromIGCSyslistEntry(20000, keywordItem.name.data, "de");
+    IDF_UTIL.addLocalizedCharacterstring(mdKeyword, name);
 }
