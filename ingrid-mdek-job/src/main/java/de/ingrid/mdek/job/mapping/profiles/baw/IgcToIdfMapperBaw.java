@@ -40,10 +40,14 @@ import org.w3c.dom.Node;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
+import static java.time.format.DateTimeFormatter.ISO_DATE;
 
 @Order(2)
 public class IgcToIdfMapperBaw implements IIdfMapper {
@@ -159,6 +163,8 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 return;
             }
 
+            addCrossReferences(mdIdentification, objId);
+
             setHierarchyLevelName(mdMetadata, objId);
             addAuftragsInfos(mdIdentification, objId);
             addBWaStrIdentifiers(mdIdentification, objId);
@@ -178,6 +184,74 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private void logMissingMetadataContact(Node mdMetadata) {
         if (!XPATH.nodeExists(mdMetadata, "gmd:contact")) {
             LOG.error("No responsible party for metadata found!");
+        }
+    }
+
+    private void addCrossReferences(IdfElement mdIdentification, Long objId) throws SQLException {
+        Map<Integer, Map<String, String>> rows = getOrderedAdditionalFieldDataTableRows(objId, "doiCrossReferenceTable");
+        for(Map.Entry<Integer, Map<String, String>> entry: rows.entrySet()) {
+            Map<String, String> row = entry.getValue();
+
+            String xrefTitle = row.get("doiCrossReferenceTitle");
+            String xrefDateMillisLong = row.get("doiCrossReferenceDate");
+            String xrefAuthorString = row.get("doiCrossReferenceAuthor");
+            String xrefIdentifier = row.get("doiCrossReferenceIdentifier");
+            String xrefPublisher = row.get("doiCrossReferencePublisher");
+
+            LocalDate date = Instant.ofEpochMilli(Long.parseLong(xrefDateMillisLong))
+                    .atOffset(ZoneOffset.UTC)
+                    .toLocalDate();
+
+
+            String aggrInfoQname = "gmd:aggregationInfo";
+            String mdAggrInfoQname = aggrInfoQname + "/gmd:MD_AggregateInformation";
+            IdfElement mdAggregateInformation;
+
+            IdfElement previousSibling = findPreviousSibling(aggrInfoQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
+            if (previousSibling == null) {
+                mdAggregateInformation = domUtil.addElement(mdIdentification.getElement(), mdAggrInfoQname);
+            } else {
+                mdAggregateInformation = previousSibling.addElementAsSibling(mdAggrInfoQname);
+            }
+
+            IdfElement ciCitation = mdAggregateInformation.addElement("gmd:aggregateDataSetName/gmd:CI_Citation");
+            ciCitation.addElement("gmd:title/" + GCO_CHARACTER_STRING_QNAME)
+                    .addText(xrefTitle);
+
+            IdfElement ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+            ciDate.addElement("gmd:date/gco:Date")
+                    .addText(date.format(ISO_DATE));
+            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                    .addAttribute("codeList", CODELIST_URL + "gmd:CI_DateTypeCode")
+                    .addAttribute("codeListValue", "publication")
+                    .addText("publication");
+
+            ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/" + GCO_CHARACTER_STRING_QNAME)
+                    .addText(xrefIdentifier);
+
+            for(String author: xrefAuthorString.split(";")) {
+                IdfElement ciResponsibleParty = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
+                ciResponsibleParty.addElement("gmd:individualName/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(author.trim());
+                ciResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
+                        .addAttribute("codeList", CODELIST_URL + "CI_RoleCode")
+                        .addAttribute("codeListValue", "author")
+                        .addText("author");
+            }
+            if (xrefPublisher != null && !xrefPublisher.trim().isEmpty()) {
+                IdfElement ciResponsibleParty = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
+                ciResponsibleParty.addElement("gmd:organisationName/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(xrefPublisher);
+                ciResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
+                        .addAttribute("codeList", CODELIST_URL + "CI_RoleCode")
+                        .addAttribute("codeListValue", "publisher")
+                        .addText("publisher");
+            }
+
+            mdAggregateInformation.addElement("gmd:associationType/gmd:DS_AssociationTypeCode")
+                    .addAttribute("codeList", CODELIST_URL + "DS_AssociationTypeCode")
+                    .addAttribute("codeListValue", "crossReference")
+                    .addText("crossReference");
         }
     }
 
