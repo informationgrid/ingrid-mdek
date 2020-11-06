@@ -2982,7 +2982,7 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
     addAttachedToField(objRow, idfObjectReference);
 
     if (hasValue(objRow.get("descr"))) {
-        idfObjectReference.addElement("idf:description").addText(objRow.get("descr"));      
+        idfObjectReference.addElement("idf:description").addText(objRow.get("descr"));
     }
 
     // map service data if present !
@@ -2991,6 +2991,16 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
         idfObjectReference.addElement("idf:serviceType").addText(myValue);
         idfObjectReference.addElement("idf:serviceOperation").addText(srvRow.get("name_value"));
         idfObjectReference.addElement("idf:serviceUrl").addText(srvRow.get("connect_point"));
+        // Add 'hasAccessConstraint' to check constraint
+        // Issue: https://redmine.informationgrid.eu/issues/2199
+        var hasConstraint = false; 
+        if (hasValue(srvRow.get("has_access_constraint"))) {
+            hasConstraint = srvRow.get("has_access_constraint").equals("Y");
+        }
+        log.debug("hasConstraint: " + hasConstraint);
+        if (hasConstraint) {
+          idfObjectReference.addElement("idf:hasAccessConstraint").addText(hasConstraint);
+        }
     }
 
     return idfObjectReference;
