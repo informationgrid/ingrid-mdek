@@ -606,6 +606,11 @@ function addT011ObjServOpConnpoint(row, isCapabilityUrl) {
 }
 function addCapabilitiesUrl(row) {
     IDX.add("capabilities_url", row.get("connect_point"));
+    // Add 't011_obj_serv.has_access_constraint' to check constraint
+    // Issue: https://redmine.informationgrid.eu/issues/2199
+    if (hasValue(row.get("has_access_constraint")) && row.get("has_access_constraint")=='Y') {
+      IDX.add("t011_obj_serv.has_access_constraint", row.get("has_access_constraint"));
+    }
 }
 function addT011ObjServOpDepends(row) {
     IDX.add("t011_obj_serv_op_depends.line", row.get("line"));
