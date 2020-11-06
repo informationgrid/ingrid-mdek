@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.6.2-SNAPSHOT" date="2020-xx-xx" description="Release 5.6.2">
+      <action type="fix" dev="wemove" issue="2199">
+        Portal: Zeige in Karte Link wird trotz Kennzeichnung "geschützter Dienst"
+      </action>
       <action type="add" dev="wemove" issue="2215">
         Add CI_OnLineFunctionCode handling in csw import
       </action>
