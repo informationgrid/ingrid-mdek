@@ -33,6 +33,9 @@
       <action type="add" dev="wemove" issue="2210">
         Nokis: Map thesaurus to/from ISO
       </action>
+      <action type="add" dev="wemove" issue="1746">
+        Map external coupled resources to operatesOn-Element
+      </action>
     </release>
 
     <release version="5.6.0" date="2020-10-15" description="Release 5.6.0">

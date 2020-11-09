@@ -2573,8 +2573,10 @@ function addDistributionInfo(mdMetadata, objId) {
             if (hasValue(rows.get(i).get("content"))) {
                 IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:name"), rows.get(i).get("content"));
             }
-            if (hasValue(rows.get(i).get("descr"))) {
-                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:description"), rows.get(i).get("descr"));
+            var description = rows.get(i).get("descr");
+            var idPart = hasValue(description) ? description.split("#**#") : null;
+            if (hasValue(description)) {
+                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:description"), description);
             }
             
             // Verweistyp added 2 times, as gmd:function (ISO) and as idf:attachedToField (InGrid detail)
@@ -2582,6 +2584,13 @@ function addDistributionInfo(mdMetadata, objId) {
             addAttachedToField(rows.get(i), idfOnlineResource, true);
             // then IDF
             addAttachedToField(rows.get(i), idfOnlineResource);
+            // add operatesOn field for external coupled resoures
+            if (idPart && idPart.length === 2) {
+                identificationInfo
+                    .addElement("srv:operatesOn")
+                    .addAttribute("xlink:href", idPart[0])
+                    .addAttribute("uuidref", idPart[1]);
+            }
         }
     }
     
@@ -2982,7 +2991,7 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
     addAttachedToField(objRow, idfObjectReference);
 
     if (hasValue(objRow.get("descr"))) {
-        idfObjectReference.addElement("idf:description").addText(objRow.get("descr"));
+        idfObjectReference.addElement("idf:description").addText(objRow.get("descr"));      
     }
 
     // map service data if present !
