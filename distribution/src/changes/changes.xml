@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.7.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.7.0">
+      <action type="fix" dev="wemove" issue="2226">
+        IGE: Download URL added twice to IDF in coupled data.
+      </action>
       <action type="fix" dev="wemove" issue="2199">
         Portal: Zeige in Karte Link wird trotz Kennzeichnung "geschützter Dienst"
       </action>

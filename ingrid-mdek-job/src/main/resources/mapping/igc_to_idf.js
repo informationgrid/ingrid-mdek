@@ -2555,8 +2555,17 @@ function addDistributionInfo(mdMetadata, objId) {
     if (objClass.equals("1")){
         rows.addAll(SQL.all("SELECT t01obj.obj_name, urlref.* FROM object_reference oref, t01_object t01obj, t011_obj_serv t011_object, t017_url_ref urlref WHERE obj_to_uuid=? AND oref.special_ref=3600 AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=3 AND t01obj.work_state='V' AND urlref.obj_id=t01obj.id AND (urlref.special_ref=5066 OR urlref.special_ref=9990) AND t011_object.obj_id=t01obj.id AND (t011_object.type_key=3 OR t011_object.type_key=6)", [objUuid]));
     }
+    // ATTENTION: Skip urls already added ! If geoservice and geodata contain the same download link, it will be added twice !
+    var addedURLs = [];
     for (i=0; i<rows.size(); i++) {
-        if (hasValue(rows.get(i).get("url_link"))) {
+        var myUrlLink = rows.get(i).get("url_link");
+        if (hasValue(myUrlLink)) {
+            // check whether we already added that link then skip
+            if (addedURLs.indexOf(myUrlLink) !== -1) {
+                continue;
+            }
+            addedURLs.push(myUrlLink);
+
             if (!mdDistribution) {
                 mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
             }
