@@ -39,6 +39,9 @@
       <action type="add" dev="wemove" issue="1746">
         Map external coupled resources to operatesOn-Element
       </action>
+      <action type="update" dev="wemove" issue="2228">
+        Nokis: Remove link information from coupled services.
+      </action>
     </release>
 
     <release version="5.6.0" date="2020-10-15" description="Release 5.6.0">
