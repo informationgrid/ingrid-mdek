@@ -108,11 +108,11 @@ for (i=0; i<objRows.size(); i++) {
     var doi = addDOIInfo(mdMetadata, objId);
 
 // ---------- <gmd:language> ----------
-    value = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
-    if (hasValue(value)) {
+    var metadataLanguage = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
+    if (hasValue(metadataLanguage)) {
         mdMetadata.addElement("gmd:language/gmd:LanguageCode")
             .addAttribute("codeList", globalCodeListLanguageAttrURL)
-            .addAttribute("codeListValue", value).addText(value);
+            .addAttribute("codeListValue", value).addText(metadataLanguage);
     }
 // ---------- <gmd:characterSet> ----------
     // Always use UTF-8 (see INGRID-2340)
