@@ -136,7 +136,7 @@ function removeNormalKeyword(keyword) {
 }
 
 function getKeyFromNokisThesaurus(keyword) {
-    return codeListService.getSysListEntryKey(20000, keyword, "de", false);
+    return codeListService.getSysListEntryKey(7200, keyword, "de", false);
 }
 
 function getFeatureType(featureNode) {

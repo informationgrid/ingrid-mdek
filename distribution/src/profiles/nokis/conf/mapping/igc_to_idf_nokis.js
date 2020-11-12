@@ -246,7 +246,7 @@ function addNokisThesaurus() {
 
 function handleThesaurusItem(keywordsElement, keywordItem) {
     var mdKeyword = keywordsElement.addElement("gmd:keyword");
-    var name = TRANSF.getCodeListEntryFromIGCSyslistEntry(20000, keywordItem.name.data, "de");
+    var name = TRANSF.getCodeListEntryFromIGCSyslistEntry(7200, keywordItem.name.data, "de");
     IDF_UTIL.addLocalizedCharacterstring(mdKeyword, name);
 }
 
