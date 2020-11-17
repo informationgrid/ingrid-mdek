@@ -887,7 +887,7 @@ for (i=0; i<objRows.size(); i++) {
     // ATTENTION: since LGV Hamburg wants their categories always displayed, they also want
     //            these mapped to IDF even if open data is not checked (REDMINE-395)
     mdKeywords = DOM.createElement("gmd:MD_Keywords");
-    rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=?", [+objId]);
+    rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=? ORDER BY line", [+objId]);
     for (i=0; i<rows.size(); i++) {
         IDF_UTIL.addLocalizedCharacterstring(mdKeywords.addElement("gmd:keyword"), rows.get(i).get("category_value"));
     }
