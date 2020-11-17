@@ -2492,10 +2492,10 @@ function addDistributionInfo(mdMetadata, objId) {
 //                .addElement("gco:CharacterString");
         }
             // ---------- <gmd:MD_Format/gmd:specification> ----------
-        // Removed: see #1273
-        /*if (hasValue(rows.get(i).get("specification"))) {
+        // Removed: see #1273 but reverted with #2232
+        if (hasValue(rows.get(i).get("specification"))) {
             mdFormat.addElement("gmd:specification/gco:CharacterString").addText(rows.get(i).get("specification"));
-        }*/
+        }
             // ---------- <gmd:MD_Format/gmd:fileDecompressionTechnique> ----------
         if (hasValue(rows.get(i).get("file_decompression_technique"))) {
             mdFormat.addElement("gmd:fileDecompressionTechnique/gco:CharacterString").addText(rows.get(i).get("file_decompression_technique"));
