@@ -53,4 +53,24 @@
         <property name="template" value="classpath:import/templates/igc_template_csw202.xml" />
     </bean>
 
+    <bean id="dscDocumentProducer" class="de.ingrid.iplug.dsc.index.DscDocumentProducer">
+        <property name="recordSetProducer" ref="recordSetProducer" />
+        <property name="recordMapperList">
+            <list>
+                <ref bean="recordMapper"/>
+                <ref bean="recordMapperHmdk"/>
+                <ref bean="recordProfileMapper"/>
+            </list>
+        </property>
+        <property name="indexInfo" ref="indexInfo"/>
+    </bean>
+
+    <bean id="recordMapperHmdk" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/igc_to_lucene_hmdk.js</value>
+            </list>
+        </property>
+        <property name="compile" value="true" />
+    </bean>
 </beans>
