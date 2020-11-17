@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.6.3" date="2020-xx-xx" description="Release 5.6.3">
+      <action type="fix" dev="wemove" issue="2236">
+        IGE: Fix order of opendata categories.
+      </action>
       <action type="fix" dev="wemove" issue="2232">
         Map column specification of dataformat
       </action>
