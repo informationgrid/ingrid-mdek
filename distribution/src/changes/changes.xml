@@ -5,15 +5,13 @@
   </properties>
   <body>
 
-    <release version="5.6.3" date="2020-xx-xx" description="Release 5.6.3">
+    <release version="5.6.2" date="2020-11-12" description="Release 5.6.2">
       <action type="fix" dev="wemove" issue="2236">
         IGE: Fix order of opendata categories.
       </action>
       <action type="fix" dev="wemove" issue="2232">
         Map column specification of dataformat
       </action>
-    </release>
-    <release version="5.6.2" date="2020-11-12" description="Release 5.6.2">
       <action type="fix" dev="wemove" issue="2226">
         IGE: Download URL added twice to IDF in coupled data.
       </action>
