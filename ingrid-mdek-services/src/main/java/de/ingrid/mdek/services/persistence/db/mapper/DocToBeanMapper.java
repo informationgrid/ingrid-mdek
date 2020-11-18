@@ -445,7 +445,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjTopicCats(oDocIn, oIn);
 
 			// technical domain map (class 1)
-			updateT011ObjGeo(oDocIn, oIn);
+			updateT011ObjGeo(oDocIn, oIn, howMuch);
 			// technical domain document (class 2)
 			updateT011ObjLiterature(oDocIn, oIn);
 			// NOTICE: T011ObjServ is used for the object classes "Geodatendienst" (class 3) AND
@@ -1231,7 +1231,7 @@ public class DocToBeanMapper implements IMapper {
 		}
 	}
 
-	private void updateT011ObjGeo(IngridDocument oDocIn, T01Object oIn) {
+	private void updateT011ObjGeo(IngridDocument oDocIn, T01Object oIn, MappingQuantity howMuch) {
 		Set<T011ObjGeo> refs = oIn.getT011ObjGeos();
 		ArrayList<T011ObjGeo> refs_unprocessed = new ArrayList<T011ObjGeo>(refs);
 		// remove all !
@@ -1267,7 +1267,11 @@ public class DocToBeanMapper implements IMapper {
 			ref.setPosAccuracyVertical((Double)refDoc.get(MdekKeys.POS_ACCURACY_VERTICAL));
 			ref.setGridPosAccuracy((Double)refDoc.get(MdekKeys.GRID_POS_ACCURACY));
 			ref.setKeycInclWDataset((Integer)refDoc.get(MdekKeys.KEYC_INCL_W_DATASET));
-			ref.setDatasourceUuid(refDoc.getString(MdekKeys.DATASOURCE_UUID));
+
+			// remove "Identification of the data source" for copied objects (#1581)
+			if (howMuch != MappingQuantity.COPY_ENTITY) {
+				ref.setDatasourceUuid(refDoc.getString(MdekKeys.DATASOURCE_UUID));
+			}
 
 			// save the object and get ID from database (cascading insert do not work??)
 			dao.makePersistent(ref);
