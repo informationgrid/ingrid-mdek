@@ -33,7 +33,7 @@ public class Versioning {
 	 * But strictly set to 3.6.2_a here if you need that version due to changes in the data structure !</b><br>
      * <b>NOTICE</b>: Also IGE frontend checks this version against IGE iPlug when this mdek-api is used in frontend (portal).
      * BUT also only checks if IGE iPlug version starts with this version ! */
-	public static final String NEEDED_IGC_VERSION = "5.6.0";
+	public static final String NEEDED_IGC_VERSION = "5.6";
     /** This is the version the catalog has to be updated to when the iPlug is started !<br>
      * This normally is the most current version of the catalog (the strategy of the udk importer executed). */
     public static final String UPDATE_TO_IGC_VERSION = "5.6.0";
