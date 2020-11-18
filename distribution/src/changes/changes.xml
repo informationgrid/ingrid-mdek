@@ -5,6 +5,12 @@
   </properties>
   <body>
 
+    <release version="5.6.3" date="2020-xx-xx" description="Release 5.6.3">
+      <action type="update" dev="wemove" issue="1581">
+        Remove "Identification of the data source" for copied objects
+      </action>
+    </release>
+    
     <release version="5.6.2" date="2020-11-12" description="Release 5.6.2">
       <action type="fix" dev="wemove" issue="2236">
         IGE: Fix order of opendata categories.
