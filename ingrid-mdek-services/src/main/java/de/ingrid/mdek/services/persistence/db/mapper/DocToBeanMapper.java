@@ -1267,11 +1267,7 @@ public class DocToBeanMapper implements IMapper {
 			ref.setPosAccuracyVertical((Double)refDoc.get(MdekKeys.POS_ACCURACY_VERTICAL));
 			ref.setGridPosAccuracy((Double)refDoc.get(MdekKeys.GRID_POS_ACCURACY));
 			ref.setKeycInclWDataset((Integer)refDoc.get(MdekKeys.KEYC_INCL_W_DATASET));
-
-			// remove "Identification of the data source" for copied objects (#1581)
-			if (howMuch != MappingQuantity.COPY_ENTITY) {
-				ref.setDatasourceUuid(refDoc.getString(MdekKeys.DATASOURCE_UUID));
-			}
+			ref.setDatasourceUuid(refDoc.getString(MdekKeys.DATASOURCE_UUID));
 
 			// save the object and get ID from database (cascading insert do not work??)
 			dao.makePersistent(ref);
