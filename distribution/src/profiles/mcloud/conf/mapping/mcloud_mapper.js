@@ -184,7 +184,7 @@ var McloudMapper = /** @class */ (function () {
         return this.objUuid;
     };
     McloudMapper.prototype.getMetadataIssued = function () {
-        return undefined; // this.issuedExisting ? this.issuedExisting : new Date(Date.now());
+        return new Date(toMilliseconds(this.objRow.get('create_time')));
     };
     McloudMapper.prototype.getMetadataSource = function () {
         return {
@@ -265,7 +265,7 @@ var McloudMapper = /** @class */ (function () {
         return undefined;
     };
     McloudMapper.prototype.getMetadataModified = function () {
-        return new Date();
+        return new Date(toMilliseconds(this.objRow.get('mod_time')));
     };
     McloudMapper.prototype.getSubSections = function () {
         return undefined;
