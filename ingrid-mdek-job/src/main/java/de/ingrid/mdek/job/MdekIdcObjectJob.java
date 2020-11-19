@@ -1228,6 +1228,12 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		beanToDocMapper.mapResponsibleUser(userUuid, targetObjDoc, MappingQuantity.INITIAL_ENTITY);				
 		workflowHandler.processDocOnCopy(targetObjDoc);
 
+		// remove "Identification of the data source" for copied objects (#1581)
+		IngridDocument technicalDomainMap = (IngridDocument)targetObjDoc.get(MdekKeys.TECHNICAL_DOMAIN_MAP);
+		if (technicalDomainMap != null) {
+			technicalDomainMap.remove(MdekKeys.DATASOURCE_UUID);
+		}
+		
 		// and transfer data from doc to new bean
 		docToBeanMapper.mapT01Object(targetObjDoc, targetObj, MappingQuantity.COPY_ENTITY);
 
