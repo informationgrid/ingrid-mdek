@@ -456,7 +456,7 @@ for (i=0; i<objRows.size(); i++) {
         ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(getCitationIdentifier(objRow));
     }
 
-    if (hasValue(doi)) {
+    if (hasValue(doi) && hasValue(doi.id)) {
         var citationIdentifier = ciCitation.addElement("gmd:identifier/gmd:MD_Identifier");
         if (hasValue(doi.type)) {
             citationIdentifier.addElement("gmd:authority/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(doi.type);
@@ -3089,25 +3089,32 @@ function addDOIInfo(parent, objId) {
 
     if (hasValue(doiIdData) || hasValue(doiType)) {
         var doiElement = parent.addElement("idf:doi");
-        var doiId = doiIdData.get("data");
+        var doiId = undefined;
+        var type = undefined;
+        
+        if (hasValue(doiIdData)) {
+            doiId = doiIdData.get("data");
 
-        if (hasValue(doiId)) {
-            doiElement.addElement("id")
-                .addText(doiId);
+            if (hasValue(doiId)) {
+                doiElement.addElement("id")
+                    .addText(doiId);
+            }
         }
-
+        
         if (hasValue(doiType)) {
+            type = doiType.get("data");
+            
             doiElement.addElement("type")
                 .addAttribute("id", doiType.get("list_item_id"))
-                .addText(doiType.get("data"));
+                .addText(type);
+            
+            log.debug("doiType-ID: " + doiType.get("list_item_id"));
+            log.debug("doiType-data: " + type);
         }
-
-        log.debug("doiType-ID: " + doiType.get("list_item_id"));
-        log.debug("doiType-data: " + doiType.get("data"));
 
         return {
             id: doiId,
-            type: doiType.get("data")
+            type: type
         };
     }
 }
