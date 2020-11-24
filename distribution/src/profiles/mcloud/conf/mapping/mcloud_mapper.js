@@ -244,6 +244,23 @@ var McloudMapper = /** @class */ (function () {
     };
 
     McloudMapper.prototype.getAccrualPeriodicity = function () {
+        var time_period_value = this.objRow.get('time_period');
+        var time_period = TRANSF.getIGCSyslistEntryName(518, time_period_value, 'en');
+
+        switch(time_period){
+            case "continual": return "CONT";
+            case "daily": return "DAILY";
+            case "weekly": return "WEEKLY";
+            case "fortnightly": return "BIWEEKLY";
+            case "monthly": return "MONTHLY";
+            case "quarterly": return "QUARTERLY";
+            case "biannually": return "BIENNIAL";
+            case "annually": return "ANNUAL";
+            case "as Needed": return "IRREG";
+            case "irregular": return "IRREG";
+            case "not Planned": return "NEVER";
+            case "unknown": return "UNKNOWN";
+        }
         return undefined;
     };
     McloudMapper.prototype.getKeywords = function () {
