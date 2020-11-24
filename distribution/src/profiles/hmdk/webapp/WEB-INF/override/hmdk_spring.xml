@@ -60,6 +60,7 @@
                 <ref bean="recordMapper"/>
                 <ref bean="recordMapperHmdk"/>
                 <ref bean="recordProfileMapper"/>
+                <ref bean="idfProducerIndexMapper"/>
             </list>
         </property>
         <property name="indexInfo" ref="indexInfo"/>
