@@ -141,7 +141,6 @@ public abstract class MdekIdcJob extends MdekJob {
      * Update ES search index of a specific document.
      * @param doc the document for indexing
      */
-
     protected void updateSearchIndex(ElasticDocument doc, DscDocumentProducer docProducer) {
         this.updateSearchIndex(doc, docProducer,true);
     }
@@ -152,7 +151,7 @@ public abstract class MdekIdcJob extends MdekJob {
             IndexInfo indexInfo = docProducer.getIndexInfo();
             String[] datatypes = null;
             try {
-                String datatypesString = (String) config.getOverrideProperties().get( "plugdescription.dataType." + indexInfo.getIdentifier()  );
+                String datatypesString = (String) config.getOverrideProperties().get("plugdescription.dataType." + indexInfo.getIdentifier());
                 if (datatypesString != null) {
                     datatypes = datatypesString.split(",");
                 }
@@ -239,10 +238,6 @@ public abstract class MdekIdcJob extends MdekJob {
             }
         }
 	}
-
-    private String getDatatypeIdentifier(IndexInfo indexInfo) throws IOException {
-        return (String) config.getOverrideProperties().get( "plugdescription.dataType." + indexInfo.getIdentifier()  );
-    }
 
     private void updateParentFolder(String id, ElasticDocument doc, DscDocumentProducer docProducer, IIndexManager indexManager, boolean isUpdate, boolean isObject) {
         this.updateParentFolder(id, doc, docProducer, indexManager, isUpdate, isObject, false);
