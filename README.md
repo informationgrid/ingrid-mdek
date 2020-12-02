@@ -20,7 +20,7 @@ Installation
 ------------
 
 Download from https://distributions.informationgrid.eu/ingrid-iplug-ige/
- 
+
 or
 
 build from source with `mvn clean package`.
@@ -41,14 +41,14 @@ Contribute
 
 - Issue Tracker: https://github.com/informationgrid/ingrid-mdek/issues
 - Source Code: https://github.com/informationgrid/ingrid-mdek
- 
+
 ### Setup Eclipse project
 
-* import project as Maven-Project
-* right click on project and select Maven -> Select Maven Profiles ... (Ctrl+Alt+P)
-* choose profile "development"
+* import project as Maven-Project (File > Import... > Existing Maven Projects)
+  * set Root Directory to path/to/ingrid-mdek  and select all entries under Projects (pom.xml)
+  * enter "development" under Advanced > Profiles in the same dialog
 * run "mvn compile" from Commandline (unpacks base-webapp) 
-* run de.ingrid.mdek.MdekServer as Java Application
+* run de.ingrid.mdek.MdekServer as Java Application (/ingrid-mdek-job/src/main/java/de/ingrid/mdek/MdekServer.java)
 * in browser call "http://localhost:10017" with login "admin/admin"
 
 ### Setup IntelliJ IDEA project
