@@ -282,4 +282,12 @@ public interface IMdekCallerObject extends IMdekCaller {
 	 * @returns the xml representation of the given document
 	 */
 	IngridDocument getIsoXml(String plugId, String uuid, IdcEntityVersion version, String userId);
+
+	/**
+	 *
+	 * @param plugId which mdek server (iplug)
+	 * @param uuid the uuid of the document
+	 * @return response containing result: result returns the object id of the document
+	 */
+	IngridDocument updateObjectIndex(String plugId, String uuid);
 }

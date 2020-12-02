@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Stack;
 
+import de.ingrid.iplug.dsc.index.DscDocumentProducer;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -1240,5 +1241,30 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		daoT01Object.makePersistent(targetObj);
 
 		return targetObj;
+	}
+
+	/**
+	 * Index a specific document
+	 */
+	public IngridDocument updateObjectIndex(IngridDocument params) {
+		String uuid = (String) params.get(MdekKeys.UUID);
+
+		daoObjectNode.beginTransaction();
+		ObjectNode objectNode = objectService.loadByUuid(uuid, IdcEntityVersion.PUBLISHED_VERSION);
+		daoObjectNode.commitTransaction();
+
+		if (objectNode == null) {
+			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
+		}
+
+		T01Object publishedObject = objectNode.getT01ObjectPublished();
+		Long objId = publishedObject.getId();
+		DscDocumentProducer docProducer = docProducerObject;
+		ElasticDocument doc = docProducer.getById(objId.toString());
+		updateSearchIndex(doc, docProducer);
+
+		IngridDocument result = new IngridDocument();
+		result.put(MdekKeys.ID, objId);
+		return result;
 	}
 }
