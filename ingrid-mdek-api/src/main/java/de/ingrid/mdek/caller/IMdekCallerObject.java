@@ -284,7 +284,7 @@ public interface IMdekCallerObject extends IMdekCaller {
 	IngridDocument getIsoXml(String plugId, String uuid, IdcEntityVersion version, String userId);
 
 	/**
-	 *
+	 * Update the index of a specific object located by its plugId and uuid.
 	 * @param plugId which mdek server (iplug)
 	 * @param uuid the uuid of the document
 	 * @return response containing result: result returns the object id of the document

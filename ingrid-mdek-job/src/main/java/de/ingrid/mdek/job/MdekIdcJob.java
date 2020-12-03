@@ -141,10 +141,6 @@ public abstract class MdekIdcJob extends MdekJob {
      * Update ES search index of a specific document.
      * @param doc the document for indexing
      */
-    protected void updateSearchIndex(ElasticDocument doc, DscDocumentProducer docProducer) {
-        this.updateSearchIndex(doc, docProducer,true);
-    }
-
 	protected void updateSearchIndex(ElasticDocument doc, DscDocumentProducer docProducer, boolean isObject) {
         if (doc != null && !doc.isEmpty()) {
             String id = doc.get("t01_object.id").toString();

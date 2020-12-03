@@ -74,7 +74,6 @@ In order to run the configuration for a specific profile to create the correct i
 * in `ingrid-mdek-job\src\main\webapp\WEB-INF\jetty-web.xml`, uncomment the directory of the desired profile in `baseResource`
 * (IntelliJ) in Project Structure -> `ingrid-mdek-job` module -> Dependencies, add the directory `../distribution/src/profiles/<profile>/conf` as Classes and move it to the top of the list
 * (Eclipse) add `../distribution/src/profiles/<profile>/conf` as `Classpath`
-* lastly, rebuild the project (mvn compile)
 
 ### Start/Debug iPlug for another profile
 

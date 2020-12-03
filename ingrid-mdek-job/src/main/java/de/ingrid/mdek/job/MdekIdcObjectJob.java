@@ -1261,7 +1261,7 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		Long objId = publishedObject.getId();
 		DscDocumentProducer docProducer = docProducerObject;
 		ElasticDocument doc = docProducer.getById(objId.toString());
-		updateSearchIndex(doc, docProducer);
+		updateSearchIndex(doc, docProducer, true);
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.ID, objId);
