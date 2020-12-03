@@ -71,9 +71,9 @@ to get a fully configured elastic search node, ibus and database running.
 
 In order to run the configuration for a specific profile to create the correct index documents, you need to do the following steps:
 
-* uncomment profile directory from `baseResource` in `ingrid-mdek-job\src\main\webapp\WEB-INF\jetty-web.xml`
-* add `../distribution/src/profiles/<profile>/conf` as `Resources Folder` (IntelliJ) or as `Classpath` (Eclipse)
-** rebuild the project (mvn compile)
+* in `ingrid-mdek-job\src\main\webapp\WEB-INF\jetty-web.xml`, uncomment the directory of the desired profile in `baseResource`
+* (IntelliJ) in Project Structure -> `ingrid-mdek-job` module -> Dependencies, add the directory `../distribution/src/profiles/<profile>/conf` as Classes and move it to the top of the list
+* (Eclipse) add `../distribution/src/profiles/<profile>/conf` as `Classpath`
 
 ### Start/Debug iPlug for another profile
 

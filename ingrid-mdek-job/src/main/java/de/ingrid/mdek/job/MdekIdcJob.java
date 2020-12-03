@@ -137,6 +137,41 @@ public abstract class MdekIdcJob extends MdekJob {
 		return errorHandler.handleException(excIn);
 	}
 
+    /**
+     * Update ES search index of a specific document.
+     * @param doc the document for indexing
+     */
+	protected void updateSearchIndex(ElasticDocument doc, DscDocumentProducer docProducer, boolean isObject) {
+        if (doc != null && !doc.isEmpty()) {
+            String id = doc.get("t01_object.id").toString();
+            IndexInfo indexInfo = docProducer.getIndexInfo();
+            String[] datatypes = null;
+            try {
+                String datatypesString = (String) config.getOverrideProperties().get("plugdescription.dataType." + indexInfo.getIdentifier());
+                if (datatypesString != null) {
+                    datatypes = datatypesString.split(",");
+                }
+            } catch (IOException e) {
+                log.error("Could not get override properties", e);
+            }
+
+            doc.put( "datatype", datatypes );
+            doc.put( "partner", config.partner );
+            doc.put( "provider", config.provider );
+            doc.put( "dataSourceName", config.datasourceName );
+            doc.put( "organisation", config.organisation );
+            doc.put( "iPlugId", config.communicationProxyUrl );
+            indexManager.update( indexInfo, doc, false );
+            if (doc.containsKey("parent.object_node.obj_uuid")) {
+                this.updateParentFolder(id, doc, docProducer, indexManager, true, isObject);
+            }
+            if (doc.containsKey("parent.address_node.addr_uuid")) {
+                this.updateParentFolder(id, doc, docProducer, indexManager, true, isObject);
+            }
+            indexManager.flush();
+        }
+    }
+
 	/** Update ES search index with data from PUBLISHED entities and log via audit service if set.
 	 * @param changedEntities List of maps containing data about changed entities.
 	 * NOTICE: May also contain unpublished entities, this is checked, only published ones are processed ! 
@@ -158,6 +193,7 @@ public abstract class MdekIdcJob extends MdekJob {
 
                 // update index
                 ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString());
+                this.updateSearchIndex(doc, docProducer, isObject);
                 /*
                    Note that the result can be null if the publication conditions are not
                    met based on the SQL provided in property recordByIdSql in
@@ -170,33 +206,6 @@ public abstract class MdekIdcJob extends MdekJob {
                      AND (to_be_published_on is null OR to_be_published_on >= CURRENT_DATE)
                      AND id = ?
                  */
-                if (doc != null && !doc.isEmpty()) {
-                    IndexInfo indexInfo = docProducer.getIndexInfo();
-                    String[] datatypes = null;
-                    try {
-                        String datatypesString = (String) config.getOverrideProperties().get( "plugdescription.dataType." + indexInfo.getIdentifier()  );
-                        if (datatypesString != null) {
-                            datatypes = datatypesString.split(",");
-                        }
-                    } catch (IOException e) {
-                        log.error("Could not get override properties", e);
-                    }
-
-                    doc.put( "datatype", datatypes );
-                    doc.put( "partner", config.partner );
-                    doc.put( "provider", config.provider );
-                    doc.put( "dataSourceName", config.datasourceName );
-                    doc.put( "organisation", config.organisation );
-                    doc.put( "iPlugId", config.communicationProxyUrl );
-                    indexManager.update( indexInfo, doc, false );
-                    if (doc.containsKey("parent.object_node.obj_uuid")) {
-                        this.updateParentFolder(entity.get( MdekKeys.ID ).toString(), doc, docProducer, indexManager, true, isObject);
-                    }
-                    if (doc.containsKey("parent.address_node.addr_uuid")) {
-                        this.updateParentFolder(entity.get( MdekKeys.ID ).toString(), doc, docProducer, indexManager, true, isObject);
-                    }
-                    indexManager.flush();
-                }
 
                 // and log if audit service set
                 if (AuditService.instance != null && doc != null) {
