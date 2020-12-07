@@ -141,9 +141,8 @@ public abstract class MdekIdcJob extends MdekJob {
      * Update ES search index of a specific document.
      * @param doc the document for indexing
      */
-	protected void updateSearchIndex(ElasticDocument doc, DscDocumentProducer docProducer, boolean isObject) {
+	protected void updateSearchIndex(String id, ElasticDocument doc, DscDocumentProducer docProducer, boolean isObject) {
         if (doc != null && !doc.isEmpty()) {
-            String id = isObject ? doc.get("t01_object.id").toString() : doc.get("t02_address.id").toString();
             IndexInfo indexInfo = docProducer.getIndexInfo();
             String[] datatypes = null;
             try {
@@ -192,8 +191,9 @@ public abstract class MdekIdcJob extends MdekJob {
             if (WorkState.VEROEFFENTLICHT.getDbValue().equals( entity.get( MdekKeys.WORK_STATE ) )) {
 
                 // update index
-                ElasticDocument doc = docProducer.getById( entity.get( MdekKeys.ID ).toString());
-                this.updateSearchIndex(doc, docProducer, isObject);
+                String id = entity.get( MdekKeys.ID ).toString();
+                ElasticDocument doc = docProducer.getById(id);
+                this.updateSearchIndex(id, doc, docProducer, isObject);
                 /*
                    Note that the result can be null if the publication conditions are not
                    met based on the SQL provided in property recordByIdSql in

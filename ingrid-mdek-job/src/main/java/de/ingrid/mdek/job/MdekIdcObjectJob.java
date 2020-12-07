@@ -1258,10 +1258,10 @@ public class MdekIdcObjectJob extends MdekIdcJob {
 		}
 
 		T01Object publishedObject = objectNode.getT01ObjectPublished();
-		Long objId = publishedObject.getId();
+		String objId = publishedObject.getId().toString();
 		DscDocumentProducer docProducer = docProducerObject;
-		ElasticDocument doc = docProducer.getById(objId.toString());
-		updateSearchIndex(doc, docProducer, true);
+		ElasticDocument doc = docProducer.getById(objId);
+		updateSearchIndex(objId, doc, docProducer, true);
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.ID, objId);
