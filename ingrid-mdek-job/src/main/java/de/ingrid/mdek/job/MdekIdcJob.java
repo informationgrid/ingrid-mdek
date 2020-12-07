@@ -143,7 +143,7 @@ public abstract class MdekIdcJob extends MdekJob {
      */
 	protected void updateSearchIndex(ElasticDocument doc, DscDocumentProducer docProducer, boolean isObject) {
         if (doc != null && !doc.isEmpty()) {
-            String id = doc.get("t01_object.id").toString();
+            String id = isObject ? doc.get("t01_object.id").toString() : doc.get("t02_address.id").toString();
             IndexInfo indexInfo = docProducer.getIndexInfo();
             String[] datatypes = null;
             try {
