@@ -163,21 +163,34 @@ for (i=0; i<objRows.size(); i++) {
     // select only addresses associated with syslist 505 entry 12 ("pointOfContactMd")
     // use this address to be able to keep contact address from import/csw-t data
     // otherwise the responsible user will be used
-    var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', +objId, 12, 505]);
-    if (hasValue(addressRow)) {
-        // address may be hidden ! then get first visible parent in hierarchy !
-        addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
+    var allAddresses = [];
+    var allAddressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', +objId, 12, 505]);
+    if (allAddressRows.size() > 0) {
+        for (var j=0; j<allAddressRows.size(); j++) {
+            var row = allAddressRows.get(j);
+            if (hasValue(row)) {
+                allAddresses.push(row);
+            }
+        }
     } else if (hasValue(objRow.get("responsible_uuid"))) {
         // contact for metadata is now responsible user, see INGRID32-46
         // USE WORKING VERSION (pass true) ! user addresses are now separated and NOT published, see INGRID32-36
-        addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
+        var firstVisibleAddress = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
+        if (hasValue(firstVisibleAddress)) {
+            allAddresses.push(firstVisibleAddress);
+        }
     }
-    if (hasValue(addressRow)) {
-        // map only email address (pass true as third parameter), see INGRID32-36
-        // NO, ISO needs more data, see INGRID32-146
-        // do not export all values ... only organisation name and email(s) (INGRID-2256)
-    	// for BAW DMQS export full address
-    	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
+    if (allAddresses.length > 0) {
+        for(var j=0; j<allAddresses.length; j++) {
+            var addressRow = allAddresses[j];
+            if (hasValue(addressRow)) {
+                // map only email address (pass true as third parameter), see INGRID32-36
+                // NO, ISO needs more data, see INGRID32-146
+                // do not export all values ... only organisation name and email(s) (INGRID-2256)
+                // for BAW DMQS export full address
+                mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
+            }
+        }
     } else {
     	log.error('No responsible party for metadata found!');
     }
