@@ -183,13 +183,11 @@ for (i=0; i<objRows.size(); i++) {
     if (allAddresses.length > 0) {
         for(var j=0; j<allAddresses.length; j++) {
             var addressRow = allAddresses[j];
-            if (hasValue(addressRow)) {
-                // map only email address (pass true as third parameter), see INGRID32-36
-                // NO, ISO needs more data, see INGRID32-146
-                // do not export all values ... only organisation name and email(s) (INGRID-2256)
-                // for BAW DMQS export full address
-                mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
-            }
+            // map only email address (pass true as third parameter), see INGRID32-36
+            // NO, ISO needs more data, see INGRID32-146
+            // do not export all values ... only organisation name and email(s) (INGRID-2256)
+            // for BAW DMQS export full address
+            mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
         }
     } else {
     	log.error('No responsible party for metadata found!');
