@@ -57,6 +57,9 @@
       <action type="fix" dev="wemove" issue="1308">
         Fix upload cleanup job indexing issue.
       </action>
+      <action type="fix" dev="wemove" issue="2245">
+        Fix import of DCP-element
+      </action>
     </release>
 
     <release version="5.6.0" date="2020-10-15" description="Release 5.6.0">
