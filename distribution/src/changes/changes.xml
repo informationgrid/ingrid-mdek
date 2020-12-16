@@ -5,6 +5,12 @@
   </properties>
   <body>
 
+    <release version="5.6.6" date="2020-xx-xx" description="Release 5.6.6">
+      <action type="fix" dev="wemove" issue="2245">
+        Fix import of DCP-element
+      </action>
+    </release>
+    
     <release version="5.6.4" date="2020-12-07" description="Release 5.6.4">
       <action type="fix" dev="wemove" issue="2241">
         Fix ISO error when DOI is not complete
