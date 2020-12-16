@@ -657,7 +657,16 @@ var mappingDescription = {"mappings":[
 					    	  				{
 					    			  			"srcXpath":"./@codeListValue",
 					    			  			"targetNode":""
-					    			  		}
+					    			  		},
+											{
+												"targetAttribute":"id",
+												"srcXpath":"./@codeListValue",
+												"targetNode":"",
+												"transform":{
+													"funct":transformToIgcDomainId,
+													"params":[5180, ""]
+												}
+											}
 					    	  			]
 		    			  			}	
 		    			  		},
