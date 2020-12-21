@@ -253,6 +253,7 @@ public class TestSetup {
         List<SysList> syslist1410 = createSyslist( 1410, 6, "Energy" );
         List<SysList> syslist5120 = createSyslist( 5120, 1, "GetCapabilities" );
         List<SysList> syslist5153 = createSyslist( 5153, 2, "OGC:WFS 2.0" );
+        List<SysList> syslist5180 = createSyslist( 5180, 6, "WebServices" );
         List<SysList> syslist5200 = createSyslist( 5200, 211, "infoStandingOrderService" );
         List<SysList> syslist6005 = createSyslist( 6005, 40, "Technical Guidance for the implementation of INSPIRE Download Services" );
         extendSyslist( syslist6005, 13, "INSPIRE Richtlinie" );
@@ -290,6 +291,7 @@ public class TestSetup {
         when( daoSysList.getSysList( 1410, "iso" ) ).thenReturn( syslist1410 );
         when( daoSysList.getSysList( 5120, "iso" ) ).thenReturn( syslist5120 );
         when( daoSysList.getSysList( 5153, "iso" ) ).thenReturn( syslist5153 );
+        when( daoSysList.getSysList( 5180, "iso" ) ).thenReturn( syslist5180 );
         when( daoSysList.getSysList( 5200, "iso" ) ).thenReturn( syslist5200 );
         when( daoSysList.getSysList( 6005, "de" ) ).thenReturn( syslist6005 );
         when( daoSysList.getSysList( 6010, "iso" ) ).thenReturn( syslist6010 );

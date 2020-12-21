@@ -50,6 +50,11 @@ var objId = sourceRecord.get("id");
 
 handleGeoContext();
 addMetadataExtension();
+addNokisThesaurus();
+// objClass variable is from script before "igc_to_idf.js"
+if (objClass.equals("1")) {
+    removeCoupledServiceInformation();
+}
 
 function handleGeoContext() {
 
@@ -223,4 +228,59 @@ function getAdditionalFieldFromObject(objId, parentId, fieldId) {
         return null;
     }
 
+}
+
+function addNokisThesaurus() {
+
+    var content = getAdditionalForTable(objId, 'nokisThesaurus');
+    if (hasValue(content)) {
+        var mdKeywords = DOM.createElement("gmd:MD_Keywords");
+        for (var i = 0; i < content.length; i++) {
+            handleThesaurusItem(mdKeywords, content[i]);
+        }
+        var insertNode = searchNextRootSiblingTag(identificationInfo, "gmd:descriptiveKeywords", identificationInfoChildrenReverseOrder);
+        insertNode.addElementAsSibling("gmd:descriptiveKeywords").addElement(mdKeywords);
+    }
+
+}
+
+function handleThesaurusItem(keywordsElement, keywordItem) {
+    var mdKeyword = keywordsElement.addElement("gmd:keyword");
+    var name = TRANSF.getCodeListEntryFromIGCSyslistEntry(7200, keywordItem.name.data, "de");
+    IDF_UTIL.addLocalizedCharacterstring(mdKeyword, name);
+}
+
+function removeCoupledServiceInformation() {
+    // get all data downloads from coupled services
+    var rows = SQL.all("SELECT t01obj.obj_name, urlref.* FROM object_reference oref, t01_object t01obj, t011_obj_serv t011_object, t017_url_ref urlref WHERE obj_to_uuid=? AND oref.special_ref=3600 AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=3 AND t01obj.work_state='V' AND urlref.obj_id=t01obj.id AND (urlref.special_ref=5066 OR urlref.special_ref=9990) AND t011_object.obj_id=t01obj.id AND (t011_object.type_key=3 OR t011_object.type_key=6)", [objUuid]);
+    var dataDownloadsFromService = [];
+    for (i=0; i<rows.size(); i++) {
+        dataDownloadsFromService.push(rows.get(i).get("url_link"));
+    }
+    var linkages = XPATH.getNodeList(idfDoc, "//gmd:linkage/gmd:URL");
+    for (var k = 0; k < linkages.length; k++) {
+        var linkage = linkages.item(k);
+        
+        removeServiceDownloadURLs(linkage, dataDownloadsFromService);
+        removeServiceGetCapabilitiesURL(linkage);
+    }
+}
+
+function removeServiceDownloadURLs(linkage, dataDownloadsFromService) {
+    var urlLink = XPATH.getString(linkage, ".");
+    if (dataDownloadsFromService.indexOf(urlLink) !== -1) {
+        var dataDownloadsFromService = XPATH.getNodeList(linkage, "../..//idf:attachedToField[@entry-id=9990]");
+        for (var i = 0; i < dataDownloadsFromService.length; i++) {
+            var item = dataDownloadsFromService.item(i);
+            XPATH.removeElementAtXPath(item, "../../../..");
+        }
+    }
+}
+
+function removeServiceGetCapabilitiesURL(linkage) {
+    var urlLink = XPATH.getString(linkage, ".");
+    var name = XPATH.getString(linkage, "../../gmd:name/gco:CharacterString");
+    if (hasValue(name) && name.indexOf("Dienst \"") === 0 && name.indexOf("(GetCapabilities)") !== -1) {
+        XPATH.removeElementAtXPath(linkage, "../../../../..");
+    }
 }

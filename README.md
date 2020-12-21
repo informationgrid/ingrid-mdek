@@ -20,7 +20,7 @@ Installation
 ------------
 
 Download from https://distributions.informationgrid.eu/ingrid-iplug-ige/
- 
+
 or
 
 build from source with `mvn clean package`.
@@ -41,14 +41,14 @@ Contribute
 
 - Issue Tracker: https://github.com/informationgrid/ingrid-mdek/issues
 - Source Code: https://github.com/informationgrid/ingrid-mdek
- 
+
 ### Setup Eclipse project
 
-* import project as Maven-Project
-* right click on project and select Maven -> Select Maven Profiles ... (Ctrl+Alt+P)
-* choose profile "development"
+* import project as Maven-Project (File > Import... > Existing Maven Projects)
+  * set Root Directory to path/to/ingrid-mdek  and select all entries under Projects (pom.xml)
+  * enter "development" under Advanced > Profiles in the same dialog
 * run "mvn compile" from Commandline (unpacks base-webapp) 
-* run de.ingrid.mdek.MdekServer as Java Application
+* run de.ingrid.mdek.MdekServer as Java Application (/ingrid-mdek-job/src/main/java/de/ingrid/mdek/MdekServer.java)
 * in browser call "http://localhost:10017" with login "admin/admin"
 
 ### Setup IntelliJ IDEA project
@@ -71,9 +71,9 @@ to get a fully configured elastic search node, ibus and database running.
 
 In order to run the configuration for a specific profile to create the correct index documents, you need to do the following steps:
 
-* uncomment profile directory from `baseResource` in `ingrid-mdek-job\src\main\webapp\WEB-INF\jetty-web.xml`
-* add `../distribution/src/profiles/<profile>/conf` as `Resources Folder` (IntelliJ) or as `Classpath` (Eclipse)
-** rebuild the project (mvn compile)
+* in `ingrid-mdek-job\src\main\webapp\WEB-INF\jetty-web.xml`, uncomment the directory of the desired profile in `baseResource`
+* (IntelliJ) in Project Structure -> `ingrid-mdek-job` module -> Dependencies, add the directory `../distribution/src/profiles/<profile>/conf` as Classes and move it to the top of the list
+* (Eclipse) add `../distribution/src/profiles/<profile>/conf` as `Classpath`
 
 ### Start/Debug iPlug for another profile
 

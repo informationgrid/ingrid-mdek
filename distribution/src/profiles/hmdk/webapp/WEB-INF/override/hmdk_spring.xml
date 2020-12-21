@@ -37,7 +37,7 @@
                 <value>classpath:mapping/global.js</value>
                 <value>classpath:mapping/idf_utils.js</value>
                 <value>classpath:mapping/igc_to_idf.js</value>
-                <value>classpath:mapping/igc_to_idf-hzg.js</value>
+                <value>classpath:mapping/igc_to_idf-hmdk.js</value>
             </list>
         </property>
         <property name="compile" value="false" />
@@ -47,10 +47,31 @@
         <property name="mapperScript">
             <list>
                 <value>classpath:import/mapper/csw202_to_ingrid_igc.js</value>
-                <value>classpath:import/mapper/csw202_to_ingrid_igc_hzg.js</value>
+                <value>classpath:import/mapper/csw202_to_ingrid_igc_hmdk.js</value>
             </list>
         </property>
         <property name="template" value="classpath:import/templates/igc_template_csw202.xml" />
     </bean>
 
+    <bean id="dscDocumentProducer" class="de.ingrid.iplug.dsc.index.DscDocumentProducer">
+        <property name="recordSetProducer" ref="recordSetProducer" />
+        <property name="recordMapperList">
+            <list>
+                <ref bean="recordMapper"/>
+                <ref bean="recordMapperHmdk"/>
+                <ref bean="recordProfileMapper"/>
+                <ref bean="idfProducerIndexMapper"/>
+            </list>
+        </property>
+        <property name="indexInfo" ref="indexInfo"/>
+    </bean>
+
+    <bean id="recordMapperHmdk" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/igc_to_lucene_hmdk.js</value>
+            </list>
+        </property>
+        <property name="compile" value="true" />
+    </bean>
 </beans>

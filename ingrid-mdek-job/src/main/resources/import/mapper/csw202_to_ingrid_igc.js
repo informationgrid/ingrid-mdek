@@ -657,7 +657,16 @@ var mappingDescription = {"mappings":[
 					    	  				{
 					    			  			"srcXpath":"./@codeListValue",
 					    			  			"targetNode":""
-					    			  		}
+					    			  		},
+											{
+												"targetAttribute":"id",
+												"srcXpath":"./@codeListValue",
+												"targetNode":"",
+												"transform":{
+													"funct":transformToIgcDomainId,
+													"params":[5180, ""]
+												}
+											}
 					    	  			]
 		    			  			}	
 		    			  		},
@@ -2246,6 +2255,24 @@ function mapDistributionLinkages(source, target) {
             linkage.referenceId = isCoupled ? "3600" : "-1";
             //referenceName = "";
             linkage.description = getLocalisedCharacterString(XPATH.getNode(linkages.item(i), "./gmd:description/gco:CharacterString"));
+            if (isCoupled) {
+                linkage.datatype_key=-1;
+                linkage.datatype_value="coupled";
+            } else {
+                var linkType = XPATH.getString(linkages.item(i), "./gmd:function/gmd:CI_OnLineFunctionCode/@codeListValue");
+                if (linkType === "download" ){
+                    linkage.referenceId = 9990
+                } else if ( linkType === "information" ) {
+                    linkage.referenceId = 5302
+                } else if ( linkType === "offlineAccess" ) {
+                    linkage.referenceId = 5303
+                } else if ( linkType === "order" ) {
+                    linkage.referenceId = 5304
+                } else if ( linkType === "search" ) {
+                    linkage.referenceId = 5305
+                }
+            }
+
             addAvailableLinkage(linkage, target);
         }
     }
@@ -2270,6 +2297,12 @@ function addAvailableLinkage(linkage, target) {
         if (hasValue(linkage.description)) {
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-description"), linkage.description);
         }
+		if (hasValue(linkage.datatype_key)) {
+			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), "id", linkage.datatype_key);
+			if (hasValue(linkage.datatype_value)) {
+				XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), linkage.datatype_value);
+			}
+		}
     }
 }
 
