@@ -169,7 +169,10 @@ for (i=0; i<objRows.size(); i++) {
         for (var j=0; j<allAddressRows.size(); j++) {
             var row = allAddressRows.get(j);
             if (hasValue(row)) {
-                allAddresses.push(row);
+                row = getFirstVisibleAddress(row.get("adr_uuid"));
+                if (hasValue(row)) {
+                    allAddresses.push(row);
+                }
             }
         }
     } else if (hasValue(objRow.get("responsible_uuid"))) {
