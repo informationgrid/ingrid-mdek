@@ -168,10 +168,17 @@ for (i=0; i<objRows.size(); i++) {
     if (allAddressRows.size() > 0) {
         for (var j=0; j<allAddressRows.size(); j++) {
             var row = allAddressRows.get(j);
+
             if (hasValue(row)) {
                 row = getFirstVisibleAddress(row.get("adr_uuid"));
+
                 if (hasValue(row)) {
-                    allAddresses.push(row);
+                    var existing = allAddresses.some(function (item) {
+                        return row.get("adr_uuid") === item.get("adr_uuid");
+                    });
+                    if (!existing) {
+                        allAddresses.push(row);
+                    }
                 }
             }
         }
@@ -180,7 +187,12 @@ for (i=0; i<objRows.size(); i++) {
         // USE WORKING VERSION (pass true) ! user addresses are now separated and NOT published, see INGRID32-36
         var firstVisibleAddress = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
         if (hasValue(firstVisibleAddress)) {
-            allAddresses.push(firstVisibleAddress);
+            var existing = allAddresses.some(function (item) {
+                return firstVisibleAddress.get("adr_uuid") === item.get("adr_uuid");
+            });
+            if (!existing) {
+                allAddresses.push(firstVisibleAddress);
+            }
         }
     }
     if (allAddresses.length > 0) {
