@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://informationgrid.eu/igc-import" xmlns="http://informationgrid.eu/igc-import">
-    
+
     <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
     <xs:attribute name="exchange-format" default="5.6.0"/>
@@ -157,6 +157,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="object-identifier"/>
+        <xs:element minOccurs="0"  ref="parent-identifier-extern"/>
         <xs:element ref="catalogue-identifier"/>
         <xs:element ref="modificator-identifier"/>
         <xs:element ref="responsible-identifier"/>
@@ -174,6 +175,8 @@
         <xs:element ref="topic-categories"/>
         <xs:element minOccurs="0" ref="env-information"/>
         <xs:element minOccurs="0" ref="is-inspire-relevant"/>
+        <xs:element minOccurs="0" ref="is-adv-compatible"/>
+        <xs:element minOccurs="0" ref="adv-product-group"/>
         <xs:element minOccurs="0" ref="is-open-data"/>
         <xs:element ref="open-data-categories"/>
       </xs:sequence>
@@ -184,6 +187,11 @@
     Tabelle.Feld   : T01_object.obj_uuid
   -->
   <xs:element name="object-identifier" type="xs:string"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="parent-identifier-extern" type="xs:string"/>
   <!--
     Fachlicher Name: Verantwortlicher
     Tabelle.Feld   : T01_object.responsible_uuid
@@ -231,11 +239,11 @@
   -->
   <xs:element name="general-additional-value">
     <xs:complexType>
-        <xs:sequence>
+      <xs:sequence>
         <xs:element ref="field-key"/>
-        <xs:element ref="field-data"/>
-        <xs:element ref="field-key-parent"/>
-        </xs:sequence>
+        <xs:element minOccurs="0"  ref="field-data"/>
+        <xs:element minOccurs="0"  ref="field-key-parent"/>
+      </xs:sequence>
       <xs:attributeGroup ref="attlist.line"/>
     </xs:complexType>
   </xs:element>
@@ -330,6 +338,22 @@
   -->
   <xs:element name="is-inspire-relevant" default="N" type="igc-boolean"/>
   <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="is-adv-compatible" default="N" type="igc-boolean"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="adv-product-group">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="item" type="id-string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
     Fachlicher Name: "Open Data Datensatz" (checkbox)
     Tabelle.Feld   : T01_object.is_open_data
   -->
@@ -418,7 +442,7 @@
   -->
   <xs:element name="method" type="xs:string"/>
   <!--
-    Fachlicher Name: Fachbezug "Geodatendienst" UND "Informationssystem/Dienst/Anwendung" (vormals Klasse "Dienst / Anwendung / Informationssystem", die in InGrid 2.3 geteilt wurde !) 
+    Fachlicher Name: Fachbezug "Geodatendienst" UND "Informationssystem/Dienst/Anwendung" (vormals Klasse "Dienst / Anwendung / Informationssystem", die in InGrid 2.3 geteilt wurde !)
     Tabelle   : t011_obj_serv*
   -->
   <xs:element name="service">
@@ -695,7 +719,6 @@
       <xs:sequence>
         <xs:element ref="hierarchy-level"/>
         <xs:element minOccurs="0" ref="description-of-tech-domain"/>
-        <xs:element minOccurs="0" ref="data"/>
         <xs:element minOccurs="0" ref="resolution"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="publication-scale"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="key-catalogue"/>
@@ -705,9 +728,11 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="symbol-catalogue"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="spatial-representation-type"/>
         <xs:element minOccurs="0" ref="vector-format"/>
+        <xs:element minOccurs="0" ref="grid-format"/>
         <xs:element minOccurs="0" ref="pos-accuracy-vertical"/>
         <xs:element minOccurs="0" ref="keyc-incl-w-dataset"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="feature-type"/>
+        <xs:element minOccurs="0" ref="data"/>
         <xs:element minOccurs="0" ref="datasource-identificator"/>
       </xs:sequence>
     </xs:complexType>
@@ -854,6 +879,112 @@
     </xs:complexType>
   </xs:element>
   <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+    Tabelle   :  ???
+  -->
+  <xs:element name="grid-format">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="grid-transform-param"/>
+        <xs:element minOccurs="0" ref="grid-num-dimensions"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="grid-axis"/>
+        <xs:element minOccurs="0" ref="grid-cell-geometry"/>
+        <xs:element minOccurs="0" ref="grid-geo-rectified"/>
+        <xs:element minOccurs="0" ref="grid-rect-checkpoint"/>
+        <xs:element minOccurs="0" ref="grid-rect-description"/>
+        <xs:element minOccurs="0" ref="grid-rect-corner-point"/>
+        <xs:element minOccurs="0" ref="grid-rect-point-in-pixel"/>
+        <xs:element minOccurs="0" ref="grid-ref-control-point"/>
+        <xs:element minOccurs="0" ref="grid-ref-orientation-param"/>
+        <xs:element minOccurs="0" ref="grid-ref-referenced-param"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-transform-param" type="igc-boolean"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-num-dimensions" type="xs:integer"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-axis">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="grid-axis-name"/>
+        <xs:element minOccurs="0" ref="grid-axis-size"/>
+        <xs:element minOccurs="0" ref="grid-axis-resolution"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+  Fachlicher Name: ???
+  Tabelle.Feld   : ???
+-->
+  <xs:element name="grid-axis-name" type="xs:string"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-axis-size" type="xs:string"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-axis-resolution" type="xs:string"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-cell-geometry" type="xs:string"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-geo-rectified" type="igc-boolean"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-rect-checkpoint" type="xs:string"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-rect-description" type="xs:string"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-rect-corner-point" type="xs:string"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-rect-point-in-pixel" type="xs:string"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-ref-control-point" type="igc-boolean"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-ref-orientation-param" type="igc-boolean"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="grid-ref-referenced-param" type="igc-boolean"/>
+  <!--
     Fachlicher Name: Vektorformat: Topologieinformation
     Tabelle.Feld   : T011_obj_geo.vector_topology_level
   -->
@@ -938,7 +1069,6 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="use-constraint"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="medium-option"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="data-format"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="data-format-inspire"/>
         <xs:element minOccurs="1" ref="publication-condition"/>
         <xs:element minOccurs="0" ref="dataset-usage"/>
         <xs:element minOccurs="0" ref="ordering-instructions"/>
@@ -1027,9 +1157,17 @@
     Tabelle.Feld   : object_use_constraint.license_key
     Tabelle.Feld   : object_use_constraint.license_value
   -->
-  <xs:element name="license" type="id-string"/>
+  <xs:element name="license">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attributeGroup ref="attlist.id-source"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
   <!--
-    Fachlicher Name: 
+    Fachlicher Name:
     Tabelle.Feld   : t0112_media_option
   -->
   <xs:element name="medium-option">
@@ -1108,23 +1246,6 @@
   -->
   <xs:element name="file-decompression-technique" type="xs:string"/>
   <!--
-    Fachlicher Name: INSPIRE Datenformat (encoding)
-    Tabelle.Feld   : object_format_inspire
-  -->
-  <xs:element name="data-format-inspire">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="format-inspire-name"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <!--
-    Fachlicher Name: Formatname (INSPIRE-Encoding)
-    Tabelle.Feld   : object_format_inspire.format_key
-    Tabelle.Feld   : object_format_inspire.format_value
-  -->
-  <xs:element name="format-inspire-name" type="id-string"/>
-  <!--
     Fachlicher Name: Kommentar (Objekt-/Adress-Kommentar)
     Tabelle   : object_comment
     Tabelle   : adress_comment
@@ -1157,11 +1278,20 @@
   <xs:element name="conformity">
     <xs:complexType>
       <xs:sequence>
+        <xs:element ref="conformity-is-inspire"/>
         <xs:element ref="conformity-specification"/>
         <xs:element ref="conformity-degree"/>
+        <xs:element ref="conformity-publication-date"/>
+        <xs:element ref="conformity-explanation"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="conformity-is-inspire" type="igc-boolean"/>
   <!--
     Fachlicher Name: Konformität -> Spezifikation
     Tabelle.Feld   : object_conformity.specification_key
@@ -1174,6 +1304,18 @@
     Tabelle.Feld   : object_conformity.degree_value
   -->
   <xs:element name="conformity-degree" type="id-string"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="conformity-publication-date" type="xs:string"/>
+  <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="conformity-explanation" type="xs:string"/>
   <!--
     Fachlicher Name: Objekt Datenqualität (INSPIRE)
     Tabelle   : object_data_quality
@@ -1289,7 +1431,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="location-name"/>
-        <xs:element ref="topic-type"/>
+        <xs:element minOccurs="0" ref="topic-type"/>
         <xs:element minOccurs="0" ref="location-code"/>
       </xs:sequence>
     </xs:complexType>
@@ -1446,15 +1588,17 @@
   <xs:element name="subject-terms">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="controlled-term"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="uncontrolled-term"/>
+        <xs:choice  minOccurs="0" maxOccurs="unbounded" >
+          <xs:element ref="controlled-term"/>
+          <xs:element  ref="uncontrolled-term"/>
+        </xs:choice>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <!--
     Fachlicher Name: UMTHES/GEMET Thesaurus-Suchbegriff oder INSPIRE Thema oder Topic oder OpenData
     Tabelle: searchterm_sns.sns_id  \\ bei UMTHES und GEMET term -> id Attribut
-    Tabelle: searchterm_sns.gemet_id  \\ nur bei GEMET term 
+    Tabelle: searchterm_sns.gemet_id  \\ nur bei GEMET term
     Tabelle: searchterm_value.entry_id  \\ nur bei INSPIRE Thema (syslist entry-id) -> id Attribut
     Tabelle: searchterm_value.term
     Tabelle: searchterm_value.alternate_term
@@ -1466,7 +1610,7 @@
   -->
   <xs:element name="uncontrolled-term" type="xs:string"/>
   <!--
-    Fachlicher Name: Verweis auf eine Internet-Seite 
+    Fachlicher Name: Verweis auf eine Internet-Seite
     Tabelle   : t017_url_ref
   -->
   <xs:element name="available-linkage">
@@ -1569,7 +1713,7 @@
   -->
   <xs:element name="object-link-description" type="xs:string"/>
   <!--
-    Fachlicher Name: Adress Metadatensätze 
+    Fachlicher Name: Adress Metadatensätze
   -->
   <xs:element name="addresses">
     <xs:complexType>
@@ -1579,7 +1723,7 @@
     </xs:complexType>
   </xs:element>
   <!--
-    Fachlicher Name: Adress Metadatensatz 
+    Fachlicher Name: Adress Metadatensatz
   -->
   <xs:element name="address">
     <xs:complexType>
@@ -1606,6 +1750,7 @@
         <xs:element minOccurs="0" ref="title-or-function"/>
         <xs:element minOccurs="0" ref="given-name"/>
         <xs:element minOccurs="0" ref="country"/>
+        <xs:element minOccurs="0" ref="administrative-area"/>
         <xs:element minOccurs="0" ref="postal-code"/>
         <xs:element minOccurs="0" ref="street"/>
         <xs:element minOccurs="0" ref="city"/>
@@ -1677,6 +1822,12 @@
   -->
   <xs:element name="given-name" type="xs:string"/>
   <!--
+    Fachlicher Name: ???
+    Tabelle.Feld   : ???
+    Tabelle.Feld   : ???
+  -->
+  <xs:element name="administrative-area" type="id-string"/>
+  <!--
     Fachlicher Name: Postleitzahl (Ort)
     Tabelle.Feld   : t02_address.postcode
   -->
@@ -1697,7 +1848,7 @@
   -->
   <xs:element name="post-box-postal-code" type="xs:string"/>
   <!--
-    Fachlicher Name: Postfach 
+    Fachlicher Name: Postfach
     Tabelle.Feld   : t02_address.postbox
   -->
   <xs:element name="post-box" type="xs:string"/>
@@ -1712,7 +1863,7 @@
   -->
   <xs:element name="hours-of-service" type="xs:string"/>
   <!--
-    Fachlicher Name: Adresse Kommunikationsdaten 
+    Fachlicher Name: Adresse Kommunikationsdaten
     Tabelle   : t021_communication
   -->
   <xs:element name="communication">
@@ -1773,7 +1924,7 @@
     <xs:simpleContent>
       <xs:extension base="xs:string">
         <xs:attributeGroup ref="attlist.id"/>
-      </xs:extension>     
+      </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
   <!--
@@ -1796,7 +1947,7 @@
         </xs:attribute>
         <xs:attribute name="gemet-id"/>
         <xs:attribute name="alternate-name"/>
-      </xs:extension>     
+      </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
   <!--
@@ -1806,7 +1957,7 @@
     <xs:simpleContent>
       <xs:extension base="xs:string">
         <xs:attributeGroup ref="attlist.list-entry-ids"/>
-      </xs:extension>     
+      </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
   <!--
@@ -1842,27 +1993,34 @@
     <xs:attribute name="entry-id" use="required"/>
   </xs:attributeGroup>
   <!--
+    Attribut-Gruppe: id= source=
+  -->
+  <xs:attributeGroup name="attlist.id-source">
+    <xs:attribute name="id"/>
+    <xs:attribute name="source"/>
+  </xs:attributeGroup>
+  <!--
     Attribut-Gruppe: line=
   -->
   <xs:attributeGroup name="attlist.line">
     <xs:attribute name="line" use="optional"/>
   </xs:attributeGroup>
-<!--
-  Attribut-Gruppe: work-state=
-  Tabelle.Feld   : T01_object.work_state
-  Tabelle.Feld   : T02_address.work_state
--->
-<xs:attributeGroup name="attlist.work-state">
-  <xs:attribute name="work-state" use="required">
-    <xs:simpleType>
-      <xs:restriction base="xs:token">
-        <xs:enumeration value="V"/>
-        <xs:enumeration value="B"/>
-        <xs:enumeration value="Q"/>
-        <xs:enumeration value="R"/>
-      </xs:restriction>
-    </xs:simpleType>
-  </xs:attribute>
-</xs:attributeGroup>
+  <!--
+    Attribut-Gruppe: work-state=
+    Tabelle.Feld   : T01_object.work_state
+    Tabelle.Feld   : T02_address.work_state
+  -->
+  <xs:attributeGroup name="attlist.work-state">
+    <xs:attribute name="work-state" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="V"/>
+          <xs:enumeration value="B"/>
+          <xs:enumeration value="Q"/>
+          <xs:enumeration value="R"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
 </xs:schema>
 
