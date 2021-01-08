@@ -240,18 +240,24 @@ function mapUseConstraintsBkg(source, target) {
                         var otherValue = getLocalisedCharacterString(otherConstraintNodes.item(0));
                         // could be only selection value
                         entryId = getSysListEntryKey(codelistIdBkg, otherValue);
-                        
+
                         // or only free text
                         if (!entryId) freeTextValue = otherValue;
-                        
+
                     } else if (otherConstraintNodes.getLength() === 2) {
-                        // a selection and a free text is available 
+                        // a selection and a free text is available
                         var selectValue = XPATH.getString(otherConstraintNodes.item(0), ".");
                         freeTextValue = getLocalisedCharacterString(otherConstraintNodes.item(1));
                         entryId = getSysListEntryKey(codelistIdBkg, selectValue);
+                        if(entryId === null) {
+                            freeTextValue = selectValue + ' ' + freeTextValue;
+                        }
                     }
                     if (addUseValuesToDoc(target, entryId, freeTextValue)) {
                         removeUseConstraint(target, codeListService.getSysListEntryName(codelistIdBkg, entryId));
+                        if(entryId === null) {
+                            removeUseConstraint(target, selectValue);
+                        }
                         removeUseConstraint(target, freeTextValue);
                     }
                 } else {
