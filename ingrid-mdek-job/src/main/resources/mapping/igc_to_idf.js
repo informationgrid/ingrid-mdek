@@ -73,6 +73,8 @@ mdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schema
 
 // ========== t03_catalogue ==========
 var catRow = SQL.first("SELECT * FROM t03_catalogue");
+var catLanguageKey = catRow.get("language_key");
+var catLangCode = catLanguageKey == 123 ? "en" : "de";
 
 // ========== t01_object ==========
 // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
@@ -112,7 +114,7 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(metadataLanguage)) {
         mdMetadata.addElement("gmd:language/gmd:LanguageCode")
             .addAttribute("codeList", globalCodeListLanguageAttrURL)
-            .addAttribute("codeListValue", value).addText(metadataLanguage);
+            .addAttribute("codeListValue", metadataLanguage);
     }
 // ---------- <gmd:characterSet> ----------
     // Always use UTF-8 (see INGRID-2340)
@@ -1941,7 +1943,7 @@ function getMdKeywords(rows) {
 
             // INSPIRE does not have to be in ENGLISH anymore for correct mapping in IGE CSW Import
             if (type.equals("I")) {
-                keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), "de");
+                keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), catLangCode);
             }
 
         // "t011_obj_serv_type" table
@@ -1977,7 +1979,8 @@ function getMdKeywords(rows) {
             }
 
             // add localized keyword, see https://dev.informationgrid.eu/redmine/issues/363
-            if (hasValue(keywordAlternateValue)) {
+            // do not add if catalogue language ist already english
+            if (hasValue(keywordAlternateValue) && (catLangCode !== "en")) {
             	// first add locale element if not present
             	var localeId = "eng_utf8";
             	addLocaleElement(localeId, "eng", "utf8");
@@ -2203,7 +2206,7 @@ function addResourceConstraints(identificationInfo, objRow) {
                 if (data) {
                     var parsedData = JSON.parse(data);
                     otherConstraints.push({
-                        text: parsedData["de"],
+                        text: parsedData[catLangCode],
                         link: parsedData["url"]
                     });
                 } else {
