@@ -21,7 +21,7 @@
  * **************************************************#
  */
 
-if (javaVersion.indexOf( "1.8" ) === 0) {
+if (javaVersion.indexOf("1.8") === 0) {
     load("nashorn:mozilla_compat.js");
     var ProtocolHandler = Java.type("de.ingrid.mdek.job.protocol.ProtocolHandler");
 }
@@ -37,43 +37,44 @@ var WARN = 3;
 var ERROR = 4;
 
 var mapAccessTypeToCodelist = {
-        copyright: 5,
-        license: 6,
-        intellectualPropertyRights: 8,
-        restricted: 9
+    copyright: 5,
+    license: 6,
+    intellectualPropertyRights: 8,
+    restricted: 9
 };
 var mapUseTypeToCodelist = {
-        copyright: 10,
-        license: 11,
-        intellectualPropertyRights: 13,
-        restricted: 14
+    copyright: 10,
+    license: 11,
+    intellectualPropertyRights: 13,
+    restricted: 14
 };
 var mapUseTypeToCodelistOpenData = {
-        copyright: 2,
-        license: 3,
-        intellectualPropertyRights: 5,
-        restricted: 6
+    copyright: 2,
+    license: 3,
+    intellectualPropertyRights: 5,
+    restricted: 6
 };
 
-var mappingDescriptionBkg = {"mappings":[
-    {
-        "execute": {
-            "funct": mapAccessConstraintsBkg
+var mappingDescriptionBkg = {
+    "mappings": [
+        {
+            "execute": {
+                "funct": mapAccessConstraintsBkg
+            }
+        },
+        {
+            "execute": {
+                "funct": mapUseConstraintsBkg
+            }
         }
-    },
-    {
-        "execute": {
-            "funct": mapUseConstraintsBkg
-        }
-    }
-]};
+    ]
+};
 
 if (log.isDebugEnabled()) {
     log.debug("BKG: mapping CSW 2.0.2 AP ISO 1.0 document to IGC import document.");
 }
 
 mapToTarget(mappingDescriptionBkg, source, target.getDocumentElement());
-
 
 
 function mapAccessConstraintsBkg(source, target) {
@@ -85,24 +86,24 @@ function mapAccessConstraintsBkg(source, target) {
         var legalNode = null;
 
         // get LAST legal constraint that contains access constraints, this is the BKG ONE !
-        for (var i=0; i < legalConstraints.getLength(); i++) {
+        for (var i = 0; i < legalConstraints.getLength(); i++) {
             var myLegalNode = legalConstraints.item(i);
             var myAccessConstraintNodes = XPATH.getNodeList(myLegalNode, "gmd:accessConstraints/gmd:MD_RestrictionCode");
             if (myAccessConstraintNodes.getLength() > 0) {
-            	legalNode = myLegalNode;
-            	accessConstraintNodes = myAccessConstraintNodes;
+                legalNode = myLegalNode;
+                accessConstraintNodes = myAccessConstraintNodes;
             }
         }
 
         if (hasValue(accessConstraintNodes)) {
 
-        	// DEBUG
-        	if (log.isDebugEnabled()) {
-                for (var i=0; i < accessConstraintNodes.getLength(); i++) {
+            // DEBUG
+            if (log.isDebugEnabled()) {
+                for (var i = 0; i < accessConstraintNodes.getLength(); i++) {
                     var isoValue = XPATH.getString(accessConstraintNodes.item(i), "./@codeListValue");
-                	log.debug("BKG: Found 'gmd:accessConstraints/gmd:MD_RestrictionCode codeListValue=" + isoValue + "'");
-            	}
-        	}
+                    log.debug("BKG: Found 'gmd:accessConstraints/gmd:MD_RestrictionCode codeListValue=" + isoValue + "'");
+                }
+            }
 
             if (accessConstraintNodes.getLength() === 1) {
                 // otherRestrictions
@@ -136,7 +137,7 @@ function mapAccessConstraintsBkg(source, target) {
                 var accessNode2 = XPATH.getString(accessConstraintNodes.item(1), "./@codeListValue");
 
                 var arrayNodes = [accessNode1, accessNode2];
-                if ( (arrayNodes.indexOf("copyright") !== -1 || arrayNodes.indexOf("license") !== -1 || arrayNodes.indexOf("intellectualPropertyRights") !== -1 || arrayNodes.indexOf("restricted") !== -1) && arrayNodes.indexOf("otherRestrictions") !== -1) {
+                if ((arrayNodes.indexOf("copyright") !== -1 || arrayNodes.indexOf("license") !== -1 || arrayNodes.indexOf("intellectualPropertyRights") !== -1 || arrayNodes.indexOf("restricted") !== -1) && arrayNodes.indexOf("otherRestrictions") !== -1) {
 
                     var otherConstraintNodes = XPATH.getNodeList(legalNode, "gmd:otherConstraints/gco:CharacterString");
                     if (otherConstraintNodes.getLength() === 1) {
@@ -171,7 +172,7 @@ function mapAccessConstraintsBkg(source, target) {
                 var accessNode3 = XPATH.getString(accessConstraintNodes.item(2), "./@codeListValue");
 
                 var arrayNodes = [accessNode1, accessNode2, accessNode3];
-                if ( arrayNodes.indexOf("copyright") !== -1 && arrayNodes.indexOf("license") !== -1 && arrayNodes.indexOf("otherRestrictions") !== -1) {
+                if (arrayNodes.indexOf("copyright") !== -1 && arrayNodes.indexOf("license") !== -1 && arrayNodes.indexOf("otherRestrictions") !== -1) {
                     var otherConstraintNodes = XPATH.getNodeList(legalNode, "gmd:otherConstraints/gco:CharacterString");
                     if (otherConstraintNodes.getLength() === 1) {
                         freeTextValue = getLocalisedCharacterString(otherConstraintNodes.item(0));
@@ -201,35 +202,35 @@ function mapUseConstraintsBkg(source, target) {
         var legalNode = null;
 
         // get LAST legal constraint that contains use constraints, this is the BKG ONE !
-        for (var i=0; i < legalConstraints.getLength(); i++) {
+        for (var i = 0; i < legalConstraints.getLength(); i++) {
             var myLegalNode = legalConstraints.item(i);
             var myUseConstraintNodes = XPATH.getNodeList(myLegalNode, "gmd:useConstraints/gmd:MD_RestrictionCode");
             if (myUseConstraintNodes.getLength() > 0) {
-            	legalNode = myLegalNode;
-            	useConstraintNodes = myUseConstraintNodes;
+                legalNode = myLegalNode;
+                useConstraintNodes = myUseConstraintNodes;
             }
         }
 
         if (hasValue(useConstraintNodes)) {
 
-        	// DEBUG
-        	if (log.isDebugEnabled()) {
-                for (var i=0; i < useConstraintNodes.getLength(); i++) {
+            // DEBUG
+            if (log.isDebugEnabled()) {
+                for (var i = 0; i < useConstraintNodes.getLength(); i++) {
                     var isoValue = XPATH.getString(useConstraintNodes.item(i), "./@codeListValue");
-                	log.debug("BKG: Found 'gmd:useConstraints/gmd:MD_RestrictionCode  codeListValue=" + isoValue + "'");
-            	}
-        	}
+                    log.debug("BKG: Found 'gmd:useConstraints/gmd:MD_RestrictionCode  codeListValue=" + isoValue + "'");
+                }
+            }
 
-        	var codelistIdBkg = 10004;
-        	var mapUseTypeToCodelistBkg = mapUseTypeToCodelist;
+            var codelistIdBkg = 10004;
+            var mapUseTypeToCodelistBkg = mapUseTypeToCodelist;
 
-        	// is open data ? then different codelist
-        	var isOpenData = checkOpenData(target);
-        	if (isOpenData) {
+            // is open data ? then different codelist
+            var isOpenData = checkOpenData(target);
+            if (isOpenData) {
                 log.info("BKG: Record is opendata, we change useConstraint codelist to 10006");
-            	codelistIdBkg = 10006;
-            	mapUseTypeToCodelistBkg = mapUseTypeToCodelistOpenData;
-        	}
+                codelistIdBkg = 10006;
+                mapUseTypeToCodelistBkg = mapUseTypeToCodelistOpenData;
+            }
 
             if (useConstraintNodes.getLength() === 1) {
                 // otherRestrictions
@@ -249,8 +250,8 @@ function mapUseConstraintsBkg(source, target) {
                         var selectValue = XPATH.getString(otherConstraintNodes.item(0), ".");
                         freeTextValue = getLocalisedCharacterString(otherConstraintNodes.item(1));
                         entryId = getSysListEntryKey(codelistIdBkg, selectValue);
-                        if(entryId === null) {
-                            if(addUseValuesToDoc(target, entryId, selectValue))
+                        if (entryId === null) {
+                            if (addUseValuesToDoc(target, entryId, selectValue))
                                 removeUseConstraint(target, selectValue);
                         }
                     }
@@ -268,17 +269,17 @@ function mapUseConstraintsBkg(source, target) {
                 var accessNode2 = XPATH.getString(useConstraintNodes.item(1), "./@codeListValue");
 
                 var arrayNodes = [accessNode1, accessNode2];
-                if ( (arrayNodes.indexOf("copyright") !== -1 || arrayNodes.indexOf("license") !== -1 || arrayNodes.indexOf("intellectualPropertyRights") !== -1 || arrayNodes.indexOf("restricted") !== -1) && arrayNodes.indexOf("otherRestrictions") !== -1) {
+                if ((arrayNodes.indexOf("copyright") !== -1 || arrayNodes.indexOf("license") !== -1 || arrayNodes.indexOf("intellectualPropertyRights") !== -1 || arrayNodes.indexOf("restricted") !== -1) && arrayNodes.indexOf("otherRestrictions") !== -1) {
 
                     var otherConstraintNodes = XPATH.getNodeList(legalNode, "gmd:otherConstraints/gco:CharacterString");
 
-                	// DEBUG
-                	if (log.isDebugEnabled()) {
-                        for (var i=0; i < otherConstraintNodes.getLength(); i++) {
+                    // DEBUG
+                    if (log.isDebugEnabled()) {
+                        for (var i = 0; i < otherConstraintNodes.getLength(); i++) {
                             var isoValue = getLocalisedCharacterString(otherConstraintNodes.item(i));
-                        	log.debug("BKG: Found gmd:otherConstraints/gco:CharacterString: '" + isoValue + "'");
-                    	}
-                	}
+                            log.debug("BKG: Found gmd:otherConstraints/gco:CharacterString: '" + isoValue + "'");
+                        }
+                    }
 
                     if (otherConstraintNodes.getLength() === 1) {
                         var otherValue = getLocalisedCharacterString(otherConstraintNodes.item(0));
@@ -321,7 +322,7 @@ function mapUseConstraintsBkg(source, target) {
                 var accessNode3 = XPATH.getString(useConstraintNodes.item(2), "./@codeListValue");
 
                 var arrayNodes = [accessNode1, accessNode2, accessNode3];
-                if ( arrayNodes.indexOf("copyright") !== -1 && arrayNodes.indexOf("license") !== -1 && arrayNodes.indexOf("otherRestrictions") !== -1) {
+                if (arrayNodes.indexOf("copyright") !== -1 && arrayNodes.indexOf("license") !== -1 && arrayNodes.indexOf("otherRestrictions") !== -1) {
                     var otherConstraintNodes = XPATH.getNodeList(legalNode, "gmd:otherConstraints/gco:CharacterString");
                     if (otherConstraintNodes.getLength() === 1) {
                         freeTextValue = getLocalisedCharacterString(otherConstraintNodes.item(0));
@@ -344,18 +345,18 @@ function mapUseConstraintsBkg(source, target) {
 }
 
 function getSysListEntryKey(codelistId, entryName) {
-	if (hasValue(entryName)) {
-	    // trim and remove praefix, defined in regular csw import mapper
-		entryName = removeConstraintPraefix(entryName);
-	}
+    if (hasValue(entryName)) {
+        // trim and remove praefix, defined in regular csw import mapper
+        entryName = removeConstraintPraefix(entryName);
+    }
 
-	log.debug("BKG: getSysListEntryKey -> codelistId='" + codelistId + "', entryName='" + entryName +"'");
+    log.debug("BKG: getSysListEntryKey -> codelistId='" + codelistId + "', entryName='" + entryName + "'");
 
-	var retValue = codeListService.getSysListEntryKey(codelistId, entryName, "de", true);
+    var retValue = codeListService.getSysListEntryKey(codelistId, entryName, "de", true);
 
-	log.debug("BKG: getSysListEntryKey found key='" + retValue + "'");
+    log.debug("BKG: getSysListEntryKey found key='" + retValue + "'");
 
-	return retValue;
+    return retValue;
 }
 
 //<general-additional-values>
@@ -372,9 +373,9 @@ function getSysListEntryKey(codelistId, entryName) {
 //</general-additional-values>
 function addAccessValuesToDoc(target, codelistEntryId, freeText) {
 
-	if (!hasValue(codelistEntryId) && !hasValue(freeText)) {
-		return false;
-	}
+    if (!hasValue(codelistEntryId) && !hasValue(freeText)) {
+        return false;
+    }
 
     var additionalFieldsNode = addOrCreateAdditionalFields(target);
 
@@ -386,11 +387,11 @@ function addAccessValuesToDoc(target, codelistEntryId, freeText) {
 
 function addUseValuesToDoc(target, codelistEntryId, freeText) {
 
-	log.debug("BKG: addUseValuesToDoc -> codelistEntryId='" + codelistEntryId + "', freeText='" + freeText +"'");
+    log.debug("BKG: addUseValuesToDoc -> codelistEntryId='" + codelistEntryId + "', freeText='" + freeText + "'");
 
-	if (!hasValue(codelistEntryId) && !hasValue(freeText)) {
-		return false;
-	}
+    if (!hasValue(codelistEntryId) && !hasValue(freeText)) {
+        return false;
+    }
 
     var additionalFieldsNode = addOrCreateAdditionalFields(target);
 
@@ -398,7 +399,7 @@ function addUseValuesToDoc(target, codelistEntryId, freeText) {
 
     // remove praefix, defined in regular csw import mapper
     var isSourceNote = false;
-    if (freeText.startsWith("Quellenvermerk") ) isSourceNote = true;
+    if (freeText.startsWith("Quellenvermerk")) isSourceNote = true;
     freeText = removeConstraintPraefix(freeText);
     addAdditionalValue(additionalFieldsNode, "bkg_useConstraints", isSourceNote ? "bkg_useConstraints_sourceNote" : "bkg_useConstraints_freeText", null, freeText);
 
@@ -429,7 +430,7 @@ function addAdditionalValue(additionalFieldsNode, parent, key, codelistEntryId, 
 }
 
 function removeAccessConstraint(target, name) {
-	log.debug("BKG: Try to remove accessConstraint: '" + name + "'");
+    log.debug("BKG: Try to remove accessConstraint: '" + name + "'");
     if (hasValue(name)) {
         var nodes = XPATH.getNodeList(target, "//access-constraint/restriction");
         if (hasValue(nodes)) {
@@ -439,7 +440,7 @@ function removeAccessConstraint(target, name) {
 }
 
 function removeUseConstraint(target, name) {
-	log.debug("BKG: Try to remove useConstraint: '" + name + "'");
+    log.debug("BKG: Try to remove useConstraint: '" + name + "'");
     if (hasValue(name)) {
         var nodes = XPATH.getNodeList(target, "//use-constraint/license");
         if (hasValue(nodes)) {
@@ -450,11 +451,11 @@ function removeUseConstraint(target, name) {
 }
 
 function removeConstraint(target, name, nodes) {
-    for (var i=0; i<nodes.getLength(); i++ ) {
+    for (var i = 0; i < nodes.getLength(); i++) {
         var constraintName = XPATH.getString(nodes.item(i), ".");
         if (hasValue(constraintName)) {
             if (constraintName.trim() === name.trim()) {
-            	log.debug("BKG: REMOVING constraint: '" + name + "'");
+                log.debug("BKG: REMOVING constraint: '" + name + "'");
                 XPATH.removeElementAtXPath(nodes.item(i), "..");
             }
         }
@@ -467,12 +468,12 @@ function checkOpenData(target) {
 }
 
 function checkJSON(val) {
-	if (hasValue(val) &&
-			val.trim().startsWith('{') &&
-			val.trim().endsWith('}')) {
-		return true;
-	}
-	return false;
+    if (hasValue(val) &&
+        val.trim().startsWith('{') &&
+        val.trim().endsWith('}')) {
+        return true;
+    }
+    return false;
 }
 
 function getLocalisedCharacterString(node) {
