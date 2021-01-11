@@ -399,7 +399,7 @@ function addUseValuesToDoc(target, codelistEntryId, freeText) {
 
     // remove praefix, defined in regular csw import mapper
     var isSourceNote = false;
-    if (freeText.startsWith("Quellenvermerk")) isSourceNote = true;
+    if (freeText && freeText.startsWith("Quellenvermerk")) isSourceNote = true;
     freeText = removeConstraintPraefix(freeText);
     addAdditionalValue(additionalFieldsNode, "bkg_useConstraints", isSourceNote ? "bkg_useConstraints_sourceNote" : "bkg_useConstraints_freeText", null, freeText);
 
