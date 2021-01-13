@@ -117,8 +117,8 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 			if (log.isDebugEnabled()) {
                 log.debug("Target XML template:\n" + XMLUtils.toString(targetIgc));
 			}
-            // create utils for script
-            SQLUtils sqlUtils = new SQLUtils(conn);
+            // create utils for script (use function to be able to mock it)
+            SQLUtils sqlUtils = getSqlUtils(conn);
             // get initialized XPathUtils (see above)
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
             DOMUtils domUtils = new DOMUtils(targetIgc, xpathUtils);
@@ -158,6 +158,10 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 		}
 	}
 	
+	public SQLUtils getSqlUtils(Connection conn) {
+		return new SQLUtils(conn);
+	}
+
 	private void mapAdditionalFields(Document docTarget) throws Exception {
 		String igcProfileStr = null;
 		try(Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
