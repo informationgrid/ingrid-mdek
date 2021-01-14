@@ -87,10 +87,36 @@
       "type": "keyword"
     },
     "object_reference.obj_to_uuid": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
+    },
+    "object_reference.obj_to_name": {
+      "type": "keyword",
+      "store": true
+    },
+    "object_reference.obj_to_class": {
+      "type": "keyword",
+      "store": true
     },
     "refering.object_reference.obj_uuid": {
-      "type": "keyword"
+      "type": "keyword",
+      "store": true
+    },
+    "refering.object_reference.obj_name": {
+      "type": "keyword",
+      "store": true
+    },
+    "refering.object_reference.obj_class": {
+      "type": "keyword",
+      "store": true
+    },
+    "refering.object_reference.type": {
+      "type": "keyword",
+      "store": true
+    },
+    "refering.object_reference.type_key": {
+      "type": "keyword",
+      "store": true
     },
     "t02_address.adr_id": {
       "type": "keyword",
@@ -255,6 +281,18 @@
     },
     "modified": {
       "type": "date",
+      "store": true
+    },
+    "t04_search.searchterm": {
+      "type": "keyword",
+      "store": true
+    },
+    "t017_url_ref.url_link": {
+      "type": "keyword",
+      "store": true
+    },
+    "t017_url_ref.content": {
+      "type": "keyword",
       "store": true
     }
   }

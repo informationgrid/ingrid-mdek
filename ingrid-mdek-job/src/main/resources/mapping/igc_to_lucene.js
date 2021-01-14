@@ -229,6 +229,12 @@ for (i=0; i<objRows.size(); i++) {
         }
         // ---------- t017_url_ref (except preview image) ----------
         var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=? AND special_ref!=9000", [+objId]);
+
+        // Add url_refs of linked Geoservices (of type 'other' or 'download') for Geodatasets
+        if (objClass.equals("1")){
+            rows.addAll(SQL.all("SELECT t01obj.obj_name, urlref.* FROM object_reference oref, t01_object t01obj, t011_obj_serv t011_object, t017_url_ref urlref WHERE obj_to_uuid=? AND oref.special_ref=3600 AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=3 AND t01obj.work_state='V' AND urlref.obj_id=t01obj.id AND (urlref.special_ref=5066 OR urlref.special_ref=9990) AND t011_object.obj_id=t01obj.id AND (t011_object.type_key=3 OR t011_object.type_key=6)", [objUuid]));
+        }
+
         for (j=0; j<rows.size(); j++) {
             addT017UrlRef(rows.get(j));
         }
@@ -311,7 +317,7 @@ for (i=0; i<objRows.size(); i++) {
             addSpatialSystem(rows.get(j));
         }
         // ---------- object_reference TO ----------
-        var rows = SQL.all("SELECT oRef.*, t01.obj_name FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=t01.obj_uuid AND oRef.obj_from_id=? AND t01.work_state='V'", [+objId]);
+        var rows = SQL.all("SELECT oRef.*, t01.obj_name, t01.obj_class FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=t01.obj_uuid AND oRef.obj_from_id=? AND t01.work_state='V'", [+objId]);
         for (j=0; j<rows.size(); j++) {
             addObjectReferenceTo(rows.get(j));
         }
@@ -336,7 +342,7 @@ for (i=0; i<objRows.size(); i++) {
             // ---------- t01_object FROM ----------
             var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [+objFromId]);
             for (k=0; k<subRows.size(); k++) {
-                addT01ObjectFrom(subRows.get(k));
+                addT01ObjectFrom(subRows.get(k), objFromId);
                 
                 // service FROM (helps to identify links from services to data-objects)
                 // this kind of link comes from an object of class 3 and has a link type of '3600'
@@ -903,6 +909,8 @@ function addObjectReferenceTo(row) {
     IDX.add("object_reference.line", row.get("line"));
     IDX.add("object_reference.obj_from_id", row.get("obj_from_id"));
     IDX.add("object_reference.obj_to_uuid", row.get("obj_to_uuid"));
+    IDX.add("object_reference.obj_to_name", row.get("obj_name"));
+    IDX.add("object_reference.obj_to_class", row.get("obj_class"));
     IDX.add("object_reference.special_ref", row.get("special_ref"));
     IDX.add("object_reference.special_name", row.get("special_name"));
     IDX.add("object_reference.descr", row.get("descr"));
@@ -954,8 +962,15 @@ function addNamespace(identifier, catalog) {
 
     return myNamespace + identifier;
 }
-function addT01ObjectFrom(row) {
+function addT01ObjectFrom(row, id) {
     IDX.add("refering.object_reference.obj_uuid", row.get("obj_uuid"));
+    IDX.add("refering.object_reference.obj_name", row.get("obj_name"));
+    IDX.add("refering.object_reference.obj_class", row.get("obj_class"));
+    var tmpRows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
+    for (t=0; t<tmpRows.size(); t++) {
+      IDX.add("refering.object_reference.type_key", tmpRows.get(t).get("type_key"));
+      IDX.add("refering.object_reference.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key")));
+    }
 }
 function addT0114EnvTopic(row) {
     IDX.add("t0114_env_topic.line", row.get("line"));
