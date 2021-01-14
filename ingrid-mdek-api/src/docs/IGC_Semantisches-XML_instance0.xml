@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<igc xmlns="http://www.portalu.de/igc-import"
+<igc xmlns="http://informationgrid.eu/igc-import"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://www.portalu.de/igc-import ../main/resources/IGC_Semantisches-XML.xsd" exchange-format="5.4.0">
+ xsi:schemaLocation="http://informationgrid.eu/igc-import ../main/resources/IGC_Semantisches-XML.xsd" exchange-format="5.6.0">
     <catalogue>
         <catalogue-identifier>catalogue-identifier0</catalogue-identifier>
         <catalogue-name>catalogue-name0</catalogue-name>
@@ -37,6 +37,7 @@
             <data-source-instance work-state="V">
                 <general>
                     <object-identifier>object-identifier0</object-identifier>
+                    <parent-identifier-extern>parent-identifier-extern0</parent-identifier-extern>
                     <catalogue-identifier>catalogue-identifier1</catalogue-identifier>
                     <modificator-identifier>modificator-identifier1</modificator-identifier>
                     <responsible-identifier>responsible-identifier0</responsible-identifier>
@@ -69,16 +70,20 @@
                         <env-topic id="id15"/>
                     </env-information>
                     <is-inspire-relevant>N</is-inspire-relevant>
+                    <is-adv-compatible>N</is-adv-compatible>
+                    <adv-product-group>
+                        <item id="id17">item0</item>
+                    </adv-product-group>
                     <is-open-data>N</is-open-data>
                     <open-data-categories>
-                        <open-data-category id="id17">open-data-category0</open-data-category>
+                        <open-data-category id="id19">open-data-category0</open-data-category>
                     </open-data-categories>
                 </general>
                 <technical-domain>
                     <dataset>
                         <description-of-tech-domain>description-of-tech-domain0</description-of-tech-domain>
                         <key-catalogue>
-                            <key-cat id="id19">key-cat0</key-cat>
+                            <key-cat id="id21">key-cat0</key-cat>
                             <key-date>key-date0</key-date>
                             <edition>edition0</edition>
                         </key-catalogue>
@@ -90,9 +95,9 @@
                     </dataset>
 <!--                    <service>
                         <description-of-tech-domain>description-of-tech-domain1</description-of-tech-domain>
-                        <service-type id="id21">service-type0</service-type>
+                        <service-type id="id23">service-type0</service-type>
                         <coupling-type>coupling-type0</coupling-type>
-                        <service-classification id="id23">service-classification0</service-classification>
+                        <service-classification id="id25">service-classification0</service-classification>
                         <publication-scale>
                             <scale>scale0</scale>
                             <resolution-ground>resolution-ground0</resolution-ground>
@@ -101,12 +106,12 @@
                         <system-history>system-history0</system-history>
                         <database-of-system>database-of-system0</database-of-system>
                         <system-environment>system-environment0</system-environment>
-                        <service-version id="id25">service-version0</service-version>
+                        <service-version id="id27">service-version0</service-version>
                         <service-operation>
-                            <operation-name id="id27">operation-name0</operation-name>
+                            <operation-name id="id29">operation-name0</operation-name>
                             <description-of-operation>description-of-operation0</description-of-operation>
                             <invocation-name>invocation-name0</invocation-name>
-                            <platform id="id29">platform0</platform>
+                            <platform id="id31">platform0</platform>
                             <connection-point>connection-point0</connection-point>
                             <parameter-of-operation>
                                 <name>name0</name>
@@ -132,7 +137,7 @@
                         <year>year0</year>
                         <isbn>isbn0</isbn>
                         <source>source0</source>
-                        <type-of-document id="id31">type-of-document0</type-of-document>
+                        <type-of-document id="id33">type-of-document0</type-of-document>
                         <editor>editor0</editor>
                         <author>author0</author>
                         <additional-bibliographic-info>additional-bibliographic-info0</additional-bibliographic-info>
@@ -144,7 +149,6 @@
 <!--                    <map>
                         <hierarchy-level iso-code="iso-code5"/>
                         <description-of-tech-domain>description-of-tech-domain3</description-of-tech-domain>
-                        <data>data0</data>
                         <resolution>resolution0</resolution>
                         <publication-scale>
                             <scale>scale1</scale>
@@ -152,7 +156,7 @@
                             <resolution-scan>resolution-scan1</resolution-scan>
                         </publication-scale>
                         <key-catalogue>
-                            <key-cat id="id33">key-cat1</key-cat>
+                            <key-cat id="id35">key-cat1</key-cat>
                             <key-date>key-date1</key-date>
                             <edition>edition1</edition>
                         </key-catalogue>
@@ -160,7 +164,7 @@
                         <method-of-production>method-of-production0</method-of-production>
                         <technical-base>technical-base0</technical-base>
                         <symbol-catalogue>
-                            <symbol-cat id="id35">symbol-cat0</symbol-cat>
+                            <symbol-cat id="id37">symbol-cat0</symbol-cat>
                             <symbol-date>symbol-date0</symbol-date>
                             <edition>edition2</edition>
                         </symbol-catalogue>
@@ -172,9 +176,28 @@
                                 <geometric-object-count>geometric-object-count0</geometric-object-count>
                             </geo-vector>
                         </vector-format>
+                        <grid-format>
+                            <grid-transform-param>Y</grid-transform-param>
+                            <grid-num-dimensions>0</grid-num-dimensions>
+                            <grid-axis>
+                                <grid-axis-name>grid-axis-name0</grid-axis-name>
+                                <grid-axis-size>grid-axis-size0</grid-axis-size>
+                                <grid-axis-resolution>grid-axis-resolution0</grid-axis-resolution>
+                            </grid-axis>
+                            <grid-cell-geometry>grid-cell-geometry0</grid-cell-geometry>
+                            <grid-geo-rectified>Y</grid-geo-rectified>
+                            <grid-rect-checkpoint>grid-rect-checkpoint0</grid-rect-checkpoint>
+                            <grid-rect-description>grid-rect-description0</grid-rect-description>
+                            <grid-rect-corner-point>grid-rect-corner-point0</grid-rect-corner-point>
+                            <grid-rect-point-in-pixel>grid-rect-point-in-pixel0</grid-rect-point-in-pixel>
+                            <grid-ref-control-point>Y</grid-ref-control-point>
+                            <grid-ref-orientation-param>Y</grid-ref-orientation-param>
+                            <grid-ref-referenced-param>Y</grid-ref-referenced-param>
+                        </grid-format>
                         <pos-accuracy-vertical>pos-accuracy-vertical0</pos-accuracy-vertical>
                         <keyc-incl-w-dataset>keyc-incl-w-dataset0</keyc-incl-w-dataset>
                         <feature-type>feature-type0</feature-type>
+                        <data>data0</data>
                         <datasource-identificator>datasource-identificator0</datasource-identificator>
                     </map>-->
 <!--                    <project>
@@ -184,19 +207,19 @@
                     </project>-->
                 </technical-domain>
                 <additional-information>
-                    <data-language id="id37">data-language0</data-language>
-                    <metadata-language id="id39">metadata-language0</metadata-language>
-                    <export-to id="id41">export-to0</export-to>
-                    <legislation id="id43">legislation0</legislation>
+                    <data-language id="id39">data-language0</data-language>
+                    <metadata-language id="id41">metadata-language0</metadata-language>
+                    <export-to id="id43">export-to0</export-to>
+                    <legislation id="id45">legislation0</legislation>
                     <dataset-intentions>dataset-intentions0</dataset-intentions>
                     <access-constraint>
-                        <restriction id="id45">restriction0</restriction>
+                        <restriction id="id47">restriction0</restriction>
                     </access-constraint>
                     <use-limitation>
-                        <terms-of-use id="id47">terms-of-use0</terms-of-use>
+                        <terms-of-use id="id49">terms-of-use0</terms-of-use>
                     </use-limitation>
                     <use-constraint>
-                        <license id="id49">license0</license>
+                        <license id="id51" source="source1">license0</license>
                     </use-constraint>
                     <medium-option>
                         <medium-name iso-code="iso-code13"/>
@@ -204,14 +227,11 @@
                         <transfer-size>transfer-size0</transfer-size>
                     </medium-option>
                     <data-format>
-                        <format-name id="id51">format-name0</format-name>
+                        <format-name id="id53">format-name0</format-name>
                         <version>version0</version>
                         <specification>specification0</specification>
                         <file-decompression-technique>file-decompression-technique0</file-decompression-technique>
                     </data-format>
-                    <data-format-inspire>
-                        <format-inspire-name id="id53">format-inspire-name0</format-inspire-name>
-                    </data-format-inspire>
                     <publication-condition>0</publication-condition>
                     <dataset-usage>dataset-usage0</dataset-usage>
                     <ordering-instructions>ordering-instructions0</ordering-instructions>
@@ -221,8 +241,11 @@
                         <date-of-creation>date-of-creation2</date-of-creation>
                     </comment>
                     <conformity>
+                        <conformity-is-inspire>Y</conformity-is-inspire>
                         <conformity-specification id="id55">conformity-specification0</conformity-specification>
                         <conformity-degree id="id57">conformity-degree0</conformity-degree>
+                        <conformity-publication-date>conformity-publication-date0</conformity-publication-date>
+                        <conformity-explanation>conformity-explanation0</conformity-explanation>
                     </conformity>
                     <data-quality>
                         <dq-element-id>0</dq-element-id>
@@ -272,8 +295,8 @@
                     </dataset-reference>
                 </temporal-domain>
                 <subject-terms>
-                    <controlled-term source="UMTHES" gemet-id="gemet-id1" alternate-name="alternate-name1" id="id71">controlled-term0</controlled-term>
-                    <uncontrolled-term>uncontrolled-term0</uncontrolled-term>
+                        <controlled-term source="UMTHES" gemet-id="gemet-id1" alternate-name="alternate-name1" id="id71">controlled-term0</controlled-term>
+<!--                        <uncontrolled-term>uncontrolled-term0</uncontrolled-term>-->
                 </subject-terms>
                 <available-linkage>
                     <linkage-name>linkage-name0</linkage-name>
@@ -314,13 +337,14 @@
                 <title-or-function id="id83">title-or-function0</title-or-function>
                 <given-name>given-name0</given-name>
                 <country id="id85">country1</country>
+                <administrative-area id="id87">administrative-area0</administrative-area>
                 <postal-code>postal-code0</postal-code>
                 <street>street0</street>
                 <city>city0</city>
                 <post-box-postal-code>post-box-postal-code0</post-box-postal-code>
                 <post-box>post-box0</post-box>
                 <communication>
-                    <communication-medium id="id87">communication-medium0</communication-medium>
+                    <communication-medium id="id89">communication-medium0</communication-medium>
                     <communication-value>communication-value0</communication-value>
                     <communication-description>communication-description0</communication-description>
                 </communication>
@@ -328,8 +352,8 @@
                 <function>function0</function>
                 <hours-of-service>hours-of-service0</hours-of-service>
                 <subject-terms>
-                    <controlled-term source="UMTHES" gemet-id="gemet-id3" alternate-name="alternate-name3" id="id89">controlled-term1</controlled-term>
-                    <uncontrolled-term>uncontrolled-term1</uncontrolled-term>
+                        <controlled-term source="UMTHES" gemet-id="gemet-id3" alternate-name="alternate-name3" id="id91">controlled-term1</controlled-term>
+<!--                        <uncontrolled-term>uncontrolled-term1</uncontrolled-term>-->
                 </subject-terms>
                 <comment>
                     <comment-content>comment-content1</comment-content>

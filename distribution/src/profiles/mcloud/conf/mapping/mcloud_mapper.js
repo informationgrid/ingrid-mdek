@@ -264,7 +264,7 @@ var McloudMapper = /** @class */ (function () {
         return undefined;
     };
     McloudMapper.prototype.getKeywords = function () {
-        return undefined;
+        return getKeywords(this.objId);
     };
     McloudMapper.prototype.getCreator = function () {
         return undefined;
@@ -288,17 +288,18 @@ var McloudMapper = /** @class */ (function () {
         return undefined;
     };
     McloudMapper.prototype.getExtrasAllData = function () {
-        var result;
+        var result = getKeywords(this.objId);
 
         var mfundFkz = getAdditionalField(this.objId, 'mcloudMFundFKZ');
         var mfundProject = getAdditionalField(this.objId, 'mcloudMFundProject');
         if (mfundFkz || mfundProject) {
-            result = ["mfund"];
+            if(!result) result = [];
+            result.push("mfund");
             if (mfundFkz) {
-                result.push(["mFUND-FKZ: " + mfundFkz.data]);
+                result.push("mFUND-FKZ: " + mfundFkz.data);
             }
             if (mfundProject) {
-                result.push(["mFUND-Projekt: " + mfundProject.data]);
+                result.push("mFUND-Projekt: " + mfundProject.data);
             }
         }
 
@@ -364,6 +365,23 @@ var McloudMapper = /** @class */ (function () {
             }
         }
         return distributions;
+    }
+
+    function getKeywords(objId){
+        var keywords;
+
+        var rows = SQL.all("SELECT * FROM searchterm_obj, searchterm_value WHERE searchterm_obj.obj_id=? AND searchterm_obj.searchterm_id=searchterm_value.id", [+objId]); // type 10 is Publisher/Herausgeber
+        for (var j = 0; j < rows.size(); j++) {
+            var keyword = rows.get(j).get("term");
+            if(keyword && keyword.trim().length > 0){
+                keyword = keyword.trim();
+                if(!keywords) keywords = [];
+                if(keywords.indexOf(keyword) === -1){
+                    keywords.push(keyword);
+                }
+            }
+        }
+        return keywords;
     }
 
     function getOrganizations(objId) {
