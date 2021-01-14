@@ -87,14 +87,21 @@
       "type": "keyword"
     },
     "object_reference.obj_to_uuid": {
+      "type": "keyword"
+    },
+    "object_reference.obj_uuid": {
       "type": "keyword",
       "store": true
     },
-    "object_reference.obj_to_name": {
+    "object_reference.obj_name": {
       "type": "keyword",
       "store": true
     },
-    "object_reference.obj_to_class": {
+    "object_reference.obj_class": {
+      "type": "keyword",
+      "store": true
+    },
+    "object_reference.type": {
       "type": "keyword",
       "store": true
     },
@@ -111,10 +118,6 @@
       "store": true
     },
     "refering.object_reference.type": {
-      "type": "keyword",
-      "store": true
-    },
-    "refering.object_reference.type_key": {
       "type": "keyword",
       "store": true
     },

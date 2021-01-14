@@ -317,9 +317,15 @@ for (i=0; i<objRows.size(); i++) {
             addSpatialSystem(rows.get(j));
         }
         // ---------- object_reference TO ----------
-        var rows = SQL.all("SELECT oRef.*, t01.obj_name, t01.obj_class FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=t01.obj_uuid AND oRef.obj_from_id=? AND t01.work_state='V'", [+objId]);
+        var rows = SQL.all("SELECT oRef.line, oRef.obj_from_id, oRef.obj_to_uuid, oRef.special_ref, oRef.special_name, oRef.descr, t01.id FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=t01.obj_uuid AND oRef.obj_from_id=? AND t01.work_state='V'", [+objId]);
         for (j=0; j<rows.size(); j++) {
             addObjectReferenceTo(rows.get(j));
+            var objToId = rows.get(j).get("id");
+            
+            var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [+objToId]);
+            for (k=0; k<subRows.size(); k++) {
+              addT01ObjectTo(subRows.get(k), objToId);
+            }
         }
         // add explicitly coupled resources of a service, for easier extraction on portal side
         if (objClass == "3") {
@@ -909,8 +915,6 @@ function addObjectReferenceTo(row) {
     IDX.add("object_reference.line", row.get("line"));
     IDX.add("object_reference.obj_from_id", row.get("obj_from_id"));
     IDX.add("object_reference.obj_to_uuid", row.get("obj_to_uuid"));
-    IDX.add("object_reference.obj_to_name", row.get("obj_name"));
-    IDX.add("object_reference.obj_to_class", row.get("obj_class"));
     IDX.add("object_reference.special_ref", row.get("special_ref"));
     IDX.add("object_reference.special_name", row.get("special_name"));
     IDX.add("object_reference.descr", row.get("descr"));
@@ -962,14 +966,30 @@ function addNamespace(identifier, catalog) {
 
     return myNamespace + identifier;
 }
+function addT01ObjectTo(row, id) {
+  IDX.add("object_reference.obj_uuid", row.get("obj_uuid"));
+  IDX.add("object_reference.obj_name", row.get("obj_name"));
+  IDX.add("object_reference.obj_class", row.get("obj_class"));
+  var tmpRows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
+  if(tmpRows.size() > 0) {
+    for (t=0; t<tmpRows.size(); t++) {
+      IDX.add("object_reference.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key")));
+    }
+  } else {
+    IDX.add("object_reference.type", "");
+  }
+}
 function addT01ObjectFrom(row, id) {
     IDX.add("refering.object_reference.obj_uuid", row.get("obj_uuid"));
     IDX.add("refering.object_reference.obj_name", row.get("obj_name"));
     IDX.add("refering.object_reference.obj_class", row.get("obj_class"));
     var tmpRows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
-    for (t=0; t<tmpRows.size(); t++) {
-      IDX.add("refering.object_reference.type_key", tmpRows.get(t).get("type_key"));
-      IDX.add("refering.object_reference.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key")));
+    if(tmpRows.size() > 0) {
+      for (t=0; t<tmpRows.size(); t++) {
+        IDX.add("refering.object_reference.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key")));
+      }
+    } else {
+      IDX.add("refering.object_reference.type", "");
     }
 }
 function addT0114EnvTopic(row) {

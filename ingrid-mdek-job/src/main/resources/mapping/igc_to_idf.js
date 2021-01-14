@@ -1411,7 +1411,12 @@ for (i=0; i<objRows.size(); i++) {
     // OUTGOING references
     rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=?" + publicationConditionFilter, [+objId, 'V']);
     for (i=0; i<rows.size(); i++) {
-        mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference", "OUT"));
+        var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE serv.obj_id=? AND serv.type_key=2 AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+rows.get(i).get("id")]);
+        if (log.isDebugEnabled()) {
+            log.debug("Service object id: " + rows.get(i).get("id"));
+            log.debug("Extracted Service Info: " + srvRow);
+        }
+        mdMetadata.addElement(getIdfObjectReference(rows.get(i), "idf:crossReference", "OUT", srvRow));
     }
     // from cross references now always mapped, see below and https://redmine.wemove.com/issues/121
 /*
