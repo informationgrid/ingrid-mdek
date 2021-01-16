@@ -297,6 +297,22 @@
     "t017_url_ref.content": {
       "type": "keyword",
       "store": true
+    },
+    "t01_object.time_type": {
+      "type": "keyword",
+      "store": true
+    },
+    "t0": {
+      "type": "keyword",
+      "store": true
+    },
+    "t1": {
+      "type": "keyword",
+      "store": true
+    },
+    "t2": {
+      "type": "keyword",
+      "store": true
     }
   }
 }
