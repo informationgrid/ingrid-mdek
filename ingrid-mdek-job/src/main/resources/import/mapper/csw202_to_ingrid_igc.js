@@ -66,6 +66,11 @@ var INFO = 2;
 var WARN = 3;
 var ERROR = 4;
 
+// ========== t03_catalogue ==========
+var catRow = SQL.first("SELECT * FROM t03_catalogue");
+var catLanguageKey = catRow.get("language_key");
+var catLangCode = catLanguageKey == 123 ? "en" : "de";
+
 var mappingDescription = {"mappings":[
   		
   		
@@ -1050,7 +1055,7 @@ var mappingDescription = {"mappings":[
 	  					"srcXpathTransform": {
                             "funct":getLocalisedCharacterString
                         },
-	  					"defaultValue":"Raumbezug des Datensatzes",
+	  					"defaultValue": catLangCode !== "en" ? "Raumbezug des Datensatzes" : "Spatial reference of the data set",
 			  			"targetNode":"uncontrolled-location/location-name"
 			  		},
 	  				{
@@ -2078,7 +2083,7 @@ function mapAccessConstraints(source, target) {
 				// in the data field for the text
 				// the following lines are an adapter to check first in the data field before
 				// the regular check by the official short name used in IGE
-            	var accConstraintId = TRANSF.getISOCodeListEntryIdByDataFilter(6010, "\"de\":\"" + accConstraint + "\"");
+            	var accConstraintId = TRANSF.getISOCodeListEntryIdByDataFilter(6010, "\""+catLangCode+"\":\"" + accConstraint + "\"");
             	if (accConstraintId) {
 					accConstraint = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(6010, accConstraintId);
 				}

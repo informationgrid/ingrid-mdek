@@ -73,6 +73,8 @@ mdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schema
 
 // ========== t03_catalogue ==========
 var catRow = SQL.first("SELECT * FROM t03_catalogue");
+var catLanguageKey = catRow.get("language_key");
+var catLangCode = catLanguageKey == 123 ? "en" : "de";
 
 // ========== t01_object ==========
 // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
@@ -112,7 +114,7 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(metadataLanguage)) {
         mdMetadata.addElement("gmd:language/gmd:LanguageCode")
             .addAttribute("codeList", globalCodeListLanguageAttrURL)
-            .addAttribute("codeListValue", value).addText(metadataLanguage);
+            .addAttribute("codeListValue", metadataLanguage);
     }
 // ---------- <gmd:characterSet> ----------
     // Always use UTF-8 (see INGRID-2340)
@@ -163,21 +165,47 @@ for (i=0; i<objRows.size(); i++) {
     // select only addresses associated with syslist 505 entry 12 ("pointOfContactMd")
     // use this address to be able to keep contact address from import/csw-t data
     // otherwise the responsible user will be used
-    var addressRow = SQL.first("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', +objId, 12, 505]);
-    if (hasValue(addressRow)) {
-        // address may be hidden ! then get first visible parent in hierarchy !
-        addressRow = getFirstVisibleAddress(addressRow.get("adr_uuid"));
+    var allAddresses = [];
+    var allAddressRows = SQL.all("SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type=? AND t012_obj_adr.special_ref=? ORDER BY line", ['V', +objId, 12, 505]);
+    if (allAddressRows.size() > 0) {
+        for (var j=0; j<allAddressRows.size(); j++) {
+            var row = allAddressRows.get(j);
+
+            if (hasValue(row)) {
+                row = getFirstVisibleAddress(row.get("adr_uuid"));
+
+                if (hasValue(row)) {
+                    var existing = allAddresses.some(function (item) {
+                        return row.get("adr_uuid") === item.get("adr_uuid");
+                    });
+                    if (!existing) {
+                        allAddresses.push(row);
+                    }
+                }
+            }
+        }
     } else if (hasValue(objRow.get("responsible_uuid"))) {
         // contact for metadata is now responsible user, see INGRID32-46
         // USE WORKING VERSION (pass true) ! user addresses are now separated and NOT published, see INGRID32-36
-        addressRow = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
+        var firstVisibleAddress = getFirstVisibleAddress(objRow.get("responsible_uuid"), true);
+        if (hasValue(firstVisibleAddress)) {
+            var existing = allAddresses.some(function (item) {
+                return firstVisibleAddress.get("adr_uuid") === item.get("adr_uuid");
+            });
+            if (!existing) {
+                allAddresses.push(firstVisibleAddress);
+            }
+        }
     }
-    if (hasValue(addressRow)) {
-        // map only email address (pass true as third parameter), see INGRID32-36
-        // NO, ISO needs more data, see INGRID32-146
-        // do not export all values ... only organisation name and email(s) (INGRID-2256)
-    	// for BAW DMQS export full address
-    	mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
+    if (allAddresses.length > 0) {
+        for(var j=0; j<allAddresses.length; j++) {
+            var addressRow = allAddresses[j];
+            // map only email address (pass true as third parameter), see INGRID32-36
+            // NO, ISO needs more data, see INGRID32-146
+            // do not export all values ... only organisation name and email(s) (INGRID-2256)
+            // for BAW DMQS export full address
+            mdMetadata.addElement("gmd:contact").addElement(getIdfResponsibleParty(addressRow, "pointOfContact", true));
+        }
     } else {
     	log.error('No responsible party for metadata found!');
     }
@@ -1915,7 +1943,7 @@ function getMdKeywords(rows) {
 
             // INSPIRE does not have to be in ENGLISH anymore for correct mapping in IGE CSW Import
             if (type.equals("I")) {
-                keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), "de");
+                keywordValue = TRANSF.getIGCSyslistEntryName(6100, row.get("entry_id"), catLangCode);
             }
 
         // "t011_obj_serv_type" table
@@ -1951,7 +1979,8 @@ function getMdKeywords(rows) {
             }
 
             // add localized keyword, see https://dev.informationgrid.eu/redmine/issues/363
-            if (hasValue(keywordAlternateValue)) {
+            // do not add if catalogue language ist already english
+            if (hasValue(keywordAlternateValue) && (catLangCode !== "en")) {
             	// first add locale element if not present
             	var localeId = "eng_utf8";
             	addLocaleElement(localeId, "eng", "utf8");
@@ -2177,7 +2206,7 @@ function addResourceConstraints(identificationInfo, objRow) {
                 if (data) {
                     var parsedData = JSON.parse(data);
                     otherConstraints.push({
-                        text: parsedData["de"],
+                        text: parsedData[catLangCode],
                         link: parsedData["url"]
                     });
                 } else {

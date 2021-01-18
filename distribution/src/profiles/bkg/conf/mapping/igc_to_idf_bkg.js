@@ -220,7 +220,7 @@ function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherC
             .addText("otherRestrictions");
         for (var j=0; j<otherConstraints.length; j++) {
             if (otherConstraints[j]) {
-                if (isInspireRelevant() && otherConstraints[j] === "Es gelten keine Bedingungen") {
+                if (isInspireRelevant() && (otherConstraints[j] === "Es gelten keine Bedingungen" || otherConstraints[j] === "No conditions to access and use")) {
                     legalConstraint
                         .addElement("gmd:otherConstraints/gmx:Anchor")
                         .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")
