@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -292,4 +292,13 @@ public class MdekCallerObject extends MdekCaller implements IMdekCallerObject {
 
         return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
     }
+
+	@Override
+	public IngridDocument updateObjectIndex(String plugId, String uuid) {
+		IngridDocument jobParams = new IngridDocument();
+		jobParams.put(MdekKeys.UUID, uuid);
+		List jobMethods = setUpJobMethod("updateObjectIndex", jobParams);
+
+		return callJob(plugId, MDEK_IDC_OBJECT_JOB_ID, jobMethods);
+	}
 }

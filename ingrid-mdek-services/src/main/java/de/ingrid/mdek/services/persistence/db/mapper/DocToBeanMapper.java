@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -445,7 +445,7 @@ public class DocToBeanMapper implements IMapper {
 			updateT011ObjTopicCats(oDocIn, oIn);
 
 			// technical domain map (class 1)
-			updateT011ObjGeo(oDocIn, oIn);
+			updateT011ObjGeo(oDocIn, oIn, howMuch);
 			// technical domain document (class 2)
 			updateT011ObjLiterature(oDocIn, oIn);
 			// NOTICE: T011ObjServ is used for the object classes "Geodatendienst" (class 3) AND
@@ -1231,7 +1231,7 @@ public class DocToBeanMapper implements IMapper {
 		}
 	}
 
-	private void updateT011ObjGeo(IngridDocument oDocIn, T01Object oIn) {
+	private void updateT011ObjGeo(IngridDocument oDocIn, T01Object oIn, MappingQuantity howMuch) {
 		Set<T011ObjGeo> refs = oIn.getT011ObjGeos();
 		ArrayList<T011ObjGeo> refs_unprocessed = new ArrayList<T011ObjGeo>(refs);
 		// remove all !

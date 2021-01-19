@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -61,13 +61,13 @@ function map(mapper) {
         theme: mapper.getThemes(),
         issued: mapper.getIssued(),
         modified: mapper.getModifiedDate(),
-        accrualPeriodicity: mapper.getAccrualPeriodicity(),
-        contactPoint: mapper.getContactPoint(),
+        accrual_periodicity: mapper.getAccrualPeriodicity(),
+        contact_point: mapper.getContactPoint(),
         keywords: mapper.getKeywords(),
         creator: mapper.getCreator(),
         originator: mapper.getOriginator(),
         publisher: mapper.getPublisher(),
-        accessRights: mapper.getAccessRights(),
+        access_rights: mapper.getAccessRights(),
         distribution: mapper.getDistributions(),
         extras: {
             metadata: {
@@ -76,7 +76,7 @@ function map(mapper) {
                 modified: mapper.getMetadataModified(),
                 harvested: mapper.getMetadataHarvested(),
                 harvesting_errors: null, // get errors after all operations been done
-                isValid: mapper.isValid(), // checks validity after all operations been done
+                is_valid: mapper.isValid(), // checks validity after all operations been done
             },
             generated_id: mapper.getGeneratedId(),
             subgroups: mapper.getCategories(),
@@ -84,10 +84,10 @@ function map(mapper) {
             harvested_data: mapper.getHarvestedData(),
             subsection: mapper.getSubSections(),
             spatial: mapper.getSpatial(),
-            spatialText: mapper.getSpatialText(),
+            spatial_text: mapper.getSpatialText(),
             temporal: mapper.getTemporal(),
             groups: mapper.getGroups(),
-            displayContact: mapper.getDisplayContacts(),
+            display_contact: mapper.getDisplayContacts(),
             all: mapper.getExtrasAllData(),
             realtime: mapper.isRealtime(),
             citation: mapper.getCitation(),

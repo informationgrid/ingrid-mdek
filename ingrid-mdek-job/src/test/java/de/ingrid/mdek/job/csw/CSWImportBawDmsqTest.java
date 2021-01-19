@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -26,6 +26,7 @@ import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IndexManager;
 import de.ingrid.iplug.dsc.index.DatabaseConnection;
 import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
+import de.ingrid.iplug.dsc.utils.SQLUtils;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.job.IJob.JobType;
 import de.ingrid.mdek.job.MdekIdcCatalogJob;
@@ -190,6 +191,10 @@ public class CSWImportBawDmsqTest {
         cswMapper = new ScriptImportDataMapper( daoFactory, igeCswFolderUtil );
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
+        ScriptImportDataMapper mapperSpy = spy(cswMapper);
+        SQLUtils sqlMock = mock(SQLUtils.class);
+        when(mapperSpy.getSqlUtils(any())).thenReturn(sqlMock);
+
         Logger mockLogger = mock(Logger.class);
         when(logService.getLogger(any())).thenReturn(mockLogger);
 
@@ -198,9 +203,9 @@ public class CSWImportBawDmsqTest {
         HashMap<String, ImportDataMapper> mapper = new HashMap<>();
         ClassPathResource[] resources = new ClassPathResource[1];
         resources[0] = new ClassPathResource( "/import/mapper/csw202_to_ingrid_igc.js" );
-        cswMapper.setMapperScript( resources );
-        cswMapper.setTemplate( new ClassPathResource( "/import/templates/igc_template_csw202.xml" ) );
-        mapper.put( "csw202", cswMapper );
+        mapperSpy.setMapperScript( resources );
+        mapperSpy.setTemplate( new ClassPathResource( "/import/templates/igc_template_csw202.xml" ) );
+        mapper.put( "csw202", mapperSpy );
         dataMapperFactory.setMapperClasses( mapper );
         catJob.setDataMapperFactory( dataMapperFactory );
         catJob.setJobHandler( jobHandler );

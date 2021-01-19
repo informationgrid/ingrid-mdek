@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -68,11 +68,14 @@ if (log.isDebugEnabled()) {
 // ========== t01_object ==========
 // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
 var objId = +sourceRecord.get("id");
+var metadataLanguage = '';
+
 
 var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [+objId]);
 for (i=0; i<objRows.size(); i++) {
     var objRow = objRows.get(i);
     var objClass = objRow.get("obj_class");
+    metadataLanguage = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
 
     // ---------- <idf:idfMdMetadata/gmd:dataQualityInfo/gmd:DQ_DataQuality> ----------
     // ---------- <gmd:DQ_DataQuality/gmd:scope/gmd:DQ_Scope/gmd:level/gmd:MD_ScopeCode> ----------
@@ -309,6 +312,10 @@ function getDqConformanceResultElement(conformityRow) {
     if (isInspire.equals("Y")) {
         // ISO: first iso value, see INGRID-2337
         specification = TRANSF.getCodeListEntryFromIGCSyslistEntry(6005, conformityRow.get("specification_key"), "iso");
+        // use English translation since the ISO value is already in German, see #967
+        if (metadataLanguage == 'eng') {
+            specification = TRANSF.getCodeListEntryFromIGCSyslistEntry(6005, conformityRow.get("specification_key"), "en");
+        }
     } else {
         specification = TRANSF.getCodeListEntryFromIGCSyslistEntry(6006, conformityRow.get("specification_key"), "iso");
     }
@@ -670,10 +677,7 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             }
             var dqElem = dqDataQuality.addElement("gmd:report/gmd:DQ_RelativeInternalPositionalAccuracy");
             dqElem.addElement("gmd:nameOfMeasure/gco:CharacterString").addText(igcNameOfMeasureValue);
-            // if (igcNameOfMeasureKey.equals("1")) {
-            //     // Attribute value uncertainty at 95 % significance level
-            //     dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("71");
-            // }
+            dqElem.addElement("gmd:measureIdentification/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText("28")
             if (hasValue(igcMeasureDescription)) {
                 dqElem.addElement("gmd:measureDescription/gco:CharacterString").addText(igcMeasureDescription);
             }
@@ -681,9 +685,9 @@ function addObjectDataQualityTable(objRow, dqDataQuality) {
             var unitDefinition = dqQuantitativeResult.addElement("gmd:valueUnit/gml:UnitDefinition")
                 .addAttribute("gml:id", "unitDefinition_ID_".concat(TRANSF.getRandomUUID()));
             unitDefinition.addElement("gml:identifier").addAttribute("codeSpace", "");
-            unitDefinition.addElement("gml:name").addText("percent");
-            unitDefinition.addElement("gml:quantityType").addText("relative external positional accuracy");
-            unitDefinition.addElement("gml:catalogSymbol").addText("%");
+            unitDefinition.addElement("gml:name").addText("meter");
+            unitDefinition.addElement("gml:quantityType").addText("relative internal positional accuracy");
+            unitDefinition.addElement("gml:catalogSymbol").addText("m");
 
             dqQuantitativeResult.addElement("gmd:value/gco:Record").addText(igcResultValue);
         }

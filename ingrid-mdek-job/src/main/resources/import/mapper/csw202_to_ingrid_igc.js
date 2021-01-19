@@ -2,7 +2,7 @@
  * **************************************************-
  * Ingrid Portal MDEK Application
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -66,6 +66,11 @@ var INFO = 2;
 var WARN = 3;
 var ERROR = 4;
 
+// ========== t03_catalogue ==========
+var catRow = SQL.first("SELECT * FROM t03_catalogue");
+var catLanguageKey = catRow.get("language_key");
+var catLangCode = catLanguageKey == 123 ? "en" : "de";
+
 var mappingDescription = {"mappings":[
   		
   		
@@ -120,10 +125,20 @@ var mappingDescription = {"mappings":[
 			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/original-control-identifier"
 		},
   		{
+			"srcXpath":"//gmd:fileIdentifier/gco:CharacterString",
+			// make sure we always have a UUID
+			"defaultValue":createUUID,
+			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/object-identifier"
+		},
+  		{
 			"srcXpath":"//gmd:parentIdentifier/gco:CharacterString",
   			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/parent-identifier-extern"
   		},
   		{	
+			"srcXpath":"//gmd:parentIdentifier/gco:CharacterString",
+  			"targetNode":"/igc/data-sources/data-source/data-source-instance/parent-data-source/object-identifier"
+  		},
+  		{
   			"srcXpath":"//gmd:metadataStandardName/gco:CharacterString",
   			"targetNode":"/igc/data-sources/data-source/data-source-instance/general/metadata/metadata-standard-name"
   		},
@@ -647,7 +662,16 @@ var mappingDescription = {"mappings":[
 					    	  				{
 					    			  			"srcXpath":"./@codeListValue",
 					    			  			"targetNode":""
-					    			  		}
+					    			  		},
+											{
+												"targetAttribute":"id",
+												"srcXpath":"./@codeListValue",
+												"targetNode":"",
+												"transform":{
+													"funct":transformToIgcDomainId,
+													"params":[5180, ""]
+												}
+											}
 					    	  			]
 		    			  			}	
 		    			  		},
@@ -1031,7 +1055,7 @@ var mappingDescription = {"mappings":[
 	  					"srcXpathTransform": {
                             "funct":getLocalisedCharacterString
                         },
-	  					"defaultValue":"Raumbezug des Datensatzes",
+	  					"defaultValue": catLangCode !== "en" ? "Raumbezug des Datensatzes" : "Spatial reference of the data set",
 			  			"targetNode":"uncontrolled-location/location-name"
 			  		},
 	  				{
@@ -2059,7 +2083,7 @@ function mapAccessConstraints(source, target) {
 				// in the data field for the text
 				// the following lines are an adapter to check first in the data field before
 				// the regular check by the official short name used in IGE
-            	var accConstraintId = TRANSF.getISOCodeListEntryIdByDataFilter(6010, "\"de\":\"" + accConstraint + "\"");
+            	var accConstraintId = TRANSF.getISOCodeListEntryIdByDataFilter(6010, "\""+catLangCode+"\":\"" + accConstraint + "\"");
             	if (accConstraintId) {
 					accConstraint = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(6010, accConstraintId);
 				}
@@ -2236,6 +2260,24 @@ function mapDistributionLinkages(source, target) {
             linkage.referenceId = isCoupled ? "3600" : "-1";
             //referenceName = "";
             linkage.description = getLocalisedCharacterString(XPATH.getNode(linkages.item(i), "./gmd:description/gco:CharacterString"));
+            if (isCoupled) {
+                linkage.datatype_key=-1;
+                linkage.datatype_value="coupled";
+            } else {
+                var linkType = XPATH.getString(linkages.item(i), "./gmd:function/gmd:CI_OnLineFunctionCode/@codeListValue");
+                if (linkType === "download" ){
+                    linkage.referenceId = 9990
+                } else if ( linkType === "information" ) {
+                    linkage.referenceId = 5302
+                } else if ( linkType === "offlineAccess" ) {
+                    linkage.referenceId = 5303
+                } else if ( linkType === "order" ) {
+                    linkage.referenceId = 5304
+                } else if ( linkType === "search" ) {
+                    linkage.referenceId = 5305
+                }
+            }
+
             addAvailableLinkage(linkage, target);
         }
     }
@@ -2260,6 +2302,12 @@ function addAvailableLinkage(linkage, target) {
         if (hasValue(linkage.description)) {
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-description"), linkage.description);
         }
+		if (hasValue(linkage.datatype_key)) {
+			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), "id", linkage.datatype_key);
+			if (hasValue(linkage.datatype_value)) {
+				XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), linkage.datatype_value);
+			}
+		}
     }
 }
 

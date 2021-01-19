@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import de.ingrid.elasticsearch.ElasticConfig;
+import de.ingrid.iplug.dsc.utils.SQLUtils;
 import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import de.ingrid.mdek.xml.Versioning;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -196,6 +197,10 @@ public class TestSetup {
         cswMapper = new ScriptImportDataMapper( daoFactory , igeCswFolderUtil);
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
 
+        ScriptImportDataMapper mapperSpy = spy(cswMapper);
+        SQLUtils sqlMock = mock(SQLUtils.class);
+        when(mapperSpy.getSqlUtils(any())).thenReturn(sqlMock);
+
         Logger mockLogger = mock(Logger.class);
         when(logService.getLogger(any())).thenReturn(mockLogger);
 
@@ -215,10 +220,10 @@ public class TestSetup {
         for (int i=0; i < mappingScripts.length; i++) {
             resources[i] = new FileSystemResource( absPath.substring( 0, pos ) + mappingScripts[i] );
         }
-        cswMapper.setMapperScript( resources );
-        
-        cswMapper.setTemplate( new ClassPathResource( "/import/templates/igc_template_csw202.xml" ) );
-        mapper.put( "csw202", cswMapper );
+        mapperSpy.setMapperScript( resources );
+
+        mapperSpy.setTemplate( new ClassPathResource( "/import/templates/igc_template_csw202.xml" ) );
+        mapper.put( "csw202", mapperSpy );
         dataMapperFactory.setMapperClasses( mapper );
         catJob.setDataMapperFactory( dataMapperFactory );
         catJob.setJobHandler( jobHandler );
@@ -226,6 +231,7 @@ public class TestSetup {
         // plug.setCatalogJob( catJob );
         plug.setCatalogJob( catJobMock );
         plug.setObjectJob( objectJobMock );
+
     }
     
     protected void mockSyslists() {
@@ -253,6 +259,7 @@ public class TestSetup {
         List<SysList> syslist1410 = createSyslist( 1410, 6, "Energy" );
         List<SysList> syslist5120 = createSyslist( 5120, 1, "GetCapabilities" );
         List<SysList> syslist5153 = createSyslist( 5153, 2, "OGC:WFS 2.0" );
+        List<SysList> syslist5180 = createSyslist( 5180, 6, "WebServices" );
         List<SysList> syslist5200 = createSyslist( 5200, 211, "infoStandingOrderService" );
         List<SysList> syslist6005 = createSyslist( 6005, 40, "Technical Guidance for the implementation of INSPIRE Download Services" );
         extendSyslist( syslist6005, 13, "INSPIRE Richtlinie" );
@@ -290,6 +297,7 @@ public class TestSetup {
         when( daoSysList.getSysList( 1410, "iso" ) ).thenReturn( syslist1410 );
         when( daoSysList.getSysList( 5120, "iso" ) ).thenReturn( syslist5120 );
         when( daoSysList.getSysList( 5153, "iso" ) ).thenReturn( syslist5153 );
+        when( daoSysList.getSysList( 5180, "iso" ) ).thenReturn( syslist5180 );
         when( daoSysList.getSysList( 5200, "iso" ) ).thenReturn( syslist5200 );
         when( daoSysList.getSysList( 6005, "de" ) ).thenReturn( syslist6005 );
         when( daoSysList.getSysList( 6010, "iso" ) ).thenReturn( syslist6010 );

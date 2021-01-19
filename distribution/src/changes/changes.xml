@@ -5,6 +5,66 @@
   </properties>
   <body>
 
+    <release version="5.7.0" date="2021-01-19" description="Release 5.7.0">
+      <action type="fix" dev="wemove" issue="1783">
+        Fix iso export of 'Relative Pisitional Accuracy'
+      </action>
+      <action type="fix" dev="wemove" issue="2236">
+        IGE: Fix order of opendata categories.
+      </action>
+      <action type="fix" dev="wemove" issue="2226">
+        IGE: Download URL added twice to IDF in coupled data.
+      </action>
+      <action type="fix" dev="wemove" issue="2199">
+        Portal: Zeige in Karte Link wird trotz Kennzeichnung "geschützter Dienst"
+      </action>
+      <action type="add" dev="wemove" issue="2215">
+        Add CI_OnLineFunctionCode handling in csw import
+      </action>
+      <action type="fix" dev="wemove" issue="1566">
+        iPlug IDs can have capitalized letters now.
+      </action>
+      <action type="fix" dev="wemove" issue="2194">
+        Retain hierarchy when importing CSW 2.0.2 documents.
+      </action>
+      <action type="fix" dev="wemove" issue="2197">
+        Fix broken communication connection after IOException.
+      </action>
+      <action type="fix" dev="wemove" issue="">
+        Improve isCSWDate function to better match ISO 8601
+      </action>
+      <action type="fix" dev="wemove" issue="2955">
+        mCLOUD: map accrualPeriodicity with type keyword.
+      </action>
+      <action type="update" dev="wemove" issue="1367">
+        Add gmd:function for atom feed
+      </action>
+      <action type="add" dev="wemove" issue="2210">
+        Nokis: Map thesaurus to/from ISO
+      </action>
+      <action type="add" dev="wemove" issue="1746">
+        Map external coupled resources to operatesOn-Element
+      </action>
+      <action type="update" dev="wemove" issue="2228">
+        Nokis: Remove link information from coupled services.
+      </action>
+      <action type="fix" dev="wemove" issue="2232">
+        Map column specification of dataformat
+      </action>
+      <action type="update" dev="wemove" issue="1581">
+        Remove "Identification of the data source" for copied objects
+      </action>
+      <action type="fix" dev="wemove" issue="2241">
+        Fix ISO error when DOI is not complete
+      </action>
+      <action type="fix" dev="wemove" issue="1308">
+        Fix upload cleanup job indexing issue.
+      </action>
+      <action type="fix" dev="wemove" issue="2245">
+        Fix import of DCP-element
+      </action>
+    </release>
+
     <release version="5.6.0" date="2020-10-15" description="Release 5.6.0">
       <action type="update" dev="wemove" issue="1215">
         Update timespan ISO and remove 'am' time type.

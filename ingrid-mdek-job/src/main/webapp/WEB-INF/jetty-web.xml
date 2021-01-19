@@ -38,7 +38,9 @@
           <!-- HZG -->
           <!-- <Item>../distribution/src/profiles/hzg/webapp</Item> -->
           <!-- NOKIS -->
-<!--          <Item>../distribution/src/profiles/nokis/webapp</Item>-->
+          <!--<Item>../distribution/src/profiles/nokis/webapp</Item>-->
+          <!-- HMDK -->
+          <!-- <Item>../distribution/src/profiles/hmdk/webapp</Item>-->
           <Item>src/main/webapp</Item>
           <Item>target/base-webapp</Item>
           <!--<Item><SystemProperty name="jetty.home" default="."/>/webapps/foo</Item>-->

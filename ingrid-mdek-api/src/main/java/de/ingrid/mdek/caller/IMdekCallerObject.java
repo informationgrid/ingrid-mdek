@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -282,4 +282,12 @@ public interface IMdekCallerObject extends IMdekCaller {
 	 * @returns the xml representation of the given document
 	 */
 	IngridDocument getIsoXml(String plugId, String uuid, IdcEntityVersion version, String userId);
+
+	/**
+	 * Update the index of a specific object located by its plugId and uuid.
+	 * @param plugId which mdek server (iplug)
+	 * @param uuid the uuid of the document
+	 * @return response containing result: result returns the object id of the document
+	 */
+	IngridDocument updateObjectIndex(String plugId, String uuid);
 }
