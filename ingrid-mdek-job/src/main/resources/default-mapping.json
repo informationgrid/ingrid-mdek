@@ -298,6 +298,10 @@
       "type": "keyword",
       "store": true
     },
+    "t017_url_ref.special_ref": {
+      "type": "keyword",
+      "store": true
+    },
     "t01_object.time_type": {
       "type": "keyword",
       "store": true
