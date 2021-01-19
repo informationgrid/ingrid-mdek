@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>5.7.0-SNAPSHOT</version>
+    <version>5.7.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid.mdek</groupId>
@@ -19,11 +19,11 @@
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
-    <ingrid-udk-importer.version>5.7.0-SNAPSHOT</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>5.7.0-SNAPSHOT</ingrid-codelist-service.version>
-    <ingrid-utils.version>5.7.0-SNAPSHOT</ingrid-utils.version>
+    <ingrid-udk-importer.version>5.7.0</ingrid-udk-importer.version>
+    <ingrid-codelist-service.version>5.7.0</ingrid-codelist-service.version>
+    <ingrid-utils.version>5.7.0</ingrid-utils.version>
     <ingrid-iplug-dsc.version>5.6.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>5.7.0-SNAPSHOT</ingrid-base-webapp.version>
+    <ingrid-base-webapp.version>5.7.0</ingrid-base-webapp.version>
     <spring.version>4.3.3.RELEASE</spring.version>
   </properties>
 
