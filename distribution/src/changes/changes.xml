@@ -5,6 +5,12 @@
   </properties>
   <body>
 
+    <release version="5.7.1" date="2021-xx-xx" description="Release 5.7.1">
+      <action type="add" dev="wemove" issue="2319">
+        Remove child documents of deleted document from index and protocol it.
+      </action>
+    </release>
+    
     <release version="5.7.0" date="2021-01-19" description="Release 5.7.0">
       <action type="fix" dev="wemove" issue="1783">
         Fix iso export of 'Relative Pisitional Accuracy'
