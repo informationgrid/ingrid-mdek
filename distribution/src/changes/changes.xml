@@ -5,6 +5,12 @@
   </properties>
   <body>
 
+    <release version="5.5.4" date="2021-01-20" description="Release 5.5.4">
+      <action type="add" dev="wemove" issue="2319">
+        Remove child documents of deleted document from index and protocol it.
+      </action>
+    </release>
+    
     <release version="5.5.1" date="2020-09-29" description="Release 5.5.1">
       <action type="add" dev="wemove" issue="1102">
         Add display folder on portal catalog tree.
