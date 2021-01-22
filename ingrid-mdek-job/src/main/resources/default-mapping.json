@@ -317,6 +317,14 @@
     "t2": {
       "type": "keyword",
       "store": true
+    },
+    "object_use_constraint.license_key": {
+      "type": "keyword",
+      "store": true
+    },
+    "object_use_constraint.license_value": {
+      "type": "keyword",
+      "store": true
     }
   }
 }
