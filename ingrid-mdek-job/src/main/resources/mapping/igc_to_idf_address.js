@@ -218,7 +218,7 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
     }
 
 	// do NOT USE DISTINCT -> crashes on ORACLE !
-    var rows = SQL.all("SELECT t01_object.* FROM t01_object, t012_obj_adr WHERE t012_obj_adr.adr_uuid=? AND t012_obj_adr.obj_id=t01_object.id AND t01_object.work_state=? AND t01_object.publish_id=?", [addressRow.get("adr_uuid"), 'V', 1]);
+    var rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object, t012_obj_adr WHERE t012_obj_adr.adr_uuid=? AND t012_obj_adr.obj_id=t01_object.id AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=? AND t01_object.publish_id=?", [addressRow.get("adr_uuid"), 'V', 1]);
     var tmpRows = new Array();
     for (var j=0; j<rows.size(); j++) {
         var uuid = rows.get(j).get("obj_uuid");
@@ -367,7 +367,96 @@ function getIdfObjectReference(objRow, elementName) {
     idfObjectReference.addElement("idf:objectName").addText(objRow.get("obj_name"));
     idfObjectReference.addElement("idf:objectType").addText(objRow.get("obj_class"));
 
+    addAttachedToField(objRow, idfObjectReference);
+
+    if (hasValue(objRow.get("descr"))) {
+        idfObjectReference.addElement("idf:description").addText(objRow.get("descr"));
+    }
+
+    var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE serv.obj_id=? AND serv.type_key=2 AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objRow.get("id")]);
+    if (log.isDebugEnabled()) {
+        log.debug("Service object id: " + objRow.get("id"));
+        log.debug("Extracted Service Info: " + srvRow);
+    }
+    
+    if (hasValue(srvRow)) {
+      var myValue = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, srvRow.get("type_key"));
+      idfObjectReference.addElement("idf:serviceType").addText(myValue);
+      idfObjectReference.addElement("idf:serviceOperation").addText(srvRow.get("name_value"));
+      idfObjectReference.addElement("idf:serviceUrl").addText(srvRow.get("connect_point"));
+      // Add 'hasAccessConstraint' to check constraint
+      // Issue: https://redmine.informationgrid.eu/issues/2199
+      var hasConstraint = false; 
+      if (hasValue(srvRow.get("has_access_constraint"))) {
+          hasConstraint = srvRow.get("has_access_constraint").equals("Y");
+      }
+      log.debug("hasConstraint: " + hasConstraint);
+      if (hasConstraint) {
+        idfObjectReference.addElement("idf:hasAccessConstraint").addText(hasConstraint);
+      }
+  }
+
+  // Add graphicOverview
+  var urlRefObjId = objRow.get("id");
+  var urlRefRows = SQL.all("SELECT t017url.url_link FROM t017_url_ref t017url, t01_object t01o WHERE t017url.special_ref = 9000 AND t01o.id = t017url.obj_id AND t017url.obj_id=?", [+urlRefObjId]);
+
+  for (var i=0; i<urlRefRows.size(); i++) {
+    idfObjectReference.addElement("idf:graphicOverview").addText(urlRefRows.get(i).get("url_link"));
+  }
+    
     return idfObjectReference;
+}
+
+function addAttachedToField(row, parentElement, addAsISO) {
+  var attachedToFieldKey = row.get("special_ref");
+  var attachedToFieldValue = row.get("special_name");
+  var validKeys = ["9990", "5302", "5303", "5304", "5305"];
+
+  if (hasValue(attachedToFieldKey) &&
+      hasValue(attachedToFieldValue)) {
+
+      var textContent;
+      if (attachedToFieldKey.equals("-1")) {
+          // free entry, only add if ISO
+          if (addAsISO) {
+              if (validKeys.indexOf(attachedToFieldKey) !== -1) {
+                  textContent = attachedToFieldValue;
+              } else {
+                  textContent = "information";
+              }
+          }
+      } else if (!attachedToFieldKey.equals("9999")) {
+
+          // syslist entry, NOT "unspezifischer Verweis"
+          if (addAsISO) {
+              if (validKeys.indexOf(attachedToFieldKey) !== -1) {
+                  // ISO: first iso value, see INGRID-2317
+                  textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "iso");
+                  // if no iso then english !
+                  if (!hasValue(textContent)) {
+                      textContent = TRANSF.getCodeListEntryFromIGCSyslistEntry(2000, attachedToFieldKey, "en");
+                  }
+              } else {
+                  textContent = "information";
+              }
+          } else {
+              // IDF: use catalog language like it was entered
+              textContent = attachedToFieldValue;
+          }
+      }
+
+      if (hasValue(textContent)) {
+          if (addAsISO) {
+             parentElement.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
+                 .addAttribute("codeList", globalCodeListAttrURL + "#CI_OnLineFunctionCode")
+                 .addAttribute("codeListValue", textContent).addText(textContent);
+          } else {
+             parentElement.addElement("idf:attachedToField").addText(textContent)
+                 .addAttribute("list-id", "2000")
+                 .addAttribute("entry-id", attachedToFieldKey);
+          }
+      }
+  }
 }
 
 function getIdfAddressReference(addrRow, elementName) {
