@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://informationgrid.eu/igc-import" xmlns="http://informationgrid.eu/igc-import">
 
-    <!-- VERSION DES AUSTAUSCHFORMATES -->
+  <!-- VERSION DES AUSTAUSCHFORMATES -->
   <xs:attributeGroup name="attlist.igc">
     <xs:attribute name="exchange-format" default="5.6.0"/>
   </xs:attributeGroup>
@@ -51,12 +51,12 @@
   <xs:element name="modificator-identifier" type="xs:string"/>
   <!--
     Fachlicher Name: Katalog Name
-    Tabelle.Feld   : T03_catalogue.cat_name 
+    Tabelle.Feld   : T03_catalogue.cat_name
   -->
   <xs:element name="catalogue-name" type="xs:string"/>
   <!--
     Fachlicher Name: Katalog Namespace
-    Tabelle.Feld   : T03_catalogue.cat_namespace 
+    Tabelle.Feld   : T03_catalogue.cat_namespace
   -->
   <xs:element name="catalogue-namespace" type="xs:string"/>
   <!--
@@ -113,7 +113,7 @@
   -->
   <xs:element name="date-of-creation" type="xs:string"/>
   <!--
-    Fachlicher Name: Objekt Metadatensätze 
+    Fachlicher Name: Objekt Metadatensätze
   -->
   <xs:element name="data-sources">
     <xs:complexType>
@@ -257,7 +257,7 @@
     Tabelle.Feld   : additional_field_data.list_item_id
     Tabelle.Feld   : additional_field_data.data
   -->
-  <xs:element name="field-data" type="id-string"/>
+  <xs:element name="field-data" type="optional-id-string"/>
   <!--
     Fachlicher Name: Zusatzfeld Identifikation zugehoerige Tabelle (Key)
     Tabelle.Feld   : additional_field_data.parent_field_id (als parent_field_key aufgelöst !)
@@ -349,7 +349,7 @@
   <xs:element name="adv-product-group">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="item" type="id-string"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="item" type="xs:string"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -873,7 +873,6 @@
   <xs:element name="vector-format">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" ref="vector-topology-level"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="geo-vector"/>
       </xs:sequence>
     </xs:complexType>
@@ -996,6 +995,7 @@
   <xs:element name="geo-vector">
     <xs:complexType>
       <xs:sequence>
+        <xs:element minOccurs="0" ref="vector-topology-level"/>
         <xs:element minOccurs="0" ref="geometric-object-type"/>
         <xs:element minOccurs="0" ref="geometric-object-count"/>
       </xs:sequence>
@@ -1073,7 +1073,7 @@
         <xs:element minOccurs="0" ref="dataset-usage"/>
         <xs:element minOccurs="0" ref="ordering-instructions"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="comment"/>
-        <xs:element maxOccurs="unbounded" ref="conformity"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="conformity"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="data-quality"/>
       </xs:sequence>
     </xs:complexType>
@@ -1618,7 +1618,7 @@
       <xs:sequence>
         <xs:element ref="linkage-name"/>
         <xs:element ref="linkage-url"/>
-        <xs:element ref="linkage-url-type"/>
+        <xs:element minOccurs="0" ref="linkage-url-type"/>
         <xs:element minOccurs="0" ref="linkage-reference"/>
         <xs:element minOccurs="0" ref="linkage-datatype"/>
         <xs:element minOccurs="0" ref="linkage-description"/>
@@ -1928,6 +1928,16 @@
     </xs:simpleContent>
   </xs:complexType>
   <!--
+    Datentyp: STRING element mit optonalem id-Attribut
+  -->
+  <xs:complexType name="optional-id-string">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attributeGroup ref="attlist.optional-id"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <!--
     Datentyp: STRING element mit "id" und "source" und "gemet-id" Attribut fuer thesaurus searchterms oder INSPIRE Themen
   -->
   <xs:complexType name="controlled-term">
@@ -1983,6 +1993,12 @@
   -->
   <xs:attributeGroup name="attlist.id">
     <xs:attribute name="id" use="required"/>
+  </xs:attributeGroup>
+  <!--
+    Attribut-Gruppe: id=
+  -->
+  <xs:attributeGroup name="attlist.optional-id">
+    <xs:attribute name="id" use="optional"/>
   </xs:attributeGroup>
   <!--
     Attribut-Gruppe: list-id= entry-id=

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -433,7 +434,7 @@ public class MdekAddressService {
 
 	/**
 	 * Publish the address represented by the passed doc. Called By IGE !  
-	 * @see #publishAddress(IngridDocument aDocIn, String userId, boolean calledByImporter=false)
+	 * @see #moveAddress(String, String, boolean, boolean, String, boolean)
 	 */
 	public String publishAddress(IngridDocument aDocIn, boolean forcePubCondition,
 			String userId) {
@@ -444,7 +445,7 @@ public class MdekAddressService {
 	 * Publish the address represented by the passed doc.<br>
 	 * NOTICE: pass PARENT_UUID in doc when new address !
 	 * @param aDocIn doc representing address
-	 * @param forcePublicationCondition apply restricted PubCondition to subnodes (true)
+	 * @param forcePubCondition apply restricted PubCondition to subnodes (true)
 	 * 		or receive Error when subnodes PubCondition conflicts (false)
 	 * @param userId user performing operation, will be set as mod-user
 	 * @param calledByImporter true=do specials e.g. mod user is determined from passed doc<br>
@@ -667,8 +668,7 @@ public class MdekAddressService {
 
 	/**
 	 * Move an address with its subtree to another parent. Called By IGE !
-	 * @see #moveAddress(String fromUuid, String toUuid, boolean moveToFreeAddress, 
-	 * 			String userId, boolean calledByImporter=false)
+	 * @see #moveAddress(String, String, boolean, boolean, String, boolean)
 	 */
 	public IngridDocument moveAddress(String fromUuid, String toUuid,
 			boolean moveToFreeAddress,
@@ -856,7 +856,7 @@ public class MdekAddressService {
 		}
 
 		// check whether topnode/subnodes are referenced (also user address, responsible ...)
-		checkAddressTreeReferencesForDelete(aNode, forceDeleteReferences);
+		List<AddressNode> subNodes = checkAddressTreeReferencesForDelete(aNode, forceDeleteReferences);
 
 		// delete complete Node ! rest is deleted per cascade (subnodes, permissions)
 		daoAddressNode.makeTransient(aNode);
@@ -865,17 +865,27 @@ public class MdekAddressService {
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
 		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
 
-        // then set IDs in doc and update changed entities in JobInfo
-		//result.put( MdekKeys.ID, aPub.getId() );
-        //result.put( MdekKeys.ORIGINAL_ADDRESS_IDENTIFIER, aPub.getOrgAdrId() );
-		result.put( MdekKeys.UUID, aNode.getAddrUuid() );
-        jobHandler.updateRunningJobChangedEntities(userUuid,
-                IdcEntityType.ADDRESS, WorkState.DELETED, result,
-                "DELETED address");
+		List<String> deletedUuids = subNodes.stream()
+				.map(AddressNode::getAddrUuid)
+				.collect(Collectors.toList());
+
+		updateRunningJobChangedEntities(userUuid, deletedUuids);
+
         // and we also update changed entities in result
         result.put(MdekKeys.CHANGED_ENTITIES, jobHandler.getRunningJobChangedEntities(userUuid));
 
 		return result;
+	}
+
+	private void updateRunningJobChangedEntities(String userUuid, List<String> deletedUuids) {
+		// update and audit all deleted nodes
+		deletedUuids.forEach(uuid -> {
+			IngridDocument resultSub = new IngridDocument();
+			resultSub.put( MdekKeys.UUID, uuid );
+			jobHandler.updateRunningJobChangedEntities(userUuid,
+					IdcEntityType.ADDRESS, WorkState.DELETED, resultSub,
+					"DELETED address");
+		});
 	}
 
 	/** FULL DELETE IF NOT PUBLISHED !!!<br> 
@@ -1537,7 +1547,7 @@ public class MdekAddressService {
 	 * 		true=delete all references found, no exception<br>
 	 * 		false=don't delete references, throw exception
 	 */
-	private void checkAddressTreeReferencesForDelete(AddressNode topNode, boolean forceDeleteReferences) {
+	private List<AddressNode> checkAddressTreeReferencesForDelete(AddressNode topNode, boolean forceDeleteReferences) {
 		// process all subnodes INCLUDING top node
 
 		List<AddressNode> subNodes = daoAddressNode.getAllSubAddresses(
@@ -1567,6 +1577,8 @@ public class MdekAddressService {
 			// check
 			checkAddressNodeObjectReferencesForDelete(subNode, forceDeleteReferences);
 		}
+		
+		return subNodes;
 	}
 
 	/**
@@ -1641,7 +1653,7 @@ public class MdekAddressService {
 
 	/** Add data of address with given uuid as USER ADDRESS to the given additional Info of an error.
 	 * @param errInfo additional info transferred with error
-	 * @param addrUuid uuid of address to be added as USER ADDRESS
+	 * @param userUuid uuid of address to be added as USER ADDRESS
 	 * @return again the passed errInfo
 	 */
 	public IngridDocument setupErrorInfoUserAddress(IngridDocument errInfo, String userUuid) {
