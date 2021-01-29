@@ -2582,8 +2582,10 @@ function addDistributionInfo(mdMetadata, objId) {
             if (hasValue(rows.get(i).get("content"))) {
                 IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:name"), rows.get(i).get("content"));
             }
-            if (hasValue(rows.get(i).get("descr"))) {
-                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:description"), rows.get(i).get("descr"));
+            var description = rows.get(i).get("descr");
+            var idPart = hasValue(description) ? description.split("#**#") : null;
+            if ((idPart === null || idPart.length === 1) && hasValue(description)) {
+                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:description"), description);
             }
             
             // Verweistyp added 2 times, as gmd:function (ISO) and as idf:attachedToField (InGrid detail)
