@@ -2613,7 +2613,7 @@ function addDistributionInfo(mdMetadata, objId) {
             }
             var description = rows.get(i).get("descr");
             var idPart = hasValue(description) ? description.split("#**#") : null;
-            if (hasValue(description)) {
+            if ((idPart === null || idPart.length === 1) && hasValue(description)) {
                 IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:description"), description);
             }
             
