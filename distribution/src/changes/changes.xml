@@ -5,7 +5,7 @@
   </properties>
   <body>
 
-    <release version="5.5.5" date="2021-xx-xx" description="Release 5.5.5">
+    <release version="5.5.5" date="2021-01-29" description="Release 5.5.5">
       <action type="fix" dev="wemove" issue="1746">
         Do not write description for external coupled resources.
       </action>
