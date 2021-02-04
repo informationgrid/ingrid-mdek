@@ -35,12 +35,14 @@ import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xml.IgcProfileNamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -51,6 +53,8 @@ import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
 public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
     private static final Logger LOG = Logger.getLogger(IsoToIgcMapperBaw.class);
+
+    private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
     private MdekCatalogService catalogService;
 
@@ -607,21 +611,34 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                 }
                 LOG.debug(String.format("%d values found to be imported in the current DGS block", values.size()));
 
-                for (int k = 0; k < values.size(); k++) {
-                    String val = values.get(k);
-                    IdfElement valueAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
-                            .addAttribute("line", lineStr);
-                    valueAddnValue.addElement("field-key")
-                            .addText("simParamValue." + (k+1)); // Value indices start at 1
-                    valueAddnValue.addElement("field-data")
-                            .addAttribute("id", "-1")
-                            .addText(val);
-                    valueAddnValue.addElement("field-key-parent")
-                            .addText(simParamTable);
+                boolean hasNumericValues = true;
+                JSONArray jsonArray = new JSONArray();
+                if (hasOnlyIntegerValues(values)) {
+                    for(String val: values) {
+                        jsonArray.add(Long.parseLong(val));
+                    }
+                } else if (hasOnlyDoubleValues(values)) {
+                    for(String val: values) {
+                        jsonArray.add(Double.parseDouble(val));
+                    }
+                } else {
+                    hasNumericValues = false;
+                    for(String val: values) {
+                        jsonArray.add(val);
+                    }
                 }
 
+                IdfElement valueAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", lineStr);
+                valueAddnValue.addElement("field-key")
+                        .addText("simParamValues");
+                valueAddnValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(jsonArray.toJSONString());
+                valueAddnValue.addElement("field-key-parent")
+                        .addText(simParamTable);
+
                 boolean hasDiscreteValues = !isoXpathUtil.nodeExists(resultNode, typeAttrXpath); // Discrete values DON'T have values in the gml namespace for the type attribute
-                boolean hasNumericValues = hasNumericValues(values);
                 String valueType;
                 if (values.isEmpty()) {
                     valueType = VALUE_TYPE_DISCRETE_STRING;
@@ -632,6 +649,40 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                 } else {
                     valueType = VALUE_TYPE_RANGE_NUMERIC;
                 }
+
+                String valuesFormatted = "";
+                if (valueType == VALUE_TYPE_RANGE_NUMERIC) {
+                    valuesFormatted = String.format("[ %s .. %s ]",
+                            numberFormat.format(jsonArray.get(0)),
+                            numberFormat.format(jsonArray.get(1)));
+                } else if (values.size() == 1) {
+                    valuesFormatted = values.get(0);
+                } else {
+                    int maxLength = 30;
+                    valuesFormatted = "[ ";
+                    for(int k=0; k<jsonArray.size(); k++) {
+                        if (k > 0) valuesFormatted += " | ";
+                        if (valuesFormatted.length() > maxLength) {
+                            valuesFormatted += "...";
+                            break;
+                        } else if(hasNumericValues) {
+                            valuesFormatted += numberFormat.format(jsonArray.get(k));
+                        } else {
+                            valuesFormatted += jsonArray.get(k);
+                        }
+                    }
+                    valuesFormatted += " ]";
+                }
+
+                IdfElement valueFormattedAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", lineStr);
+                valueFormattedAddnValue.addElement("field-key")
+                        .addText("simParamValuesFormatted");
+                valueFormattedAddnValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(valuesFormatted);
+                valueFormattedAddnValue.addElement("field-key-parent")
+                        .addText(simParamTable);
 
                 IdfElement valueTypeAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
                         .addAttribute("line", lineStr);
@@ -661,7 +712,18 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         return getNodeText(symbolNode);
     }
 
-    private boolean hasNumericValues(List<String> values) {
+    private boolean hasOnlyIntegerValues(List<String> values) {
+        try {
+            for(String v: values) {
+                Long.parseLong(v);
+            }
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean hasOnlyDoubleValues(List<String> values) {
         try {
             for(String v: values) {
                 Double.parseDouble(v);

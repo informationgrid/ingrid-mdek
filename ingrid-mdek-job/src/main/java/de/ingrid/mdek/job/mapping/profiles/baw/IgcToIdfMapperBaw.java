@@ -33,6 +33,9 @@ import de.ingrid.utils.xml.Csw202NamespaceContext;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.core.annotation.Order;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -61,6 +64,8 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
     private static final String GCO_CHARACTER_STRING_QNAME = "gco:CharacterString";
     private static final String VALUE_UNIT_ID_PREFIX = "valueUnit_";
+
+    private final JSONParser jsonParser = new JSONParser();
 
     private DOMUtils domUtil;
     private SQLUtils sqlUtils;
@@ -484,7 +489,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 .addText(String.format("%.1f", Double.parseDouble(value)));
     }
 
-    private void addDgsValues(Element mdMetadata, Long objId) throws SQLException {
+    private void addDgsValues(Element mdMetadata, Long objId) throws SQLException, ParseException {
         Map<Integer, Map<String, String>> groupedRows = getOrderedAdditionalFieldDataTableRows(objId, "simParamTable");
 
         for(Map.Entry<Integer, Map<String, String>> entry: groupedRows.entrySet()) {
@@ -494,13 +499,14 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             String paramType = trafoUtil.getIGCSyslistEntryName(BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID, Integer.parseInt(row.get("simParamType")));
             String paramUnits = row.get("simParamUnit");
             String valueType = row.get("simParamValueType");
+            JSONArray valuesJsonArray = (JSONArray) jsonParser.parse(row.get("simParamValues"));
 
-            String prefix = "simParamValue.";
-            int startIdx = prefix.length();
-            List<String> values = row.entrySet().stream()
-                    .filter(e -> e.getKey().startsWith(prefix))
-                    .sorted(Comparator.comparingInt(e -> Integer.parseInt(e.getKey().substring(startIdx))))
-                    .map(e -> e.getValue())
+            boolean areValuesIntegers = valuesJsonArray.stream().allMatch(e -> e instanceof Long);
+            boolean areValuesDoubles = !areValuesIntegers
+                    && valuesJsonArray.stream().allMatch(e -> e instanceof Double);
+
+            List<String> values = (List<String>) valuesJsonArray.stream()
+                    .map(e -> e.toString())
                     .collect(Collectors.toList());
 
             IdfElement dqElement = modelScopedDqDataQualityElement(mdMetadata);
@@ -517,8 +523,6 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             } else {
                 boolean areValuesDiscrete = VALUE_TYPE_DISCRETE_NUMERIC.equals(valueType)
                         || VALUE_TYPE_DISCRETE_STRING.equals(valueType);
-                boolean areValuesIntegers = areValuesIntegers(values);
-                boolean areValuesDoubles = !areValuesIntegers && areValuesDoubles(values);
 
                 if (areValuesDiscrete) {
                     String typeAttr;
@@ -530,23 +534,18 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                         typeAttr = "xs:double";
                     }
                     for (String val : values) {
-                        if (areValuesDoubles) {
-                            val = String.format("%.1f", Double.parseDouble(val));
-                        }
                         dqQuantitativeResult.addElement("gmd:value/gco:Record")
                                 .addAttribute("xsi:type", typeAttr)
                                 .addText(val);
                     }
                 } else {
                     String typeAttr;
-                    String val;
                     if (areValuesIntegers) {
                         typeAttr = "gml:integerList";
-                        val = String.format("%s %s", values.get(0), values.get(1));
                     } else {
                         typeAttr = "gml:doubleList";
-                        val = String.format("%.1f %.1f", Double.parseDouble(values.get(0)), Double.parseDouble(values.get(1)));
                     }
+                    String val = String.format("%s %s", values.get(0), values.get(1));
                     dqQuantitativeResult.addElement("gmd:value/gco:Record")
                             .addAttribute("xsi:type", typeAttr)
                             .addText(val);
@@ -576,28 +575,6 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 .addAttribute("codeListValue", "model");
 
         return dqElement;
-    }
-
-    private boolean areValuesIntegers(List<String> values) {
-        for(String val: values) {
-            try {
-                Integer.parseInt(val);
-            } catch (NumberFormatException unused) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean areValuesDoubles(List<String> values) {
-        for(String val: values) {
-            try {
-                Double.parseDouble(val);
-            } catch (NumberFormatException unused) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private void addWaterwayInformation(Element mdMetadata, Map<String, Object> idxDoc) {
