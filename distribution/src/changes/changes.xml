@@ -12,6 +12,15 @@
       <action type="fix" dev="wemove" issue="1746">
         Do not write description for external coupled resources.
       </action>
+      <action type="fix" dev="wemove" issue="2337">
+        Fix value for isInspire of free conformity entries.
+      </action>
+      <action type="update" dev="wemove" issue="2346">
+        UVP: Optional indexing of negative preliminary examination which have a spatial reference
+      </action>
+      <action type="update" dev="wemove" issue="2348">
+        Handle default value of explanation field of conformity during import. 
+      </action>
     </release>
     
     <release version="5.7.0" date="2021-01-19" description="Release 5.7.0">

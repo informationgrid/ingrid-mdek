@@ -983,7 +983,10 @@ var mappingDescription = {"mappings":[
 			  		},
 	  				{
 			  			"srcXpath":"gmd:explanation/gco:CharacterString",
-			  			"targetNode":"conformity-explanation"
+			  			"targetNode":"conformity-explanation",
+						"transform":{
+							"funct":removeConformityExplanationIfDefault
+						}
 			  		}
 			  	]
 			}
@@ -2607,6 +2610,10 @@ function conformityIsInspire(val, languageId, doRobustComparison) {
 		}
 	}
     return "N";
+}
+
+function removeConformityExplanationIfDefault(val) {
+	return val === "see the referenced specification" ? "" : val;
 }
 
 function transformISOToIGCLanguageCode(val) {
