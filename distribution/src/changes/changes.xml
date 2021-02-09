@@ -4,6 +4,9 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
+    <release version="5.5.7-SNAPSHOT" date="2021-xx-xx" description="Release 5.5.7-SNAPSHOT">
+    </release>
+
     <release version="5.5.6" date="2021-02-09" description="Release 5.5.6">
       <action type="update" dev="wemove" issue="2346">
         UVP: Optional indexing of negative preliminary examination which have a spatial reference
