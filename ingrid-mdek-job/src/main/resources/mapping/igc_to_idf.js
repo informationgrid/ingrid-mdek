@@ -3031,8 +3031,8 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
 
     addAttachedToField(objRow, idfObjectReference);
 
-    if (hasValue(objRow.get("descr"))) {
-        idfObjectReference.addElement("idf:description").addText(objRow.get("descr"));      
+    if (hasValue(objRow.get("obj_descr"))) {
+        idfObjectReference.addElement("idf:description").addText(objRow.get("obj_descr"));
     }
 
     // map service data if present !
