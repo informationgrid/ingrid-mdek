@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.6.6" date="2020-xx-xx" description="Release 5.6.6">
+      <action type="update" dev="wemove" issue="1844">
+        IGE: Add linkage dataype import
+      </action>
       <action type="fix" dev="wemove" issue="2245">
         Fix import of DCP-element
       </action>
