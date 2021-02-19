@@ -2305,7 +2305,7 @@ function addAvailableLinkage(linkage, target) {
             }
         } else {
             if (hasValue(linkage.datatype_value)) {
-                datatype_key = codeListService.getSysListEntryKey(1320, linkage.datatype_value, catLangCode);
+                datatype_key = codeListService.getSysListEntryKey(1320, linkage.datatype_value, "de");
                 if (hasValue(datatype_key)){
                     XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), "id", datatype_key);
                 }
