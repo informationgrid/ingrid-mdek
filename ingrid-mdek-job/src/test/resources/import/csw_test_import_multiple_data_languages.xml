@@ -597,7 +597,7 @@ vierte Zeile</gco:CharacterString>
                     <gml:VerticalCS gml:id="verticalCS_ID_554e9fb0-602d-47ea-a59c-468930e4286e">
                       <gml:identifier codeSpace=""/>
                       <gml:axis>
-                        <gml:CoordinateSystemAxis gml:id="coordinateSystemAxis_ID_c570d3a6-a0e6-417c-9fd4-1e04d29baa43" gml:uom="Kilometre">
+                        <gml:CoordinateSystemAxis gml:id="coordinateSystemAxis_ID_c570d3a6-a0e6-417c-9fd4-1e04d29baa43" uom="Kilometre">
                           <gml:identifier codeSpace=""/>
                           <gml:axisAbbrev/>
                           <gml:axisDirection codeSpace=""/>

@@ -514,7 +514,7 @@
                                                 <gml:VerticalCS gml:id="verticalCS_ID_be08dbe1-fb80-47b4-b4ba-38c964d98808">
                                                     <gml:identifier codeSpace="" />
                                                     <gml:axis>
-                                                        <gml:CoordinateSystemAxis gml:id="coordinateSystemAxis_ID_6664c426-cd7c-4e9d-a4c2-eb5274a5203c" gml:uom="Metre">
+                                                        <gml:CoordinateSystemAxis gml:id="coordinateSystemAxis_ID_6664c426-cd7c-4e9d-a4c2-eb5274a5203c" uom="Metre">
                                                             <gml:identifier codeSpace="" />
                                                             <gml:axisAbbrev />
                                                             <gml:axisDirection codeSpace="" />
