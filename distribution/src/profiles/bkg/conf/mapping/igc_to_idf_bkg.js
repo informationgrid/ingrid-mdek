@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -220,7 +220,7 @@ function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherC
             .addText("otherRestrictions");
         for (var j=0; j<otherConstraints.length; j++) {
             if (otherConstraints[j]) {
-                if (isInspireRelevant() && otherConstraints[j] === "Es gelten keine Bedingungen") {
+                if (isInspireRelevant() && (otherConstraints[j] === "Es gelten keine Bedingungen" || otherConstraints[j] === "No conditions to access and use")) {
                     legalConstraint
                         .addElement("gmd:otherConstraints/gmx:Anchor")
                         .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/ConditionsApplyingToAccessAndUse/noConditionsApply")

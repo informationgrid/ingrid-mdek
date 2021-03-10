@@ -1,3 +1,25 @@
+/*-
+ * **************************************************-
+ * InGrid mdek-services
+ * ==================================================
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
+ * ==================================================
+ * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * approved by the European Commission - subsequent versions of the
+ * EUPL (the "Licence");
+ * 
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ * http://ec.europa.eu/idabc/eupl5
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * **************************************************#
+ */
 package de.ingrid.mdek.services.catalog;
 
 import de.ingrid.mdek.MdekKeys;
@@ -8,7 +30,10 @@ import de.ingrid.utils.xml.ConfigurableNamespaceContext;
 import de.ingrid.utils.xml.Csw202NamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -16,13 +41,17 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ImportLinkHandler {
 
+    private static final Logger LOG = LogManager.getLogger(ImportLinkHandler.class);
+    
     private final MdekObjectService objectService;
 
     public ImportLinkHandler(MdekObjectService objectService) {
@@ -36,6 +65,11 @@ public class ImportLinkHandler {
 
         for (Object linkage : linkages) {
             IngridDocument linkageDoc = (IngridDocument) linkage;
+            
+            if (linkageShouldBeIgnored(linkageDoc)) {
+                continue;
+            }
+            
             boolean hasUuid = linkageDoc.containsKey(MdekKeys.LINKAGE_UUID);
             if (hasUuid) {
                 String uuid = linkageDoc.getString(MdekKeys.LINKAGE_UUID);
@@ -49,7 +83,7 @@ public class ImportLinkHandler {
             }
 
             String link = linkageDoc.getString(MdekKeys.LINKAGE_URL);
-            Document content = null;
+            Document content;
             try {
                 content = getDocumentFromUrl(link, true);
 
@@ -57,6 +91,13 @@ public class ImportLinkHandler {
                     ConfigurableNamespaceContext ns = new ConfigurableNamespaceContext();
                     ns.addNamespaceContext(new Csw202NamespaceContext());
                     XPathUtils xPathUtils = new XPathUtils(ns);
+
+                    // skip documents that do not have a hierarchyLevel
+                    Node hierarchyLevelNode = xPathUtils.getNode(content, "//gmd:MD_Metadata/gmd:hierarchyLevel");
+                    if (hierarchyLevelNode == null) {
+                        LOG.debug("XML Document does not contain hierarchyLevel-element: " + link);
+                        continue;
+                    }
 
                     boolean isDataset = "dataset".equals(xPathUtils.getString(content, "//gmd:MD_Metadata/gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue"));
                     if (isDataset) {
@@ -78,18 +119,32 @@ public class ImportLinkHandler {
                     }
                 }
 
-            } catch (SAXException | IOException | ParserConfigurationException e) {
-                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                // just ignore since many URLs 
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("This URL does not seem to be right and is ignored: " + link);
+                }
+            } catch (SAXException | FileNotFoundException e) {
+                LOG.debug("Content could not be parsed, so we assume it's not a coupled resource or not available: " + link);
+            } catch (IOException | ParserConfigurationException e) {
+                LOG.error("Error handling coupled resource during import", e);
             }
         }
 
         linkages.removeAll(handled);
     }
 
+    private boolean linkageShouldBeIgnored(IngridDocument linkageDoc) {
+        boolean isOperatesOn = "operates on".equals(linkageDoc.getString(MdekKeys.LINKAGE_NAME));
+        return !isOperatesOn;
+    }
+
     private Document getDocumentFromUrl(String urlStr, boolean namespaceAware) throws SAXException, IOException, ParserConfigurationException {
         URL url = new URL(urlStr);
+        URLConnection con = url.openConnection();
+        con.setConnectTimeout(3000);
         // get the content in UTF-8 format, to avoid "MalformedByteSequenceException: Invalid byte 1 of 1-byte UTF-8 sequence"
-        InputStream input = checkForUtf8BOMAndDiscardIfAny(url.openStream());
+        InputStream input = checkForUtf8BOMAndDiscardIfAny(con.getInputStream());
         Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8);
         InputSource inputSource = new InputSource(reader);
         // Build a document from the xml response

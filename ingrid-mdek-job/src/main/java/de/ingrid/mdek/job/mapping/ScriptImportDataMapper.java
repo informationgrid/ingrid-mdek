@@ -2,7 +2,7 @@
  * **************************************************-
  * Ingrid Portal MDEK Application
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -117,8 +117,8 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 			if (log.isDebugEnabled()) {
                 log.debug("Target XML template:\n" + XMLUtils.toString(targetIgc));
 			}
-            // create utils for script
-            SQLUtils sqlUtils = new SQLUtils(conn);
+            // create utils for script (use function to be able to mock it)
+            SQLUtils sqlUtils = getSqlUtils(conn);
             // get initialized XPathUtils (see above)
             TransformationUtils trafoUtils = new TransformationUtils(sqlUtils);
             DOMUtils domUtils = new DOMUtils(targetIgc, xpathUtils);
@@ -158,6 +158,10 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
 		}
 	}
 	
+	public SQLUtils getSqlUtils(Connection conn) {
+		return new SQLUtils(conn);
+	}
+
 	private void mapAdditionalFields(Document docTarget) throws Exception {
 		String igcProfileStr = null;
 		try(Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {

@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid IGE Distribution
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -184,7 +184,7 @@ var McloudMapper = /** @class */ (function () {
         return this.objUuid;
     };
     McloudMapper.prototype.getMetadataIssued = function () {
-        return undefined; // this.issuedExisting ? this.issuedExisting : new Date(Date.now());
+        return new Date(toMilliseconds(this.objRow.get('create_time')));
     };
     McloudMapper.prototype.getMetadataSource = function () {
         return {
@@ -244,10 +244,27 @@ var McloudMapper = /** @class */ (function () {
     };
 
     McloudMapper.prototype.getAccrualPeriodicity = function () {
+        var time_period_value = this.objRow.get('time_period');
+        var time_period = TRANSF.getIGCSyslistEntryName(518, time_period_value, 'en');
+
+        switch(time_period){
+            case "continual": return "CONT";
+            case "daily": return "DAILY";
+            case "weekly": return "WEEKLY";
+            case "fortnightly": return "BIWEEKLY";
+            case "monthly": return "MONTHLY";
+            case "quarterly": return "QUARTERLY";
+            case "biannually": return "BIENNIAL";
+            case "annually": return "ANNUAL";
+            case "as Needed": return "IRREG";
+            case "irregular": return "IRREG";
+            case "not Planned": return "NEVER";
+            case "unknown": return "UNKNOWN";
+        }
         return undefined;
     };
     McloudMapper.prototype.getKeywords = function () {
-        return undefined;
+        return getKeywords(this.objId);
     };
     McloudMapper.prototype.getCreator = function () {
         return undefined;
@@ -265,23 +282,24 @@ var McloudMapper = /** @class */ (function () {
         return undefined;
     };
     McloudMapper.prototype.getMetadataModified = function () {
-        return new Date();
+        return new Date(toMilliseconds(this.objRow.get('mod_time')));
     };
     McloudMapper.prototype.getSubSections = function () {
         return undefined;
     };
     McloudMapper.prototype.getExtrasAllData = function () {
-        var result;
+        var result = getKeywords(this.objId);
 
         var mfundFkz = getAdditionalField(this.objId, 'mcloudMFundFKZ');
         var mfundProject = getAdditionalField(this.objId, 'mcloudMFundProject');
         if (mfundFkz || mfundProject) {
-            result = ["mfund"];
+            if(!result) result = [];
+            result.push("mfund");
             if (mfundFkz) {
-                result.push(["mFUND-FKZ: " + mfundFkz.data]);
+                result.push("mFUND-FKZ: " + mfundFkz.data);
             }
             if (mfundProject) {
-                result.push(["mFUND-Projekt: " + mfundProject.data]);
+                result.push("mFUND-Projekt: " + mfundProject.data);
             }
         }
 
@@ -347,6 +365,23 @@ var McloudMapper = /** @class */ (function () {
             }
         }
         return distributions;
+    }
+
+    function getKeywords(objId){
+        var keywords;
+
+        var rows = SQL.all("SELECT * FROM searchterm_obj, searchterm_value WHERE searchterm_obj.obj_id=? AND searchterm_obj.searchterm_id=searchterm_value.id", [+objId]); // type 10 is Publisher/Herausgeber
+        for (var j = 0; j < rows.size(); j++) {
+            var keyword = rows.get(j).get("term");
+            if(keyword && keyword.trim().length > 0){
+                keyword = keyword.trim();
+                if(!keywords) keywords = [];
+                if(keywords.indexOf(keyword) === -1){
+                    keywords.push(keyword);
+                }
+            }
+        }
+        return keywords;
     }
 
     function getOrganizations(objId) {

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-import-export
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -329,16 +329,20 @@ public class XMLDatasourceToDocMapper extends AbstractXMLToDocMapper {
 
 	private static void mapDOI(Document source, IngridDocument target) {
 		String doi = XPathUtils.getString(source, X_DOI_ID);
-		IngridDocument additionalDOI = new IngridDocument();
-		putString(MdekKeys.ADDITIONAL_FIELD_KEY, "doiId", additionalDOI);
-		putString(MdekKeys.ADDITIONAL_FIELD_DATA, doi, additionalDOI);
-		target.addToList(MdekKeys.ADDITIONAL_FIELDS, additionalDOI);
+		if (doi != null) {
+			IngridDocument additionalDOI = new IngridDocument();
+			putString(MdekKeys.ADDITIONAL_FIELD_KEY, "doiId", additionalDOI);
+			putString(MdekKeys.ADDITIONAL_FIELD_DATA, doi, additionalDOI);
+			target.addToList(MdekKeys.ADDITIONAL_FIELDS, additionalDOI);
+		}
 
 		String doiType = XPathUtils.getString(source, X_DOI_TYPE);
-		IngridDocument additionalDOIType = new IngridDocument();
-		putString(MdekKeys.ADDITIONAL_FIELD_KEY, "doiType", additionalDOIType);
-		putString(MdekKeys.ADDITIONAL_FIELD_DATA, doiType, additionalDOIType);
-		target.addToList(MdekKeys.ADDITIONAL_FIELDS, additionalDOIType);
+		if (doiType != null) {
+			IngridDocument additionalDOIType = new IngridDocument();
+			putString(MdekKeys.ADDITIONAL_FIELD_KEY, "doiType", additionalDOIType);
+			putString(MdekKeys.ADDITIONAL_FIELD_DATA, doiType, additionalDOIType);
+			target.addToList(MdekKeys.ADDITIONAL_FIELDS, additionalDOIType);
+		}
 	}
 
 	private static void mapGeneralAdditionalValues(Document source, IngridDocument target) {

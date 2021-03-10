@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -213,8 +213,17 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
         config.communicationProxyUrl = igeClientName;
         config.writeCommunication( "conf/communication-ige.xml", igeCommunication );
         config.communicationProxyUrl = temp;
+
+        String[] arv = new String[0];
+
+        String catalogLanguage = System.getenv("CATALOG_LANGUAGE");
+        if (catalogLanguage != null) {
+            if (catalogLanguage.toLowerCase().equals("en")) {
+                arv = new String[] {"-l",  "en"};
+            }
+        }
         
-        Importer.main( new String[0] );
+        Importer.main( arv );
 
         if (Importer.importSuccess == null || !Importer.importSuccess) {
             log.error("Error during database migration. Please check out the logs.");

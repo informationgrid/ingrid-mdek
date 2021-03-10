@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -580,7 +580,12 @@ function addT011ObjServ(row) {
     IDX.add("t011_obj_serv.environment", row.get("environment"));
     IDX.add("t011_obj_serv.base", row.get("base"));
     IDX.add("t011_obj_serv.description", row.get("description"));
-    IDX.add("t011_obj_serv.has_access_constraint", row.get("has_access_constraint"));
+    if (hasValue(row.get("has_access_constraint")) && row.get("has_access_constraint")=='Y') {
+        IDX.add("t011_obj_serv.has_access_constraint", row.get("has_access_constraint"));
+    } else {
+        IDX.add("t011_obj_serv.has_access_constraint", "N");
+    }
+    
     IDX.add("t011_obj_serv.coupling_type", row.get("coupling_type"));
     IDX.add("t011_obj_serv.has_atom_download", row.get("has_atom_download"));
     if (hasValue(row.get("has_atom_download")) && row.get("has_atom_download")=='Y') {
@@ -605,7 +610,11 @@ function addT011ObjServOpConnpoint(row, isCapabilityUrl) {
     }
 }
 function addCapabilitiesUrl(row) {
-    IDX.add("capabilities_url", row.get("connect_point"));
+    // Add 't011_obj_serv.has_access_constraint' to check constraint
+    // Issue: https://redmine.informationgrid.eu/issues/2199
+    if (!hasValue(row.get("has_access_constraint")) || row.get("has_access_constraint") !== 'Y') {
+        IDX.add("capabilities_url", row.get("connect_point"));
+    }
 }
 function addT011ObjServOpDepends(row) {
     IDX.add("t011_obj_serv_op_depends.line", row.get("line"));
