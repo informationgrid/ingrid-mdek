@@ -119,7 +119,9 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- t011_obj_serv ----------
         var rows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
         for (j=0; j<rows.size(); j++) {
-            addT011ObjServ(rows.get(j));
+            if (objClass.equals("3")){
+                addT011ObjServ(rows.get(j));
+            }
             var objServId = rows.get(j).get("id");
 
             // ---------- t011_obj_serv_operation ----------
@@ -1016,7 +1018,7 @@ function addT01ObjectTo(row, id) {
   IDX.add("object_reference.obj_name", row.get("obj_name"));
   IDX.add("object_reference.obj_class", row.get("obj_class"));
   var tmpRows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
-  if(tmpRows.size() > 0) {
+  if(tmpRows.size() > 0 && row.get("obj_class").equals("3")) {
     for (t=0; t<tmpRows.size(); t++) {
       IDX.add("object_reference.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key")));
     }
@@ -1029,7 +1031,7 @@ function addT01ObjectFrom(row, id) {
     IDX.add("refering.object_reference.obj_name", row.get("obj_name"));
     IDX.add("refering.object_reference.obj_class", row.get("obj_class"));
     var tmpRows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
-    if(tmpRows.size() > 0) {
+    if(tmpRows.size() > 0 && row.get("obj_class").equals("3")) {
       for (t=0; t<tmpRows.size(); t++) {
         IDX.add("refering.object_reference.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key")));
       }
