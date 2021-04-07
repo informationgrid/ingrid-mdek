@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-api
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -36,7 +36,7 @@ public class Versioning {
 	public static final String NEEDED_IGC_VERSION = "5.7";
     /** This is the version the catalog has to be updated to when the iPlug is started !<br>
      * This normally is the most current version of the catalog (the strategy of the udk importer executed). */
-    public static final String UPDATE_TO_IGC_VERSION = "5.7.0_a";
+    public static final String UPDATE_TO_IGC_VERSION = "5.7.1";
 
 	/** Key for fetching IGC Version from backend from SysGenericKey table */
 	public static final String BACKEND_IGC_VERSION_KEY = "IDC_VERSION";

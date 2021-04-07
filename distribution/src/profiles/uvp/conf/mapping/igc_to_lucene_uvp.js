@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2020 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -50,6 +50,7 @@ IDX.addDocumentBoost(1.0);
 var behavioursValueRow = SQL.first("SELECT * FROM sys_generic_key WHERE key_name='BEHAVIOURS'");
 var codelist = '';
 var publishNegativeExaminations = false;
+var publishNegativeExaminationsOnlyWithSpatialReferences = false;
 if (hasValue(behavioursValueRow)){
     var behaviours = behavioursValueRow.get("value_string");
     if(hasValue(behaviours)){
@@ -78,6 +79,14 @@ if (hasValue(behavioursValueRow)){
                         }
                     } else if (behaviourId.equals("uvpPublishNegativeExamination")) {
                         publishNegativeExaminations = behaviour.active;
+                        if (behaviour.params) {
+                            for (var i=0; i<behaviour.params.length; i++) {
+                                if (behaviour.params[i].id === "onlyWithSpatialReferences") {
+                                    publishNegativeExaminationsOnlyWithSpatialReferences = behaviour.params[i].value;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -247,6 +256,8 @@ for (i=0; i<objRows.size(); i++) {
             var lonCenter = spatialArray[0] + (spatialArray[2] - spatialArray[0])/2;
             IDX.add("lon_center", lonCenter);
             IDX.add("lat_center", latCenter);
+        } else if (objClass === "12" && publishNegativeExaminations && publishNegativeExaminationsOnlyWithSpatialReferences) {
+            throw new SkipException("Catalog settings say not to publish negative examinations with no spatial references");
         }
         
         // add UVP specific mapping
