@@ -118,7 +118,7 @@ public class HQLDaoHibernate
 			String qStringFrom = qString.substring(fromStartIndex);
 
 			if (entityAlias != null) {
-				qString = "select "
+				qString = "select distinct "
 					+ entityAlias + " " 
 					+ qStringFrom;
 			}
@@ -128,7 +128,7 @@ public class HQLDaoHibernate
 			entityList = session.createQuery(qString)
 				.setFirstResult(startHit)				
 				.setMaxResults(numHits)				
-				.setResultTransformer(new DistinctRootEntityResultTransformer())
+				.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 				.list();
 		}
 
