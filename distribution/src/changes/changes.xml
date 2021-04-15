@@ -5,7 +5,7 @@
   </properties>
   <body>
 
-    <release version="5.8.0" date="2021-xx-xx" description="Release 5.8.0">
+    <release version="5.8.0" date="2021-04-15" description="Release 5.8.0">
       <action type="add" dev="wemove" issue="2319">
         Remove child documents of deleted document from index and protocol it.
       </action>
@@ -19,10 +19,10 @@
         UVP: Optional indexing of negative preliminary examination which have a spatial reference
       </action>
       <action type="update" dev="wemove" issue="2348">
-        Handle default value of explanation field of conformity during import. 
+        Handle default value of explanation field of conformity during import.
       </action>
       <action type="update" dev="wemove" issue="2228">
-        Do not show links of coupled service 
+        Do not show links of coupled service
       </action>
       <action type="fix" dev="wemove" issue="2378">
         Fix paging of HQL results
@@ -37,7 +37,7 @@
         Fix value for isInspire of free conformity entries.
       </action>
     </release>
-    
+
     <release version="5.7.0" date="2021-01-19" description="Release 5.7.0">
       <action type="fix" dev="wemove" issue="1783">
         Fix iso export of 'Relative Pisitional Accuracy'
@@ -412,7 +412,7 @@
         Fix initial codelists (1320, 6005, 6100), data was lost when codelists were separated.
       </action>
       <action type="fix" dev="wemove" issue="1199">
-        BKG: Fix import of useConstraints. 
+        BKG: Fix import of useConstraints.
       </action>
     </release>
 
@@ -440,7 +440,7 @@
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-1156">
         UVP: Fix mapping for procedure 'negative Vorprüfungen'.
-      </action>      
+      </action>
       <action type="fix" dev="wemove" issue="REDMINE-1192">
         Fix postgres detection on english system.
       </action>
@@ -454,7 +454,7 @@
 
     <release version="4.4.0" date="2018-06-21" description="Release 4.4.0">
       <action type="add" dev="wemove" issue="REDMINE-905">
-        UVP: Add new statistic request to get all published documents. 
+        UVP: Add new statistic request to get all published documents.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-601">
         IGE: Add option to publish metadata at a later date. UVP: Add option to conditionally publish documents in Phase 1.
@@ -482,10 +482,10 @@
         Map new fields for spatial representation info.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-934">
-        Map id of gazetteer location to areaid in index if no ags/rs found, so spatial search via gazetteer works in portal.   
+        Map id of gazetteer location to areaid in index if no ags/rs found, so spatial search via gazetteer works in portal.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-933">
-        IDF: Only map child addresses with same or wider Publication Condition (publish_id). 
+        IDF: Only map child addresses with same or wider Publication Condition (publish_id).
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-944">
         IGE: Only use lowercase index fields while indexing to avoid problems with search.
@@ -548,7 +548,7 @@
         Added table adv_product_group and import/export functionality.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-201">
-        Adapt schema location, codelists to current INSPIRE specs when writing IDF. 
+        Adapt schema location, codelists to current INSPIRE specs when writing IDF.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-204">
         Add new lines for multiple lineage fields during import.
@@ -563,7 +563,7 @@
         Remove GDI-DE prefix from useLimitation and useConstraints during ISO import.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-647">
-        Fixed ISO import of incomplete addresses, now persisted as working version. 
+        Fixed ISO import of incomplete addresses, now persisted as working version.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-635">
         Fixed insertion of published documents under folders.
@@ -572,7 +572,7 @@
         Fixed clearing of additional fields after they have been published.
       </action>
     </release>
-    
+
     <release version="4.0.2" date="2017-04-06" description="Release 4.0.2">
       <action type="add" dev="wemove" issue="REDMINE-438">
         Added support for PostgreSQL. Full support in installer (create empty catalog) or migration via tool (see docs in conf/sql).
@@ -596,7 +596,7 @@
         Fixed wrong conversion of date to ISO format.
       </action>
     </release>
-    
+
     <release version="4.0.1" date="2016-02-01" description="Release 4.0.1">
       <action type="add" dev="wemove" issue="REDMINE-200">
         Map field explanation of conformity.
@@ -614,22 +614,22 @@
         Persist new field "gridPosAccuracy" and handle import.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-515">
-        Map "Veröffentlichung" to same index field in objects/addresses (""publish_id") so query constraint in iPlug is possible.    
+        Map "Veröffentlichung" to same index field in objects/addresses (""publish_id") so query constraint in iPlug is possible.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-331">
-        Adapted sort order of CRS during ISO export.   
+        Adapted sort order of CRS during ISO export.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-107">
-        Introduce metadata column to save date when expiry mail was sent to sent expiry emails in intervals.   
+        Introduce metadata column to save date when expiry mail was sent to sent expiry emails in intervals.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-527">
-        Return info of imported objects/adresses for indexing immediately after import. 
+        Return info of imported objects/adresses for indexing immediately after import.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-529">
-        Fix import of top nodes via IGE frontend. 
+        Fix import of top nodes via IGE frontend.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-526">
-        Fix problem with deleting objects via CSW-T that have no ORIG_UUID set and are linked by other objects. 
+        Fix problem with deleting objects via CSW-T that have no ORIG_UUID set and are linked by other objects.
       </action>
       <action type="fix" dev="wemove" issue="REDMINE-459">
         Add new fields "Vorschaugrafik" / "Dateibeschreibung" to profile to appear in "additional fields" in frontend.
@@ -698,7 +698,7 @@
         Do not cache CSW-T-Requests.
       </action>
     </release>
-    
+
     <release version="3.6.2" date="2016-05-30" description="Release InGrid 3.6.2">
       <action type="add" dev="wemove" issue="REDMINE-113">
         First version of CSW-T interface.
@@ -713,7 +713,7 @@
         Index/IDF: Create IDF details while indexing and add it to index document. Use IDF from index document if exists.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-250">
-        IDF: During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.  
+        IDF: During mapping log problems transforming syslist entries with debug to avoid lots of irrelevant error output.
       </action>
       <action type="update" dev="wemove" issue="REDMINE-223">
         IDF: Add "Nutzungseinschränkungen: " / "Nutzungsbedingungen: " pre text to useLimitation / useConstraints (otherConstraints) according to GDI-DE.
@@ -744,19 +744,19 @@
         IDF: Fixed mapping of null date.
       </action>
     </release>
-    
+
     <release version="3.6.1.2" date="2016-01-22" description="Release InGrid 3.6.1.2">
       <action type="update" dev="wemove" issue="REDMINE-246">
         Create new object in index now synchronized to avoid duplicates.
       </action>
     </release>
-    
+
     <release version="3.6.1.1" date="2015-12-03" description="Release InGrid 3.6.1.1">
       <action type="fix" dev="wemove" issue="REDMINE-225">
         Add new field "Nutzungsbeschränkungen" to profile to appear in "additional fields".
       </action>
     </release>
-    
+
     <release version="3.6.1" date="2015-11-19" description="Release InGrid 3.6.1">
       <action type="add" dev="wemove" issue="REDMINE-47">
         Edit service version via selectbox and new syslist (according to GDI-DE content).
