@@ -255,6 +255,9 @@ function mapUseConstraintsBkg(source, target) {
                                 removeUseConstraint(target, selectValue);
                         }
                     }
+                    if (checkJSON(freeTextValue)) {
+                        freeTextValue = null;
+                    }
                     if (addUseValuesToDoc(target, entryId, freeTextValue)) {
                         removeUseConstraint(target, codeListService.getSysListEntryName(codelistIdBkg, entryId));
                         removeUseConstraint(target, freeTextValue);
@@ -352,7 +355,7 @@ function getSysListEntryKey(codelistId, entryName) {
 
     log.debug("BKG: getSysListEntryKey -> codelistId='" + codelistId + "', entryName='" + entryName + "'");
 
-    var retValue = codeListService.getSysListEntryKey(codelistId, entryName, "de", true);
+    var retValue = codeListService.getSysListEntryKey(codelistId, entryName, catLangCode, true);
 
     log.debug("BKG: getSysListEntryKey found key='" + retValue + "'");
 

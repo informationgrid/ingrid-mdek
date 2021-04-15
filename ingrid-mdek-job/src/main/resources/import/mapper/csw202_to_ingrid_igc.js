@@ -983,7 +983,10 @@ var mappingDescription = {"mappings":[
 			  		},
 	  				{
 			  			"srcXpath":"gmd:explanation/gco:CharacterString",
-			  			"targetNode":"conformity-explanation"
+			  			"targetNode":"conformity-explanation",
+						"transform":{
+							"funct":removeConformityExplanationIfDefault
+						}
 			  		}
 			  	]
 			}
@@ -2276,6 +2279,7 @@ function mapDistributionLinkages(source, target) {
                 } else if ( linkType === "search" ) {
                     linkage.referenceId = 5305
                 }
+                linkage.datatype_value = XPATH.getString(linkages.item(i), "./gmd:applicationProfile/gco:CharacterString");
             }
 
             addAvailableLinkage(linkage, target);
@@ -2302,12 +2306,21 @@ function addAvailableLinkage(linkage, target) {
         if (hasValue(linkage.description)) {
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-description"), linkage.description);
         }
-		if (hasValue(linkage.datatype_key)) {
-			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), "id", linkage.datatype_key);
-			if (hasValue(linkage.datatype_value)) {
-				XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), linkage.datatype_value);
-			}
-		}
+        if (hasValue(linkage.datatype_key)) {
+            XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), "id", linkage.datatype_key);
+            if (hasValue(linkage.datatype_value)) {
+                XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), linkage.datatype_value);
+            }
+        } else {
+            if (hasValue(linkage.datatype_value)) {
+                datatype_key = codeListService.getSysListEntryKey(1320, linkage.datatype_value, catLangCode);
+                if (hasValue(datatype_key)){
+                    XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), "id", datatype_key);
+                }
+                XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), linkage.datatype_value);
+            }
+        }
+
     }
 }
 
@@ -2607,6 +2620,10 @@ function conformityIsInspire(val, languageId, doRobustComparison) {
 		}
 	}
     return "N";
+}
+
+function removeConformityExplanationIfDefault(val) {
+	return val === "see the referenced specification" ? "" : val;
 }
 
 function transformISOToIGCLanguageCode(val) {

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -939,26 +940,36 @@ public class MdekObjectService {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND, "Missing UUID: " + uuid));
 		}
 
-		checkObjectTreeReferencesForDelete(oNode, forceDeleteReferences);
+		List<ObjectNode> subNodes = checkObjectTreeReferencesForDelete(oNode, forceDeleteReferences);
 
 		// delete complete Node ! rest is deleted per cascade (subnodes, permissions)
 		daoObjectNode.makeTransient(oNode);
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.RESULTINFO_WAS_FULLY_DELETED, true);
-		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);	
-
-        // then set IDs in doc and update changed entities in JobInfo
-        // result.put( MdekKeys.ID, oPub.getId() );
-        // result.put( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER, oPub.getOrgObjId() );
-        result.put( MdekKeys.UUID, uuid );
-        jobHandler.updateRunningJobChangedEntities(userUuid,
-                IdcEntityType.OBJECT, WorkState.DELETED, result,
-                "DELETED document");
+		result.put(MdekKeys.RESULTINFO_WAS_MARKED_DELETED, false);
+		
+		List<String> deletedUuids = subNodes.stream()
+				.map(ObjectNode::getObjUuid)
+				.collect(Collectors.toList());
+		
+		updateRunningJobChangedEntities(userUuid, deletedUuids);
+		
         // and we also update changed entities in result
         result.put(MdekKeys.CHANGED_ENTITIES, jobHandler.getRunningJobChangedEntities(userUuid));
 
 		return result;
+	}
+	
+	private void updateRunningJobChangedEntities(String userUuid, List<String> deletedUuids) {
+		// update and audit all deleted nodes
+		deletedUuids.forEach(uuid -> {
+			IngridDocument resultSub = new IngridDocument();
+			resultSub.put( MdekKeys.UUID, uuid );
+			jobHandler.updateRunningJobChangedEntities(userUuid,
+					IdcEntityType.OBJECT, WorkState.DELETED, resultSub,
+					"DELETED document");
+		});
 	}
 
 	/** FULL DELETE IF NOT PUBLISHED !!!<br> 
@@ -1356,7 +1367,7 @@ public class MdekObjectService {
 	 * 		true=delete all references found, no exception<br>
 	 * 		false=don't delete references, throw exception
 	 */
-	private void checkObjectTreeReferencesForDelete(ObjectNode topNode, boolean forceDeleteReferences) {
+	private List<ObjectNode> checkObjectTreeReferencesForDelete(ObjectNode topNode, boolean forceDeleteReferences) {
 		// process all subnodes including top node
 
 		List<ObjectNode> subNodes = daoObjectNode.getAllSubObjects(
@@ -1367,6 +1378,8 @@ public class MdekObjectService {
 			// check
 			checkObjectNodeReferencesForDelete(subNode, forceDeleteReferences);			
 		}
+		
+		return subNodes;
 	}
 
 	/**
