@@ -369,8 +369,8 @@ function getIdfObjectReference(objRow, elementName) {
 
     addAttachedToField(objRow, idfObjectReference);
 
-    if (hasValue(objRow.get("descr"))) {
-        idfObjectReference.addElement("idf:description").addText(objRow.get("descr"));
+    if (hasValue(objRow.get("obj_descr"))) {
+        idfObjectReference.addElement("idf:description").addText(objRow.get("obj_descr"));
     }
 
     var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE serv.obj_id=? AND serv.type_key=2 AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objRow.get("id")]);
