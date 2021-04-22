@@ -256,6 +256,7 @@ function mapUseConstraintsBkg(source, target) {
                         }
                     }
                     if (checkJSON(freeTextValue)) {
+                        removeUseConstraint(target, freeTextValue);
                         freeTextValue = null;
                     }
                     if (addUseValuesToDoc(target, entryId, freeTextValue)) {
@@ -445,6 +446,11 @@ function removeAccessConstraint(target, name) {
 function removeUseConstraint(target, name) {
     log.debug("BKG: Try to remove useConstraint: '" + name + "'");
     if (hasValue(name)) {
+        // if json extract name to remove the useConstraint
+        if (isJsonString(name)){
+            name = JSON.parse(name);
+            name = name.name;
+        }
         var nodes = XPATH.getNodeList(target, "//use-constraint/license");
         if (hasValue(nodes)) {
             name = removeConstraintPraefix(name);
