@@ -2593,13 +2593,22 @@ function addDistributionInfo(mdMetadata, objId) {
     // ATTENTION: Skip urls already added ! If geoservice and geodata contain the same download link, it will be added twice !
     var addedURLs = [];
     for (i=0; i<rows.size(); i++) {
-        var myUrlLink = rows.get(i).get("url_link");
-        if (hasValue(myUrlLink)) {
+      var myUrlLink = rows.get(i).get("url_link");
+      var myUrlLinkContent = rows.get(i).get("content");
+      var myUrlLinkSpecialRef = rows.get(i).get("special_ref");
+      if (hasValue(myUrlLink)) {
+            var addedURL = myUrlLink;
+            if (hasValue(myUrlLinkContent)) {
+              addedURL += "|" + myUrlLinkContent;
+            }
+            if (hasValue(myUrlLinkSpecialRef)) {
+              addedURL += "|" + myUrlLinkSpecialRef;
+            }
             // check whether we already added that link then skip
-            if (addedURLs.indexOf(myUrlLink) !== -1) {
+            if (addedURLs.indexOf(addedURL) !== -1) {
                 continue;
             }
-            addedURLs.push(myUrlLink);
+            addedURLs.push(addedURL);
 
             if (!mdDistribution) {
                 mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
@@ -2614,8 +2623,8 @@ function addDistributionInfo(mdMetadata, objId) {
             if (hasValue(rows.get(i).get("datatype_value"))) {
                 idfOnlineResource.addElement("gmd:applicationProfile/gco:CharacterString").addText(rows.get(i).get("datatype_value"));
             }
-            if (hasValue(rows.get(i).get("content"))) {
-                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:name"), rows.get(i).get("content"));
+            if (hasValue(myUrlLinkContent)) {
+                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:name"), myUrlLinkContent);
             }
             var description = rows.get(i).get("descr");
             var idPart = hasValue(description) ? description.split("#**#") : null;
