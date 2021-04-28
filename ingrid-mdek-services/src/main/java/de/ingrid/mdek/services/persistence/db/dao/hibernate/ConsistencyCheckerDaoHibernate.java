@@ -210,7 +210,7 @@ public class ConsistencyCheckerDaoHibernate
 		String hqlQuery = "select obj " +
 				"from T01Object obj " +
 				"left outer join obj.t012ObjAdrs objAdr " +
-				"where objAdr = null";
+				"where obj.objClass != 1000 AND objAdr = null";
 		// DEPRECATED: NO CHECK OF VERWALTER ANYMORE, just any address needed, see INGRID32-46
 /*
 				"or (objAdr.type != " + MdekUtils.OBJ_ADR_TYPE_VERWALTER_ID +

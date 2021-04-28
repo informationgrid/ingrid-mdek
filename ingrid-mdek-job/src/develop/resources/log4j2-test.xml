@@ -2,7 +2,7 @@
 <Configuration status="WARN" monitorInterval="5">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%-5p [%d{yyyy-MM-dd HH:mm:ss}] (%F:%L) - %m%n" />
+            <PatternLayout pattern="%-5p [%d{yyyy-MM-dd HH:mm:ss}] (%l:%F:%L) - %m%n" />
         </Console>
         <Console name="Audit" target="SYSTEM_OUT">
             <PatternLayout pattern="AUDIT: [%d{yyyy-MM-dd HH:mm:ss}] %m%n" />
@@ -12,6 +12,9 @@
         <Logger name="de.ingrid" level="debug" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
+        <!--Logger name="org.hibernate" level="debug" additivity="false">
+            <AppenderRef ref="Console" />
+        </Logger-->
         <!--<Logger name="de.ingrid.mdek.services.log.AuditService" level="info" additivity="false">
             <AppenderRef ref="Audit" />
         </Logger>-->

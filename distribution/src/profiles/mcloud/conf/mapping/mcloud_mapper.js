@@ -105,9 +105,9 @@ var McloudMapper = /** @class */ (function () {
                 var type = wkt.substring(0, coordsPos).trim().toLowerCase();
                 var coords = wkt.substring(coordsPos).trim();
                 coords = coords.replace(/\(/g, "[").replace(/\)/g, "]");
-                coords = coords.replace(/\[(\s*[0-9][^\]]*\,[^\]]*[0-9]\s*)\]/g, "[[$1]]");
-                coords = coords.replace(/([0-9])\s*\,\s*([0-9])/g, "$1], [$2");
-                coords = coords.replace(/([0-9])\s+([0-9])/g, "$1, $2");
+                coords = coords.replace(/\[(\s*[-0-9][^\]]*\,[^\]]*[0-9]\s*)\]/g, "[[$1]]");
+                coords = coords.replace(/([0-9])\s*\,\s*([-0-9])/g, "$1], [$2");
+                coords = coords.replace(/([0-9])\s+([-0-9])/g, "$1, $2");
                 geometries.push({
                     'type': type,
                     'coordinates': JSON.parse(coords)
