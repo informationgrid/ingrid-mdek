@@ -224,13 +224,15 @@ function mapUseConstraintsBkg(source, target) {
             var codelistIdBkg = 10004;
             var mapUseTypeToCodelistBkg = mapUseTypeToCodelist;
 
-            // is open data ? then different codelist
-            var isOpenData = checkOpenData(target);
-            if (isOpenData) {
-                log.info("BKG: Record is opendata, we change useConstraint codelist to 10006");
-                codelistIdBkg = 10006;
-                mapUseTypeToCodelistBkg = mapUseTypeToCodelistOpenData;
-            }
+          // Codelist 10006 does not exist anymore https://redmine.informationgrid.eu/issues/967#note-71
+          //
+          // // is open data ? then different codelist
+          //   var isOpenData = checkOpenData(target);
+          //   if (isOpenData) {
+          //       log.info("BKG: Record is opendata, we change useConstraint codelist to 10006");
+          //       codelistIdBkg = 10006;
+          //       mapUseTypeToCodelistBkg = mapUseTypeToCodelistOpenData;
+          //   }
 
             if (useConstraintNodes.getLength() === 1) {
                 // otherRestrictions
