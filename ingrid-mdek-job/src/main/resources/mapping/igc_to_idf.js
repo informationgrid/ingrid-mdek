@@ -42,7 +42,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
 DOM.addNS("gco", "http://www.isotc211.org/2005/gco");
 DOM.addNS("srv", "http://www.isotc211.org/2005/srv");
-DOM.addNS("gml", "http://www.opengis.net/gml");
+DOM.addNS("gml", "http://www.opengis.net/gml/3.2");
 DOM.addNS("gmx", "http://www.isotc211.org/2005/gmx");
 DOM.addNS("gts", "http://www.isotc211.org/2005/gts");
 DOM.addNS("xlink", "http://www.w3.org/1999/xlink");
@@ -2418,7 +2418,7 @@ function addExtent(identificationInfo, objRow) {
         // T01_object.vertical_extent_maximum MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/verticalElement/EX_VerticalExtent.maximumValue
         exVerticalExtent.addElement("gmd:maximumValue/gco:Real").addText(TRANSF.getISORealFromIGCNumber(verticalExtentMax));
 
-        // T01_object.vertical_extent_unit = Wert [Domain-ID Codelist 102] MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/verticalElement/EX_VerticalExtent/verticalCRS/gml:VerticalCRS/gml:verticalCS/gml:VerticalCS/gml:axis/gml:CoordinateSystemAxis@gml:uom
+        // T01_object.vertical_extent_unit = Wert [Domain-ID Codelist 102] MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/verticalElement/EX_VerticalExtent/verticalCRS/gml:VerticalCRS/gml:verticalCS/gml:VerticalCS/gml:axis/gml:CoordinateSystemAxis@uom
         var verticalExtentUnit = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(102, objRow.get("vertical_extent_unit"));
         var verticalCRS = exVerticalExtent.addElement("gmd:verticalCRS/gml:VerticalCRS")
             .addAttribute("gml:id", "verticalCRSN_ID_".concat(TRANSF.getRandomUUID()));
@@ -2428,7 +2428,7 @@ function addExtent(identificationInfo, objRow) {
             .addAttribute("gml:id", "verticalCS_ID_".concat(TRANSF.getRandomUUID()));
         verticalCS.addElement("gml:identifier").addAttribute("codeSpace", "");
         var coordinateSystemAxis = verticalCS.addElement("gml:axis/gml:CoordinateSystemAxis")
-            .addAttribute("gml:uom", verticalExtentUnit)
+            .addAttribute("uom", verticalExtentUnit)
             .addAttribute("gml:id", "coordinateSystemAxis_ID_".concat(TRANSF.getRandomUUID()));
         coordinateSystemAxis.addElement("gml:identifier").addAttribute("codeSpace", "");
         coordinateSystemAxis.addElement("gml:axisAbbrev");

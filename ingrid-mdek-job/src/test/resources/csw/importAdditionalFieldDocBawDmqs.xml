@@ -5,7 +5,7 @@
 	<csw:Insert>
 		<MD_Metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			xmlns="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco"
-			xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink">
+			xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink">
 			<fileIdentifier>
 				<gco:CharacterString>fe2ce8b6-f696-4071-9928-60a17dd49028
 				</gco:CharacterString>
