@@ -2129,11 +2129,22 @@ function addLegalConstraint(accConstraint, target) {
 
 function mapAddresses(source, target) {
 
-    var isoAddressNodes = XPATH.getNodeList(source, "//*/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
+    var isoAddressNodes = XPATH.getNodeList(source, "//*[not(self::gmd:contact)]/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
+    var contactMdNodes = XPATH.getNodeList(source, "//gmd:contact/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
+
     if (hasValue(isoAddressNodes)) {
         var igcAdressNodes = XPATH.createElementFromXPath(target, "/igc/addresses");
-        for (i=0; i<isoAddressNodes.getLength(); i++ ) {
-        	var isoAddressNode = isoAddressNodes.item(i);
+
+        // iterate over both isoAddressNodes and contactMdNodes
+        for (i=0; i < (isoAddressNodes.getLength() + contactMdNodes.getLength()); i++ ) {
+            var isoAddressNode
+            var isMdContactNode = false
+            if ( i < isoAddressNodes.getLength() ) {
+                isoAddressNode = isoAddressNodes.item(i);
+            } else {
+                isoAddressNode = contactMdNodes.item(i - isoAddressNodes.getLength());
+                isMdContactNode = true;
+            }
         	var organisationName = getLocalisedCharacterString(XPATH.getNode(isoAddressNode, "gmd:organisationName/gco:CharacterString"));
         	var individualName = getLocalisedCharacterString(XPATH.getNode(isoAddressNode, "gmd:individualName/gco:CharacterString"));
 
@@ -2190,20 +2201,12 @@ function mapAddresses(source, target) {
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), addressRoleValue);
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "address-identifier"), uuid);
 
-        }
-
-        // set address type of "gmd:contact" addresses with role "Point of Contact" to pointOfContactMd
-        var contactMdNodes = XPATH.getNodeList(source, "//gmd:contact/gmd:CI_ResponsibleParty");
-        for (var i=0; i<contactMdNodes.getLength(); i++) {
-            var contactMdNode = contactMdNodes.item(i);
-            var ContactMdUUID = createUUIDFromAddress(contactMdNode);
-            // Point Of Contact
-            var relatedAddresses = XPATH.getNodeList(target, "//related-address[./type-of-relation/@entry-id=7 and address-identifier='"+ContactMdUUID+"']");
-            for (var j=0; j<relatedAddresses.getLength(); j++) {
-                var relatedAddressNode = relatedAddresses.item(j);
-                XMLUtils.createOrReplaceAttribute(XPATH.getNode(relatedAddressNode, "./type-of-relation"), "entry-id", "12");
-                XMLUtils.createOrReplaceTextNode(XPATH.getNode(relatedAddressNode, "./type-of-relation"), "pointOfContactMd");
+            if (isMdContactNode){
+                // set address type of "gmd:contact" addresses with role "Point of Contact" to pointOfContactMd
+                XMLUtils.createOrReplaceAttribute(XPATH.getNode(igcRelatedAddressNode, "./type-of-relation"), "entry-id", "12");
+                XMLUtils.createOrReplaceTextNode(XPATH.getNode(igcRelatedAddressNode, "./type-of-relation"), "pointOfContactMd");
             }
+
         }
 
     }
