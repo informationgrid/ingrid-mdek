@@ -9,6 +9,12 @@
       <action type="fix" dev="wemove" issue="2405">
         Do not analyze folders for address references.
       </action>
+      <action type="add" dev="wemove" issue="967">
+        Suppport english metadata
+      </action>
+      <action type="update" dev="wemove" issue="1876">
+        Switch to gml 3.2 namespace
+      </action>
       <action type="fix" dev="wemove" issue="1986">
         Fix gmd:contact import behaviour
       </action>
