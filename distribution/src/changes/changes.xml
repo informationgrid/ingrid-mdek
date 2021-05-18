@@ -9,6 +9,9 @@
       <action type="fix" dev="wemove" issue="2405">
         Do not analyze folders for address references.
       </action>
+      <action type="fix" dev="wemove" issue="1986">
+        Fix gmd:contact import behaviour
+      </action>
     </release>
 
     <release version="5.8.0" date="2021-04-15" description="Release 5.8.0">
