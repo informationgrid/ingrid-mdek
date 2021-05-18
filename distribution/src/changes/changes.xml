@@ -5,6 +5,18 @@
   </properties>
   <body>
 
+    <release version="5.8.1" date="2021-XX-XX" description="Release 5.8.1">
+      <action type="add" dev="wemove" issue="967">
+        Suppport english metadata
+      </action>
+      <action type="update" dev="wemove" issue="1876">
+        Switch to gml 3.2 namespace
+      </action>
+      <action type="fix" dev="wemove" issue="1986">
+        Fix gmd:contact import behaviour
+      </action>
+    </release>
+
     <release version="5.8.0" date="2021-04-15" description="Release 5.8.0">
       <action type="add" dev="wemove" issue="2319">
         Remove child documents of deleted document from index and protocol it.
