@@ -2570,6 +2570,41 @@ function addDistributionInfo(mdMetadata, objId) {
         }
     }
 
+
+    // INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
+    // Map Service URLs to distributionInfo/CI_OnlineResource, see INGRID-2257
+    // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
+    if (objClass.equals("6")) {
+        rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [+objServId]);
+        for (i=0; i<rows.size(); i++) {
+            row = rows.get(i);
+            if (!mdDistribution) {
+                mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+            }
+            if (!formatWritten && !distributorWritten) {
+                // always write format, here with nilReason children, see INGRID32-146
+                mdDistribution.addElement("gmd:distributionFormat").addElement(nilMdFormatElement);
+                formatWritten = true;
+            }
+            var idfOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/idf:idfOnlineResource");
+            idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(row.get("url"));
+            if (hasValue(row.get("name"))) {
+                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:name"), rows.get(i).get("name"));
+            }
+            if (hasValue(row.get("description"))) {
+                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:description"), rows.get(i).get("description"));
+            }
+
+            // HACK: Simulate URL row to add correct function code ... !!!
+            row.put("special_ref", "5066");
+            row.put("special_name", "Link to Service");
+            // first ISO (gmd:function)
+            addAttachedToField(row, idfOnlineResource, true);
+            // then IDF (idf:attachedToField) for detail representation !
+            addAttachedToField(row, idfOnlineResource);
+        }
+    }
+
     // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
     /* Vorschaugrafik:
      * t017_url_ref :
@@ -2633,39 +2668,7 @@ function addDistributionInfo(mdMetadata, objId) {
         }
     }
     
-// INFORMATIONSSYSTEM/DIENST/ANWENDUNG(6)
-// Map Service URLs to distributionInfo/CI_OnlineResource, see INGRID-2257
-    // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
-    if (objClass.equals("6")) {
-        rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [+objServId]);
-        for (i=0; i<rows.size(); i++) {
-            row = rows.get(i);
-            if (!mdDistribution) {
-                mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
-            }
-            if (!formatWritten && !distributorWritten) {
-                // always write format, here with nilReason children, see INGRID32-146
-                mdDistribution.addElement("gmd:distributionFormat").addElement(nilMdFormatElement);
-                formatWritten = true;
-            }
-            var idfOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/idf:idfOnlineResource");
-            idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(row.get("url"));
-            if (hasValue(row.get("name"))) {
-                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:name"), rows.get(i).get("name"));
-            }
-            if (hasValue(row.get("description"))) {
-                IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:description"), rows.get(i).get("description"));
-            }
-            
-            // HACK: Simulate URL row to add correct function code ... !!!
-            row.put("special_ref", "5066");
-            row.put("special_name", "Link to Service");
-            // first ISO (gmd:function)
-            addAttachedToField(row, idfOnlineResource, true);
-            // then IDF (idf:attachedToField) for detail representation !
-            addAttachedToField(row, idfOnlineResource);
-        }
-    }
+
 
     // add connection to the service(s) for class 1 (Map) and 3 (Service)
     if (objClass.equals("1") || objClass.equals("3")) {
