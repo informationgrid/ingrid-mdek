@@ -336,11 +336,11 @@ public class CSWImportTest extends TestSetup {
                     List<IngridDocument> addresses = (List<IngridDocument>) docOut.get( MdekKeys.ADR_REFERENCES_TO );
                     // TODO: dataset gets a new UUID but keeps its origUUID!!!
                     assertThat( addresses.size(), is( 3 ) );
-                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 12 ) );
+                    assertThat( addresses.get( 0 ).getString( MdekKeys.UUID ), is( "3E1B7F21-4E56-11D3-9A6B-0060971A0BF7" ) );
+                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 1 ) );
                     assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
-                    assertThat( addresses.get( 2 ).getString( MdekKeys.UUID ), is( "3E1B7F21-4E56-11D3-9A6B-0060971A0BF7" ) );
-                    assertThat( addresses.get( 2 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 1 ) );
-                    assertThat( addresses.get( 2 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
+                    assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 12 ) );
+                    assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
 
                     // inspire relevant
                     assertThat( docOut.getString( MdekKeys.IS_INSPIRE_RELEVANT ), is( "Y" ) );
@@ -664,12 +664,12 @@ public class CSWImportTest extends TestSetup {
                     List<IngridDocument> addresses = (List<IngridDocument>) docOut.get( MdekKeys.ADR_REFERENCES_TO );
                     // TODO: dataset gets a new UUID but keeps its origUUID!!!
                     assertThat( addresses.size(), is( 2 ) );
-                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 12 ) );
-                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
-                    assertThat( addresses.get( 0 ).getString( MdekKeys.UUID ), is( "110C6012-1713-44C0-9A33-4E2C24D06966" ) );
-                    assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 7 ) );
+                    assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 12 ) );
                     assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
-                    assertThat( addresses.get( 1 ).getString( MdekKeys.UUID ), is( "DA64401A-2AFC-458D-A8AF-58D0A3C35AA9" ) );
+                    assertThat( addresses.get( 1 ).getString( MdekKeys.UUID ), is( "110C6012-1713-44C0-9A33-4E2C24D06966" ) );
+                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 7 ) );
+                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
+                    assertThat( addresses.get( 0 ).getString( MdekKeys.UUID ), is( "DA64401A-2AFC-458D-A8AF-58D0A3C35AA9" ) );
 
                 } catch (Exception ex) {
                     throw new AssertionError( "An unexpected exception occurred: " + ex.getMessage() );
