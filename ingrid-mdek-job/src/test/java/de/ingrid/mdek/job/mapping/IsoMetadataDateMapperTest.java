@@ -127,7 +127,7 @@ public class IsoMetadataDateMapperTest extends IgcDbUnitEnabledTestCase {
         String testDate = xpathUtils.getString(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:Date");
         imdm.map(dsr, idfDoc);
 
-        Assert.assertEquals("Date in XML must be unchanged with identical fingerprints.", testDate, xpathUtils.getString(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:Date"));
+        Assert.assertEquals("Date in XML must be unchanged with identical fingerprints. (Fingerprint: '"+fp+"')", testDate, xpathUtils.getString(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp/gco:Date"));
         try (PreparedStatement p = conn.prepareStatement("SELECT * FROM t01_object WHERE ID=2")) {
             ResultSet rs = p.executeQuery();
             rs.next();
