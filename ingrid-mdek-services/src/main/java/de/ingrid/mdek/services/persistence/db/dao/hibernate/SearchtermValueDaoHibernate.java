@@ -99,14 +99,17 @@ public class SearchtermValueDaoHibernate
 		Session session = getSession();
 
 		String qString = "from SearchtermObj termObj " +
-			"left join fetch termObj.searchtermValue termVal " +
-			"where termVal.type = '" + SearchtermType.FREI.getDbValue() + "' " +
-			// we have to use LIKE to work on Oracle ! can't compare CLOB (text) with =
-			// NOTICE: term changed to VARCHAR(4000) on ORACLE ! but we keep CLOB Version, also works !
-			"and termVal.term LIKE '" + term + "' " + 
-			"and termObj.objId = " + objId;
+				"left join fetch termObj.searchtermValue termVal " +
+				"where termVal.type = ? " +
+				// we have to use LIKE to work on Oracle ! can't compare CLOB (text) with =
+				// NOTICE: term changed to VARCHAR(4000) on ORACLE ! but we keep CLOB Version, also works !
+				"and termVal.term LIKE ? " +
+				"and termObj.objId = ?";
 	
 		Query q = session.createQuery(qString);
+		q.setString(0, SearchtermType.FREI.getDbValue());
+		q.setString(1, term);
+		q.setLong(2, objId);
 
 		SearchtermValue termValue = null;
 		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ß, lower <-> uppercase ...
@@ -128,13 +131,16 @@ public class SearchtermValueDaoHibernate
 
 		String qString = "from SearchtermAdr termAdr " +
 			"left join fetch termAdr.searchtermValue termVal " +
-			"where termVal.type = '" + SearchtermType.FREI.getDbValue() + "' " +
+			"where termVal.type = ? " +
 			// we have to use LIKE to work on Oracle ! can't compare CLOB (text) with =
 			// NOTICE: term changed to VARCHAR(4000) on ORACLE ! but we keep CLOB Version, also works !
-			"and termVal.term LIKE '" + term + "' " + 
-			"and termAdr.adrId = " + adrId;
+			"and termVal.term LIKE ? " +
+			"and termAdr.adrId = ?";
 	
 		Query q = session.createQuery(qString);
+		q.setString(0, SearchtermType.FREI.getDbValue());
+		q.setString(1, term);
+		q.setLong(2, adrId);
 
 		SearchtermValue termValue = null;
 		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ß, lower <-> uppercase ...
