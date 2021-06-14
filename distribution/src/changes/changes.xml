@@ -5,6 +5,15 @@
   </properties>
   <body>
 
+    <release version="5.8.3" date="2021-06-14" description="Release 5.8.3">
+      <action type="fix" dev="wemove" issue="">
+        Stabilize create DB behaviour for non existing Databases
+      </action>
+      <action type="fix" dev="wemove" issue="2525">
+        Fix import Problem caused by using non prepared sql statements
+      </action>
+    </release>
+
     <release version="5.8.1" date="2021-05-25" description="Release 5.8.1">
       <action type="add" dev="wemove" issue="967">
         Suppport english metadata
