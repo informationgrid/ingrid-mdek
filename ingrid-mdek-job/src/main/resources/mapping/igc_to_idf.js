@@ -626,9 +626,9 @@ for (i=0; i<objRows.size(); i++) {
 
         var objServScaleRows = SQL.all("SELECT * FROM t011_obj_serv_scale WHERE obj_serv_id=? ORDER BY line", [+objServRow.get("id")]);
         var completeScaleString = "";
-        var scaleString = "; Ma\u00DFstab: ";
-        var resString = "; Bodenaufl\u00F6sung: ";
-        var scanString = "; Scanaufl\u00F6sung (DPI): ";
+        var scaleString = catLangCode !== "en" ? "; Ma\u00DFstab: " : "; Scale: ";
+        var resString = catLangCode !== "en" ? "; Bodenaufl\u00F6sung: " : "; Ground resolution: ";
+        var scanString = catLangCode !== "en" ? "; Scanaufl\u00F6sung (DPI): " : "; Scan resolution: ";
         var hasScale = false;
         var hasRes = false;
         var hasScan = false;
