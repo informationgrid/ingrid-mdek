@@ -5,6 +5,12 @@
   </properties>
   <body>
 
+    <release version="5.8.4" date="2021-XX-XX" description="Release 5.8.4">
+      <action type="update" dev="wemove" issue="2542">
+        Add English translation for scale in abstract
+      </action>
+    </release>
+
     <release version="5.8.3" date="2021-06-14" description="Release 5.8.3">
       <action type="fix" dev="wemove" issue="">
         Stabilize create DB behaviour for non existing Databases
