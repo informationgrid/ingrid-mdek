@@ -24,6 +24,9 @@
       <action type="update" dev="wemove" issue="2542">
         Add English translation for scale in abstract
       </action>
+      <action type="update" dev="wemove" issue="1667">
+        Support uploaded preview images in mapping
+      </action>
     </release>
 
     <release version="5.8.0" date="2021-04-15" description="Release 5.8.0">
