@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,6 +28,7 @@ if (javaVersion.indexOf( "1.8" ) === 0) {
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);
+importPackage(Packages.de.ingrid.mdek);
 
 // constant to punish the rank of a service/data object, which has no coupled resource
 var BOOST_NO_COUPLED_RESOURCE  = 0.9;
@@ -187,7 +188,7 @@ for (i=0; i<objRows.size(); i++) {
             }
             // boost this documents according to how many services are connected to this data object
             boostDocumentsByReferences(serviceObjects.size());
-        }    
+        }
         // ---------- t011_obj_geo ----------
         var rows = SQL.all("SELECT * FROM t011_obj_geo WHERE obj_id=?", [+objId]);
         for (j=0; j<rows.size(); j++) {
@@ -288,8 +289,15 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- t017_url_ref - preview image----------
         var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [+objId]);
         for (j=0; j<rows.size(); j++) {
+
+            var url = rows.get(j).get("url_link");
+            var urlIdentifierPosition = url.indexOf("://");
+            if (urlIdentifierPosition <= 3 || urlIdentifierPosition >= 10) {
+                url = MdekServer.conf.documentStoreBaseUrl + url;
+            }
+
             // add complete styling information, so we don't have to make any changes in the portal
-            var previewImageHtmlTag = "<img src='" + rows.get(j).get("url_link") + "' height='100' class='preview_image' ";
+            var previewImageHtmlTag = "<img src='" + url + "' height='100' class='preview_image' ";
             if (rows.get(j).get("descr")) {
                 var descr = rows.get(j).get("descr");
                 if (descr.indexOf("#locale-") !== -1){
@@ -302,7 +310,7 @@ for (i=0; i<objRows.size(); i++) {
             }
             IDX.add("additional_html_1", previewImageHtmlTag);
         }
-        
+
         // ---------- searchterm_obj ----------
         var rows = SQL.all("SELECT * FROM searchterm_obj WHERE obj_id=?", [+objId]);
         for (j=0; j<rows.size(); j++) {
@@ -314,7 +322,7 @@ for (i=0; i<objRows.size(); i++) {
             for (k=0; k<subRows.size(); k++) {
                 var searchtermRow = subRows.get(k);
                 addSearchtermValue(searchtermRow.get("type"), searchtermRow.get("term"), searchtermRow.get("alternate_term"));
-                var searchtermSnsId = subRows.get(k).get("searchterm_sns_id");           
+                var searchtermSnsId = subRows.get(k).get("searchterm_sns_id");
                 if (hasValue(searchtermSnsId)) {
                     // ---------- searchterm_sns ----------
                     var subSubRows = SQL.all("SELECT * FROM searchterm_sns WHERE id=?", [+searchtermSnsId]);
@@ -348,7 +356,7 @@ for (i=0; i<objRows.size(); i++) {
             var subRows = SQL.all("SELECT * FROM spatial_ref_value WHERE id=?", [+spatialRefId]);
             for (k=0; k<subRows.size(); k++) {
                 addSpatialRefValue(subRows.get(k));
-                var spatialRefSnsId = subRows.get(k).get("spatial_ref_sns_id");           
+                var spatialRefSnsId = subRows.get(k).get("spatial_ref_sns_id");
                 if (hasValue(spatialRefSnsId)) {
                     // ---------- spatial_ref_sns ----------
                     var subSubRows = SQL.all("SELECT * FROM spatial_ref_sns WHERE id=?", [+spatialRefSnsId]);
@@ -368,7 +376,7 @@ for (i=0; i<objRows.size(); i++) {
         for (j=0; j<rows.size(); j++) {
             addObjectReferenceTo(rows.get(j));
             var objToId = rows.get(j).get("id");
-            
+
             var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [+objToId]);
             for (k=0; k<subRows.size(); k++) {
               addT01ObjectTo(subRows.get(k), objToId);
@@ -396,7 +404,7 @@ for (i=0; i<objRows.size(); i++) {
             var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [+objFromId]);
             for (k=0; k<subRows.size(); k++) {
                 addT01ObjectFrom(subRows.get(k), objFromId);
-                
+
                 // service FROM (helps to identify links from services to data-objects)
                 // this kind of link comes from an object of class 3 and has a link type of '3600'
                 if ("3600".equals(rows.get(j).get("special_ref")) && "3".equals(subRows.get(k).get("obj_class"))) {
@@ -644,7 +652,7 @@ function addT011ObjServ(row) {
     } else {
         IDX.add("t011_obj_serv.has_access_constraint", "N");
     }
-    
+
     IDX.add("t011_obj_serv.coupling_type", row.get("coupling_type"));
     IDX.add("t011_obj_serv.has_atom_download", row.get("has_atom_download"));
     if (hasValue(row.get("has_atom_download")) && row.get("has_atom_download")=='Y') {
@@ -662,7 +670,7 @@ function addT011ObjServOperation(row) {
 function addT011ObjServOpConnpoint(row, isCapabilityUrl) {
     IDX.add("t011_obj_serv_op_connpoint.line", row.get("line"));
     IDX.add("t011_obj_serv_op_connpoint.connect_point", row.get("connect_point"));
-    
+
     // add capability url if it was defined as one
     if (isCapabilityUrl == true) {
         addCapabilitiesUrl(row);
@@ -936,7 +944,7 @@ function addSpatialRefSns(row) {
     IDX.add("spatial_ref_sns.sns_id", row.get("sns_id"));
     // #934 WFSService as gazetteerService delivers no nativekey so we index sns_id as areaid if no value yet !
     if (!hasValue(IDX.get("areaid"))) {
-        IDX.add("areaid", row.get("sns_id"));    	
+        IDX.add("areaid", row.get("sns_id"));
     }
     // GS Soil FIX !!! map id of gazetteer Location also as areaid, cause NO "nativekey" set in Location at the moment !
     // Extended search portal uses this id as areaid if no nativekey set.
@@ -992,7 +1000,7 @@ function addNamespace(identifier, catalog) {
     if (idTokens.length > 1 && hasValue(idTokens[0])) {
         return identifier;
     }
-    
+
     myNamespace = catalog.get("cat_namespace");
 
     var myNamespaceLength = 0;
@@ -1006,7 +1014,7 @@ function addNamespace(identifier, catalog) {
         // JS String !
         myNamespaceLength = myNamespace.length;
     }
-    
+
     if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "/") {
         myNamespace = myNamespace + "/";
     }
