@@ -27,6 +27,9 @@
       <action type="update" dev="wemove" issue="1667">
         Support uploaded preview images in mapping
       </action>
+      <action type="fix" dev="wemove" issue="2567">
+        Fix MaintenanceFrequency xml mapping for english catalogs
+      </action>
     </release>
 
     <release version="5.8.0" date="2021-04-15" description="Release 5.8.0">
