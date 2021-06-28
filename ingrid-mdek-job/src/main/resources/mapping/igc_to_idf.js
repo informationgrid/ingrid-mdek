@@ -732,17 +732,17 @@ for (i=0; i<objRows.size(); i++) {
         var timeAlle = objRow.get("time_alle");
         if (hasValue(timeInterval) && hasValue(timeAlle)) {
             var period19108 = "P";
-            if (timeInterval.equalsIgnoreCase("Tage")) {
+            if (timeInterval.equalsIgnoreCase(catLangCode == "en" ? "Days" : "Tage")) {
                 period19108 = period19108.concat(timeAlle).concat("D");
-            } else if (timeInterval.equalsIgnoreCase("Jahre")) {
+            } else if (timeInterval.equalsIgnoreCase(catLangCode == "en" ? "Years" : "Jahre")) {
                 period19108 = period19108.concat(timeAlle).concat("Y");
-            } else if (timeInterval.equalsIgnoreCase("Monate")) {
+            } else if (timeInterval.equalsIgnoreCase(catLangCode == "en" ? "Months" : "Monate")) {
                 period19108 = period19108.concat(timeAlle).concat("M");
-            } else if (timeInterval.equalsIgnoreCase("Stunden")) {
+            } else if (timeInterval.equalsIgnoreCase(catLangCode == "en" ? "Hours" : "Stunden")) {
                 period19108 = period19108.concat("T").concat(timeAlle).concat("H");
-            } else if (timeInterval.equalsIgnoreCase("Minuten")) {
+            } else if (timeInterval.equalsIgnoreCase(catLangCode == "en" ? "Minutes" : "Minuten")) {
                 period19108 = period19108.concat("T").concat(timeAlle).concat("M");
-            } else if (timeInterval.equalsIgnoreCase("Sekunden")) {
+            } else if (timeInterval.equalsIgnoreCase(catLangCode == "en" ? "Seconds" : "Sekunden")) {
                 period19108 = period19108.concat("T").concat(timeAlle).concat("S");
             }
             mdMaintenanceInformation.addElement("gmd:userDefinedMaintenanceFrequency/gts:TM_PeriodDuration")
