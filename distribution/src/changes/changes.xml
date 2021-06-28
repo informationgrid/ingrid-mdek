@@ -9,6 +9,9 @@
       <action type="update" dev="wemove" issue="2542">
         Add English translation for scale in abstract
       </action>
+      <action type="fix" dev="wemove" issue="2567">
+        Fix MaintenanceFrequency xml mapping for english catalogs
+      </action>
     </release>
 
     <release version="5.8.3" date="2021-06-14" description="Release 5.8.3">
