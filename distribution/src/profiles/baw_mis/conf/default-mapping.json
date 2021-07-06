@@ -243,9 +243,20 @@
     },
     "title": {
       "type": "text",
-      "analyzer": "decomp",
-      "search_analyzer": "no_decomp",
-      "store": true
+      "analyzer": "german",
+      "store": true,
+      "fields": {
+        "ngram": {
+          "type":  "text",
+          "analyzer": "ngram",
+          "search_analyzer": "german"
+        },
+        "edge_ngram": {
+          "type":  "text",
+          "analyzer": "edge_ngram",
+          "search_analyzer": "german"
+        }
+      }
     },
     "title2": {
       "type": "text",
@@ -257,15 +268,37 @@
     },
     "summary": {
       "type": "text",
-      "analyzer": "decomp",
-      "search_analyzer": "no_decomp",
-      "store": true
+      "analyzer": "german",
+      "store": true,
+      "fields": {
+        "ngram": {
+          "type":  "text",
+          "analyzer": "ngram",
+          "search_analyzer": "german"
+        },
+        "edge_ngram": {
+          "type":  "text",
+          "analyzer": "edge_ngram",
+          "search_analyzer": "german"
+        }
+      }
     },
     "content": {
       "type": "text",
-      "analyzer": "decomp",
-      "search_analyzer": "no_decomp",
-      "store": true
+      "analyzer": "german",
+      "store": true,
+      "fields": {
+        "ngram": {
+          "type":  "text",
+          "analyzer": "ngram",
+          "search_analyzer": "german"
+        },
+        "edge_ngram": {
+          "type":  "text",
+          "analyzer": "edge_ngram",
+          "search_analyzer": "german"
+        }
+      }
     },
     "x1": {
       "type": "double",
@@ -298,6 +331,9 @@
     "modified": {
       "type": "date",
       "store": true
+    },
+    "sort_hash": {
+      "type": "keyword"
     }
   }
 }
