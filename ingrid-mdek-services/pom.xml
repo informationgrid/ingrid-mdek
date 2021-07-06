@@ -161,7 +161,7 @@
     <repository>
       <id>nexus_ojdbc7</id>
       <name>Nexus Repo for ojdbc7</name>
-      <url>http://nexus.saas.hand-china.com/content/repositories/rdc</url>
+      <url>https://mvnrepository.com/artifact/com.oracle/ojdbc7</url>
     </repository>
   </repositories>
 </project>
