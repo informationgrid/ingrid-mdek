@@ -254,6 +254,10 @@
       "search_analyzer": "no_decomp",
       "store": true
     },
+    "location": {
+      "type": "keyword",
+      "store": true
+    },
     "x1": {
       "type": "double",
       "store": true
