@@ -31,14 +31,6 @@
       "type": "keyword",
       "store": true
     },
-    "bwstr-bwastr_name": {
-      "type": "keyword",
-      "store": true
-    },
-    "bwstr-strecken_name": {
-      "type": "keyword",
-      "store": true
-    },
     "bwstr-center-lon": {
       "type": "keyword",
       "store": true
