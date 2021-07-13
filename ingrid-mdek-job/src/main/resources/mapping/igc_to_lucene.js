@@ -1003,7 +1003,6 @@ function addNamespace(identifier, catalog) {
 
     myNamespace = catalog.get("cat_namespace");
 
-    var myNamespaceLength = 0;
     if (!hasValue(myNamespace)) {
         // not set in catalog, we use default namespace (database catalog name!)
         var dbCatalog = SQL.getConnection().getCatalog();
@@ -1011,11 +1010,9 @@ function addNamespace(identifier, catalog) {
             dbCatalog = catRow.get("cat_name");
         }
         myNamespace = "https://registry.gdi-de.org/id/" + dbCatalog;
-        // JS String !
-        myNamespaceLength = myNamespace.length;
     }
 
-    if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "/") {
+    if (myNamespace.length > 0 && myNamespace.substring(myNamespace.length-1) != "/") {
         myNamespace = myNamespace + "/";
     }
 
