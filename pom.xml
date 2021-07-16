@@ -43,12 +43,16 @@
       <url>https://nexus.informationgrid.eu/repository/maven-public</url>
     </repository>
 
+<!--
+
+    DEPRECATED, repo unreachable?
+
     <repository>
       <id>geotoolkit</id>
       <name>Geotoolkit repository</name>
       <url>http://maven.geotoolkit.org/</url>
     </repository>
-
+-->
     <repository>
       <id>osgeo</id>
       <name>OSGeo Release Repository</name>
