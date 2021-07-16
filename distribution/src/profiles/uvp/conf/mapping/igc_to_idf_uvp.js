@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -57,7 +57,7 @@ for (i=0; i<objRows.size(); i++) {
     var objUuid = objRow.get("obj_uuid");
     var objClass = objRow.get("obj_class");
     var objParentUuid = null; // will be set below
-    
+
     // local variables
     var row = null;
     var rows = null;
@@ -79,14 +79,14 @@ for (i=0; i<objRows.size(); i++) {
     }
 
 // ---------- <parent_id> ----------
-    // NOTICE: Has to be published ! Guaranteed by select of passed sourceRecord ! 
+    // NOTICE: Has to be published ! Guaranteed by select of passed sourceRecord !
     rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
     // Should be only one row !
     objParentUuid = rows.get(0).get("fk_obj_uuid");
     if (hasValue(objParentUuid)) {
         body.addElement("parent_id").addText(objParentUuid);
     }
-    
+
 // ---------- <date> ----------
     if (hasValue(objRow.get("mod_time"))) {
         var isoDate = TRANSF.getISODateFromIGCDate(objRow.get("mod_time"));
@@ -98,7 +98,7 @@ for (i=0; i<objRows.size(); i++) {
     }
 
 
-    
+
 // ---------- <name> ----------
     var obj_name = objRow.get("obj_name");
     if (hasValue(obj_name)) {
@@ -162,7 +162,7 @@ for (i=0; i<objRows.size(); i++) {
             }
         }
     }
-    
+
     if(!hasValue(codelist)){
         codelist = 9000;
     }
@@ -376,7 +376,7 @@ function getDate(dateValue) {
 
 /**
  * Get the fileIdentifier. Try to use DB column "org_obj_id". If not found use column "obj_uuid".
- * 
+ *
  * @param objRow DB row representing a t01_object row.
  * @return
  */
@@ -420,13 +420,13 @@ function getFirstVisibleAddress(addrUuid, useWorkingVersion) {
             }
         }
     }
-    
+
     return resultAddrRow;
 }
 
 /**
- * Creates an ISO CI_ResponsibleParty element based on a address row and a role. 
- * 
+ * Creates an ISO CI_ResponsibleParty element based on a address row and a role.
+ *
  * @param addressRow
  * @param role
  * @return
@@ -473,12 +473,12 @@ function getIdfResponsibleParty(addressRow, role) {
     if (emailAddressesToShow.length > 0) {
         emailAddresses = emailAddressesToShow;
     }
-    
+
     var individualName = getIndividualNameFromAddressRow(addressRow, address);
     if (hasValue(individualName)){
         address.addElement("name").addText(individualName);
     }
-    
+
     if (!hasValue(individualName)) {
         var institution = addressRow.get("institution");
         if (hasValue(institution)) {
@@ -536,7 +536,7 @@ function getIdfResponsibleParty(addressRow, role) {
 }
 
 /**
- * Removes all [...] from passed name, e.g. "[Nutzer]" was added when user addresses were migrated to hidden addresses. 
+ * Removes all [...] from passed name, e.g. "[Nutzer]" was added when user addresses were migrated to hidden addresses.
  */
 function filterUserPostfix(name) {
     var filteredName = name;
@@ -561,7 +561,7 @@ function filterUserPostfix(name) {
 
 /**
  * Get the individual name from a address record.
- * 
+ *
  * @param addressRow
  * @return The individual name.
  */
@@ -573,7 +573,7 @@ function getIndividualNameFromAddressRow(addressRow) {
     var lastName = addressRow.get("lastname");
 
     var name = "";
-    
+
     if (hasValue(title) && !hasValue(addressing)) {
         name = title + " ";
     } else if (!hasValue(title) && hasValue(addressing)) {
@@ -581,15 +581,15 @@ function getIndividualNameFromAddressRow(addressRow) {
     } else if (hasValue(title) && hasValue(addressing)) {
         name = addressing + " " + title + " ";
     }
-    
+
     if (hasValue(firstName)) {
         name = name + "" + firstName +  " ";
     }
-    
+
     if (hasValue(lastName)) {
         name = name + "" + lastName;
     }
-    
+
     return name;
 }
 
@@ -604,10 +604,10 @@ function getOrganisationNameFromAddressRow(addressRow) {
 }
 
 /**
- * Returns an array of address rows representing the complete path from 
- * the given address (first entry in array) to the farthest parent 
+ * Returns an array of address rows representing the complete path from
+ * the given address (first entry in array) to the farthest parent
  * (last entry in array).
- * 
+ *
  * @param addressRow The database address ro to start from.
  * @return The array with all parent address rows.
  */
@@ -680,7 +680,7 @@ function getAdditionalFieldDataTable(id, fields, table){
                     // excludes (http|https|ftp)://
                     pos = value.indexOf("://");
                     if (pos <= 3 || pos >= 10) {
-                        value = MdekServer.conf.profileUvpDocumentStoreBaseUrl+value;
+                        value = MdekServer.conf.documentStoreBaseUrl + value;
                     }
                 } else if (fields[s].id == "expires") {
                     if (value.length > 0) {
@@ -692,7 +692,7 @@ function getAdditionalFieldDataTable(id, fields, table){
                           expired = true;
                           break;
                         }
-                    } 
+                    }
                 }
 
                 // doc=null could happen if more entries in additional fields

@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,33 +47,33 @@ import java.util.stream.Collectors;
 
 @org.springframework.context.annotation.Configuration
 public class Configuration extends de.ingrid.iplug.dsc.Configuration {
-    
+
     private static Log log = LogFactory.getLog(Configuration.class);
 
     @Autowired
     private Config config;
-    
+
     @Value("${iplug.database.dialect:org.hibernate.dialect.MySQLInnoDBDialect}")
     public String databaseDialect;
 
     @Value("${iplug.database.debugSQL:false}")
     public boolean databaseShowSQL;
-    
+
     @Value("${igc.name:}")
     public String igcName;
-    
+
     @Value("${igc.language:de}")
     public String igcLanguage;
-    
+
     @Value("${igc.email:}")
     public String igcEmail;
-    
+
     @Value("${igc.partner:}")
     public String igcPartner;
-    
+
     @Value("${igc.provider:}")
     public String igcProvider;
-    
+
     @Value("${igc.country:de}")
     public String igcCountry;
 
@@ -93,31 +93,32 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     public String defaultMdStandardNameVersionGeoservice;
 
     public List<CommunicationCommandObject> igeCommunication;
-    
+
     @Value("${communications.ige.clientName:ige-iplug-test}")
     public String igeClientName;
-    
+
     // @CommandLineValue(longOpt = "reconnectIntervall", shortOpt = "ri")
     @Value("${communications.ige.reconnectInterval:30}")
     public Integer reconnectInterval;
-    
-    
+
+
     /**
      *  Holds the base url that points to the document store. It will be used as
      *  a base for generating the download links in the uvp portal detail view.
-     *  
-     *  This property is specific to the uvp profile.
-     *  
+     *
+     *  This property can be used in all profiles where it's possible to upload files and
+     *  need to be referenced under a path of a server.
+     *
      *  The property was introduced to be able to connect UVP NI installation to
-     *  uvp-verbund.de. Since all document urls were relative before. With this 
+     *  uvp-verbund.de. Since all document urls were relative before. With this
      *  property set to an absolute base url, exchange of datasets between uvp
-     *  ingrid installations is no problem anymore. 
-     *  
+     *  ingrid installations is no problem anymore.
+     *
      *  see also https://redmine.informationgrid.eu/issues/915
-     *  
+     *
      */
-    @Value("${profile.uvp.document.store.base.url:/documents/}")
-    public String profileUvpDocumentStoreBaseUrl;
+    @Value("${document.store.base.url:/documents/}")
+    public String documentStoreBaseUrl;
 
     /**
      *  If set to true existing addresses are overwritten during import of ISO 19139
@@ -207,7 +208,7 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     @Override
     public void initialize() {
         super.initialize();
-        
+
         updateDatabaseDescriptor();
         String temp = config.communicationProxyUrl;
         config.communicationProxyUrl = igeClientName;
@@ -222,7 +223,7 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
                 arv = new String[] {"-l",  "en"};
             }
         }
-        
+
         Importer.main( arv );
 
         if (Importer.importSuccess == null || !Importer.importSuccess) {
@@ -287,22 +288,22 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
             log.error( "Could not write to descriptor.properties file!", ex );
         }
     }
-    
+
     @Override
     public void setPropertiesFromPlugdescription( Properties props, PlugdescriptionCommandObject pd ) {
         super.setPropertiesFromPlugdescription( props, pd );
-        
+
         updateDatabaseDescriptor();
-        
+
         props.setProperty( "igc.enableIBusCommunication", this.igcEnableIBusCommunication + "" );
     }
-    
+
     @Override
     public void addPlugdescriptionValues( PlugdescriptionCommandObject pdObject ) {
         super.addPlugdescriptionValues( pdObject );
         pdObject.put( "iPlugClass", "de.ingrid.mdek.job.IgeSearchPlug" );
     }
-    
+
     private Resource getPropertyResource(String fileName) {
         ClassPathResource override = new ClassPathResource( fileName );
         try {

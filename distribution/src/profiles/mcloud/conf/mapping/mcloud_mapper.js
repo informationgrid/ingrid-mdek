@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -105,9 +105,9 @@ var McloudMapper = /** @class */ (function () {
                 var type = wkt.substring(0, coordsPos).trim().toLowerCase();
                 var coords = wkt.substring(coordsPos).trim();
                 coords = coords.replace(/\(/g, "[").replace(/\)/g, "]");
-                coords = coords.replace(/\[(\s*[0-9][^\]]*\,[^\]]*[0-9]\s*)\]/g, "[[$1]]");
-                coords = coords.replace(/([0-9])\s*\,\s*([0-9])/g, "$1], [$2");
-                coords = coords.replace(/([0-9])\s+([0-9])/g, "$1, $2");
+                coords = coords.replace(/\[(\s*[-0-9][^\]]*\,[^\]]*[0-9]\s*)\]/g, "[[$1]]");
+                coords = coords.replace(/([0-9])\s*\,\s*([-0-9])/g, "$1], [$2");
+                coords = coords.replace(/([0-9])\s+([-0-9])/g, "$1, $2");
                 geometries.push({
                     'type': type,
                     'coordinates': JSON.parse(coords)
@@ -352,7 +352,7 @@ var McloudMapper = /** @class */ (function () {
                 // if link has no protocol, then it's an uploaded document
                 // and we prepend the base URL
                 if (!link.match(/^[a-zA-Z]+:\/\//)) {
-                    link = MdekServer.conf.profileUvpDocumentStoreBaseUrl + link;
+                    link = MdekServer.conf.documentStoreBaseUrl + link;
                 }
                 distributions.push({
                     // Attention: we map sourceType to format, since this will be used as facet!

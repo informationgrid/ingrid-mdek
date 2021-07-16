@@ -365,7 +365,8 @@ var mappingDescription = {"mappings":[
 					},
 					// TODO review import/export of corner point coordinates
 					{
-						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georectified/gmd:cornerPoints/gml:Point/gml:coordinates",
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_Georectified/gmd:cornerPoints/gml:Point/gml:coordinates" +
+							" | //gmd:spatialRepresentationInfo/gmd:MD_Georectified/gmd:cornerPoints/gml311:Point/gml311:coordinates",
 						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-rect-corner-point"
 					},
 					{
@@ -1018,7 +1019,8 @@ var mappingDescription = {"mappings":[
 			}
   		},
   		{	
-  			"srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent/gmd:verticalCRS/gmd:VerticalCRS/gmd:verticalCS/gml:VerticalCS/gml:axis/gml:CoordinateSystemAxis/@uom",
+  			"srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent/gmd:verticalCRS/gmd:VerticalCRS/gmd:verticalCS/gml:VerticalCS/gml:axis/gml:CoordinateSystemAxis/@uom"
+  			 + " | //gmd:identificationInfo//gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent/gmd:verticalCRS/gmd:VerticalCRS/gmd:verticalCS/gml311:VerticalCS/gml311:axis/gml311:CoordinateSystemAxis/@uom",
   			"targetNode":"/igc/data-sources/data-source/data-source-instance/spatial-domain/vertical-extent/vertical-extent-unit",
   			"targetAttribute":"id",
   			"transform":{
@@ -1027,7 +1029,8 @@ var mappingDescription = {"mappings":[
 			}						    					
   		},
   		{	// same as rule before, but different path
-  		    "srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent/gmd:verticalCRS/gml:VerticalCRS/gml:verticalCS/gml:VerticalCS/gml:axis/gml:CoordinateSystemAxis/@gml:uom",
+  		    "srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent/gmd:verticalCRS/gml311:VerticalCRS/gml311:verticalCS/gml311:VerticalCS/gml311:axis/gml311:CoordinateSystemAxis/@gml311:uom"
+  		    + " | //gmd:identificationInfo//gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent/gmd:verticalCRS/gml:VerticalCRS/gml:verticalCS/gml:VerticalCS/gml:axis/gml:CoordinateSystemAxis/@uom",
   		    "targetNode":"/igc/data-sources/data-source/data-source-instance/spatial-domain/vertical-extent/vertical-extent-unit",
   		    "targetAttribute":"id",
   		    "transform":{
@@ -1746,12 +1749,13 @@ function mapReferenceSystemInfo(source, target) {
 }
 
 function mapVerticalExtentVdatum(source, target) {
-    var verticalDatums = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent/gmd:verticalCRS/gml:VerticalCRS/gml:verticalDatum/gml:VerticalDatum");
+    var verticalDatums = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent/gmd:verticalCRS/gml:VerticalCRS/gml:verticalDatum/gml:VerticalDatum" +
+		" | //gmd:identificationInfo//gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent/gmd:verticalCRS/gml311:VerticalCRS/gml311:verticalDatum/gml311:VerticalDatum");
     if (hasValue(verticalDatums)) {
         for (i=0; i<verticalDatums.getLength(); i++ ) {
-            var vDatumName = XPATH.getString(verticalDatums.item(i), "gml:name");
+            var vDatumName = XPATH.getString(verticalDatums.item(i), "gml:name | gml311:name");
             if (!hasValue(vDatumName)) {
-            	vDatumName = XPATH.getString(verticalDatums.item(i), "gml:identifier");
+            	vDatumName = XPATH.getString(verticalDatums.item(i), "gml:identifier | gml311:identifier");
             }
             if (hasValue(vDatumName)) {
 	            log.debug("adding '/igc/data-sources/data-source/data-source-instance/spatial-domain/vertical-extent/vertical-extent-vdatum' = '" + vDatumName + "' to target document.");
@@ -1811,11 +1815,12 @@ function mapCommunicationData(source, target) {
 
 
 function mapTimeConstraints(source, target) {
-	var timePeriods = XPATH.getNodeList(source, "//gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod");
+	var timePeriods = XPATH.getNodeList(source, "//gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod" +
+		" | //gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml311:TimePeriod");
 	log.debug("Found " + timePeriods.getLength() + " TimePeriod records.");
 	if (hasValue(timePeriods) && timePeriods.getLength() > 0) {
-		var beginPosition = XPATH.getString(timePeriods.item(0), "gml:beginPosition");
-		var endPosition = XPATH.getString(timePeriods.item(0), "gml:endPosition");
+		var beginPosition = XPATH.getString(timePeriods.item(0), "gml:beginPosition | gml311:beginPosition");
+		var endPosition = XPATH.getString(timePeriods.item(0), "gml:endPosition | gml311:endPosition");
 		if (hasValue(beginPosition) && hasValue(endPosition)) {
 			if (beginPosition.equals(endPosition)) {
 				var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/beginning-date");
@@ -2124,11 +2129,22 @@ function addLegalConstraint(accConstraint, target) {
 
 function mapAddresses(source, target) {
 
-    var isoAddressNodes = XPATH.getNodeList(source, "//*/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
+    var isoAddressNodes = XPATH.getNodeList(source, "//*[not(self::gmd:contact)]/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
+    var contactMdNodes = XPATH.getNodeList(source, "//gmd:contact/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
+
     if (hasValue(isoAddressNodes)) {
         var igcAdressNodes = XPATH.createElementFromXPath(target, "/igc/addresses");
-        for (i=0; i<isoAddressNodes.getLength(); i++ ) {
-        	var isoAddressNode = isoAddressNodes.item(i);
+
+        // iterate over both isoAddressNodes and contactMdNodes
+        for (i=0; i < (isoAddressNodes.getLength() + contactMdNodes.getLength()); i++ ) {
+            var isoAddressNode
+            var isMdContactNode = false
+            if ( i < isoAddressNodes.getLength() ) {
+                isoAddressNode = isoAddressNodes.item(i);
+            } else {
+                isoAddressNode = contactMdNodes.item(i - isoAddressNodes.getLength());
+                isMdContactNode = true;
+            }
         	var organisationName = getLocalisedCharacterString(XPATH.getNode(isoAddressNode, "gmd:organisationName/gco:CharacterString"));
         	var individualName = getLocalisedCharacterString(XPATH.getNode(isoAddressNode, "gmd:individualName/gco:CharacterString"));
 
@@ -2185,20 +2201,12 @@ function mapAddresses(source, target) {
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), addressRoleValue);
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "address-identifier"), uuid);
 
-        }
-
-        // set address type of "gmd:contact" addresses with role "Point of Contact" to pointOfContactMd
-        var contactMdNodes = XPATH.getNodeList(source, "//gmd:contact/gmd:CI_ResponsibleParty");
-        for (var i=0; i<contactMdNodes.getLength(); i++) {
-            var contactMdNode = contactMdNodes.item(i);
-            var ContactMdUUID = createUUIDFromAddress(contactMdNode);
-            // Point Of Contact
-            var relatedAddresses = XPATH.getNodeList(target, "//related-address[./type-of-relation/@entry-id=7 and address-identifier='"+ContactMdUUID+"']");
-            for (var j=0; j<relatedAddresses.getLength(); j++) {
-                var relatedAddressNode = relatedAddresses.item(j);
-                XMLUtils.createOrReplaceAttribute(XPATH.getNode(relatedAddressNode, "./type-of-relation"), "entry-id", "12");
-                XMLUtils.createOrReplaceTextNode(XPATH.getNode(relatedAddressNode, "./type-of-relation"), "pointOfContactMd");
+            if (isMdContactNode){
+                // set address type of "gmd:contact" addresses with role "Point of Contact" to pointOfContactMd
+                XMLUtils.createOrReplaceAttribute(XPATH.getNode(igcRelatedAddressNode, "./type-of-relation"), "entry-id", "12");
+                XMLUtils.createOrReplaceTextNode(XPATH.getNode(igcRelatedAddressNode, "./type-of-relation"), "pointOfContactMd");
             }
+
         }
 
     }
@@ -2712,7 +2720,8 @@ function getTypeOfAddress(source, target) {
 }
 
 function handleBoundingPolygon(source, target) {
-	var gmlPointPosNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:Point/gml:pos");
+	var gmlPointPosNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:Point/gml:pos" +
+		" | //gmd:identificationInfo//gmd:polygon/gml311:Point/gml311:pos");
 	for(var i=0; i<gmlPointPosNodes.getLength(); i++) {
 		var wkt = gmlPosListToWktCoordinates(gmlPointPosNodes.item(i));
 		if (wkt) {
@@ -2721,7 +2730,8 @@ function handleBoundingPolygon(source, target) {
 		}
 	}
 
-	var gmlLineStringPosListNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:LineString/gml:posList");
+	var gmlLineStringPosListNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:LineString/gml:posList" +
+		" | //gmd:identificationInfo//gmd:polygon/gml311:LineString/gml311:posList");
 	for(var i=0; i<gmlLineStringPosListNodes.getLength(); i++) {
 		var wkt = gmlPosListToWktCoordinates(gmlLineStringPosListNodes.item(i));
 		if (wkt) {
@@ -2731,15 +2741,18 @@ function handleBoundingPolygon(source, target) {
 	}
 
 	// Polygon elements
-	var gmlPolygonNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:Polygon");
+	var gmlPolygonNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:Polygon" +
+		" | //gmd:identificationInfo//gmd:polygon/gml311:Polygon");
 	for(var i=0; i<gmlPolygonNodes.getLength(); i++) {
 		var wkt = "";
 	    var polygonNode = gmlPolygonNodes.item(i);
 
-		var exteriorNode = XPATH.getNode(polygonNode, "./gml:exterior/gml:LinearRing/gml:posList");
+		var exteriorNode = XPATH.getNode(polygonNode, "./gml:exterior/gml:LinearRing/gml:posList" +
+			" | ./gml311:exterior/gml311:LinearRing/gml311:posList");
 		wkt += gmlPosListToWktCoordinates(exteriorNode);
 
-		var interiorNodes = XPATH.getNodeList(polygonNode, "./gml:interior/gml:LinearRing/gml:posList");
+		var interiorNodes = XPATH.getNodeList(polygonNode, "./gml:interior/gml:LinearRing/gml:posList" +
+			" | ./gml311:interior/gml311:LinearRing/gml311:posList");
 		for(var j=0; j<interiorNodes.getLength(); j++) {
 			var str = gmlPosListToWktCoordinates(interiorNodes.item(j));
 			if (wkt && str)  {

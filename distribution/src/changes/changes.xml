@@ -5,6 +5,42 @@
   </properties>
   <body>
 
+    <release version="5.9.0" date="2021-07-16" description="Release 5.9.0">
+      <action type="fix" dev="wemove">
+        Fix namespace identifier
+      </action>
+      <action type="fix" dev="wemove">
+        Add location to default-mapping
+      </action>
+      <action type="update" dev="wemove" issue="1358">
+        Add changes for new search result view
+      </action>
+      <action type="fix" dev="wemove" issue="2405">
+        Do not analyze folders for address references.
+      </action>
+      <action type="add" dev="wemove" issue="967">
+        Suppport english metadata
+      </action>
+      <action type="update" dev="wemove" issue="1876">
+        Switch to gml 3.2 namespace
+      </action>
+      <action type="fix" dev="wemove" issue="1986">
+        Fix gmd:contact import behaviour
+      </action>
+      <action type="update" dev="wemove" issue="2418">
+        Change transferOptions order
+      </action>
+      <action type="update" dev="wemove" issue="2542">
+        Add English translation for scale in abstract
+      </action>
+      <action type="update" dev="wemove" issue="1667">
+        Support uploaded preview images in mapping
+      </action>
+      <action type="fix" dev="wemove" issue="2567">
+        Fix MaintenanceFrequency xml mapping for english catalogs
+      </action>
+    </release>
+
     <release version="5.8.0" date="2021-04-15" description="Release 5.8.0">
       <action type="add" dev="wemove" issue="2319">
         Remove child documents of deleted document from index and protocol it.

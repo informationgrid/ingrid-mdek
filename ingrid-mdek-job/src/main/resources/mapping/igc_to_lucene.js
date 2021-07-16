@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,11 +22,13 @@
  */
 if (javaVersion.indexOf( "1.8" ) === 0) {
     load("nashorn:mozilla_compat.js");
+    CAPABILITIES = Java.type('de.ingrid.utils.capabilities.CapabilitiesUtils');
 }
 
 importPackage(Packages.org.apache.lucene.document);
 importPackage(Packages.de.ingrid.iplug.dsc.om);
 importPackage(Packages.de.ingrid.geo.utils.transformation);
+importPackage(Packages.de.ingrid.mdek);
 
 // constant to punish the rank of a service/data object, which has no coupled resource
 var BOOST_NO_COUPLED_RESOURCE  = 0.9;
@@ -118,7 +120,9 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- t011_obj_serv ----------
         var rows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
         for (j=0; j<rows.size(); j++) {
-            addT011ObjServ(rows.get(j));
+            if (objClass.equals("3")){
+                addT011ObjServ(rows.get(j));
+            }
             var objServId = rows.get(j).get("id");
 
             // ---------- t011_obj_serv_operation ----------
@@ -184,7 +188,7 @@ for (i=0; i<objRows.size(); i++) {
             }
             // boost this documents according to how many services are connected to this data object
             boostDocumentsByReferences(serviceObjects.size());
-        }    
+        }
         // ---------- t011_obj_geo ----------
         var rows = SQL.all("SELECT * FROM t011_obj_geo WHERE obj_id=?", [+objId]);
         for (j=0; j<rows.size(); j++) {
@@ -229,14 +233,71 @@ for (i=0; i<objRows.size(); i++) {
         }
         // ---------- t017_url_ref (except preview image) ----------
         var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=? AND special_ref!=9000", [+objId]);
+
+        // Add url_refs of linked Geoservices (of type 'other' or 'download') for Geodatasets
+        if (objClass.equals("1")){
+            rows.addAll(SQL.all("SELECT t01obj.obj_name, urlref.* FROM object_reference oref, t01_object t01obj, t011_obj_serv t011_object, t017_url_ref urlref WHERE obj_to_uuid=? AND oref.special_ref=3600 AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=3 AND t01obj.work_state='V' AND urlref.obj_id=t01obj.id AND (urlref.special_ref=5066 OR urlref.special_ref=9990) AND t011_object.obj_id=t01obj.id AND (t011_object.type_key=3 OR t011_object.type_key=6)", [objUuid]));
+        }
+
         for (j=0; j<rows.size(); j++) {
             addT017UrlRef(rows.get(j));
+        }
+
+        // add connection to the service(s) for class 1 (Map) and 3 (Service)
+        if (objClass.equals("1") || objClass.equals("3")) {
+
+            // all from links
+            // the links should all come from service objects (class=3)
+            if (objClass.equals("1")) {
+                // get all getCapabilities-URLs from operations table of the coupled service
+                rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
+            } else {
+                // Service Object
+                // Fetch now Services of all types but still operation has to be of name_key=1 (GetCapabilities), see REDMINE-85
+                rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objId, 3]);
+            }
+
+            for (i=0; i<rows.size(); i++) {
+                if (hasValue(rows.get(i).get("connect_point"))) {
+                    var connUrl = rows.get(i).get("connect_point");
+                    var type = parseInt( rows.get(i).get("type_key") );
+                    connUrl += CAPABILITIES.getMissingCapabilitiesParameter(connUrl, type);
+                    IDX.add("t017_url_ref.line", rows.get("line"));
+                    IDX.add("t017_url_ref.url_link", connUrl);
+                    IDX.add("t017_url_ref.special_ref", "");
+                    IDX.add("t017_url_ref.special_name", "");
+                    IDX.add("t017_url_ref.datatype_key", "");
+                    IDX.add("t017_url_ref.datatype", "");
+                    IDX.add("t017_url_ref.descr", "");
+                    IDX.add("t017_url_ref.url_type", "");
+                    // add name of referencing service object to avoid blank url in detail view, see https://redmine.wemove.com/issues/340
+                    // e.g. 'Dienst "WMS - Avifaunistisch wertvolle Bereiche in Niedersachsen Brutvögel" (GetCapabilities)'
+                    if (hasValue(rows.get(i).get("obj_name"))) {
+                        // service name
+                        var serviceName = "Dienst \"" + rows.get(i).get("obj_name") + "\"";
+                        // operation name in brackets
+                        if (hasValue(rows.get(i).get("name_value"))) {
+                            serviceName += " (" + rows.get(i).get("name_value") + ")";
+                        }
+                        IDX.add("t017_url_ref.content", serviceName);
+                    } else {
+                      IDX.add("t017_url_ref.content", connUrl);
+                    }
+                }
+            }
         }
         // ---------- t017_url_ref - preview image----------
         var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=? AND special_ref=9000", [+objId]);
         for (j=0; j<rows.size(); j++) {
+
+            var url = rows.get(j).get("url_link");
+            var urlIdentifierPosition = url.indexOf("://");
+            if (urlIdentifierPosition <= 3 || urlIdentifierPosition >= 10) {
+                url = MdekServer.conf.documentStoreBaseUrl + url;
+            }
+
             // add complete styling information, so we don't have to make any changes in the portal
-            var previewImageHtmlTag = "<img src='" + rows.get(j).get("url_link") + "' height='100' class='preview_image' ";
+            var previewImageHtmlTag = "<img src='" + url + "' height='100' class='preview_image' ";
             if (rows.get(j).get("descr")) {
                 var descr = rows.get(j).get("descr");
                 if (descr.indexOf("#locale-") !== -1){
@@ -249,7 +310,7 @@ for (i=0; i<objRows.size(); i++) {
             }
             IDX.add("additional_html_1", previewImageHtmlTag);
         }
-        
+
         // ---------- searchterm_obj ----------
         var rows = SQL.all("SELECT * FROM searchterm_obj WHERE obj_id=?", [+objId]);
         for (j=0; j<rows.size(); j++) {
@@ -261,7 +322,7 @@ for (i=0; i<objRows.size(); i++) {
             for (k=0; k<subRows.size(); k++) {
                 var searchtermRow = subRows.get(k);
                 addSearchtermValue(searchtermRow.get("type"), searchtermRow.get("term"), searchtermRow.get("alternate_term"));
-                var searchtermSnsId = subRows.get(k).get("searchterm_sns_id");           
+                var searchtermSnsId = subRows.get(k).get("searchterm_sns_id");
                 if (hasValue(searchtermSnsId)) {
                     // ---------- searchterm_sns ----------
                     var subSubRows = SQL.all("SELECT * FROM searchterm_sns WHERE id=?", [+searchtermSnsId]);
@@ -295,7 +356,7 @@ for (i=0; i<objRows.size(); i++) {
             var subRows = SQL.all("SELECT * FROM spatial_ref_value WHERE id=?", [+spatialRefId]);
             for (k=0; k<subRows.size(); k++) {
                 addSpatialRefValue(subRows.get(k));
-                var spatialRefSnsId = subRows.get(k).get("spatial_ref_sns_id");           
+                var spatialRefSnsId = subRows.get(k).get("spatial_ref_sns_id");
                 if (hasValue(spatialRefSnsId)) {
                     // ---------- spatial_ref_sns ----------
                     var subSubRows = SQL.all("SELECT * FROM spatial_ref_sns WHERE id=?", [+spatialRefSnsId]);
@@ -311,9 +372,15 @@ for (i=0; i<objRows.size(); i++) {
             addSpatialSystem(rows.get(j));
         }
         // ---------- object_reference TO ----------
-        var rows = SQL.all("SELECT oRef.*, t01.obj_name FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=t01.obj_uuid AND oRef.obj_from_id=? AND t01.work_state='V'", [+objId]);
+        var rows = SQL.all("SELECT oRef.line, oRef.obj_from_id, oRef.obj_to_uuid, oRef.special_ref, oRef.special_name, oRef.descr, t01.id FROM object_reference oRef, t01_object t01 WHERE oRef.obj_to_uuid=t01.obj_uuid AND oRef.obj_from_id=? AND t01.work_state='V'", [+objId]);
         for (j=0; j<rows.size(); j++) {
             addObjectReferenceTo(rows.get(j));
+            var objToId = rows.get(j).get("id");
+
+            var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [+objToId]);
+            for (k=0; k<subRows.size(); k++) {
+              addT01ObjectTo(subRows.get(k), objToId);
+            }
         }
         // add explicitly coupled resources of a service, for easier extraction on portal side
         if (objClass == "3") {
@@ -336,8 +403,8 @@ for (i=0; i<objRows.size(); i++) {
             // ---------- t01_object FROM ----------
             var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [+objFromId]);
             for (k=0; k<subRows.size(); k++) {
-                addT01ObjectFrom(subRows.get(k));
-                
+                addT01ObjectFrom(subRows.get(k), objFromId);
+
                 // service FROM (helps to identify links from services to data-objects)
                 // this kind of link comes from an object of class 3 and has a link type of '3600'
                 if ("3600".equals(rows.get(j).get("special_ref")) && "3".equals(subRows.get(k).get("obj_class"))) {
@@ -585,7 +652,7 @@ function addT011ObjServ(row) {
     } else {
         IDX.add("t011_obj_serv.has_access_constraint", "N");
     }
-    
+
     IDX.add("t011_obj_serv.coupling_type", row.get("coupling_type"));
     IDX.add("t011_obj_serv.has_atom_download", row.get("has_atom_download"));
     if (hasValue(row.get("has_atom_download")) && row.get("has_atom_download")=='Y') {
@@ -603,7 +670,7 @@ function addT011ObjServOperation(row) {
 function addT011ObjServOpConnpoint(row, isCapabilityUrl) {
     IDX.add("t011_obj_serv_op_connpoint.line", row.get("line"));
     IDX.add("t011_obj_serv_op_connpoint.connect_point", row.get("connect_point"));
-    
+
     // add capability url if it was defined as one
     if (isCapabilityUrl == true) {
         addCapabilitiesUrl(row);
@@ -877,7 +944,7 @@ function addSpatialRefSns(row) {
     IDX.add("spatial_ref_sns.sns_id", row.get("sns_id"));
     // #934 WFSService as gazetteerService delivers no nativekey so we index sns_id as areaid if no value yet !
     if (!hasValue(IDX.get("areaid"))) {
-        IDX.add("areaid", row.get("sns_id"));    	
+        IDX.add("areaid", row.get("sns_id"));
     }
     // GS Soil FIX !!! map id of gazetteer Location also as areaid, cause NO "nativekey" set in Location at the moment !
     // Extended search portal uses this id as areaid if no nativekey set.
@@ -933,10 +1000,9 @@ function addNamespace(identifier, catalog) {
     if (idTokens.length > 1 && hasValue(idTokens[0])) {
         return identifier;
     }
-    
+
     myNamespace = catalog.get("cat_namespace");
 
-    var myNamespaceLength = 0;
     if (!hasValue(myNamespace)) {
         // not set in catalog, we use default namespace (database catalog name!)
         var dbCatalog = SQL.getConnection().getCatalog();
@@ -944,18 +1010,39 @@ function addNamespace(identifier, catalog) {
             dbCatalog = catRow.get("cat_name");
         }
         myNamespace = "https://registry.gdi-de.org/id/" + dbCatalog;
-        // JS String !
-        myNamespaceLength = myNamespace.length;
     }
-    
-    if (myNamespaceLength > 0 && myNamespace.substring(myNamespaceLength-1) != "/") {
+
+    if (myNamespace.length > 0 && myNamespace.substring(myNamespace.length-1) != "/") {
         myNamespace = myNamespace + "/";
     }
 
     return myNamespace + identifier;
 }
-function addT01ObjectFrom(row) {
+function addT01ObjectTo(row, id) {
+  IDX.add("object_reference.obj_uuid", row.get("obj_uuid"));
+  IDX.add("object_reference.obj_name", row.get("obj_name"));
+  IDX.add("object_reference.obj_class", row.get("obj_class"));
+  var tmpRows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
+  if(tmpRows.size() > 0 && row.get("obj_class").equals("3")) {
+    for (t=0; t<tmpRows.size(); t++) {
+      IDX.add("object_reference.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key")));
+    }
+  } else {
+    IDX.add("object_reference.type", "");
+  }
+}
+function addT01ObjectFrom(row, id) {
     IDX.add("refering.object_reference.obj_uuid", row.get("obj_uuid"));
+    IDX.add("refering.object_reference.obj_name", row.get("obj_name"));
+    IDX.add("refering.object_reference.obj_class", row.get("obj_class"));
+    var tmpRows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
+    if(tmpRows.size() > 0 && row.get("obj_class").equals("3")) {
+      for (t=0; t<tmpRows.size(); t++) {
+        IDX.add("refering.object_reference.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key")));
+      }
+    } else {
+      IDX.add("refering.object_reference.type", "");
+    }
 }
 function addT0114EnvTopic(row) {
     IDX.add("t0114_env_topic.line", row.get("line"));
