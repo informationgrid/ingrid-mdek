@@ -5,7 +5,16 @@
   </properties>
   <body>
 
-    <release version="5.9.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.9.0-SNAPSHOT">
+    <release version="5.9.0" date="2021-07-16" description="Release 5.9.0">
+      <action type="fix" dev="wemove">
+        Fix namespace identifier
+      </action>
+      <action type="fix" dev="wemove">
+        Add location to default-mapping
+      </action>
+      <action type="update" dev="wemove" issue="1358">
+        Add changes for new search result view
+      </action>
       <action type="fix" dev="wemove" issue="2405">
         Do not analyze folders for address references.
       </action>
