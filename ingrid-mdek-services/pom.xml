@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>5.9.0</version>
+    <version>5.10.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-mdek-services</artifactId>
@@ -161,7 +161,7 @@
     <repository>
       <id>nexus_ojdbc7</id>
       <name>Nexus Repo for ojdbc7</name>
-      <url>https://mvnrepository.com/artifact/com.oracle/ojdbc7</url>
+      <url>http://nexus.saas.hand-china.com/content/repositories/rdc</url>
     </repository>
   </repositories>
 </project>
