@@ -2482,12 +2482,13 @@ public class DocToBeanMapper implements IMapper {
 		keyValueService.processKeyValue(bean);
 
 		List<List<IngridDocument>> rows = (List<List<IngridDocument>>) doc.get(MdekKeys.ADDITIONAL_FIELD_ROWS);
-		if (rows != null && rows.size() > 0) {
+		if (rows != null) {
 			// guarantee, that this bean, including the rows, has an id to be set in "subbeans"
 			if (bean.getId() == null) {
 				// no id, we have to store, to get an id !
 				dao.makePersistent(bean);
 			}
+			// also remove unreferenced additional data children
 			updateAdditionalFieldDatas(bean,
 				(List<List<IngridDocument>>) doc.get(MdekKeys.ADDITIONAL_FIELD_ROWS));
 		}
@@ -2530,6 +2531,13 @@ public class DocToBeanMapper implements IMapper {
 			dao.makeTransient(bean);
 		}		
 	}
+
+	/**
+	 * Update additional field data for children of inBean, remove existing unreferenced children.
+	 *
+	 * @param inBean
+	 * @param rowsList
+	 */
 	private void updateAdditionalFieldDatas(AdditionalFieldData inBean, List<List<IngridDocument>> rowsList) {
 		Set<AdditionalFieldData> beans = inBean.getAdditionalFieldDatas();
 		ArrayList<AdditionalFieldData> beansUnprocessed = new ArrayList<AdditionalFieldData>(beans);
