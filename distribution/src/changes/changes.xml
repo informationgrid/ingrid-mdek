@@ -4,7 +4,10 @@
     <title>Changes InGrid iPlug IGE</title>
   </properties>
   <body>
-    <release version="5.5.7-SNAPSHOT" date="2021-xx-xx" description="Release 5.5.7-SNAPSHOT">
+    <release version="5.5.7" date="2021-07-28" description="Release 5.5.7-SNAPSHOT">
+      <action type="fix" dev="wemove" issue="2621">
+        Fix deletion of additional fields
+      </action>
     </release>
 
     <release version="5.5.6" date="2021-02-09" description="Release 5.5.6">
