@@ -5,6 +5,12 @@
   </properties>
   <body>
 
+    <release version="5.8.5" date="2021-XX-XX" description="Release 5.8.5">
+      <action type="fix" dev="wemove" issue="2621">
+        Fix deletion of additional fields
+      </action>
+    </release>
+
     <release version="5.8.4" date="2021-07-02" description="Release 5.8.4">
       <action type="update" dev="wemove" issue="2542">
         Add English translation for scale in abstract
