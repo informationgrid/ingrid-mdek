@@ -5,7 +5,10 @@
   </properties>
   <body>
 
-    <release version="5.10.0" date="2021-XX-XX" description="Release 5.10.0">
+    <release version="5.10.0-SNAPSHOT" date="2021-XX-XX" description="Release 5.10.0-SNAPSHOT">
+      <action type="add" dev="wemove" issue="2085">
+        Improve InGrid Search - Add ngram Analyzer and additional sort hash.
+      </action>
       <action type="fix" dev="wemove" issue="2621">
         Fix deletion of additional fields
       </action>

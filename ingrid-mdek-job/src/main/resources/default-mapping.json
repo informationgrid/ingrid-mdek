@@ -230,9 +230,20 @@
     },
     "title": {
       "type": "text",
-      "analyzer": "decomp",
-      "search_analyzer": "no_decomp",
-      "store": true
+      "analyzer": "german",
+      "store": true,
+      "fields": {
+        "ngram": {
+          "type":  "text",
+          "analyzer": "ngram",
+          "search_analyzer": "german"
+        },
+        "edge_ngram": {
+          "type":  "text",
+          "analyzer": "edge_ngram",
+          "search_analyzer": "german"
+        }
+      }
     },
     "title2": {
       "type": "text",
@@ -244,14 +255,40 @@
     },
     "summary": {
       "type": "text",
-      "analyzer": "decomp",
-      "search_analyzer": "no_decomp",
-      "store": true
+      "analyzer": "german",
+      "store": true,
+      "fields": {
+        "ngram": {
+          "type":  "text",
+          "analyzer": "ngram",
+          "search_analyzer": "german"
+        },
+        "edge_ngram": {
+          "type":  "text",
+          "analyzer": "edge_ngram",
+          "search_analyzer": "german"
+        }
+      }
     },
     "content": {
       "type": "text",
-      "analyzer": "decomp",
-      "search_analyzer": "no_decomp",
+      "analyzer": "german",
+      "store": true,
+      "fields": {
+        "ngram": {
+          "type":  "text",
+          "analyzer": "ngram",
+          "search_analyzer": "german"
+        },
+        "edge_ngram": {
+          "type":  "text",
+          "analyzer": "edge_ngram",
+          "search_analyzer": "german"
+        }
+      }
+    },
+    "location": {
+      "type": "keyword",
       "store": true
     },
     "location": {
@@ -333,6 +370,9 @@
     "object_use_constraint.license_value": {
       "type": "keyword",
       "store": true
+    },
+    "sort_hash": {
+      "type": "keyword"
     }
   }
 }
