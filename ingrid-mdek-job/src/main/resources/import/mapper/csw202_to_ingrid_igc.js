@@ -1841,7 +1841,12 @@ function mapTimeConstraints(source, target) {
 				var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/beginning-date");
 				XMLUtils.createOrReplaceTextNode(node, transformDateIso8601ToIndex(beginPosition));
 				node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/time-type");
-				XMLUtils.createOrReplaceTextNode(node, "seit");
+				var indeterminatePosition = XPATH.getNode(timePeriods.item(0), "gml:endPosition | gml311:endPosition").getAttribute("indeterminatePosition");
+				if(indeterminatePosition == "now"){
+					XMLUtils.createOrReplaceTextNode(node, "seitX");
+				} else {
+					XMLUtils.createOrReplaceTextNode(node, "seit");
+				}
 		} else if (hasValue(endPosition)) {
 				node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/ending-date");
 				XMLUtils.createOrReplaceTextNode(node, transformDateIso8601ToIndex(endPosition));
