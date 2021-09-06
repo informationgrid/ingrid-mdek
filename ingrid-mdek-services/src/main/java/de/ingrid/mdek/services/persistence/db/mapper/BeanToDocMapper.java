@@ -1040,22 +1040,22 @@ public class BeanToDocMapper implements IMapper {
 		T011ObjGeo objGeo = objGeos.iterator().next();
 		domainDoc.put(MdekKeys.TECHNICAL_BASE, objGeo.getSpecialBase());
 		domainDoc.put(MdekKeys.METHOD_OF_PRODUCTION, objGeo.getMethod());
-		domainDoc.put(MdekKeys.RESOLUTION, objGeo.getRecExact());
 		domainDoc.put(MdekKeys.DEGREE_OF_RECORD, objGeo.getRecGrade());
 		domainDoc.put(MdekKeys.HIERARCHY_LEVEL, objGeo.getHierarchyLevel());
 
 		domainDoc.put( MdekKeys.TRANSFORMATION_PARAMETER, objGeo.getTransfParam() );
-        domainDoc.put( MdekKeys.NUM_DIMENSIONS, (Integer) objGeo.getNumDimensions() );
-        domainDoc.put( MdekKeys.CELL_GEOMETRY, objGeo.getCellGeometry() );
-        domainDoc.put( MdekKeys.GEO_RECTIFIED, objGeo.getGeoRectified() );
-        domainDoc.put( MdekKeys.GEO_RECT_CHECKPOINT, objGeo.getRectCheckpoint() );
-        domainDoc.put( MdekKeys.GEO_RECT_DESCRIPTION, objGeo.getRectDescription() );
-        domainDoc.put( MdekKeys.GEO_RECT_CORNER_POINT, objGeo.getRectCornerPoint() );
-        domainDoc.put( MdekKeys.GEO_RECT_POINT_IN_PIXEL, objGeo.getRectPointInPixel() );
-        domainDoc.put( MdekKeys.GEO_REF_CONTROL_POINT, objGeo.getRefControlPoint() );
-        domainDoc.put( MdekKeys.GEO_REF_ORIENTATION_PARAM, objGeo.getRefOrientationParam() );
-        domainDoc.put( MdekKeys.GEO_REF_PARAMETER, objGeo.getRefGeoreferencedParam() );
+		domainDoc.put( MdekKeys.NUM_DIMENSIONS, (Integer) objGeo.getNumDimensions() );
+		domainDoc.put( MdekKeys.CELL_GEOMETRY, objGeo.getCellGeometry() );
+		domainDoc.put( MdekKeys.GEO_RECTIFIED, objGeo.getGeoRectified() );
+		domainDoc.put( MdekKeys.GEO_RECT_CHECKPOINT, objGeo.getRectCheckpoint() );
+		domainDoc.put( MdekKeys.GEO_RECT_DESCRIPTION, objGeo.getRectDescription() );
+		domainDoc.put( MdekKeys.GEO_RECT_CORNER_POINT, objGeo.getRectCornerPoint() );
+		domainDoc.put( MdekKeys.GEO_RECT_POINT_IN_PIXEL, objGeo.getRectPointInPixel() );
+		domainDoc.put( MdekKeys.GEO_REF_CONTROL_POINT, objGeo.getRefControlPoint() );
+		domainDoc.put( MdekKeys.GEO_REF_ORIENTATION_PARAM, objGeo.getRefOrientationParam() );
+		domainDoc.put( MdekKeys.GEO_REF_PARAMETER, objGeo.getRefGeoreferencedParam() );
 
+		domainDoc.put(MdekKeys.POS_ACCURACY, objGeo.getRecExact());
 		domainDoc.put(MdekKeys.POS_ACCURACY_VERTICAL, objGeo.getPosAccuracyVertical());
 		domainDoc.put(MdekKeys.GRID_POS_ACCURACY, objGeo.getGridPosAccuracy());
 		domainDoc.put(MdekKeys.KEYC_INCL_W_DATASET, objGeo.getKeycInclWDataset());
