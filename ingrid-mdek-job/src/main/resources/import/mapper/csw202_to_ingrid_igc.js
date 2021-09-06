@@ -701,7 +701,7 @@ var mappingDescription = {"mappings":[
 		    		      			"subMappings":{
 		    		      				"mappings": [
 		    		    	  				{
-		    		    			  			"srcXpath":"srv:name/gmd:aName/gco:CharacterString",
+		    		    			  			"srcXpath":"srv:name/gco:aName/gco:CharacterString",
 		    		    			  			"targetNode":"name"
 		    		    			  		},
 		    		    	  				{
@@ -725,10 +725,10 @@ var mappingDescription = {"mappings":[
 		    		    	  				{
 		    		    			  			"srcXpath":"srv:direction/srv:SV_ParameterDirection",
 		    		    			  			"targetNode":"direction",
-		    		    			  			"defaultValue":"Ein -und Ausgabe",
+		    		    			  			"defaultValue":"",
 		    		    		      			"transform":{
 			    				      				"funct":transformGeneric,
-			    				      				"params":[{"in/out":"Ein -und Ausgabe", "in":"Eingabe", "out":"Ausgabe"}, false, "Could not map srv:direction : "]
+			    				      				"params":[{"in/out":"Ein- und Ausgabe", "in":"Eingabe", "out":"Ausgabe"}, false, "Could not map srv:direction : "]
 			    				        		}
 		    		    			  		},
 		    		    	  				{
