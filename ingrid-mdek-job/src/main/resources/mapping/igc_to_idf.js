@@ -2396,11 +2396,16 @@ function addExtent(identificationInfo, objRow) {
     }
 
     // ---------- <gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent> ----------
+    var myDateType = objRow.get("time_type");
     var timeRange = getTimeRange(objRow);
-    if (hasValue(timeRange.beginDate) || hasValue(timeRange.endDate)) {
+    if (hasValue(myDateType) && (hasValue(timeRange.beginDate) || hasValue(timeRange.endDate))) {
         if (!exExtent) {
             exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
         }
+        if (myDateType.equals("am")) {
+            var timeInstant = exExtent.addElement("gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimeInstant")
+            timeInstant.addElement("gml:timePosition").addText(TRANSF.getISODateFromIGCDate(timeRange.beginDate));
+        } else {
         // T01_object.time_from MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/temporalElement/EX_TemporalExtent/extent/gml:TimePeriod/
         var timePeriod = exExtent.addElement("gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod")
             .addAttribute("gml:id", "timePeriod_ID_".concat(TRANSF.getRandomUUID()));
@@ -2412,13 +2417,13 @@ function addExtent(identificationInfo, objRow) {
         if (hasValue(timeRange.endDate)) {
             timePeriod.addElement("gml:endPosition").addText(TRANSF.getISODateFromIGCDate(timeRange.endDate));
         } else {
-            var myDateType = objRow.get("time_type");
-            if (hasValue(myDateType) && myDateType.equals("seitX")) {
+                if (myDateType.equals("seitX")) {
                 timePeriod.addElement("gml:endPosition").addAttribute("indeterminatePosition", "now").addText("");
             } else {
                 timePeriod.addElement("gml:endPosition").addAttribute("indeterminatePosition", "unknown").addText("");
             }
         }
+    }
     }
 
     // ---------- <gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent> ----------
