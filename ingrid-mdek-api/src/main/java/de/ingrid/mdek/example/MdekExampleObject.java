@@ -1425,7 +1425,7 @@ class MdekExampleObjectThread extends Thread {
 		technicalDomain.put(MdekKeys.TECHNICAL_BASE, "technical-base");
 		technicalDomain.put(MdekKeys.DATA, "data");
 		technicalDomain.put(MdekKeys.METHOD_OF_PRODUCTION, "method-of-production");
-		technicalDomain.put(MdekKeys.RESOLUTION, new Double(1.1));
+		technicalDomain.put(MdekKeys.POS_ACCURACY, new Double(1.1));
 		technicalDomain.put(MdekKeys.DEGREE_OF_RECORD, new Double(1.2));
 		technicalDomain.put(MdekKeys.HIERARCHY_LEVEL, new Integer(5));
 		technicalDomain.put(MdekKeys.VECTOR_TOPOLOGY_LEVEL, new Integer(6));

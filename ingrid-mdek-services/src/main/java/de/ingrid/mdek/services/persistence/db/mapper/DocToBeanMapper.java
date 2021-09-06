@@ -1248,7 +1248,6 @@ public class DocToBeanMapper implements IMapper {
 			ref.setObjId(oIn.getId());
 			ref.setSpecialBase(refDoc.getString(MdekKeys.TECHNICAL_BASE));
 			ref.setMethod(refDoc.getString(MdekKeys.METHOD_OF_PRODUCTION));
-			ref.setRecExact((Double)refDoc.get(MdekKeys.RESOLUTION));
 			ref.setRecGrade((Double)refDoc.get(MdekKeys.DEGREE_OF_RECORD));
 			ref.setHierarchyLevel((Integer)refDoc.get(MdekKeys.HIERARCHY_LEVEL));
 
@@ -1264,6 +1263,7 @@ public class DocToBeanMapper implements IMapper {
 			ref.setRefOrientationParam( refDoc.getString( MdekKeys.GEO_REF_ORIENTATION_PARAM ) );
 			ref.setRefGeoreferencedParam( refDoc.getString( MdekKeys.GEO_REF_PARAMETER ) );
 
+			ref.setRecExact((Double)refDoc.get(MdekKeys.POS_ACCURACY));
 			ref.setPosAccuracyVertical((Double)refDoc.get(MdekKeys.POS_ACCURACY_VERTICAL));
 			ref.setGridPosAccuracy((Double)refDoc.get(MdekKeys.GRID_POS_ACCURACY));
 			ref.setKeycInclWDataset((Integer)refDoc.get(MdekKeys.KEYC_INCL_W_DATASET));

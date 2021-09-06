@@ -181,7 +181,7 @@ var mappingDescription = {"mappings":[
 			  			"targetAttribute":"id",
 			  			"transform":{
 							"funct":transformISOToIgcDomainId,
-							"params":[527, "Could not tranform topic category: ", true]
+							"params":[527, "Could not transform topic category: ", true]
 						}
 			  		}
 			  	]
@@ -239,7 +239,7 @@ var mappingDescription = {"mappings":[
 		      			  		},
 		      	  				{
 		      			  			"srcXpath":"gmd:MD_Dimension/gmd:resolution/gco:Scale",
-		      			  			"targetNode":"resolution"
+		      			  			"targetNode":"axis-dim-resolution"
 		      			  		}
 	      			  		]
 		      			}
@@ -273,6 +273,11 @@ var mappingDescription = {"mappings":[
                         "srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:report/gmd:DQ_GriddedDataPositionalAccuracy/gmd:result/gmd:DQ_QuantitativeResult/gmd:value/gco:Record",
                         "targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-pos-accuracy"
                     },
+					{
+						"execute": {
+							"funct": handleAccuracy
+						}
+					},
 		        	{	
 	        			"srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description/gco:CharacterString",
 	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/method-of-production"
@@ -2832,6 +2837,37 @@ function handleDoi(source, target) {
 				if (hasValue(doiTypeNode)) {
 					var nodeType = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/doiType");
 					XMLUtils.createOrReplaceTextNode(nodeType, doiTypeNode.getTextContent());
+				}
+			}
+		}
+	}
+}
+
+function handleAccuracy(source, target) {
+	var quantitativeResultsNodes = XPATH.getNodeList(source, "//gmd:DQ_DataQuality/gmd:report/gmd:DQ_AbsoluteExternalPositionalAccuracy/gmd:result/gmd:DQ_QuantitativeResult");
+
+	if(hasValue(quantitativeResultsNodes)){
+		// loop on quantitative results
+		for (var i = 0; i < quantitativeResultsNodes.getLength(); i++) {
+			var quantitativeNode = quantitativeResultsNodes.item(i);
+			var quantityResultType = XPATH.getNode(quantitativeNode, "./gmd:valueUnit/gml:UnitDefinition/gml:quantityType" +
+				" | ./gmd:valueUnit/gml311:UnitDefinition/gml311:quantityType");
+			var posValue = XPATH.getNode(quantitativeNode, "./gmd:value/gco:Record");
+
+			if (hasValue(posValue)) {
+				if (hasValue(quantityResultType)) {
+					var quantityResultTypeContent = quantityResultType.getTextContent();
+					// log.debug("jojo: " + typeof(quantityResultTypeContent));
+
+					// type specified is geographic accuracy -> position accuracy, vertical accuracy -> height accuracy
+					if (quantityResultTypeContent.indexOf("geographic accuracy") !== -1) {
+						var posAccuracyTargetNode = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/map/position-accuracy");
+						XMLUtils.createOrReplaceTextNode(posAccuracyTargetNode, posValue.getTextContent())
+
+					} else if (quantityResultTypeContent.indexOf("vertical accuracy") !== -1) {
+						var heightAccuracyTargetNode = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/map/pos-accuracy-vertical");
+						XMLUtils.createOrReplaceTextNode(heightAccuracyTargetNode, posValue.getTextContent())
+					}
 				}
 			}
 		}
