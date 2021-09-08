@@ -2828,10 +2828,18 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                 hasValue(catRow.get("atom_download_url"))) {
                 svContainsOperations = identificationInfo.addElement("srv:containsOperations");
                 var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
-                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText("Get Download Service Metadata");
+                svOperationMetadata
+                    .addElement("srv:operationName/gco:CharacterString")
+                    .addText("Download");
                 // mandatory !
-                svOperationMetadata.addElement("srv:DCP").addAttribute("gco:nilReason", "unknown");
-                svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url") + objUuid);
+                svOperationMetadata
+                    .addElement("srv:DCP/srv:DCPList")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CSW_DCPCodeType")
+                    .addAttribute("codeListValue", "WebServices")
+                    .addText("WebServices");
+                svOperationMetadata
+                    .addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL")
+                    .addText(catRow.get("atom_download_url") + objUuid);
             }
 
             // "normal" operations

@@ -21,6 +21,9 @@
       <action type="fix" dev="wemove" issue="2621">
         Fix deletion of additional fields
       </action>
+      <action type="fix" dev="wemove" issue="2245">
+        Export full DCP element for AtomDownload services
+      </action>
     </release>
 
     <release version="5.9.0" date="2021-07-16" description="Release 5.9.0">
