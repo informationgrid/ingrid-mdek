@@ -18,8 +18,11 @@
       <action type="update" dev="wemove" issue="2346">
         UVP: Optional indexing of negative preliminary examination which have a spatial reference
       </action>
+      <action type="fix" dev="wemove" issue="2245">
+        Export full DCP element for AtomDownload services
+      </action>
     </release>
-    
+
     <release version="5.6.4" date="2020-12-07" description="Release 5.6.4">
       <action type="fix" dev="wemove" issue="2241">
         Fix ISO error when DOI is not complete
