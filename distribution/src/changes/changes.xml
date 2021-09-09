@@ -24,6 +24,9 @@
       <action type="fix" dev="wemove" issue="2245">
         Export full DCP element for AtomDownload services
       </action>
+      <action type="add" dev="wemove" issue="2389">
+        Extend API to send modifiable HQL queries, which updates coupled resource identifiers
+      </action>
     </release>
 
     <release version="5.9.0" date="2021-07-16" description="Release 5.9.0">
