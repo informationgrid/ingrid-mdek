@@ -3089,7 +3089,12 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
     var urlRefRows = SQL.all("SELECT t017url.url_link FROM t017_url_ref t017url, t01_object t01o WHERE t017url.special_ref = 9000 AND t01o.id = t017url.obj_id AND t017url.obj_id=?", [+urlRefObjId]);
 
     for (var i=0; i<urlRefRows.size(); i++) {
-      idfObjectReference.addElement("idf:graphicOverview").addText(urlRefRows.get(i).get("url_link"));
+      var url = urlRefRows.get(i).get("url_link");
+      var urlIdentifierPosition = url.indexOf("://");
+      if (urlIdentifierPosition <= 3 || urlIdentifierPosition >= 10) {
+          url = MdekServer.conf.documentStoreBaseUrl + url;
+      }
+      idfObjectReference.addElement("idf:graphicOverview").addText(url);
     }
     return idfObjectReference;
 }
