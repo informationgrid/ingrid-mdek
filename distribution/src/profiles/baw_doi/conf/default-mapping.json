@@ -31,14 +31,6 @@
       "type": "keyword",
       "store": true
     },
-    "bwstr-bwastr_name": {
-      "type": "keyword",
-      "store": true
-    },
-    "bwstr-strecken_name": {
-      "type": "keyword",
-      "store": true
-    },
     "bwstr-center-lon": {
       "type": "keyword",
       "store": true
@@ -251,20 +243,9 @@
     },
     "title": {
       "type": "text",
-      "analyzer": "german",
-      "store": true,
-      "fields": {
-        "ngram": {
-          "type":  "text",
-          "analyzer": "ngram",
-          "search_analyzer": "german"
-        },
-        "edge_ngram": {
-          "type":  "text",
-          "analyzer": "edge_ngram",
-          "search_analyzer": "german"
-        }
-      }
+      "analyzer": "decomp",
+      "search_analyzer": "no_decomp",
+      "store": true
     },
     "title2": {
       "type": "text",
@@ -276,37 +257,15 @@
     },
     "summary": {
       "type": "text",
-      "analyzer": "german",
-      "store": true,
-      "fields": {
-        "ngram": {
-          "type":  "text",
-          "analyzer": "ngram",
-          "search_analyzer": "german"
-        },
-        "edge_ngram": {
-          "type":  "text",
-          "analyzer": "edge_ngram",
-          "search_analyzer": "german"
-        }
-      }
+      "analyzer": "decomp",
+      "search_analyzer": "no_decomp",
+      "store": true
     },
     "content": {
       "type": "text",
-      "analyzer": "german",
-      "store": true,
-      "fields": {
-        "ngram": {
-          "type":  "text",
-          "analyzer": "ngram",
-          "search_analyzer": "german"
-        },
-        "edge_ngram": {
-          "type":  "text",
-          "analyzer": "edge_ngram",
-          "search_analyzer": "german"
-        }
-      }
+      "analyzer": "decomp",
+      "search_analyzer": "no_decomp",
+      "store": true
     },
     "x1": {
       "type": "double",
@@ -339,9 +298,6 @@
     "modified": {
       "type": "date",
       "store": true
-    },
-    "sort_hash": {
-      "type": "keyword"
     }
   }
 }

@@ -33,6 +33,9 @@ import de.ingrid.utils.xml.Csw202NamespaceContext;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.core.annotation.Order;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,10 +43,14 @@ import org.w3c.dom.Node;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
+import static java.time.format.DateTimeFormatter.ISO_DATE;
 
 @Order(2)
 public class IgcToIdfMapperBaw implements IIdfMapper {
@@ -57,6 +64,8 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
 
     private static final String GCO_CHARACTER_STRING_QNAME = "gco:CharacterString";
     private static final String VALUE_UNIT_ID_PREFIX = "valueUnit_";
+
+    private final JSONParser jsonParser = new JSONParser();
 
     private DOMUtils domUtil;
     private SQLUtils sqlUtils;
@@ -159,6 +168,8 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 return;
             }
 
+            addCrossReferences(mdIdentification, objId);
+
             setHierarchyLevelName(mdMetadata, objId);
             addAuftragsInfos(mdIdentification, objId);
             addBWaStrIdentifiers(mdIdentification, objId);
@@ -178,6 +189,74 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private void logMissingMetadataContact(Node mdMetadata) {
         if (!XPATH.nodeExists(mdMetadata, "gmd:contact")) {
             LOG.error("No responsible party for metadata found!");
+        }
+    }
+
+    private void addCrossReferences(IdfElement mdIdentification, Long objId) throws SQLException {
+        Map<Integer, Map<String, String>> rows = getOrderedAdditionalFieldDataTableRows(objId, "doiCrossReferenceTable");
+        for(Map.Entry<Integer, Map<String, String>> entry: rows.entrySet()) {
+            Map<String, String> row = entry.getValue();
+
+            String xrefTitle = row.get("doiCrossReferenceTitle");
+            String xrefDateMillisLong = row.get("doiCrossReferenceDate");
+            String xrefAuthorString = row.get("doiCrossReferenceAuthor");
+            String xrefIdentifier = row.get("doiCrossReferenceIdentifier");
+            String xrefPublisher = row.get("doiCrossReferencePublisher");
+
+            LocalDate date = Instant.ofEpochMilli(Long.parseLong(xrefDateMillisLong))
+                    .atOffset(ZoneOffset.UTC)
+                    .toLocalDate();
+
+
+            String aggrInfoQname = "gmd:aggregationInfo";
+            String mdAggrInfoQname = aggrInfoQname + "/gmd:MD_AggregateInformation";
+            IdfElement mdAggregateInformation;
+
+            IdfElement previousSibling = findPreviousSibling(aggrInfoQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
+            if (previousSibling == null) {
+                mdAggregateInformation = domUtil.addElement(mdIdentification.getElement(), mdAggrInfoQname);
+            } else {
+                mdAggregateInformation = previousSibling.addElementAsSibling(mdAggrInfoQname);
+            }
+
+            IdfElement ciCitation = mdAggregateInformation.addElement("gmd:aggregateDataSetName/gmd:CI_Citation");
+            ciCitation.addElement("gmd:title/" + GCO_CHARACTER_STRING_QNAME)
+                    .addText(xrefTitle);
+
+            IdfElement ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
+            ciDate.addElement("gmd:date/gco:Date")
+                    .addText(date.format(ISO_DATE));
+            ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
+                    .addAttribute("codeList", CODELIST_URL + "gmd:CI_DateTypeCode")
+                    .addAttribute("codeListValue", "publication")
+                    .addText("publication");
+
+            ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/" + GCO_CHARACTER_STRING_QNAME)
+                    .addText(xrefIdentifier);
+
+            for(String author: xrefAuthorString.split(";")) {
+                IdfElement ciResponsibleParty = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
+                ciResponsibleParty.addElement("gmd:individualName/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(author.trim());
+                ciResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
+                        .addAttribute("codeList", CODELIST_URL + "CI_RoleCode")
+                        .addAttribute("codeListValue", "author")
+                        .addText("author");
+            }
+            if (xrefPublisher != null && !xrefPublisher.trim().isEmpty()) {
+                IdfElement ciResponsibleParty = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
+                ciResponsibleParty.addElement("gmd:organisationName/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(xrefPublisher);
+                ciResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
+                        .addAttribute("codeList", CODELIST_URL + "CI_RoleCode")
+                        .addAttribute("codeListValue", "publisher")
+                        .addText("publisher");
+            }
+
+            mdAggregateInformation.addElement("gmd:associationType/gmd:DS_AssociationTypeCode")
+                    .addAttribute("codeList", CODELIST_URL + "DS_AssociationTypeCode")
+                    .addAttribute("codeListValue", "crossReference")
+                    .addText("crossReference");
         }
     }
 
@@ -410,7 +489,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 .addText(String.format("%.1f", Double.parseDouble(value)));
     }
 
-    private void addDgsValues(Element mdMetadata, Long objId) throws SQLException {
+    private void addDgsValues(Element mdMetadata, Long objId) throws SQLException, ParseException {
         Map<Integer, Map<String, String>> groupedRows = getOrderedAdditionalFieldDataTableRows(objId, "simParamTable");
 
         for(Map.Entry<Integer, Map<String, String>> entry: groupedRows.entrySet()) {
@@ -420,13 +499,14 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             String paramType = trafoUtil.getIGCSyslistEntryName(BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID, Integer.parseInt(row.get("simParamType")));
             String paramUnits = row.get("simParamUnit");
             String valueType = row.get("simParamValueType");
+            JSONArray valuesJsonArray = (JSONArray) jsonParser.parse(row.get("simParamValues"));
 
-            String prefix = "simParamValue.";
-            int startIdx = prefix.length();
-            List<String> values = row.entrySet().stream()
-                    .filter(e -> e.getKey().startsWith(prefix))
-                    .sorted(Comparator.comparingInt(e -> Integer.parseInt(e.getKey().substring(startIdx))))
-                    .map(e -> e.getValue())
+            boolean areValuesIntegers = valuesJsonArray.stream().allMatch(e -> e instanceof Long);
+            boolean areValuesDoubles = !areValuesIntegers
+                    && valuesJsonArray.stream().allMatch(e -> e instanceof Double);
+
+            List<String> values = (List<String>) valuesJsonArray.stream()
+                    .map(e -> e.toString())
                     .collect(Collectors.toList());
 
             IdfElement dqElement = modelScopedDqDataQualityElement(mdMetadata);
@@ -443,8 +523,6 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             } else {
                 boolean areValuesDiscrete = VALUE_TYPE_DISCRETE_NUMERIC.equals(valueType)
                         || VALUE_TYPE_DISCRETE_STRING.equals(valueType);
-                boolean areValuesIntegers = areValuesIntegers(values);
-                boolean areValuesDoubles = !areValuesIntegers && areValuesDoubles(values);
 
                 if (areValuesDiscrete) {
                     String typeAttr;
@@ -456,23 +534,18 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                         typeAttr = "xs:double";
                     }
                     for (String val : values) {
-                        if (areValuesDoubles) {
-                            val = String.format("%.1f", Double.parseDouble(val));
-                        }
                         dqQuantitativeResult.addElement("gmd:value/gco:Record")
                                 .addAttribute("xsi:type", typeAttr)
                                 .addText(val);
                     }
                 } else {
                     String typeAttr;
-                    String val;
                     if (areValuesIntegers) {
                         typeAttr = "gml:integerList";
-                        val = String.format("%s %s", values.get(0), values.get(1));
                     } else {
                         typeAttr = "gml:doubleList";
-                        val = String.format("%.1f %.1f", Double.parseDouble(values.get(0)), Double.parseDouble(values.get(1)));
                     }
+                    String val = String.format("%s %s", values.get(0), values.get(1));
                     dqQuantitativeResult.addElement("gmd:value/gco:Record")
                             .addAttribute("xsi:type", typeAttr)
                             .addText(val);
@@ -502,28 +575,6 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 .addAttribute("codeListValue", "model");
 
         return dqElement;
-    }
-
-    private boolean areValuesIntegers(List<String> values) {
-        for(String val: values) {
-            try {
-                Integer.parseInt(val);
-            } catch (NumberFormatException unused) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean areValuesDoubles(List<String> values) {
-        for(String val: values) {
-            try {
-                Double.parseDouble(val);
-            } catch (NumberFormatException unused) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private void addWaterwayInformation(Element mdMetadata, Map<String, Object> idxDoc) {
