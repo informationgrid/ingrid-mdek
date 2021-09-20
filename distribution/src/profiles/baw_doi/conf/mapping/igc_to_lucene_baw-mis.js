@@ -110,76 +110,98 @@ for (var i=0; i< citationAuthors.size(); i++) {
     var authorLastname = citationAuthors.get(i).get("lastname");
     var authorFirstname = citationAuthors.get(i).get("firstname");
     if(hasValue(citationAuthorsContent)) {
-        citationAuthorsContent += ",";
+        citationAuthorsContent += " ,";
     }
     if (hasValue(authorLastname)) {
-        citationAuthorsContent += authorLastname + ",";
+        citationAuthorsContent += authorLastname + " ,";
     }
     if (hasValue(authorFirstname)) {
         citationAuthorsContent += authorFirstname.charAt(0) + ".";
     }
-}
-
-var citationDates = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=? AND type=?", [+objId, 2]);
-var citationDateContent = "";
-for (var i=0; i< citationDates.size(); i++) {
-    var publicationDate = citationDates.get(i).get("reference_date");
-    if(hasValue(citationDateContent)) {
-        citationDateContent += ",";
-    }
-    if (hasValue(publicationDate)) {
-        citationDateContent += publicationDate.substring(0, 4);
-    }
-}
-
-var citationTitles = SQL.all("SELECT * FROM t01_object WHERE id=?", [+objId]);
-var citationTitleContent = "";
-for (var i=0; i< citationTitles.size(); i++) {
-    var title = citationTitles.get(i).get("obj_name");
-    if(hasValue(citationTitleContent)) {
-        citationTitleContent += ",";
-    }
-    if (hasValue(title)) {
-        citationTitleContent += title;
-    }
-}
-
-var citationPublishers = SQL.all("SELECT t02_address.* FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type<>? AND (t012_obj_adr.special_ref IS NULL OR t012_obj_adr.special_ref=?) AND t012_obj_adr.type=? ORDER BY line", ['V', +objId, 12, 505, 10]);
-var citationPublishersContent = "";
-for (var i=0; i< citationPublishers.size(); i++) {
-    var pubilsherInstitution = citationPublishers.get(i).get("institution");
-    if(hasValue(pubilsherInstitution)) {
-        citationPublishersContent += ",";
-    }
-    if (hasValue(pubilsherInstitution)) {
-        citationPublishersContent += pubilsherInstitution + ",";
-    }
+        if(!hasValue(citationAuthorsContent)){
+            var authorInstitution = citationAuthors.get(i).get("institution");
+            var authorInstitutionParent = "";
+            var addrId = citationAuthors.get(i).get("id");
+            var parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [+addrId, "V"]);
+            while (hasValue(parentAdressRow)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Add address with uuid '"+parentAdressRow.get("adr_uuid")+"' to address path:" + parentAdressRow);
+                }
+                if(hasValue(authorInstitutionParent)) {
+                    authorInstitutionParent += " ,";
+                }
+                authorInstitutionParent += "<b>" + parentAdressRow.get("institution") + "</b> ";
+                addrId = parentAdressRow.get("id");
+                parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [+addrId, "V"]);
+            }
+            if(hasValue(authorInstitutionParent)) {
+                citationAuthorsContent += authorInstitutionParent;
+            }
+        }
 }
 
 
-var doi = addDOIInfo(objId);
-var additional_html_citation_quote = "";
 if(hasValue(citationAuthorsContent)) {
-    additional_html_citation_quote += "<b>" + citationAuthorsContent + "</b> ";
-}
-if(hasValue(citationDateContent)) {
-    additional_html_citation_quote += "<b>(" + citationDateContent + ")</b> ";
-}
-if(hasValue(citationTitleContent)) {
-    additional_html_citation_quote += "<i>" + citationTitleContent + "</i>";
-    if(hasValue(doi) && hasValue(doi.type)) {
-        additional_html_citation_quote += "[" + doi.type + "]";
+    var citationDates = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=? AND type=?", [+objId, 2]);
+    var citationDateContent = "";
+    for (var i=0; i< citationDates.size(); i++) {
+        var publicationDate = citationDates.get(i).get("reference_date");
+        if(hasValue(citationDateContent)) {
+            citationDateContent += ",";
+        }
+        if (hasValue(publicationDate)) {
+            citationDateContent += publicationDate.substring(0, 4);
+        }
     }
-    additional_html_citation_quote += " ";
-}
-if(hasValue(citationPublishersContent)) {
-    additional_html_citation_quote += citationPublishersContent + ". ";
-}
-if(hasValue(doi) && hasValue(doi.id)) {
-    additional_html_citation_quote += "<a href=\"https://doi.org/" + doi.id + "\" target=\"_blank\">" + doi.id + "</a>";
-}
-IDX.add("additional_html_citation_quote", additional_html_citation_quote);
 
+    var citationTitles = SQL.all("SELECT * FROM t01_object WHERE id=?", [+objId]);
+    var citationTitleContent = "";
+    for (var i=0; i< citationTitles.size(); i++) {
+        var title = citationTitles.get(i).get("obj_name");
+        if(hasValue(citationTitleContent)) {
+            citationTitleContent += ",";
+        }
+        if (hasValue(title)) {
+            citationTitleContent += title;
+        }
+    }
+
+    var citationPublishers = SQL.all("SELECT t02_address.* FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type<>? AND (t012_obj_adr.special_ref IS NULL OR t012_obj_adr.special_ref=?) AND t012_obj_adr.type=? ORDER BY line", ['V', +objId, 12, 505, 10]);
+    var citationPublishersContent = "";
+    for (var i=0; i< citationPublishers.size(); i++) {
+        var publisherInstitution = citationPublishers.get(i).get("institution");
+        if(hasValue(citationPublishersContent)) {
+            citationPublishersContent += ",";
+        }
+        if (hasValue(publisherInstitution)) {
+            citationPublishersContent += publisherInstitution + ",";
+        }
+    }
+
+
+    var doi = addDOIInfo(objId);
+    var additional_html_citation_quote = "";
+    if(hasValue(citationAuthorsContent)) {
+        additional_html_citation_quote += "<b>" + citationAuthorsContent + "</b> ";
+    }
+    if(hasValue(citationDateContent)) {
+        additional_html_citation_quote += "<b>(" + citationDateContent + ")</b> ";
+    }
+    if(hasValue(citationTitleContent)) {
+        additional_html_citation_quote += "<i>" + citationTitleContent + "</i>";
+        if(hasValue(doi) && hasValue(doi.type)) {
+            additional_html_citation_quote += " [" + doi.type + "]";
+        }
+        additional_html_citation_quote += " ";
+    }
+    if(hasValue(citationPublishersContent)) {
+        additional_html_citation_quote += citationPublishersContent + ". ";
+    }
+    if(hasValue(doi) && hasValue(doi.id)) {
+        additional_html_citation_quote += "<a href=\"https://doi.org/" + doi.id + "\" target=\"_blank\">https://doi.org/" + doi.id + "</a>";
+    }
+    IDX.add("additional_html_citation_quote", additional_html_citation_quote);
+}
 
 function getAdditionalFieldValue(objId, fieldKey) {
     var query = "SELECT fd1.data FROM additional_field_data fd0 " +
