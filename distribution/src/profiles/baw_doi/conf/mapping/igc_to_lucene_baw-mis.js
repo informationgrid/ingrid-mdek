@@ -171,10 +171,10 @@ if(hasValue(citationAuthorsContent)) {
     for (var i=0; i< citationPublishers.size(); i++) {
         var publisherInstitution = citationPublishers.get(i).get("institution");
         if(hasValue(citationPublishersContent)) {
-            citationPublishersContent += ",";
+            citationPublishersContent += " ,";
         }
         if (hasValue(publisherInstitution)) {
-            citationPublishersContent += publisherInstitution + ",";
+            citationPublishersContent += publisherInstitution;
         }
     }
 
@@ -192,7 +192,7 @@ if(hasValue(citationAuthorsContent)) {
         if(hasValue(doi) && hasValue(doi.type)) {
             additional_html_citation_quote += " [" + doi.type + "]";
         }
-        additional_html_citation_quote += " ";
+        additional_html_citation_quote += ". ";
     }
     if(hasValue(citationPublishersContent)) {
         additional_html_citation_quote += citationPublishersContent + ". ";
