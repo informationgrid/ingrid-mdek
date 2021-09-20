@@ -104,6 +104,83 @@ if (hasValue(bwastrId)) {
     IDX.add("bwstr-bwastr-id", bwastrIdPrefix + bwastrId);
 }
 
+var citationAuthors = SQL.all("SELECT t02_address.* FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type<>? AND (t012_obj_adr.special_ref IS NULL OR t012_obj_adr.special_ref=?) AND t012_obj_adr.type=? ORDER BY line", ['V', +objId, 12, 505, 11]);
+var citationAuthorsContent = "";
+for (var i=0; i< citationAuthors.size(); i++) {
+    var authorLastname = citationAuthors.get(i).get("lastname");
+    var authorFirstname = citationAuthors.get(i).get("firstname");
+    if(hasValue(citationAuthorsContent)) {
+        citationAuthorsContent += ",";
+    }
+    if (hasValue(authorLastname)) {
+        citationAuthorsContent += authorLastname + ",";
+    }
+    if (hasValue(authorFirstname)) {
+        citationAuthorsContent += authorFirstname.charAt(0) + ".";
+    }
+}
+
+var citationDates = SQL.all("SELECT * FROM t0113_dataset_reference WHERE obj_id=? AND type=?", [+objId, 2]);
+var citationDateContent = "";
+for (var i=0; i< citationDates.size(); i++) {
+    var publicationDate = citationDates.get(i).get("reference_date");
+    if(hasValue(citationDateContent)) {
+        citationDateContent += ",";
+    }
+    if (hasValue(publicationDate)) {
+        citationDateContent += publicationDate.substring(0, 4);
+    }
+}
+
+var citationTitles = SQL.all("SELECT * FROM t01_object WHERE id=?", [+objId]);
+var citationTitleContent = "";
+for (var i=0; i< citationTitles.size(); i++) {
+    var title = citationTitles.get(i).get("obj_name");
+    if(hasValue(citationTitleContent)) {
+        citationTitleContent += ",";
+    }
+    if (hasValue(title)) {
+        citationTitleContent += title;
+    }
+}
+
+var citationPublishers = SQL.all("SELECT t02_address.* FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type<>? AND (t012_obj_adr.special_ref IS NULL OR t012_obj_adr.special_ref=?) AND t012_obj_adr.type=? ORDER BY line", ['V', +objId, 12, 505, 10]);
+var citationPublishersContent = "";
+for (var i=0; i< citationPublishers.size(); i++) {
+    var pubilsherInstitution = citationPublishers.get(i).get("institution");
+    if(hasValue(pubilsherInstitution)) {
+        citationPublishersContent += ",";
+    }
+    if (hasValue(pubilsherInstitution)) {
+        citationPublishersContent += pubilsherInstitution + ",";
+    }
+}
+
+
+var doi = addDOIInfo(objId);
+var additional_html_citation_quote = "";
+if(hasValue(citationAuthorsContent)) {
+    additional_html_citation_quote += "<b>" + citationAuthorsContent + "</b> ";
+}
+if(hasValue(citationDateContent)) {
+    additional_html_citation_quote += "<b>(" + citationDateContent + ")</b> ";
+}
+if(hasValue(citationTitleContent)) {
+    additional_html_citation_quote += "<i>" + citationTitleContent + "</i>";
+    if(hasValue(doi) && hasValue(doi.type)) {
+        additional_html_citation_quote += "[" + doi.type + "]";
+    }
+    additional_html_citation_quote += " ";
+}
+if(hasValue(citationPublishersContent)) {
+    additional_html_citation_quote += citationPublishersContent + ". ";
+}
+if(hasValue(doi) && hasValue(doi.id)) {
+    additional_html_citation_quote += "<a href=\"https://doi.org/" + doi.id + "\" target=\"_blank\">" + doi.id + "</a>";
+}
+IDX.add("additional_html_citation_quote", additional_html_citation_quote);
+
+
 function getAdditionalFieldValue(objId, fieldKey) {
     var query = "SELECT fd1.data FROM additional_field_data fd0 " +
         "JOIN additional_field_data fd1 ON fd1.parent_field_id = fd0.id " +
@@ -114,3 +191,25 @@ function getAdditionalFieldValue(objId, fieldKey) {
     }
 }
 
+function addDOIInfo(objId) {
+    var doiIdData = SQL.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiId'", [objId]);
+    var doiType = SQL.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiType'", [objId]);
+
+    if (hasValue(doiIdData) || hasValue(doiType)) {
+        var doiId = undefined;
+        var type = undefined;
+
+        if (hasValue(doiIdData)) {
+            doiId = doiIdData.get("data");
+        }
+
+        if (hasValue(doiType)) {
+            type = doiType.get("data");
+        }
+
+        return {
+            id: doiId,
+            type: type
+        };
+    }
+}

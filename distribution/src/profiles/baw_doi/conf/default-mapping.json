@@ -69,6 +69,10 @@
       "type": "keyword",
       "store": true
     },
+    "additional_html_citation_quote": {
+      "type": "keyword",
+      "store": true
+    },
     "kml": {
       "type": "keyword",
       "store": true
