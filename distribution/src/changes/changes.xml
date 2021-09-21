@@ -5,6 +5,9 @@
   </properties>
   <body>
     <release version="5.5.9" date="2021-07-28" description="Release 5.5.9">
+      <action type="add" dev="wemove" issue="1845">
+        Fix import of 'historie' field for geodata-service types
+      </action>
       <action type="fix" dev="wemove" issue="2621">
         Fix deletion of additional fields
       </action>
