@@ -490,8 +490,12 @@ var mappingDescription = {"mappings":[
 		                	"funct":mapServiceClassifications
 		            	}
 		        	},
-		        	{	
-	        			"srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description/gco:CharacterString",
+					{
+						"srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:processStep/gmd:LI_ProcessStep/gmd:description/gco:CharacterString",
+						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/service/system-history"
+					},
+		        	{
+	        			"srcXpath":"//gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:source/gmd:LI_source/gmd:description/gco:CharacterString",
 	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/service/database-of-system"
 	        		},
 	         		{	
