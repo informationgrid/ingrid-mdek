@@ -35,6 +35,22 @@
       "type": "keyword",
       "store": true
     },
+    "bwstr-bwastr_name": {
+      "type": "keyword",
+      "store": true
+    },
+    "bwstr-strecken_name": {
+      "type": "keyword",
+      "store": true
+    },
+    "bwstr-strecken_km_von": {
+      "type": "keyword",
+      "store": true
+    },
+    "bwstr-strecken_km_bis": {
+      "type": "keyword",
+      "store": true
+    },
     "simparamname": {
       "type": "keyword"
     },
