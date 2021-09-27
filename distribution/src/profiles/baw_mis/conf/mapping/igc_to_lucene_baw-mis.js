@@ -102,8 +102,12 @@ if (hasValue(bwastrId)) {
         bwastrIdPrefix += "0";
     }
     IDX.add("bwstr-bwastr-id", bwastrIdPrefix + bwastrId);
-    IDX.add("bwstr-strecken_km_von", bwastrKmStart);
-    IDX.add("bwstr-strecken_km_bis", bwastrKmEnd);
+    if (bwastrKmStart) {
+        IDX.add("bwstr-strecken_km_von", bwastrKmStart);
+    }
+    if (bwastrKmEnd) {
+        IDX.add("bwstr-strecken_km_bis", bwastrKmEnd);
+    }
 }
 
 function getAdditionalFieldValue(objId, fieldKey) {
