@@ -1826,7 +1826,17 @@ function mapCommunicationData(source, target) {
 function mapTimeConstraints(source, target) {
 	var timePeriods = XPATH.getNodeList(source, "//gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod" +
 		" | //gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml311:TimePeriod");
+	var timeInstant = XPATH.getString(source, "//gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimeInstant/gml:timePosition" +
+		" | //gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml311:TimeInstant/gml311:timePosition");
 	log.debug("Found " + timePeriods.getLength() + " TimePeriod records.");
+	if (hasValue(timeInstant)) {
+		var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/beginning-date");
+		XMLUtils.createOrReplaceTextNode(node, transformDateIso8601ToIndex(timeInstant));
+		node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/ending-date");
+		XMLUtils.createOrReplaceTextNode(node, transformDateIso8601ToIndex(timeInstant));
+		node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/time-type");
+		XMLUtils.createOrReplaceTextNode(node, "am")
+	}
 	if (hasValue(timePeriods) && timePeriods.getLength() > 0) {
 		var beginPosition = XPATH.getString(timePeriods.item(0), "gml:beginPosition | gml311:beginPosition");
 		var endPosition = XPATH.getString(timePeriods.item(0), "gml:endPosition | gml311:endPosition");
