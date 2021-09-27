@@ -102,6 +102,8 @@ if (hasValue(bwastrId)) {
         bwastrIdPrefix += "0";
     }
     IDX.add("bwstr-bwastr-id", bwastrIdPrefix + bwastrId);
+    IDX.add("bwstr-strecken_km_von", bwastrKmStart);
+    IDX.add("bwstr-strecken_km_bis", bwastrKmEnd);
 }
 
 var citationAuthors = SQL.all("SELECT t02_address.* FROM t012_obj_adr, t02_address WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid AND t02_address.work_state=? AND t012_obj_adr.obj_id=? AND t012_obj_adr.type<>? AND (t012_obj_adr.special_ref IS NULL OR t012_obj_adr.special_ref=?) AND t012_obj_adr.type=? ORDER BY line", ['V', +objId, 12, 505, 11]);
