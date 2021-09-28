@@ -85,6 +85,10 @@
       "type": "keyword",
       "store": true
     },
+    "additional_html_citation_quote": {
+      "type": "keyword",
+      "store": true
+    },
     "kml": {
       "type": "keyword",
       "store": true
@@ -426,6 +430,10 @@
       "store": true
     },
     "object_use_constraint.license_value": {
+      "type": "keyword",
+      "store": true
+    },
+    "wkt": {
       "type": "keyword",
       "store": true
     },

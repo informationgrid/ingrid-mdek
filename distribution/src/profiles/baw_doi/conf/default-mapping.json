@@ -433,6 +433,10 @@
       "type": "keyword",
       "store": true
     },
+    "wkt": {
+      "type": "keyword",
+      "store": true
+    },
     "sort_hash": {
       "type": "keyword"
     }
