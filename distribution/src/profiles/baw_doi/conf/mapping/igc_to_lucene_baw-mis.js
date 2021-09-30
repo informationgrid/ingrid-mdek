@@ -140,10 +140,10 @@ for (var i=0; i< citationAuthors.size(); i++) {
     var authorLastname = citationAuthors.get(i).get("lastname");
     var authorFirstname = citationAuthors.get(i).get("firstname");
     if(hasValue(citationAuthorsContent)) {
-        citationAuthorsContent += " ,";
+        citationAuthorsContent += ", ";
     }
     if (hasValue(authorLastname)) {
-        citationAuthorsContent += authorLastname + " ,";
+        citationAuthorsContent += authorLastname + ", ";
     }
     if (hasValue(authorFirstname)) {
         citationAuthorsContent += authorFirstname.charAt(0) + ".";
@@ -159,7 +159,7 @@ for (var i=0; i< citationAuthors.size(); i++) {
                     log.debug("Add address with uuid '"+parentAdressRow.get("adr_uuid")+"' to address path:" + parentAdressRow);
                 }
                 if(hasValue(authorInstitutionParent)) {
-                    authorInstitutionParent += " ,";
+                    authorInstitutionParent += ", ";
                 }
                 authorInstitutionParent += "<b>" + parentAdressRow.get("institution") + "</b> ";
                 addrId = parentAdressRow.get("id");
@@ -222,6 +222,9 @@ if(hasValue(citationAuthorsContent)) {
     }
     if(hasValue(citationDateContent)) {
         additional_html_citation_quote += "<b>(" + citationDateContent + ")</b> ";
+    }
+    if (hasValue(additional_html_citation_quote)) {
+        additional_html_citation_quote += ":";
     }
     if(hasValue(citationTitleContent)) {
         additional_html_citation_quote += "<i>" + citationTitleContent + "</i>";
