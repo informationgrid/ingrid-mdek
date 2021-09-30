@@ -75,7 +75,10 @@ function getAdditionalFieldValueBWastr(objId) {
         var rowsData = SQL.all(queryData, [+sort, objId]);
         var bwastrId = "";
         var bwastrKmStart = "";
-        var bwastrKmEnd = ""
+        var bwastrKmEnd = "";
+        var bwastrName = "";
+        var bwastrStreckenName = "";
+
         for(var j=0; j<rowsData.size(); j++) {
             var rowData = rowsData.get(j);
             var fieldKey = rowData.get("field_key");
@@ -92,32 +95,27 @@ function getAdditionalFieldValueBWastr(objId) {
         if (hasValue(bwastrId)) {
             log.debug("BWaStr. ID is: " + bwastrId + ", km start is: " + bwastrKmStart + ", km end is: " + bwastrKmEnd);
             if (bwastrId === "9600") {
-                IDX.add("bwstr-bwastr_name", "Binnenwasserstraßen");
+                bwastrName = "Binnenwasserstraßen";
             } else if (bwastrId === "9700") {
-                IDX.add("bwstr-bwastr_name", "Seewasserstraßen");
+                bwastrName = "Seewasserstraßen";
             } else if (bwastrId === "9800") {
-                IDX.add("bwstr-bwastr_name", "Bundeswasserstraßen");
+                bwastrName = "Bundeswasserstraßen";
             } else if (bwastrId === "9900") {
-                IDX.add("bwstr-bwastr_name", "Sonstige Gewässer");
+                bwastrName = "Sonstige Gewässer";
             } else if (hasValue(bwastrKmStart)) {
                 var bwstrIdAndKm = bwastrId + "-" + bwastrKmStart + "-" + bwastrKmEnd;
                 for (var k=bwastrId.length; k<4; k++) {
                     bwstrIdAndKm = "0" + bwstrIdAndKm;
                 }
                 var parts = BWST_LOC_TOOL.parseCenterSectionFromBwstrIdAndKm(bwstrIdAndKm);
-                var parsedResponse = BWST_LOC_TOOL.parse(BWST_LOC_TOOL.getResponse(parts[0], parts[1], parts[2]));
-                var center = BWST_LOC_TOOL.getCenter(parsedResponse);
-                log.debug("Parsed centre from BWaStr. Locator tool is: " + center[0] + ", " + center[1]);
-                if (!isNaN(center[0])) {
-                    IDX.addNumeric("bwstr-center-lon", center[0]);
-                }
-                if (!isNaN(center[1])) {
-                    IDX.addNumeric("bwstr-center-lat", center[1]);
-                }
-                var locNames = BWST_LOC_TOOL.getLocationNames(parsedResponse);
-                if (locNames && locNames.length==2) {
-                    IDX.add("bwstr-bwastr_name", locNames[0]);
-                    IDX.add("bwstr-strecken_name", locNames[1]);
+                var response = BWST_LOC_TOOL.getResponse(parts[0], parts[1], parts[2]);
+                if(response) {
+                    var parsedResponse = BWST_LOC_TOOL.parse(response);
+                    var locNames = BWST_LOC_TOOL.getLocationNames(parsedResponse);
+                    if (locNames && locNames.length==2) {
+                        bwastrName = locNames[0];
+                        bwastrStreckenName = locNames[1];
+                    }
                 }
             }
             // Add the BWaStr-ID itself to the index.
@@ -130,6 +128,8 @@ function getAdditionalFieldValueBWastr(objId) {
             IDX.add("bwstr-bwastr-id", bwastrIdPrefix + bwastrId);
             IDX.add("bwstr-strecken_km_von", bwastrKmStart);
             IDX.add("bwstr-strecken_km_bis", bwastrKmEnd);
+            IDX.add("bwstr-bwastr_name", bwastrName);
+            IDX.add("bwstr-strecken_name", bwastrStreckenName);
         }
     }
 }
