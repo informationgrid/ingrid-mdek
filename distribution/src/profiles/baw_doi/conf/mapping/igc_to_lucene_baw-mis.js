@@ -224,7 +224,8 @@ if(hasValue(citationAuthorsContent)) {
         additional_html_citation_quote += "<b>(" + citationDateContent + ")</b> ";
     }
     if (hasValue(additional_html_citation_quote)) {
-        additional_html_citation_quote += ":";
+        additional_html_citation_quote = additional_html_citation_quote.trim();
+        additional_html_citation_quote += ": ";
     }
     if(hasValue(citationTitleContent)) {
         additional_html_citation_quote += "<i>" + citationTitleContent + "</i>";
