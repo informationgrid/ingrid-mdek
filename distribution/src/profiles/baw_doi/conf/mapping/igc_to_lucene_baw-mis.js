@@ -153,19 +153,25 @@ for (var i=0; i< citationAuthors.size(); i++) {
         var authorInstitutionParent = "";
         var addrId = citationAuthors.get(i).get("id");
         var parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [+addrId, "V"]);
-        while (hasValue(parentAdressRow)) {
-            if (log.isDebugEnabled()) {
-                log.debug("Add address with uuid '"+parentAdressRow.get("adr_uuid")+"' to address path:" + parentAdressRow);
+        if(hasValue(parentAdressRow)) {
+            while (hasValue(parentAdressRow)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Add address with uuid '"+parentAdressRow.get("adr_uuid")+"' to address path:" + parentAdressRow);
+                }
+                if(hasValue(authorInstitutionParent)) {
+                    authorInstitutionParent += " ,";
+                }
+                authorInstitutionParent += "<b>" + parentAdressRow.get("institution") + "</b> ";
+                addrId = parentAdressRow.get("id");
+                parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [+addrId, "V"]);
             }
             if(hasValue(authorInstitutionParent)) {
-                authorInstitutionParent += " ,";
+                citationAuthorsContent += authorInstitutionParent;
             }
-            authorInstitutionParent += "<b>" + parentAdressRow.get("institution") + "</b> ";
-            addrId = parentAdressRow.get("id");
-            parentAdressRow = SQL.first("SELECT t02_address.* FROM t02_address, address_node WHERE address_node.addr_id_published=? AND address_node.fk_addr_uuid=t02_address.adr_uuid AND t02_address.work_state=?", [+addrId, "V"]);
-        }
-        if(hasValue(authorInstitutionParent)) {
-            citationAuthorsContent += authorInstitutionParent;
+        } else {
+            if (hasValue(authorInstitution)) {
+                citationAuthorsContent += authorInstitution;
+            }
         }
     }
 }
