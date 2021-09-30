@@ -60,6 +60,39 @@ for(var i=0; i<addnFieldRows.size(); i++) {
 }
 
 getAdditionalFieldValueBWastr(objId);
+getAdditionalFieldValueBWastrSpatialRefFree(objId);
+
+function getAdditionalFieldValueBWastrSpatialRefFree(objId) {
+    var query = "SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value " + 
+        "WHERE spatial_ref_value.type = 'F' AND " +
+        "spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?";
+    var rows = SQL.all(query, [objId]);
+    for(var i=0; i<rows.size(); i++) {
+        var row = rows.get(i);
+        var nameValue = row.get("name_value");
+        if (hasValue(nameValue)) {
+            var bwaStrValue = nameValue.replaceAll("[^-?0-9.0-9]+", "");
+            bwaStrValue = bwaStrValue.replaceAll("-", " ");
+            var bwaStrValues = bwaStrValue.split(" ");
+            var bwastrId = "";
+            var bwastrKmStart = "";
+            var bwastrKmEnd = "";
+            switch (bwaStrValues.length) {
+                case 1:
+                    bwastrId = bwaStrValues[0];
+                    break;
+                case 3:
+                    bwastrId = bwaStrValues[0];
+                    bwastrKmStart = bwaStrValues[1];
+                    bwastrKmEnd = bwaStrValues[2];
+                    break;
+                default:
+                    break;
+            }
+            addBWaStrData(bwastrId, bwastrKmStart, bwastrKmEnd);
+        }
+    }
+}
 
 function getAdditionalFieldValueBWastr(objId) {
     var query = "SELECT DISTINCT fd1.sort FROM additional_field_data fd0 " +
@@ -76,8 +109,6 @@ function getAdditionalFieldValueBWastr(objId) {
         var bwastrId = "";
         var bwastrKmStart = "";
         var bwastrKmEnd = "";
-        var bwastrName = "";
-        var bwastrStreckenName = "";
 
         for(var j=0; j<rowsData.size(); j++) {
             var rowData = rowsData.get(j);
@@ -91,46 +122,51 @@ function getAdditionalFieldValueBWastr(objId) {
                 bwastrKmEnd = data;
             }
         }
+        addBWaStrData(bwastrId, bwastrKmStart, bwastrKmEnd);
+    }
+}
 
-        if (hasValue(bwastrId)) {
-            log.debug("BWaStr. ID is: " + bwastrId + ", km start is: " + bwastrKmStart + ", km end is: " + bwastrKmEnd);
-            if (bwastrId === "9600") {
-                bwastrName = "Binnenwasserstraßen";
-            } else if (bwastrId === "9700") {
-                bwastrName = "Seewasserstraßen";
-            } else if (bwastrId === "9800") {
-                bwastrName = "Bundeswasserstraßen";
-            } else if (bwastrId === "9900") {
-                bwastrName = "Sonstige Gewässer";
-            } else if (hasValue(bwastrKmStart)) {
-                var bwstrIdAndKm = bwastrId + "-" + bwastrKmStart + "-" + bwastrKmEnd;
-                for (var k=bwastrId.length; k<4; k++) {
-                    bwstrIdAndKm = "0" + bwstrIdAndKm;
-                }
-                var parts = BWST_LOC_TOOL.parseCenterSectionFromBwstrIdAndKm(bwstrIdAndKm);
-                var response = BWST_LOC_TOOL.getResponse(parts[0], parts[1], parts[2]);
-                if(response) {
-                    var parsedResponse = BWST_LOC_TOOL.parse(response);
-                    var locNames = BWST_LOC_TOOL.getLocationNames(parsedResponse);
-                    if (locNames && locNames.length==2) {
-                        bwastrName = locNames[0];
-                        bwastrStreckenName = locNames[1];
-                    }
-                }
-            }
-            // Add the BWaStr-ID itself to the index.
-            // Use workaround to store it as string to preserve leading zeros and
-            // have a predictable behaviour in elasticsearch.
-            var bwastrIdPrefix = "id_";
+function addBWaStrData(bwastrId, bwastrKmStart, bwastrKmEnd) {
+    if (hasValue(bwastrId)) {
+        var bwastrName = "";
+        var bwastrStreckenName = "";
+        log.debug("BWaStr. ID is: " + bwastrId + ", km start is: " + bwastrKmStart + ", km end is: " + bwastrKmEnd);
+        if (bwastrId === "9600") {
+            bwastrName = "Binnenwasserstraßen";
+        } else if (bwastrId === "9700") {
+            bwastrName = "Seewasserstraßen";
+        } else if (bwastrId === "9800") {
+            bwastrName = "Bundeswasserstraßen";
+        } else if (bwastrId === "9900") {
+            bwastrName = "Sonstige Gewässer";
+        } else if (hasValue(bwastrKmStart)) {
+            var bwstrIdAndKm = bwastrId + "-" + bwastrKmStart + "-" + bwastrKmEnd;
             for (var k=bwastrId.length; k<4; k++) {
-                bwastrIdPrefix += "0";
+                bwstrIdAndKm = "0" + bwstrIdAndKm;
             }
-            IDX.add("bwstr-bwastr-id", bwastrIdPrefix + bwastrId);
-            IDX.add("bwstr-strecken_km_von", bwastrKmStart);
-            IDX.add("bwstr-strecken_km_bis", bwastrKmEnd);
-            IDX.add("bwstr-bwastr_name", bwastrName);
-            IDX.add("bwstr-strecken_name", bwastrStreckenName);
+            var parts = BWST_LOC_TOOL.parseCenterSectionFromBwstrIdAndKm(bwstrIdAndKm);
+            var response = BWST_LOC_TOOL.getResponse(parts[0], parts[1], parts[2]);
+            if(response) {
+                var parsedResponse = BWST_LOC_TOOL.parse(response);
+                var locNames = BWST_LOC_TOOL.getLocationNames(parsedResponse);
+                if (locNames && locNames.length==2) {
+                    bwastrName = locNames[0];
+                    bwastrStreckenName = locNames[1];
+                }
+            }
         }
+        // Add the BWaStr-ID itself to the index.
+        // Use workaround to store it as string to preserve leading zeros and
+        // have a predictable behaviour in elasticsearch.
+        var bwastrIdPrefix = "id_";
+        for (var k=bwastrId.length; k<4; k++) {
+            bwastrIdPrefix += "0";
+        }
+        IDX.add("bwstr-bwastr-id", bwastrIdPrefix + bwastrId);
+        IDX.add("bwstr-strecken_km_von", bwastrKmStart);
+        IDX.add("bwstr-strecken_km_bis", bwastrKmEnd);
+        IDX.add("bwstr-bwastr_name", bwastrName);
+        IDX.add("bwstr-strecken_name", bwastrStreckenName);
     }
 }
 
