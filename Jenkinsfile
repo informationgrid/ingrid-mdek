@@ -1,14 +1,10 @@
 pipeline {
     agent any
-    
-    tools {
-        jdk 'jdk8'
-    }
 
     tools {
         jdk 'jdk8'
     }
-    
+
     environment {
         VERSION = readMavenPom().getVersion()
     }
@@ -24,7 +20,7 @@ pipeline {
                 not {
                     anyOf { branch 'master'; }
                 }
-                not { 
+                not {
                     allOf {
                         anyOf { branch 'support/*'; branch 'mcloud-master' }
                         expression { return !VERSION.endsWith("-SNAPSHOT") }
@@ -84,7 +80,7 @@ pipeline {
     post {
         changed {
             // send Email with Jenkins' default configuration
-            script { 
+            script {
                 emailext (
                     body: '${DEFAULT_CONTENT}',
                     subject: '${DEFAULT_SUBJECT}',
