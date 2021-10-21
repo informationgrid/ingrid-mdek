@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,15 +25,13 @@ package de.ingrid.mdek.job;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.ingrid.mdek.services.persistence.db.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.mdek.services.log.ILogService;
-import de.ingrid.mdek.services.persistence.db.DaoFactory;
-import de.ingrid.mdek.services.persistence.db.IEntity;
-import de.ingrid.mdek.services.persistence.db.IGenericDao;
 import de.ingrid.mdek.services.persistence.db.dao.IAddressNodeDao;
 import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
 import de.ingrid.mdek.services.persistence.db.dao.IObjectNodeDao;
@@ -42,8 +40,9 @@ import de.ingrid.mdek.services.persistence.db.model.AddressNode;
 import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.utils.IngridDocument;
 
+
 /**
- * Encapsulates all Job functionality concerning QUERYING (inquiry of entities). 
+ * Encapsulates all Job functionality concerning QUERYING (inquiry of entities).
  */
 @Service
 public class MdekIdcQueryJob extends MdekIdcJob {
@@ -51,6 +50,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 	private IAddressNodeDao daoAddressNode;
 	private IObjectNodeDao daoObjectNode;
 	private IHQLDao daoHQL;
+	private IHQLExecuter hqlExecuter;
 
 	/** Generic dao for class unspecific operations !!! */
 	private IGenericDao<IEntity> dao;
@@ -241,7 +241,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			if (totalNumHits > 0 &&	startHit < totalNumHits) {
 				queryDoc = daoHQL.queryHQL(hqlQuery, startHit, numHits);
 			}
-			
+
 			// default is object beans
 			List hits = new ArrayList(0);
 			IdcEntityType entityType = null;
@@ -252,7 +252,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			} else if (queryDoc.get(MdekKeys.ADR_ENTITIES) != null) {
 				// or do we have address entities ?
 				hits = (List) queryDoc.get(MdekKeys.ADR_ENTITIES);
-				entityType = IdcEntityType.ADDRESS;				
+				entityType = IdcEntityType.ADDRESS;
 			}
 
 			ArrayList<IngridDocument> resultList = new ArrayList<IngridDocument>(hits.size());
@@ -261,7 +261,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 				if (entityType == IdcEntityType.OBJECT) {
 					ObjectNode oNode = (ObjectNode) hit;
 					beanToDocMapper.mapObjectNode(oNode, hitDoc, MappingQuantity.BASIC_ENTITY);
-					beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), hitDoc, MappingQuantity.BASIC_ENTITY);					
+					beanToDocMapper.mapT01Object(oNode.getT01ObjectWork(), hitDoc, MappingQuantity.BASIC_ENTITY);
 				} else {
 					AddressNode aNode = (AddressNode) hit;
 					beanToDocMapper.mapAddressNode(aNode, hitDoc, MappingQuantity.BASIC_ENTITY);
@@ -330,12 +330,29 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 		    throw handledExc;
 		}
 	}
-	
+
+	public IngridDocument updateByHQL(IngridDocument params) {
+		try {
+			daoHQL.beginTransaction();
+			dao.disableAutoFlush();
+
+			IngridDocument result = hqlExecuter.execute(params);
+
+			daoHQL.commitTransaction();
+
+			return result;
+
+		} catch (RuntimeException e) {
+			RuntimeException handledExc = handleException(e);
+		    throw handledExc;
+		}
+	}
+
 	public IngridDocument queryObjectsExtended(IngridDocument params) {
 		Integer startHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
 		Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
 		IngridDocument searchParams = (IngridDocument) params.get(MdekKeys.SEARCH_EXT_PARAMS);
-		
+
 		// execute the query
 		try {
 			daoObjectNode.beginTransaction();
@@ -362,9 +379,9 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumHits);
 			result.put(MdekKeys.OBJ_ENTITIES, resultList);
 			result.put(MdekKeys.TOTAL_NUM, new Long(resultList.size()));
-			
+
 			return result;
-			
+
 		} catch (RuntimeException e) {
 			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
@@ -375,7 +392,7 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 		Integer startHit = (Integer) params.get(MdekKeys.SEARCH_START_HIT);
 		Integer numHits = ((Long) params.get(MdekKeys.TOTAL_NUM)).intValue();
 		IngridDocument searchParams = (IngridDocument) params.get(MdekKeys.SEARCH_EXT_PARAMS);
-		
+
 		// execute the query
 		try {
 			daoObjectNode.beginTransaction();
@@ -402,13 +419,17 @@ public class MdekIdcQueryJob extends MdekIdcJob {
 			result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumHits);
 			result.put(MdekKeys.ADR_ENTITIES, resultList);
 			result.put(MdekKeys.TOTAL_NUM, new Long(resultList.size()));
-			
+
 			return result;
-			
+
 		} catch (RuntimeException e) {
 			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
-	}	
-	
+	}
+
+	@Autowired
+	public void setHqlExecuter(IHQLExecuter hqlExecuter) {
+		this.hqlExecuter = hqlExecuter;
+	}
 }

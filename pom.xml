@@ -9,7 +9,7 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>5.9.0</version>
+  <version>5.10.0</version>
   <name>InGrid iPlug IGE</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.
   </description>
@@ -19,12 +19,12 @@
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
-    <ingrid-udk-importer.version>5.9.0</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>5.9.0</ingrid-codelist-service.version>
-    <ingrid-utils.version>5.9.0</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>5.6.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>5.8.0</ingrid-base-webapp.version>
-    <spring.version>4.3.3.RELEASE</spring.version>
+    <ingrid-udk-importer.version>5.10.0</ingrid-udk-importer.version>
+    <ingrid-codelist-service.version>5.10.0</ingrid-codelist-service.version>
+    <ingrid-utils.version>5.10.0</ingrid-utils.version>
+    <ingrid-iplug-dsc.version>5.10.0</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>5.10.0</ingrid-base-webapp.version>
+    <spring.version>5.3.12</spring.version>
   </properties>
 
   <!-- ==================== Source Code Management ==================== -->
@@ -174,18 +174,18 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-1.2-api</artifactId>
-      <version>2.8.1</version>
+      <version>2.13.3</version>
     </dependency>
     <!-- end -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <version>2.8.1</version>
+      <version>2.13.3</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>2.8.1</version>
+      <version>2.13.3</version>
     </dependency>
     <!-- <dependency>
       <groupId>org.apache.logging.log4j</groupId>

@@ -825,8 +825,6 @@ public class MdekKeys {
     /** Value: String  */
     public final static String METHOD_OF_PRODUCTION = "method-of-production";
     /** Value: Double  */
-    public final static String RESOLUTION = "resolution";
-    /** Value: Double  */
     public final static String DEGREE_OF_RECORD = "degree-of-record";
     /** Value: Integer  */
     public final static String HIERARCHY_LEVEL = "hierarchy-level";
@@ -865,8 +863,8 @@ public class MdekKeys {
     public final static String GEO_REF_ORIENTATION_PARAM = "geo-ref-orientation-parameter";
     /** Value: String  */
     public final static String GEO_REF_PARAMETER = "geo-ref-parameter";
-    
-    
+    /** Value: Double  */
+    public final static String POS_ACCURACY = "pos-accuracy";
     /** Value: Double  */
     public final static String POS_ACCURACY_VERTICAL = "pos-accuracy-vertical";
     /** Value: Double  */

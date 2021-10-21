@@ -461,6 +461,9 @@ for (i=0; i<objRows.size(); i++) {
         addT01ObjectFolder(objRows.get(i));
     }
 
+    // add WKT
+    addWKT(+objId);
+
     // ---------- object_node CHILDREN ----------
     // only published ones !
     var rows = SQL.all("SELECT * FROM object_node WHERE fk_obj_uuid=? AND obj_id_published IS NOT NULL", [objUuid]);
@@ -1125,4 +1128,13 @@ function addDOIInfo(objId) {
             IDX.add("doi.typeId", typeId);
         }
     }
+}
+
+function addWKT(objId) {
+  var wktRow = SQL.first("SELECT fd.data AS data FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'boundingPolygon'", [+objId]);
+  if (hasValue(wktRow)) {
+      var wkt = wktRow.get("data");
+      wkt = wkt.replace(/[\r\n]/g, ";");
+      IDX.add("wkt", wkt);
+  }
 }

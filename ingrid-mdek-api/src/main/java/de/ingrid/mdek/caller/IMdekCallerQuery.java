@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,10 @@
  */
 package de.ingrid.mdek.caller;
 
+import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.utils.IngridDocument;
+
+import java.util.List;
 
 
 /**
@@ -35,7 +38,7 @@ public interface IMdekCallerQuery extends IMdekCaller {
 	 * Search addresses via full text search.
 	 * @param plugId which mdek server (iplug)
 	 * @param searchTerm term to search for (arbitrary string)
-	 * @param startHit hit to start with (first hit is 0) 
+	 * @param startHit hit to start with (first hit is 0)
 	 * @param numHits number of hits requested, beginning from startHit
 	 * @param userId
 	 * @return response containing result: map containing hits and additional
@@ -49,7 +52,7 @@ public interface IMdekCallerQuery extends IMdekCaller {
 	 * Search addresses via thesaurus term.
 	 * @param plugId which mdek server (iplug)
 	 * @param termSnsId sns id of thesaurus term
-	 * @param startHit hit to start with (first hit is 0) 
+	 * @param startHit hit to start with (first hit is 0)
 	 * @param numHits number of hits requested, beginning from startHit
 	 * @param userId
 	 * @return response containing result: map containing hits and additional
@@ -63,7 +66,7 @@ public interface IMdekCallerQuery extends IMdekCaller {
 	 * Search objects via full text search.
 	 * @param plugId which mdek server (iplug)
 	 * @param searchTerm term to search for (arbitrary string)
-	 * @param startHit hit to start with (first hit is 0) 
+	 * @param startHit hit to start with (first hit is 0)
 	 * @param numHits number of hits requested, beginning from startHit
 	 * @param userId
 	 * @return response containing result: map containing hits and additional
@@ -77,7 +80,7 @@ public interface IMdekCallerQuery extends IMdekCaller {
 	 * Search objects via thesaurus term.
 	 * @param plugId which mdek server (iplug)
 	 * @param termSnsId sns id of thesaurus term
-	 * @param startHit hit to start with (first hit is 0) 
+	 * @param startHit hit to start with (first hit is 0)
 	 * @param numHits number of hits requested, beginning from startHit
 	 * @param userId
 	 * @return response containing result: map containing hits and additional
@@ -91,7 +94,7 @@ public interface IMdekCallerQuery extends IMdekCaller {
 	 * Execute HQL Query fetching objects/addresses.
 	 * @param plugId which mdek server (iplug)
 	 * @param hqlQuery hql query ! NO UPDATE !
-	 * @param startHit hit to start with (first hit is 0) 
+	 * @param startHit hit to start with (first hit is 0)
 	 * @param numHits number of hits requested, beginning from startHit
 	 * @param userId
 	 * @return
@@ -123,11 +126,19 @@ public interface IMdekCallerQuery extends IMdekCaller {
 			String userId);
 
 	/**
+	 * Execute any HQL which can modify the database.
+	 * @param plugId which mdek server (iplug)
+	 * @param hqlQueries is a combination of modifier (HQL_SELECT, HQL_UPDATE, HQL_DELETE) and hql-query
+	 * @return
+	 */
+	IngridDocument updateByHQL(String plugId, List<Pair> hqlQueries);
+
+	/**
 	 * Search objects according to the searchParams supplied (see mdek_data.xsd -> SEARCH_EXT_PARAMS_MAP)
-	 * 
+	 *
 	 * @param plugId which mdek server (iplug)
 	 * @param searchParams The search params (see mdek_data.xsd -> SEARCH_EXT_PARAMS_MAP)
-	 * @param startHit hit to start with (first hit is 0) 
+	 * @param startHit hit to start with (first hit is 0)
 	 * @param numHits number of hits requested, beginning from startHit
 	 * @param userId
 	 * @return
@@ -136,10 +147,10 @@ public interface IMdekCallerQuery extends IMdekCaller {
 
 	/**
 	 * Search addresses according to the searchParams supplied (see mdek_data.xsd -> SEARCH_EXT_PARAMS_MAP)
-	 * 
+	 *
 	 * @param plugId which mdek server (iplug)
 	 * @param searchParams The search params (see mdek_data.xsd -> SEARCH_EXT_PARAMS_MAP)
-	 * @param startHit hit to start with (first hit is 0) 
+	 * @param startHit hit to start with (first hit is 0)
 	 * @param numHits number of hits requested, beginning from startHit
 	 * @param userId
 	 * @return

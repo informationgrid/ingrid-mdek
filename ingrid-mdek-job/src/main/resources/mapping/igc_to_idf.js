@@ -2396,11 +2396,16 @@ function addExtent(identificationInfo, objRow) {
     }
 
     // ---------- <gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent> ----------
+    var myDateType = objRow.get("time_type");
     var timeRange = getTimeRange(objRow);
-    if (hasValue(timeRange.beginDate) || hasValue(timeRange.endDate)) {
+    if (hasValue(myDateType) && (hasValue(timeRange.beginDate) || hasValue(timeRange.endDate))) {
         if (!exExtent) {
             exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
         }
+        if (myDateType.equals("am")) {
+            var timeInstant = exExtent.addElement("gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimeInstant")
+            timeInstant.addElement("gml:timePosition").addText(TRANSF.getISODateFromIGCDate(timeRange.beginDate));
+        } else {
         // T01_object.time_from MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/temporalElement/EX_TemporalExtent/extent/gml:TimePeriod/
         var timePeriod = exExtent.addElement("gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod")
             .addAttribute("gml:id", "timePeriod_ID_".concat(TRANSF.getRandomUUID()));
@@ -2412,8 +2417,13 @@ function addExtent(identificationInfo, objRow) {
         if (hasValue(timeRange.endDate)) {
             timePeriod.addElement("gml:endPosition").addText(TRANSF.getISODateFromIGCDate(timeRange.endDate));
         } else {
-            timePeriod.addElement("gml:endPosition").addAttribute("indeterminatePosition", "unknown").addText("");
+                if (myDateType.equals("seitX")) {
+                timePeriod.addElement("gml:endPosition").addAttribute("indeterminatePosition", "now").addText("");
+            } else {
+                timePeriod.addElement("gml:endPosition").addAttribute("indeterminatePosition", "unknown").addText("");
+            }
         }
+    }
     }
 
     // ---------- <gmd:EX_Extent/gmd:verticalElement/gmd:EX_VerticalExtent> ----------
@@ -2490,10 +2500,13 @@ function getTimeRange(objRow) {
         if (myDateType.equals("von")) {
             retValue.beginDate = timeMap.get("t1");
             retValue.endDate = timeMap.get("t2");
-        } else if (myDateType.equals("seit")) {
+        } else if (myDateType.equals("seit") || myDateType.equals("seitX")) {
             retValue.beginDate = timeMap.get("t1");
         } else if (myDateType.equals("bis")) {
             retValue.endDate = timeMap.get("t2");
+        } else if (myDateType.equals("am")) {
+            retValue.beginDate = timeMap.get("t0");
+            retValue.endDate = timeMap.get("t0");
         }
     }
 
@@ -2586,7 +2599,7 @@ function addDistributionInfo(mdMetadata, objId) {
     // Map Service URLs to distributionInfo/CI_OnlineResource, see INGRID-2257
     // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
     if (objClass.equals("6")) {
-        rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [+objServId]);
+        rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=? ORDER BY line", [+objServId]);
         for (i=0; i<rows.size(); i++) {
             row = rows.get(i);
             if (!mdDistribution) {
@@ -2815,10 +2828,18 @@ function addServiceOperations(identificationInfo, objServId, serviceTypeISOName)
                 hasValue(catRow.get("atom_download_url"))) {
                 svContainsOperations = identificationInfo.addElement("srv:containsOperations");
                 var svOperationMetadata = svContainsOperations.addElement("srv:SV_OperationMetadata");
-                svOperationMetadata.addElement("srv:operationName/gco:CharacterString").addText("Get Download Service Metadata");
+                svOperationMetadata
+                    .addElement("srv:operationName/gco:CharacterString")
+                    .addText("Download");
                 // mandatory !
-                svOperationMetadata.addElement("srv:DCP").addAttribute("gco:nilReason", "unknown");
-                svOperationMetadata.addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url") + objUuid);
+                svOperationMetadata
+                    .addElement("srv:DCP/srv:DCPList")
+                    .addAttribute("codeList", globalCodeListAttrURL + "#CSW_DCPCodeType")
+                    .addAttribute("codeListValue", "WebServices")
+                    .addText("WebServices");
+                svOperationMetadata
+                    .addElement("srv:connectPoint/gmd:CI_OnlineResource/gmd:linkage/gmd:URL")
+                    .addText(catRow.get("atom_download_url") + objUuid);
             }
 
             // "normal" operations
@@ -3076,7 +3097,12 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
     var urlRefRows = SQL.all("SELECT t017url.url_link FROM t017_url_ref t017url, t01_object t01o WHERE t017url.special_ref = 9000 AND t01o.id = t017url.obj_id AND t017url.obj_id=?", [+urlRefObjId]);
 
     for (var i=0; i<urlRefRows.size(); i++) {
-      idfObjectReference.addElement("idf:graphicOverview").addText(urlRefRows.get(i).get("url_link"));
+      var url = urlRefRows.get(i).get("url_link");
+      var urlIdentifierPosition = url.indexOf("://");
+      if (urlIdentifierPosition <= 3 || urlIdentifierPosition >= 10) {
+          url = MdekServer.conf.documentStoreBaseUrl + url;
+      }
+      idfObjectReference.addElement("idf:graphicOverview").addText(url);
     }
     return idfObjectReference;
 }

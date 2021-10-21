@@ -35,12 +35,16 @@ import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xml.IgcProfileNamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -49,6 +53,8 @@ import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
 public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
     private static final Logger LOG = Logger.getLogger(IsoToIgcMapperBaw.class);
+
+    private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
     private MdekCatalogService catalogService;
 
@@ -83,6 +89,8 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             String addnValuesXpath = "/igc/data-sources/data-source/data-source-instance/general/general-additional-values";
             Element additionalValues = (Element) igcXpathUtil.createElementFromXPath(igcRoot, addnValuesXpath);
 
+            mapCrossReferences(mdIdentification, additionalValues, protocolHandler);
+
             mapAuftragInfos(mdIdentification, additionalValues);
             mapHierarchyLevelName(mdMetadata, additionalValues, protocolHandler);
             mapBWaStrIdentifiers(mdIdentification, additionalValues, protocolHandler);
@@ -98,6 +106,140 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         } catch (MdekException e) {
             protocolHandler.addMessage(Type.ERROR, e.getMessage());
             throw e;
+        }
+    }
+
+    private void mapCrossReferences(Element mdIdentification, Element additionalValues, ProtocolHandler protocolHandler) {
+        String xpath = "./gmd:aggregationInfo/gmd:MD_AggregateInformation[./gmd:associationType/gmd:DS_AssociationTypeCode/@codeListValue=\"crossReference\"]/gmd:aggregateDataSetName/gmd:CI_Citation";
+        List<String> allAuthors = new ArrayList<>();
+        List<String> allPublishers = new ArrayList<>();
+
+        NodeList rows = isoXpathUtil.getNodeList(mdIdentification, xpath);
+        for(int i=0; i<rows.getLength(); i++) {
+            Element ciCitation = (Element) rows.item(i);
+
+            String titleXpath = "./gmd:title/gco:CharacterString";
+            Element titleElement = (Element) isoXpathUtil.getNode(ciCitation, titleXpath);
+            String xrefTitle = getNodeText(titleElement);
+            String line = Integer.toString(i + 1);
+            if (!xrefTitle.isEmpty()) {
+                LOG.debug("Found title for cross-reference: " + xrefTitle);
+
+                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", line);
+                additionalValue.addElement("field-key")
+                        .addText("doiCrossReferenceTitle");
+                additionalValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(xrefTitle);
+                additionalValue.addElement("field-key-parent")
+                        .addText("doiCrossReferenceTable");
+            }
+
+            String dateXpath = "./gmd:date/gmd:CI_Date[./gmd:dateType/gmd:CI_DateTypeCode/@codeListValue=\"publication\"]/gmd:date/gco:Date";
+            Element dateElement = (Element) isoXpathUtil.getNode(ciCitation, dateXpath);
+            String xrefDate = getNodeText(dateElement);
+            if (!xrefDate.isEmpty()) {
+                LOG.debug("Found date for cross-reference: " + xrefDate);
+                long epochDateMillis = LocalDate.parse(xrefDate)
+                        .atStartOfDay()
+                        .atOffset(ZoneOffset.UTC)
+                        .toInstant().toEpochMilli();
+
+                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", line);
+                additionalValue.addElement("field-key")
+                        .addText("doiCrossReferenceDate");
+                additionalValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(Long.toString(epochDateMillis));
+                additionalValue.addElement("field-key-parent")
+                        .addText("doiCrossReferenceTable");
+            }
+
+            String identifierXpath = "./gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString";
+            Element identifierElement = (Element) isoXpathUtil.getNode(ciCitation, identifierXpath);
+            String xrefIdentifier = getNodeText(identifierElement);
+            if (!xrefIdentifier.isEmpty()) {
+                LOG.debug("Found identifier (e.g. DOI) for cross-reference: " + xrefIdentifier);
+
+                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", line);
+                additionalValue.addElement("field-key")
+                       .addText("doiCrossReferenceIdentifier");
+                additionalValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(xrefIdentifier);
+                additionalValue.addElement("field-key-parent")
+                        .addText("doiCrossReferenceTable");
+            }
+
+            String authorXpath = "./gmd:citedResponsibleParty/gmd:CI_ResponsibleParty[./gmd:role/gmd:CI_RoleCode/@codeListValue=\"author\"]/gmd:individualName/gco:CharacterString";
+            NodeList authorNodes = isoXpathUtil.getNodeList(ciCitation, authorXpath);
+            List<String> authorsList = new ArrayList<>();
+            for (int j=0; j<authorNodes.getLength(); j++) {
+                authorsList.add(getNodeText(authorNodes.item(j)));
+            }
+            allAuthors.addAll(authorsList);
+            if (authorsList.size() > 0) {
+                String xrefAuthor = String.join("; ", authorsList);
+
+                LOG.debug("Found " + authorsList.size() + " author(s): " + xrefAuthor);
+
+                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", line);
+                additionalValue.addElement("field-key")
+                        .addText("doiCrossReferenceAuthor");
+                additionalValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(xrefAuthor);
+                additionalValue.addElement("field-key-parent")
+                        .addText("doiCrossReferenceTable");
+            }
+
+            String publisherXpath = "./gmd:citedResponsibleParty/gmd:CI_ResponsibleParty[./gmd:role/gmd:CI_RoleCode/@codeListValue=\"publisher\"]/gmd:organisationName/gco:CharacterString";
+            Element publisherElement = (Element) isoXpathUtil.getNode(ciCitation, publisherXpath);
+            String xrefPublisher = getNodeText(publisherElement);
+            allPublishers.add(xrefPublisher);
+            if (!xrefPublisher.isEmpty()) {
+                LOG.debug("Found publisher for cross-reference: " + xrefPublisher);
+
+                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", line);
+                additionalValue.addElement("field-key").
+                        addText("doiCrossReferencePublisher");
+                additionalValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(xrefPublisher);
+                additionalValue.addElement("field-key-parent")
+                        .addText("doiCrossReferenceTable");
+            }
+        }
+
+        // Remove authors and publishers for cross-references
+        String removeRelatedAddressXpathPattern = "//related-address[./address-identifier/text()=\"%s\"]";
+        String addressIdXpath = "//related-address[./type-of-relation/@entry-id=\"10\" or ./type-of-relation/@entry-id=\"11\"]/address-identifier";
+        String addressInstanceXpathPattern = "/igc/addresses/address/address-instance[./address-identifier/text()=\"%s\"]";
+
+        List<Node> nodesToRemove = new ArrayList<>();
+        NodeList addressIdNodes = igcXpathUtil.getNodeList(additionalValues, addressIdXpath);
+        for(int i=0; i<addressIdNodes.getLength(); i++) {
+            Node addressIdNode = addressIdNodes.item(i);
+            String addressUuid = getNodeText(addressIdNode);
+            if (addressUuid.isEmpty()) continue;
+
+            String addressInstanceXpath = String.format(addressInstanceXpathPattern, addressUuid);
+            Node addressInstance = igcXpathUtil.getNode(additionalValues, addressInstanceXpath);
+            String name = getNodeText(igcXpathUtil.getNode(addressInstance, "./name"));
+            String organisation = getNodeText(igcXpathUtil.getNode(addressInstance, "./organisation"));
+            Node communicationNode = igcXpathUtil.getNode(addressInstance, "./communication");
+            if (communicationNode == null && (allAuthors.contains(name) || allPublishers.contains(organisation))) {
+                nodesToRemove.add(addressInstance);
+                nodesToRemove.add(addressIdNode.getParentNode());
+            }
+        }
+        for(Node node: nodesToRemove) {
+            node.getParentNode().removeChild(node);
         }
     }
 
@@ -124,7 +266,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
     }
 
     private void mapAuftragInfos(Element mdIdentification, Element additionalValues) {
-        String xpath = "./gmd:aggregationInfo/gmd:MD_AggregateInformation/gmd:aggregateDataSetName/gmd:CI_Citation";
+        String xpath = "./gmd:aggregationInfo/gmd:MD_AggregateInformation[./gmd:associationType/gmd:DS_AssociationTypeCode/@codeListValue=\"largerWorkCitation\"]/gmd:aggregateDataSetName/gmd:CI_Citation";
         Element ciCitation = (Element) isoXpathUtil.getNode(mdIdentification, xpath);
         if (ciCitation == null) return;
 
@@ -137,8 +279,8 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
             additionalValue.addElement("field-key").
                     addText("bawAuftragstitel");
-            additionalValue.addElement("field-data").
-                    addText(auftragsTitel);
+            additionalValue.addElement("field-data")
+                    .addText(auftragsTitel);
         }
 
         String pspXpath = "./gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString";
@@ -469,21 +611,34 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                 }
                 LOG.debug(String.format("%d values found to be imported in the current DGS block", values.size()));
 
-                for (int k = 0; k < values.size(); k++) {
-                    String val = values.get(k);
-                    IdfElement valueAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
-                            .addAttribute("line", lineStr);
-                    valueAddnValue.addElement("field-key")
-                            .addText("simParamValue." + (k+1)); // Value indices start at 1
-                    valueAddnValue.addElement("field-data")
-                            .addAttribute("id", "-1")
-                            .addText(val);
-                    valueAddnValue.addElement("field-key-parent")
-                            .addText(simParamTable);
+                boolean hasNumericValues = true;
+                JSONArray jsonArray = new JSONArray();
+                if (hasOnlyIntegerValues(values)) {
+                    for(String val: values) {
+                        jsonArray.add(Long.parseLong(val));
+                    }
+                } else if (hasOnlyDoubleValues(values)) {
+                    for(String val: values) {
+                        jsonArray.add(Double.parseDouble(val));
+                    }
+                } else {
+                    hasNumericValues = false;
+                    for(String val: values) {
+                        jsonArray.add(val);
+                    }
                 }
 
+                IdfElement valueAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", lineStr);
+                valueAddnValue.addElement("field-key")
+                        .addText("simParamValues");
+                valueAddnValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(jsonArray.toJSONString());
+                valueAddnValue.addElement("field-key-parent")
+                        .addText(simParamTable);
+
                 boolean hasDiscreteValues = !isoXpathUtil.nodeExists(resultNode, typeAttrXpath); // Discrete values DON'T have values in the gml namespace for the type attribute
-                boolean hasNumericValues = hasNumericValues(values);
                 String valueType;
                 if (values.isEmpty()) {
                     valueType = VALUE_TYPE_DISCRETE_STRING;
@@ -494,6 +649,40 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                 } else {
                     valueType = VALUE_TYPE_RANGE_NUMERIC;
                 }
+
+                String valuesFormatted = "";
+                if (valueType == VALUE_TYPE_RANGE_NUMERIC) {
+                    valuesFormatted = String.format("[ %s .. %s ]",
+                            numberFormat.format(jsonArray.get(0)),
+                            numberFormat.format(jsonArray.get(1)));
+                } else if (values.size() == 1) {
+                    valuesFormatted = values.get(0);
+                } else {
+                    int maxLength = 30;
+                    valuesFormatted = "[ ";
+                    for(int k=0; k<jsonArray.size(); k++) {
+                        if (k > 0) valuesFormatted += " | ";
+                        if (valuesFormatted.length() > maxLength) {
+                            valuesFormatted += "...";
+                            break;
+                        } else if(hasNumericValues) {
+                            valuesFormatted += numberFormat.format(jsonArray.get(k));
+                        } else {
+                            valuesFormatted += jsonArray.get(k);
+                        }
+                    }
+                    valuesFormatted += " ]";
+                }
+
+                IdfElement valueFormattedAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", lineStr);
+                valueFormattedAddnValue.addElement("field-key")
+                        .addText("simParamValuesFormatted");
+                valueFormattedAddnValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(valuesFormatted);
+                valueFormattedAddnValue.addElement("field-key-parent")
+                        .addText(simParamTable);
 
                 IdfElement valueTypeAddnValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
                         .addAttribute("line", lineStr);
@@ -523,7 +712,18 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         return getNodeText(symbolNode);
     }
 
-    private boolean hasNumericValues(List<String> values) {
+    private boolean hasOnlyIntegerValues(List<String> values) {
+        try {
+            for(String v: values) {
+                Long.parseLong(v);
+            }
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean hasOnlyDoubleValues(List<String> values) {
         try {
             for(String v: values) {
                 Double.parseDouble(v);
