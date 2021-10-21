@@ -5,7 +5,7 @@
   </properties>
   <body>
 
-    <release version="5.10.0-SNAPSHOT" date="2021-XX-XX" description="Release 5.10.0-SNAPSHOT">
+    <release version="5.10.0" date="2021-10-21" description="Release 5.10.0">
       <action type="add" dev="wemove" issue="1845">
         Fix import of 'historie' field for geodata-service types
       </action>
@@ -29,6 +29,27 @@
       </action>
       <action type="add" dev="wemove" issue="2389">
         Extend API to send modifiable HQL queries, which updates coupled resource identifiers
+      </action>
+      <action type="update" dev="wemove" issue="2744">
+        Adapt map for spatial reference
+      </action>
+      <action type="update" dev="wemove" issue="2747">
+        Update portal layout for baw_doi profile
+      </action>
+      <action type="add" dev="wemove" issue="2171">
+        Datarepository for data with DOIs
+      </action>
+      <action type="fix" dev="wemove" issue="2322">
+        Add fixes for internal MIS-BAW
+      </action>
+      <action type="fix" dev="wemove" issue="2189">
+        Import cross-references from ISO to IGC
+      </action>
+      <action type="add" dev="wemove" issue="2186">
+        Create BAW-data repository profile
+      </action>
+      <action type="fix" dev="wemove" issue="2410">
+        Order service urls by line in export
       </action>
     </release>
 
