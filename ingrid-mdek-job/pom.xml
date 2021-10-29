@@ -134,7 +134,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils-geo</artifactId>
-      <version>4.4.0</version>
+      <version>5.10.1-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>org.geotools</groupId>
