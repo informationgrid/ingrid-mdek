@@ -2280,80 +2280,27 @@ function addExtent(identificationInfo, objRow) {
     // ---------- <gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon> ----------
     var wktRow = SQL.first("SELECT fd.data AS data FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'boundingPolygon'", [+objId]);
     if (hasValue(wktRow)) {
+        var wkt2gml = Java.type("de.ingrid.geo.utils.transformation.WktToGmlTransformUtil");
+
         var wkt = wktRow.get("data");
         log.debug("WKT for polygon is: " + wkt);
 
-        // Remove newlines
-        wkt = wkt.replace(/[\r\n]/g, "");
-        var wktLower = wkt.trim().toLowerCase();
+        // Convert to gml
+        var gml = wkt2gml.wktToGml3AsDom(wkt);
 
-        /*
-         * \(     -> opening parenthesis
-         * \s     -> {0,n} whitespace characters
-         * (      -> start capture group
-         * [^()]+  -> one or more characters other than opening and closing parenthesis
-         * )      -> end of capture group
-         * \s*    -> {0,n} whitespace characters
-         * )      -> closing parenthesis
-         */
-        var regex = /\(\s*([^()]+)\s*\)/;
-        if (wktLower.startsWith("point")) {
-            var match = wkt.match(regex);
-            if (hasValue(match)) {
-                var coords = match[1]    // first capture group
-                    .replace(/,/g, " ")  // replace commas with strings
-                    .replace(/  +/g, " "); // replace multiple consecutive spaces with a single space
+        var gmdBoundingPolygon = identificationInfo.addElement(extentElemName)
+            .addElement("gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon");
+        gmdBoundingPolygon.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
+        var polygon = gmdBoundingPolygon.addElement("gmd:polygon");
 
-                var lineString = createAndGetPolygonFirstChild(identificationInfo, extentElemName, "Point");
-                lineString.addElement("gml:pos").addText(coords);
-            }
-        } else if (wktLower.startsWith("linestring")) {
-            var match = wkt.match(regex);
-            if (hasValue(match)) {
-                var coords = match[1]    // first capture group
-                    .replace(/,/g, " ")  // replace commas with strings
-                    .replace(/  +/g, " "); // replace multiple consecutive spaces with a single space
-
-                var lineString = createAndGetPolygonFirstChild(identificationInfo, extentElemName, "LineString");
-                lineString.addElement("gml:posList").addText(coords);
-            }
-        } else if (wktLower.startsWith("polygon")) {
-            /*
-             * \(     -> opening parenthesis
-             * \s     -> {0,n} whitespace characters
-             * (      -> start capture group
-             * [^()]+  -> one or more characters other than opening and closing parentheses ( and )
-             * )      -> end of capture group
-             * \s*    -> {0,n} whitespace characters
-             * )      -> closing parenthesis
-             *
-             * The g flag at the end returns all matches
-             */
-            var ringRegex = /\(\s*([^()]+)\s*\)/g;
-            var arr;
-            var rings = [];
-            while((arr = ringRegex.exec(wkt)) !== null) {
-                if (hasValue(arr[1]) && arr[1].trim()) { // Value exists and isn't empty
-                    var coords = arr[1].replace(/,/g, " ") // Replace all commas with spaces
-                        .replace(/  +/g, " "); // Replace multiple consecutive spaces with single space
-                    rings.push(coords);
-                }
-            }
-
-            // Create the polygon element
-            var polygon;
-            if (rings.length > 0) {
-                polygon = createAndGetPolygonFirstChild(identificationInfo, extentElemName, "Polygon");
-            }
-
-            // add the rings
-            for(var i=0; i<rings.length; i++) {
-                var path = i === 0 ? "gml:exterior/" : "gml:interior/";
-                path += "gml:LinearRing/gml:posList";
-
-                polygon.addElement(path).addText(rings[i]);
-            }
+        var gmlRoot = gml.getDocumentElement();
+        var adopted = idfDoc.adoptNode(gmlRoot);
+        if (hasValue(adopted)) {
+            polygon.addElement(adopted);
+        } else {
+            log.error("Failed to adopt GML3 Element: " + gmlRoot.getTagName());
         }
+
     }
 
     // ---------- <gmd:EX_Extent/gmd:geographicElement> ----------
