@@ -9,6 +9,9 @@
       <action type="update" dev="wemove" issue="2823">
         Add mapping and import of geometry context.
       </action>
+      <action type="update" dev="wemove" issue="3145">
+        Fix db error if link name is too long.
+      </action>
     </release>
 
     <release version="5.10.0" date="2021-10-21" description="Release 5.10.0">
