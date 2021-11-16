@@ -339,7 +339,7 @@
       "store": true
     },
     "t04_search.searchterm": {
-      "type": "keyword",
+      "type": "text",
       "store": true
     },
     "t017_url_ref.url_link": {
