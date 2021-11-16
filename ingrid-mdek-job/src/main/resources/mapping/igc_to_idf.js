@@ -936,9 +936,9 @@ for (i=0; i<objRows.size(); i++) {
 
 	    // and now the name of the thesaurus
 	    var thesCit = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
-	    thesCit.addElement("gmd:title/gco:CharacterString").addText("OGDD-Kategorien");
+	    thesCit.addElement("gmd:title/gco:CharacterString").addText("Data theme (EU MDR)");
 	    var thesCitDate = thesCit.addElement("gmd:date/gmd:CI_Date");
-	    thesCitDate.addElement("gmd:date/gco:Date").addText("2012-11-27");
+	    thesCitDate.addElement("gmd:date/gco:Date").addText("2016-09-21");
 	    thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
             .addAttribute("codeListValue", "publication")
             .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
