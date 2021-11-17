@@ -271,8 +271,8 @@ public class TestSetup {
         List<SysList> syslist6100 = createSyslist( 6100, 317, "Biogeografische Regionen" );
         extendSyslist( syslist6100, 302, "Gebäude" );
         extendSyslist( syslist6100, 304, "Land use" );
-        List<SysList> syslist6400 = createSyslist( 6400, 5, "Gesundheit" );
-        extendSyslist( syslist6400, 11, "Umwelt und Klima" );
+        List<SysList> syslist6400 = createSyslist( 6400, 6, "Gesundheit" );
+        extendSyslist( syslist6400, 5, "Umwelt" );
         List<SysList> syslist6500 = createSyslist( 6500, 26, "Es gelten keine Bedingungen" );
         List<SysList> syslist10002 = createSyslist( 10002, 4, "Diese Daten oder dieser Dienst stehen/steht nur ausgewählten Bundesbehörden zur Verfügung." );
         extendSyslist( syslist10002, 1, "Es gelten keine Zugriffsbeschränkungen" );
