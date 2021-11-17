@@ -325,7 +325,7 @@
                                 <gco:CharacterString>Gesundheit</gco:CharacterString>
                             </gmd:keyword>
                             <gmd:keyword>
-                                <gco:CharacterString>Umwelt und Klima</gco:CharacterString>
+                                <gco:CharacterString>Umwelt</gco:CharacterString>
                             </gmd:keyword>
                             <gmd:type>
                                 <gmd:MD_KeywordTypeCode codeList="http://www.tc211.org/ISO19139/resources/codeList.xml#MD_KeywordTypeCode" codeListValue="theme" />
@@ -333,12 +333,12 @@
                             <gmd:thesaurusName>
                                 <gmd:CI_Citation>
                                     <gmd:title>
-                                        <gco:CharacterString>OGDD-Kategorien</gco:CharacterString>
+                                        <gco:CharacterString>Data theme (EU MDR)</gco:CharacterString>
                                     </gmd:title>
                                     <gmd:date>
                                         <gmd:CI_Date>
                                             <gmd:date>
-                                                <gco:Date>2012-11-27</gco:Date>
+                                                <gco:Date>2016-09-21</gco:Date>
                                             </gmd:date>
                                             <gmd:dateType>
                                                 <gmd:CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/codeList.xml#CI_DateTypeCode" codeListValue="publication" />
