@@ -347,8 +347,6 @@ public class CSWImportTest extends TestSetup {
 
                     // open data
                     assertThat( docOut.getString( MdekKeys.IS_OPEN_DATA ), is( "Y" ) );
-                    assertThat( docOut.getArrayList( MdekKeys.OPEN_DATA_CATEGORY_LIST ).size(), is( 2 ) );
-                    assertSubjectTerms( docOut.getArrayList( MdekKeys.OPEN_DATA_CATEGORY_LIST ), "Umwelt", "Gesundheit" );
 
                     // INSPIRE-topics
                     assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ).size(), is( 2 ) );
