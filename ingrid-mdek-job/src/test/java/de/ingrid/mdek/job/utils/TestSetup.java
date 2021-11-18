@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -89,21 +89,21 @@ public class TestSetup {
 
     @Mock
     protected ISysListDao daoSysList;
-    
+
     @Mock
     protected MdekJobHandler jobHandler;
-    
+
     protected MdekIdcCatalogJob catJob;
-    
+
     @Mock
     protected IImporterCallback importerCallback;
 
     @Mock
     ILogService logService;
-    
+
     @Mock
     DaoFactory daoFactory;
-    
+
     @Mock
     IPermissionService permissionService;
 
@@ -115,7 +115,7 @@ public class TestSetup {
     private Connection connectionMock;
     @Mock
     private PreparedStatement ps;
-    
+
     @Mock
     GenericHibernateDao<IEntity> genericDao;
 
@@ -129,7 +129,7 @@ public class TestSetup {
     @Mock
     protected MdekIdcObjectJob objectJobMock;
 
-    
+
     @Mock
     private ResultSet resultSet;
 
@@ -143,16 +143,16 @@ public class TestSetup {
     @Mock private IgeCswFolderUtil igeCswFolderUtil;
 
     ScriptImportDataMapper cswMapper;
-    
+
     protected IgeSearchPlug plug;
-    
-    
+
+
     protected IngridXMLMapper importMapper;
-    
+
     public TestSetup() {
         importMapper = IngridXMLMapperFactory.getIngridXMLMapper( Versioning.CURRENT_IMPORT_EXPORT_VERSION );
     }
-    
+
     protected void beforeSetup(String[] mappingScripts) throws Exception {
         plug = new IgeSearchPlug( null, null, null, null, null );
 
@@ -207,7 +207,7 @@ public class TestSetup {
         catJob = new MdekIdcCatalogJob( logService, daoFactory, permissionService, elasticConfig, indexManager, null );
         DataMapperFactory dataMapperFactory = new DataMapperFactory();
         HashMap<String, ImportDataMapper> mapper = new HashMap<String, ImportDataMapper>();
-        
+
         FileSystemResource[] resources = new FileSystemResource[mappingScripts.length];
         ClassPathResource inputResource = new ClassPathResource( "csw/importAdditionalField.xml" );
         File file = inputResource.getFile();
@@ -216,7 +216,7 @@ public class TestSetup {
 
         String absPath = inputResource.getFile().getAbsolutePath();
         int pos = absPath.indexOf( "ingrid-mdek-job" );
-        
+
         for (int i=0; i < mappingScripts.length; i++) {
             resources[i] = new FileSystemResource( absPath.substring( 0, pos ) + mappingScripts[i] );
         }
@@ -233,7 +233,7 @@ public class TestSetup {
         plug.setObjectJob( objectJobMock );
 
     }
-    
+
     protected void mockSyslists() {
         List<SysList> syslist100 = createSyslist( 100, 3068, "EPSG 3068: DHDN / Soldner Berlin" );
         extendSyslist( syslist100, 25832, "EPSG 25832: ETRS89 / UTM Zone 32N" );
@@ -271,8 +271,8 @@ public class TestSetup {
         List<SysList> syslist6100 = createSyslist( 6100, 317, "Biogeografische Regionen" );
         extendSyslist( syslist6100, 302, "Gebäude" );
         extendSyslist( syslist6100, 304, "Land use" );
-        List<SysList> syslist6400 = createSyslist( 6400, 6, "Gesundheit" );
-        extendSyslist( syslist6400, 5, "Umwelt" );
+        List<SysList> syslist6400 = createSyslist( 6400, 6, "Gesundheit", "HEAL" );
+        extendSyslist( syslist6400, 5, "Umwelt", "ENVI" );
         List<SysList> syslist6500 = createSyslist( 6500, 26, "Es gelten keine Bedingungen" );
         List<SysList> syslist10002 = createSyslist( 10002, 4, "Diese Daten oder dieser Dienst stehen/steht nur ausgewählten Bundesbehörden zur Verfügung." );
         extendSyslist( syslist10002, 1, "Es gelten keine Zugriffsbeschränkungen" );
@@ -326,24 +326,32 @@ public class TestSetup {
         }
         return null;
     }
-    
+
     private List<SysList> createSyslist(int listId, int entryId, String value) {
+        return createSyslist( listId, entryId, value, null );
+    }
+    private List<SysList> createSyslist(int listId, int entryId, String value, String data) {
         List<SysList> syslist = new ArrayList<SysList>();
         SysList entry = new SysList();
         entry.setLstId( listId );
         entry.setEntryId( entryId );
         entry.setName( value );
+        entry.setData( data );
         syslist.add( entry );
         return syslist;
     }
 
     private void extendSyslist(List<SysList> list, int entryId, String value) {
+        extendSyslist( list, entryId, value, null );
+    }
+    private void extendSyslist(List<SysList> list, int entryId, String value, String data) {
         SysList entry = new SysList();
         entry.setLstId( list.get( 0 ).getLstId() );
         entry.setEntryId( entryId );
         entry.setName( value );
+        entry.setData( data );
         list.add( entry );
     }
-    
-    
+
+
 }

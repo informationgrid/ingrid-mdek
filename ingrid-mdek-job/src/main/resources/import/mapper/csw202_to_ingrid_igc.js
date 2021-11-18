@@ -1275,7 +1275,7 @@ var mappingDescription = {"mappings":[
   		    }		
   		},
   		{
-  		    "srcXpath":"//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='theme']/gmd:keyword/gco:CharacterString",
+  		    "srcXpath":"//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:thesaurusName) and gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='theme']/gmd:keyword/gco:CharacterString",
   		    "targetNode":"/igc/data-sources/data-source/data-source-instance/subject-terms",
   		    "newNodeName":"controlled-term",
   		    "subMappings":{
@@ -2431,21 +2431,13 @@ function transformGeneric(val, mappings, caseSensitive, logErrorOnNotFound) {
 function transformToOpendataCategory(val) {
 	if (hasValue(val)) {
 		// transform to IGC domain id
-		var syslistId = null;
-		try {
-			var syslistId = TRANSF.getISOCodeListEntryIdByDataFilter(6400, val);
-		} catch (e) {
-			if (log.isWarnEnabled()) {
-				log.warn("Error tranforming Opendata Category '" + val + "' with language '" + catLangCode + "'.");
-			}
-			protocol(WARN, "Error tranforming Opendata Category '" + val + "' with language '" + catLangCode + "'.")
-		}
+		var syslistId = TRANSF.getISOCodeListEntryIdByDataFilter(6400, val);
 		if (hasValue(syslistId)) {
 			return syslistId;
 		} else {
 			if (log.isWarnEnabled()) {
-				log.warn("Domain Data '" + val + "' unknown in code list " + codeListId + " for language '" + languageId + "'.");
-				protocol(WARN, "Domain Data '" + val + "' unknown in code list " + codeListId + " for language '" + languageId + "'.")
+				log.warn("Domain Data '" + val + "' unknown in code list 6400.");
+				protocol(WARN, "Domain Data '" + val + "' unknown in code list 6400.")
 			}
 			return "";
 		}
