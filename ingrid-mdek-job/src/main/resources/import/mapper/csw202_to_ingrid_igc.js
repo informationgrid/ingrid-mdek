@@ -1275,7 +1275,7 @@ var mappingDescription = {"mappings":[
   		    }		
   		},
   		{
-  		    "srcXpath":"//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString='Data theme (EU MDR)']/gmd:keyword/gco:CharacterString",
+  		    "srcXpath":"//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='theme']/gmd:keyword/gco:CharacterString",
   		    "targetNode":"/igc/data-sources/data-source/data-source-instance/subject-terms",
   		    "newNodeName":"controlled-term",
   		    "subMappings":{
@@ -1292,9 +1292,7 @@ var mappingDescription = {"mappings":[
   		                         "targetNode":"",
   		                         "targetAttribute":"id",
   		                         "transform":{
-  		                             "funct":transformToIgcDomainId,
-  		                             // PASS "" as language to check all localized values !!!
-  		                             "params":[6400, "", "Could not map OpenData Category:", true]
+  		                             "funct":transformToOpendataCategory,
   		                         }
   		                     },
   		                     {
@@ -2250,7 +2248,7 @@ function mapLegalConstraints(source, target) {
 }
 
 function mapUncontrolledTerms(source, target) {
-    var terms = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='place') and (not(gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString) or ( (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Data theme (EU MDR)') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='German Environmental Classification - Topic, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='GEMET - INSPIRE themes, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Service Classification, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Further legal basis') ))]/gmd:keyword/gco:CharacterString");
+    var terms = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='place') and (not(gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='theme')) and (not(gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString) or ( (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='German Environmental Classification - Topic, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='GEMET - INSPIRE themes, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Service Classification, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Further legal basis') ))]/gmd:keyword/gco:CharacterString");
     if (hasValue(terms)) {
         for (i=0; i<terms.getLength(); i++ ) {
             var term = getLocalisedCharacterString(terms.item(i));
@@ -2428,6 +2426,30 @@ function transformGeneric(val, mappings, caseSensitive, logErrorOnNotFound) {
 		protocol(WARN, logErrorOnNotFound + val)
 	}
 	return val;
+}
+
+function transformToOpendataCategory(val) {
+	if (hasValue(val)) {
+		// transform to IGC domain id
+		var syslistId = null;
+		try {
+			var syslistId = TRANSF.getISOCodeListEntryIdByDataFilter(6400, val);
+		} catch (e) {
+			if (log.isWarnEnabled()) {
+				log.warn("Error tranforming Opendata Category '" + val + "' with language '" + catLangCode + "'.");
+			}
+			protocol(WARN, "Error tranforming Opendata Category '" + val + "' with language '" + catLangCode + "'.")
+		}
+		if (hasValue(syslistId)) {
+			return syslistId;
+		} else {
+			if (log.isWarnEnabled()) {
+				log.warn("Domain Data '" + val + "' unknown in code list " + codeListId + " for language '" + languageId + "'.");
+				protocol(WARN, "Domain Data '" + val + "' unknown in code list " + codeListId + " for language '" + languageId + "'.")
+			}
+			return "";
+		}
+	}
 }
 
 function transformToIgcDomainId(val, codeListId, languageId, logErrorOnNotFound, doRobustComparison) {

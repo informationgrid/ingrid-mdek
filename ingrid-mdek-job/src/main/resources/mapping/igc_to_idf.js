@@ -923,26 +923,15 @@ for (i=0; i<objRows.size(); i++) {
     mdKeywords = DOM.createElement("gmd:MD_Keywords");
     rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=? ORDER BY line", [+objId]);
     for (i=0; i<rows.size(); i++) {
-        IDF_UTIL.addLocalizedCharacterstring(mdKeywords.addElement("gmd:keyword"), rows.get(i).get("category_value"));
+        var opendataTheme = TRANSF.getISOCodeListEntryData(6400, rows.get(i).get("category_value"));
+        IDF_UTIL.addLocalizedCharacterstring(mdKeywords.addElement("gmd:keyword"), opendataTheme);
     }
 
     // only add thesaurus information if any category is available
     if (rows.size() > 0) {
-
-	    // Also add thesaurus to opendata keywords, see https://redmine.wemove.com/issues/339
-	    mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
+        mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
 	    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_KeywordTypeCode")
 	    .addAttribute("codeListValue", "theme");
-
-	    // and now the name of the thesaurus
-	    var thesCit = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
-	    thesCit.addElement("gmd:title/gco:CharacterString").addText("Data theme (EU MDR)");
-	    var thesCitDate = thesCit.addElement("gmd:date/gmd:CI_Date");
-	    thesCitDate.addElement("gmd:date/gco:Date").addText("2016-09-21");
-	    thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-            .addAttribute("codeListValue", "publication")
-            .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
-            .addText("publication");
 	    identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
