@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.10.1-SNAPSHOT" date="2021-xx-xx" description="Release 5.10.1-SNAPSHOT">
+      <action type="add" dev="wemove" issue="2618">
+        BKG: Add use constraints to lucene.
+      </action>
       <action type="update" dev="wemove" issue="2823">
         Add mapping and import of geometry context.
       </action>
