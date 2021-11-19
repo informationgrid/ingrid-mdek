@@ -41,11 +41,6 @@ var objId = +sourceRecord.get("id");
 
 var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
 for (i=0; i<objRows.size(); i++) {
-    var objRow = objRows.get(i);
-    var objUuid = objRow.get("obj_uuid");
-    var objClass = objRow.get("obj_class");
-    var objParentUuid = null; // will be set below
-
     handleBKGUseConstraints();
 }
 
@@ -102,7 +97,7 @@ function handleBKGUseConstraints() {
  * @param property
  * @returns
  */
- function getAdditionalFieldFromObject(objId, parentId, fieldId, property) {
+function getAdditionalFieldFromObject(objId, parentId, fieldId, property) {
     var field = null;
     if (objId) {
         field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldId]);
@@ -113,5 +108,19 @@ function handleBKGUseConstraints() {
         return field.get(property);
     } else {
         return null;
+    }
+}
+
+function hasValue(val) {
+    if (typeof val == "undefined") {
+        return false; 
+    } else if (val == null) {
+        return false; 
+    } else if (typeof val == "string" && val == "") {
+        return false;
+    } else if (typeof val == "object" && val.toString().equals("")) {
+        return false;
+    } else {
+      return true;
     }
 }
