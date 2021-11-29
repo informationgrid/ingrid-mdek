@@ -154,7 +154,7 @@ public class HQLDaoHibernate
 			Query q = session.createQuery(qString);
 			if (distinctRemoved) {
 				// NO ! "destroys" result columns
-//				q.setResultTransformer(new DistinctRootEntityResultTransformer());
+//				q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE);
 			}
 			hits = q.list();
 		}
@@ -216,7 +216,7 @@ public class HQLDaoHibernate
 				q.setMaxResults(maxNumHits);				
 			}
 			if (distinctRemoved) {
-				q.setResultTransformer(new DistinctRootEntityResultTransformer());
+				q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE);
 			}
 			hits = q.list();
 		}

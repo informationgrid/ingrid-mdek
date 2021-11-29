@@ -221,7 +221,7 @@ public class ConsistencyCheckerDaoHibernate
 */
 
 		List<T01Object> resultList = getSession().createQuery(hqlQuery)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 		
 		return resultList;

@@ -20,12 +20,10 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-	load("nashorn:mozilla_compat.js");
-}
 
-importPackage(Packages.org.w3c.dom);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
+var DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
+/*importPackage(Packages.org.w3c.dom);
+importPackage(Packages.de.ingrid.iplug.dsc.om);*/
 
 if (log.isDebugEnabled()) {
     log.debug("Mapping source record DQ to idf document: " + sourceRecord.toString());

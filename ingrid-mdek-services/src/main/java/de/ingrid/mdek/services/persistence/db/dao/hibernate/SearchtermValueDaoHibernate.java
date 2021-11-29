@@ -280,7 +280,7 @@ public class SearchtermValueDaoHibernate
 			"left join fetch termVal.searchtermSns " +
 			whereClause;
 		List<SearchtermValue> terms = session.createQuery(q)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		// fetch all terms referenced by Addresses and add to list
@@ -290,7 +290,7 @@ public class SearchtermValueDaoHibernate
 			"left join fetch termVal.searchtermSns " +
 			whereClause;
 		List<SearchtermValue> addrTerms = session.createQuery(q)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 		terms.addAll(addrTerms);
 		

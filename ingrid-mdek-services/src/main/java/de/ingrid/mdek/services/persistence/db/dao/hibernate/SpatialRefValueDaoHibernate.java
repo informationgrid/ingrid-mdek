@@ -238,7 +238,7 @@ public class SpatialRefValueDaoHibernate
 		}
 
 		return  session.createQuery(q)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 
@@ -257,7 +257,7 @@ public class SpatialRefValueDaoHibernate
 			"where spRef.spatialRefId = " + idSpatialRefValue;
 		
 		return  getSession().createQuery(q)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 	public List<Long> getObjectIdsOfSpatialRefValue(long idSpatialRefValue) {

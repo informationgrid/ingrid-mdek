@@ -101,7 +101,7 @@ Migration aus mdek Datenbank
 		...
 
 - In Zieldatenbank einspielen
-	- ACHTUNG: Die ids der Zeilen dürfen nicht vorhanden sein und werden in der mdek Datenbank mittels hibernate hilo Algorithmus erzeugt.
+	- ACHTUNG: Die ids der Zeilen dürfen nicht vorhanden sein und werden in der mdek Datenbank mittels hibernate seqhilo Algorithmus erzeugt.
 	  Der Hi Wert ist in der Tabelle hibernate_unique_key abgelegt, der Lo Wert ist java short.MAX_VALUE==2^15-1=32767
 	  Da die so erzeugten IDs große Freiräume lassen, ist der schnelle Weg, niedrige, nicht benutzte Ids manuell zu setzen (die Anzahl der Benutzer hält sich normalerweise in Grenzen).
 	  Das finale Script, mit Ids ab 1, könnte also wie folgt aussehen:
