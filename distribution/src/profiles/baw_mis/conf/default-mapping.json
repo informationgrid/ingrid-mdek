@@ -77,6 +77,10 @@
       "type": "keyword",
       "store": true
     },
+    "bawauftragstitel": {
+      "type": "keyword",
+      "store": true
+    },
     "simprocess": {
       "type": "keyword",
       "store": true

@@ -60,6 +60,16 @@ for(var i=0; i<addnFieldRows.size(); i++) {
 }
 
 getAdditionalFieldValueBWastr(objId);
+getFirstAdditionalFieldValue(objId, "bawAuftragsnummer", "bawauftragsnummer");
+getFirstAdditionalFieldValue(objId, "bawAuftragstitel", "bawauftragstitel");
+
+function getFirstAdditionalFieldValue(objId, fieldKey, indexField) {
+    var query = "SELECT obj.data FROM additional_field_data obj WHERE obj.obj_id=? AND obj.field_key=?";
+    var row = SQL.first(query, [objId, fieldKey]);
+    if(hasValue(row)) {
+        IDX.add(indexField, row.get("data"));
+    }
+}
 
 function getAdditionalFieldValueBWastr(objId) {
     var query = "SELECT DISTINCT fd1.sort FROM additional_field_data fd0 " +
