@@ -2286,7 +2286,7 @@ function addExtent(identificationInfo, objRow) {
         log.debug("WKT for polygon is: " + wkt);
 
         // Convert to gml
-        var gml = wkt2gml.wktToGml3_2AsDom(wkt);
+        var gml = wkt2gml.wktToGml3AsDom(wkt);
 
         var gmdBoundingPolygon = identificationInfo.addElement(extentElemName)
             .addElement("gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon");
