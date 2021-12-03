@@ -449,7 +449,7 @@
       "store": true
     },
     "wkt": {
-      "type": "keyword",
+      "type": "text",
       "store": true
     },
     "sort_hash": {
