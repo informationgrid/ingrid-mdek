@@ -2286,19 +2286,18 @@ function addExtent(identificationInfo, objRow) {
         log.debug("WKT for polygon is: " + wkt);
 
         // Convert to gml
-        var gml = wkt2gml.wktToGml3AsDom(wkt);
+        var gml = wkt2gml.wktToGml3_2AsElement(wkt);
 
         var gmdBoundingPolygon = identificationInfo.addElement(extentElemName)
             .addElement("gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon");
         gmdBoundingPolygon.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
         var polygon = gmdBoundingPolygon.addElement("gmd:polygon");
 
-        var gmlRoot = gml.getDocumentElement();
-        var adopted = idfDoc.adoptNode(gmlRoot);
+        var adopted = idfDoc.adoptNode(gml);
         if (hasValue(adopted)) {
             polygon.addElement(adopted);
         } else {
-            log.error("Failed to adopt GML3 Element: " + gmlRoot.getTagName());
+            log.error("Failed to adopt GML3 Element: " + gml.getTagName());
         }
 
     }
