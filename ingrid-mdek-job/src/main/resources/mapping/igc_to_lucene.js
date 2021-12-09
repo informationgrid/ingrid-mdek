@@ -1135,7 +1135,7 @@ function addWKT(objId) {
   if (hasValue(wktRow)) {
     var wkt = wktRow.get("data");
       if(hasValue(wkt)) {
-        IDX.add("wkt", wkt));
+        IDX.add("wkt", wkt);
       }
   }
 }
