@@ -2758,51 +2758,21 @@ function getTypeOfAddress(source, target) {
 }
 
 function handleBoundingPolygon(source, target) {
-	var gmlPointPosNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:Point/gml:pos" +
-		" | //gmd:identificationInfo//gmd:polygon/gml311:Point/gml311:pos");
-	for(var i=0; i<gmlPointPosNodes.getLength(); i++) {
-		var wkt = gmlPosListToWktCoordinates(gmlPointPosNodes.item(i));
-		if (wkt) {
-			wkt = "POINT " + wkt;
-			addPolygonWktToIgc(target, wkt);
-		}
-	}
+    var gml2wkt = Java.type("de.ingrid.geo.utils.transformation.GmlToWktTransformUtil");
+    var gmlPolygonNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon");
+    var wkt = "";
 
-	var gmlLineStringPosListNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:LineString/gml:posList" +
-		" | //gmd:identificationInfo//gmd:polygon/gml311:LineString/gml311:posList");
-	for(var i=0; i<gmlLineStringPosListNodes.getLength(); i++) {
-		var wkt = gmlPosListToWktCoordinates(gmlLineStringPosListNodes.item(i));
-		if (wkt) {
-			wkt = "LINESTRING " + wkt;
-			addPolygonWktToIgc(target, wkt);
-		}
-	}
-
-	// Polygon elements
-	var gmlPolygonNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:Polygon" +
-		" | //gmd:identificationInfo//gmd:polygon/gml311:Polygon");
-	for(var i=0; i<gmlPolygonNodes.getLength(); i++) {
-		var wkt = "";
-	    var polygonNode = gmlPolygonNodes.item(i);
-
-		var exteriorNode = XPATH.getNode(polygonNode, "./gml:exterior/gml:LinearRing/gml:posList" +
-			" | ./gml311:exterior/gml311:LinearRing/gml311:posList");
-		wkt += gmlPosListToWktCoordinates(exteriorNode);
-
-		var interiorNodes = XPATH.getNodeList(polygonNode, "./gml:interior/gml:LinearRing/gml:posList" +
-			" | ./gml311:interior/gml311:LinearRing/gml311:posList");
-		for(var j=0; j<interiorNodes.getLength(); j++) {
-			var str = gmlPosListToWktCoordinates(interiorNodes.item(j));
-			if (wkt && str)  {
-				wkt += ", ";
-			}
-			wkt += str;
-		}
-		if (wkt) {
-			wkt = "POLYGON (" + wkt + ")";
-			addPolygonWktToIgc(target, wkt);
-		}
-	}
+    for(var i=0; i<gmlPolygonNodes.getLength(); i++) {
+        var gmlPolygonNode = gmlPointPosNodes.item(i);
+        if(XPATH.nodeExists(gmlPolygonNode, "./gmd:*")) {
+          wkt = gml2wkt.gml3_2ToWktString(gmlPolygonNode);
+        } else {
+          wkt = gml2wkt.gml3ToWktString(gmlPolygonNode);
+        }
+    }
+    if (hasValue(wkt)) {
+        addPolygonWktToIgc(target, wkt);
+    }
 }
 
 function gmlPosListToWktCoordinates(node) {
