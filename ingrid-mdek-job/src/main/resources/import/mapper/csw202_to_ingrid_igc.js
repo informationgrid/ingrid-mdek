@@ -2763,7 +2763,7 @@ function handleBoundingPolygon(source, target) {
     var wkt = "";
 
     for(var i=0; i<gmlPolygonNodes.getLength(); i++) {
-        var gmlPolygonNode = gmlPointPosNodes.item(i);
+        var gmlPolygonNode = gmlPolygonNodes.item(i);
         if(XPATH.nodeExists(gmlPolygonNode, "./gmd:*")) {
           wkt = gml2wkt.gml3_2ToWktString(gmlPolygonNode);
         } else {
