@@ -2764,33 +2764,15 @@ function handleBoundingPolygon(source, target) {
 
     for(var i=0; i<gmlPolygonNodes.getLength(); i++) {
         var gmlPolygonNode = gmlPolygonNodes.item(i);
-        if(XPATH.nodeExists(gmlPolygonNode, "./gmd:*")) {
-          wkt = gml2wkt.gml3_2ToWktString(gmlPolygonNode);
-        } else {
-          wkt = gml2wkt.gml3ToWktString(gmlPolygonNode);
+        if(XPATH.nodeExists(gmlPolygonNode, "./gml:*")) {
+            wkt = gml2wkt.gml3_2ToWktString(XPATH.getNode(gmlPolygonNode, "./gml:*"));
+        } else if(XPATH.nodeExists(gmlPolygonNode, "./gml311:*")) {
+            wkt = gml2wkt.gml3ToWktString(XPATH.getNode(gmlPolygonNode, "./gml311:*"));
         }
     }
     if (hasValue(wkt)) {
         addPolygonWktToIgc(target, wkt);
     }
-}
-
-function gmlPosListToWktCoordinates(node) {
-	if (!node) return "";
-
-	var posList = node.getTextContent();
-	if (!hasValue(posList)) return "";
-
-	posList = posList.replace(/[\r\n]/g, ""); // Remove newlines
-	var coords = "";
-	var arr = posList.split(/\s+/);
-	for(var i=0; i<arr.length; i+=2) {
-		if (coords) { // not empty
-			coords += ", ";
-		}
-		coords += arr[i] + " " + arr[i+1];
-	}
-	return "(" + coords + ")";
 }
 
 function addPolygonWktToIgc(target, wkt) {
