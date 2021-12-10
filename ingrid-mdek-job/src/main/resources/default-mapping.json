@@ -383,7 +383,7 @@
       "store": true
     },
     "wkt": {
-      "type": "text",
+      "type": "keyword",
       "store": true
     },
     "sort_hash": {
