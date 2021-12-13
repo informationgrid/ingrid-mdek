@@ -6,6 +6,12 @@
   <body>
 
 
+    <release version="5.9.3" date="2021-XX-XX" description="Release 5.9.3">
+      <action type="fix" dev="wemove" issue="2418">
+        Order service urls by line in export
+      </action>
+    </release>
+
     <release version="5.9.2" date="2021-10-11" description="Release 5.9.2">
       <action type="fix" dev="wemove" issue="2755">
         Fix/Add import of position accuracy fields
