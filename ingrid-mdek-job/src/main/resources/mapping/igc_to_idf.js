@@ -2599,7 +2599,7 @@ function addDistributionInfo(mdMetadata, objId) {
     // Map Service URLs to distributionInfo/CI_OnlineResource, see INGRID-2257
     // ---------- <gmd:MD_Distribution/gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource> ----------
     if (objClass.equals("6")) {
-        rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=?", [+objServId]);
+        rows = SQL.all("SELECT * FROM t011_obj_serv_url WHERE obj_serv_id=? ORDER BY line", [+objServId]);
         for (i=0; i<rows.size(); i++) {
             row = rows.get(i);
             if (!mdDistribution) {
