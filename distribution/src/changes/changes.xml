@@ -5,6 +5,12 @@
   </properties>
   <body>
 
+    <release version="5.8.8" date="2021-12-14" description="Release 5.8.8">
+      <action type="fix" dev="wemove" issue="3292">
+        Fix critical log4j security issue (Log4Shell).
+      </action>
+    </release>
+
     <release version="5.8.5" date="2021-08-03" description="Release 5.8.5">
       <action type="fix" dev="wemove" issue="2621">
         Fix deletion of additional fields
