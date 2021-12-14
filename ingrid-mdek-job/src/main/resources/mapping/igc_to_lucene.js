@@ -1131,11 +1131,12 @@ function addDOIInfo(objId) {
 }
 
 function addWKT(objId) {
-  var wktRow = SQL.first("SELECT fd.data AS data FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'boundingPolygon'", [+objId]);
-  if (hasValue(wktRow)) {
-    var wkt = wktRow.get("data");
-      if(hasValue(wkt)) {
-        IDX.add("wkt", wkt);
-      }
-  }
+    var wktRow = SQL.first("SELECT fd.data AS data FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'boundingPolygon'", [+objId]);
+    if (hasValue(wktRow)) {
+        var wkt = wktRow.get("data");
+        if(hasValue(wkt)) {
+            IDX.add("wkt", true);
+            IDX.add("wkt_geo", wkt);
+        }
+    }
 }
