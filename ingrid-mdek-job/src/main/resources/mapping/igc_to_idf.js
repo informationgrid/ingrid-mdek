@@ -339,7 +339,10 @@ for (i=0; i<objRows.size(); i++) {
                             dimensionNode.addElement("gmd:dimensionSize").addAttribute("gco:nilReason", "unknown");
                         }
                         if (hasValue(resolutionDim)) {
-                            dimensionNode.addElement("gmd:resolution/gco:Scale").addText(resolutionDim);
+                            dimensionNode
+                                .addElement("gmd:resolution/gco:Scale")
+                                .addAttribute("uom", "m")
+                                .addText(resolutionDim);
                         }
                     }
                 }
