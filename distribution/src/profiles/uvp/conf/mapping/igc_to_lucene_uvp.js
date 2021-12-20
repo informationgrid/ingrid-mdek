@@ -286,6 +286,45 @@ for (i=0; i<objRows.size(); i++) {
         addObjectNodeParent(rows.get(j));
     }
 
+    // Add 'Zulassungsverfahren' approval date
+    var phasesRow = SQL.all("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, 'UVPPhases']);
+    for (var i=0; i < phasesRow.size(); i++) {
+        var value = phasesRow.get(i).get("id");
+        if (hasValue(value)) {
+            var phaseRow = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? ORDER BY sort", [value]);
+            for (var j=0; j < phaseRow.size(); j++) {
+                var phaseId = phaseRow.get(j).get("id");
+                var phaseFieldKey = phaseRow.get(j).get("field_key");
+                if (hasValue(phaseId)){
+                    var phaseContentRow = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=? ORDER BY sort", [phaseId]);
+                    for (var k=0; k < phaseContentRow.size(); k++) {
+                        var id = phaseContentRow.get(k).get("id");
+                        var data = phaseContentRow.get(k).get("data");
+                        var fieldKey = phaseContentRow.get(k).get("field_key");
+                        if (phaseFieldKey == "phase3"){
+                            if(fieldKey == "approvalDate"){
+                                if (hasValue(data)){
+                                    IDX.add("approvalDate", data)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Add 'negative Vorprüfungen' approval date
+    var fieldKey = "uvpNegativeApprovalDate";
+    var uvpNegativeApprovalDate = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldKey]);
+    if (hasValue(uvpNegativeApprovalDate)) {
+        var data = uvpNegativeApprovalDate.get("data");
+        if(hasValue(data)){
+            IDX.add("approvalDate", data)
+        }
+    }
+
+
 }
 
 function addT01ObjectFolder(row) {
