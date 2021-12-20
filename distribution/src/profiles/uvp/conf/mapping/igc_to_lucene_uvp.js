@@ -304,7 +304,7 @@ for (i=0; i<objRows.size(); i++) {
                         if (phaseFieldKey == "phase3"){
                             if(fieldKey == "approvalDate"){
                                 if (hasValue(data)){
-                                    IDX.add("approvalDate", data)
+                                    IDX.add("approval_date", data)
                                 }
                             }
                         }
@@ -320,7 +320,7 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(uvpNegativeApprovalDate)) {
         var data = uvpNegativeApprovalDate.get("data");
         if(hasValue(data)){
-            IDX.add("approvalDate", data)
+            IDX.add("approval_date", data)
         }
     }
 
