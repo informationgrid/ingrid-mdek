@@ -24,6 +24,7 @@ package de.ingrid.mdek.job.mapping.profiles.baw;
 
 import de.ingrid.iplug.dsc.utils.DOMUtils;
 import de.ingrid.iplug.dsc.utils.DOMUtils.IdfElement;
+import de.ingrid.mdek.job.Configuration;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.mapping.ImportDataMapper;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
@@ -53,6 +54,9 @@ import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
 public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
     private static final Logger LOG = Logger.getLogger(IsoToIgcMapperBaw.class);
+
+    @Autowired
+    private Configuration igeConfig;
 
     private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
@@ -89,6 +93,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             String addnValuesXpath = "/igc/data-sources/data-source/data-source-instance/general/general-additional-values";
             Element additionalValues = (Element) igcXpathUtil.createElementFromXPath(igcRoot, addnValuesXpath);
 
+            mapLFSLinks(igcRoot, additionalValues);
             mapCrossReferences(mdIdentification, additionalValues, protocolHandler);
 
             mapAuftragInfos(mdIdentification, additionalValues);
@@ -106,6 +111,83 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         } catch (MdekException e) {
             protocolHandler.addMessage(Type.ERROR, e.getMessage());
             throw e;
+        }
+    }
+
+    private void mapLFSLinks(Element igcRoot, Element additionalValues) {
+        String linkageXpath = "//data-source-instance/available-linkage[starts-with(./linkage-url/text(), '" + igeConfig.bawLfsBaseURL + "')]";
+        NodeList nodes = igcXpathUtil.getNodeList(igcRoot, linkageXpath);
+
+        for(int i=0; i<nodes.getLength(); i++) {
+            Node linkageNode = nodes.item(i);
+
+            Node linkageNameNode = igcXpathUtil.getNode(linkageNode, "linkage-name");
+            Node linkageUrlNode = igcXpathUtil.getNode(linkageNode, "linkage-url");
+            Node linkageUrlTypeNode = igcXpathUtil.getNode(linkageNode, "linkage-url-type");
+            Node linkageDatatypeNode = igcXpathUtil.getNode(linkageNode, "linkage-datatype");
+            Node linkageDescriptionNode = igcXpathUtil.getNode(linkageNode, "linkage-description");
+
+            String linkageName = linkageNameNode == null || linkageNameNode.getTextContent() == null ? "" : linkageNameNode.getTextContent();
+            String linkageUrl = linkageUrlNode == null || linkageUrlNode.getTextContent() == null ? "" : linkageUrlNode.getTextContent();
+            String linkageUrlType = linkageUrlTypeNode == null || linkageUrlTypeNode.getTextContent() == null ? "" : linkageUrlTypeNode.getTextContent();
+            String linkageDatatype = linkageDatatypeNode == null || linkageDatatypeNode.getTextContent() == null ? "" : linkageDatatypeNode.getTextContent();
+            String linkageDescription = linkageDescriptionNode == null || linkageDescriptionNode.getTextContent() == null ? "" : linkageDescriptionNode.getTextContent();
+
+            String line = Integer.toString(i + 1);
+
+            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", line);
+            additionalValue.addElement("field-key")
+                    .addText("name");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(linkageName);
+            additionalValue.addElement("field-key-parent")
+                    .addText("lfsLinkTable");
+
+            additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", line);
+            additionalValue.addElement("field-key")
+                    .addText("link");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(linkageUrl.replace(igeConfig.bawLfsBaseURL + '/', ""));
+            additionalValue.addElement("field-key-parent")
+                    .addText("lfsLinkTable");
+
+            additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", line);
+            additionalValue.addElement("field-key")
+                    .addText("urlType");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(linkageUrlType);
+            additionalValue.addElement("field-key-parent")
+                    .addText("lfsLinkTable");
+
+            additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", line);
+            additionalValue.addElement("field-key")
+                    .addText("fileFormat");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(linkageDatatype);
+            additionalValue.addElement("field-key-parent")
+                    .addText("lfsLinkTable");
+
+            additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", line);
+            additionalValue.addElement("field-key")
+                    .addText("explanation");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(linkageDescription);
+            additionalValue.addElement("field-key-parent")
+                    .addText("lfsLinkTable");
+
+
+            // Finally, remove the original node
+            linkageNode.getParentNode().removeChild(linkageNode);
         }
     }
 
