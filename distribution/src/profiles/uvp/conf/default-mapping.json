@@ -310,6 +310,10 @@
       "type": "date",
       "store": true
     },
+    "approvalDate": {
+      "type": "text",
+      "store": true
+    },
     "sort_hash": {
       "type": "keyword"
     }
