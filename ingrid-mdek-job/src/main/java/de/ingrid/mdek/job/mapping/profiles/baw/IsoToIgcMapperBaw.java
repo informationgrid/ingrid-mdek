@@ -94,7 +94,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             Element additionalValues = (Element) igcXpathUtil.createElementFromXPath(igcRoot, addnValuesXpath);
 
             mapLFSLinks(igcRoot, additionalValues);
-            mapCrossReferences(mdIdentification, additionalValues, protocolHandler);
+            mapCrossReferences(mdIdentification, additionalValues);
 
             mapAuftragInfos(mdIdentification, additionalValues);
             mapHierarchyLevelName(mdMetadata, additionalValues, protocolHandler);
@@ -191,7 +191,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         }
     }
 
-    private void mapCrossReferences(Element mdIdentification, Element additionalValues, ProtocolHandler protocolHandler) {
+    private void mapCrossReferences(Element mdIdentification, Element additionalValues) {
         String xpath = "./gmd:aggregationInfo/gmd:MD_AggregateInformation[./gmd:associationType/gmd:DS_AssociationTypeCode/@codeListValue=\"crossReference\"]/gmd:aggregateDataSetName/gmd:CI_Citation";
         List<String> allAuthors = new ArrayList<>();
         List<String> allPublishers = new ArrayList<>();
@@ -299,7 +299,6 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         }
 
         // Remove authors and publishers for cross-references
-        String removeRelatedAddressXpathPattern = "//related-address[./address-identifier/text()=\"%s\"]";
         String addressIdXpath = "//related-address[./type-of-relation/@entry-id=\"10\" or ./type-of-relation/@entry-id=\"11\"]/address-identifier";
         String addressInstanceXpathPattern = "/igc/addresses/address/address-instance[./address-identifier/text()=\"%s\"]";
 
@@ -732,8 +731,8 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                     valueType = VALUE_TYPE_RANGE_NUMERIC;
                 }
 
-                String valuesFormatted = "";
-                if (valueType == VALUE_TYPE_RANGE_NUMERIC) {
+                String valuesFormatted;
+                if (VALUE_TYPE_RANGE_NUMERIC.equals(valueType)) {
                     valuesFormatted = String.format("[ %s .. %s ]",
                             numberFormat.format(jsonArray.get(0)),
                             numberFormat.format(jsonArray.get(1)));
