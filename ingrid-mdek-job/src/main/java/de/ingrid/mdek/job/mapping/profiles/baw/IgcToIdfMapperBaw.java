@@ -575,7 +575,9 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             String paramType = trafoUtil.getIGCSyslistEntryName(BAW_SIMULATION_PARAMETER_TYPE_CODELIST_ID, Integer.parseInt(row.get("simParamType")));
             String paramUnits = row.get("simParamUnit");
             String valueType = row.get("simParamValueType");
-            JSONArray valuesJsonArray = (JSONArray) jsonParser.parse(row.get("simParamValues"));
+            String simParamValues = row.get("simParamValues") == null ? "[]" : row.get("simParamValues");
+
+            JSONArray valuesJsonArray = (JSONArray) jsonParser.parse(simParamValues);
 
             boolean areValuesIntegers = valuesJsonArray.stream().allMatch(e -> e instanceof Long);
             boolean areValuesDoubles = !areValuesIntegers
