@@ -63,9 +63,8 @@
       "store": true
     },
     "t01_object.mod_time": {
-      "type": "text",
-      "store": true,
-      "fielddata": true
+      "type": "keyword",
+      "store": true
     },
     "t01_object.obj_id": {
       "type": "keyword",
@@ -310,8 +309,8 @@
       "type": "date",
       "store": true
     },
-    "approvalDate": {
-      "type": "text",
+    "approval_date": {
+      "type": "keyword",
       "store": true
     },
     "sort_hash": {
