@@ -29,6 +29,7 @@ import de.ingrid.iplug.dsc.utils.DOMUtils;
 import de.ingrid.iplug.dsc.utils.DOMUtils.IdfElement;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
 import de.ingrid.iplug.dsc.utils.TransformationUtils;
+import de.ingrid.mdek.job.Configuration;
 import de.ingrid.utils.xml.Csw202NamespaceContext;
 import de.ingrid.utils.xml.IDFNamespaceContext;
 import de.ingrid.utils.xpath.XPathUtils;
@@ -36,6 +37,7 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -56,6 +58,9 @@ import static java.time.format.DateTimeFormatter.ISO_DATE;
 public class IgcToIdfMapperBaw implements IIdfMapper {
 
     private static final Logger LOG = Logger.getLogger(IgcToIdfMapperBaw.class);
+
+    @Autowired
+    private Configuration igeConfig;
 
     private static final XPathUtils XPATH = new XPathUtils(new IDFNamespaceContext());
 
@@ -168,6 +173,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 return;
             }
 
+            addLfsLinks(mdMetadata, objId);
             addCrossReferences(mdIdentification, objId);
 
             setHierarchyLevelName(mdMetadata, objId);
@@ -183,6 +189,76 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         } catch (Exception e) {
             LOG.error("Error mapping source record to idf document.", e);
             throw e;
+        }
+    }
+
+    private void addLfsLinks(Element mdMetadata, Long objId) throws SQLException {
+        Map<Integer, Map<String, String>> rows = getOrderedAdditionalFieldDataTableRows(objId, "lfsLinkTable");
+        if (rows.isEmpty()) return;
+
+        String distInfoQname = "gmd:distributionInfo";
+        String mdDistPath = distInfoQname + "/gmd:MD_Distribution";
+        String transferOptionsQname = "gmd:transferOptions";
+        String onlineRelPath = "gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource";
+
+        Element mdDistribDomElement = (Element) XPATH.getNode(mdMetadata, mdDistPath);
+        IdfElement mdDistribIdfElement;
+        if (mdDistribDomElement == null) {
+            IdfElement previousSibling = findPreviousSibling(distInfoQname, mdMetadata, MD_METADATA_CHILDREN);
+            if (previousSibling == null) {
+                mdDistribIdfElement = domUtil.addElement(mdMetadata, mdDistPath);
+            } else {
+                mdDistribIdfElement = previousSibling.addElementAsSibling(mdDistPath);
+            }
+        } else {
+            mdDistribIdfElement = domUtil.new IdfElement(mdDistribDomElement);
+        }
+
+        IdfElement previousSibling;
+        // Check if gmd:distributor exists
+        previousSibling = domUtil.getElement(mdDistribIdfElement.getElement(), "gmd:distributor[last()]");
+        if (previousSibling == null) {
+            // Check if gmd:distributionFormat exists
+            previousSibling = domUtil.getElement(mdDistribIdfElement.getElement(), "gmd:distributionFormat[last()]");
+        }
+
+        for(Map.Entry<Integer, Map<String, String>> entry: rows.entrySet()) {
+            Map<String, String> row = entry.getValue();
+
+            String url = row.get("link");
+            String appProfile = row.get("fileFormat");
+            String name = row.get("name");
+            String desc = row.get("explanation");
+
+            IdfElement transferOptionsElement;
+            if (previousSibling == null) {
+                transferOptionsElement = mdDistribIdfElement.addElementAsFirst(transferOptionsQname);
+            } else {
+                transferOptionsElement = previousSibling.addElementAsSibling(transferOptionsQname);
+            }
+            previousSibling = transferOptionsElement;
+            IdfElement onlineResourceElement = transferOptionsElement.addElement(onlineRelPath);
+
+            if (url != null && !url.trim().isEmpty()) {
+                onlineResourceElement.addElement("gmd:linkage/gmd:URL")
+                        .addText(igeConfig.bawLfsBaseURL + '/' + url);
+            }
+            if (appProfile != null && !appProfile.trim().isEmpty()) {
+                onlineResourceElement.addElement("gmd:applicationProfile/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(appProfile);
+            }
+            if (name != null && !name.trim().isEmpty()) {
+                onlineResourceElement.addElement("gmd:name/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(name);
+            }
+            if (desc != null && !desc.trim().isEmpty()) {
+                onlineResourceElement.addElement("gmd:description/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(desc);
+            }
+            onlineResourceElement.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
+                    .addAttribute("codeList", CODELIST_URL + "gmd:CI_OnLineFunctionCode")
+                    .addAttribute("codeListValue", "download")
+                    .addText("publication");
         }
     }
 

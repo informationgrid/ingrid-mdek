@@ -157,6 +157,9 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     @Value("${import.overwrite.addresses.check.referencing.datasets:true}")
     public Boolean importOverwriteAddressesCheckReferencingDatasets;
 
+    @Value("${baw.lfs.base.url:https://dl.datenfinder.baw.de}")
+    public String bawLfsBaseURL;
+
 
 
 
