@@ -58,7 +58,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
     @Autowired
     private Configuration igeConfig;
 
-    private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
+    private final NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.GERMANY);
 
     private MdekCatalogService catalogService;
 
@@ -611,7 +611,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
         String paramNameXpath = "./gmd:valueType/gco:RecordType";
         String valueXpath = "./gmd:value/gco:Record";
-        String typeAttrXpath = valueXpath + "[@type='gml:integerList' or @type='gml:doubleList']";
+        String typeAttrXpath = valueXpath + "[@xsi:type='gml:integerList' or @xsi:type='gml:doubleList']";
 
         String paramTypeXpath = "./gmd:lineage/*/gmd:source/*/gmd:description/gco:CharacterString";
 
