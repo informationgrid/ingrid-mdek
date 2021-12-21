@@ -491,7 +491,10 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(doi) && hasValue(doi.id)) {
         var citationIdentifier = ciCitation.addElement("gmd:identifier/gmd:MD_Identifier");
         if (hasValue(doi.type)) {
-            citationIdentifier.addElement("gmd:authority/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(doi.type);
+            var nestedCitation = citationIdentifier.addElement("gmd:authority/gmd:CI_Citation");
+            nestedCitation.addElement("gmd:title").addAttribute("gco:nilReason", "missing");
+            nestedCitation.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
+            nestedCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(doi.type);
         }
         citationIdentifier.addElement("gmd:code/gco:CharacterString").addText("https://doi.org/" + doi.id);
     }
