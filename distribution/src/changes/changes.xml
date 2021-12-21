@@ -18,6 +18,9 @@
       <action type="fix" dev="wemove" issue="3299">
         IGE: Fix iso of grid format element
       </action>
+      <action type="fix" dev="wemove" issue="3316">
+        IGE: Import of key catalog from ISO
+      </action>
     </release>
     
     <release version="5.10.1" date="2021-11-23" description="Release 5.10.1">

@@ -449,6 +449,26 @@ var mappingDescription = {"mappings":[
 	      	  				]
 	      				}
 	        		},
+	        		{
+	        			"srcXpath":"//gmd:contentInfo/gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation",
+	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map",
+	        			"newNodeName":"key-catalogue",
+	        			"subMappings":{
+	        				"mappings": [
+		      	  				{
+		      			  			"srcXpath":"gmd:title/gco:CharacterString",
+		      			  			"targetNode":"key-cat"
+		      			  		},
+		      	  				{
+		      			  			"srcXpath":"gmd:date//gco:DateTime",
+		      			  			"targetNode":"key-date",
+									"transform":{
+										"funct":transformDateIso8601ToIndex
+									}
+		      			  		}
+	      	  				]
+	      				}
+	        		},
 					{
 						"srcXpath":"//gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:resourceSpecificUsage/gmd:MD_Usage/gmd:specificUsage/gco:CharacterString",
 						"srcXpathTransform": {
