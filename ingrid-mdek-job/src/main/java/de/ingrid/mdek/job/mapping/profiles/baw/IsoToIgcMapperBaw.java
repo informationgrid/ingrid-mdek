@@ -127,11 +127,11 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             Node linkageDatatypeNode = igcXpathUtil.getNode(linkageNode, "linkage-datatype");
             Node linkageDescriptionNode = igcXpathUtil.getNode(linkageNode, "linkage-description");
 
-            String linkageName = linkageNameNode == null || linkageNameNode.getTextContent() == null ? "" : linkageNameNode.getTextContent();
-            String linkageUrl = linkageUrlNode == null || linkageUrlNode.getTextContent() == null ? "" : linkageUrlNode.getTextContent();
-            String linkageUrlType = linkageUrlTypeNode == null || linkageUrlTypeNode.getTextContent() == null ? "" : linkageUrlTypeNode.getTextContent();
-            String linkageDatatype = linkageDatatypeNode == null || linkageDatatypeNode.getTextContent() == null ? "" : linkageDatatypeNode.getTextContent();
-            String linkageDescription = linkageDescriptionNode == null || linkageDescriptionNode.getTextContent() == null ? "" : linkageDescriptionNode.getTextContent();
+            String linkageName = getNodeText(linkageNameNode);
+            String linkageUrl = getNodeText(linkageUrlNode);
+            String linkageUrlType = getNodeText(linkageUrlTypeNode);
+            String linkageDatatype = getNodeText(linkageDatatypeNode);
+            String linkageDescription = getNodeText(linkageDescriptionNode);
 
             String line = Integer.toString(i + 1);
 
