@@ -107,6 +107,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             mapDgsValues(mdMetadata, additionalValues, protocolHandler);
 
             mapOnlineFunctionCode(mdMetadata, igcRoot);
+            checkAddressTypes(igcRoot);
 
         } catch (MdekException e) {
             protocolHandler.addMessage(Type.ERROR, e.getMessage());
@@ -839,6 +840,32 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                         .addAttribute("id", "9990")
                         .addText("Datendownload");
             }
+        }
+    }
+
+    private void checkAddressTypes(Element igcRoot) {
+        // Fix info@baw.de
+        String bawXpath = "//address-instance[./address-identifier/text() = '891d8fdf-e6cf-3f61-9ca4-668880483ca8']";
+        NodeList bawAddressNodes = igcXpathUtil.getNodeList(igcRoot, bawXpath);
+
+        for(int i=0; i<bawAddressNodes.getLength(); i++) {
+            Node bawAddress = bawAddressNodes.item(i);
+            Element adminArea = (Element) igcXpathUtil.getNode(bawAddress, "./administrative-area");
+            adminArea.setAttribute("id", "1");
+
+            igcXpathUtil.getNode(bawAddress, "postal-code").setTextContent("76187");
+            igcXpathUtil.getNode(bawAddress, "street").setTextContent("Ku\u00DFmaulstr. 17");
+            igcXpathUtil.getNode(bawAddress, "administrativeArea").setTextContent("Karlsruhe");
+            igcXpathUtil.getNode(bawAddress, "city").setTextContent("Karlsruhe");
+        }
+
+        // Fix address types for sections
+        String addressXpath = "//address-instance[./type-of-address/@id='0' and starts-with(./communication/communication-value/text(), 'daten-') and contains(./communication/communication-value/text(), '@baw.de')]";
+        NodeList addressNodes = igcXpathUtil.getNodeList(igcRoot, addressXpath);
+
+        for(int i=0; i<addressNodes.getLength(); i++) {
+            Element element = (Element) igcXpathUtil.getNode(addressNodes.item(i), "type-of-address");
+            element.setAttribute("id", "1");
         }
     }
 
