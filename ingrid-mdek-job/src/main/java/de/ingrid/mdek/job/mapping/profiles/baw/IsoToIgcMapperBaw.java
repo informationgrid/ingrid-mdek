@@ -108,6 +108,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
             mapOnlineFunctionCode(mdMetadata, igcRoot);
             checkAddressTypes(igcRoot);
+            fixDefaultStatementImport(igcRoot);
 
         } catch (MdekException e) {
             protocolHandler.addMessage(Type.ERROR, e.getMessage());
@@ -866,6 +867,14 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         for(int i=0; i<addressNodes.getLength(); i++) {
             Element element = (Element) igcXpathUtil.getNode(addressNodes.item(i), "type-of-address");
             element.setAttribute("id", "1");
+        }
+    }
+
+    private void fixDefaultStatementImport(Element igcRoot) {
+        NodeList nodes = igcXpathUtil.getNodeList(igcRoot, "//technical-domain/map/data");
+        for(int i=0; i<nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            node.getParentNode().removeChild(node);
         }
     }
 
