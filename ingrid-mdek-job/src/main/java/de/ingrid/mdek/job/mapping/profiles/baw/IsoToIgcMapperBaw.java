@@ -54,6 +54,7 @@ import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
 public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
     private static final Logger LOG = Logger.getLogger(IsoToIgcMapperBaw.class);
+    private static final String BAW_ORG_UUID = "891d8fdf-e6cf-3f61-9ca4-668880483ca8";
 
     @Autowired
     private Configuration igeConfig;
@@ -845,11 +846,16 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
     }
 
     private void checkAddressTypes(Element igcRoot) {
-        // Fix info@baw.de
-        String bawXpath = "//address-instance[./address-identifier/text() = '891d8fdf-e6cf-3f61-9ca4-668880483ca8']";
+        fixBawOrgAddress(igcRoot);
+        fixDepartmentAddressType(igcRoot);
+        fixFreeAddresses(igcRoot);
+    }
+
+    private void fixBawOrgAddress(Element igcRoot) {
+        String bawXpath = String.format("//address-instance[./address-identifier/text() = '%s']", BAW_ORG_UUID);
         NodeList bawAddressNodes = igcXpathUtil.getNodeList(igcRoot, bawXpath);
 
-        for(int i=0; i<bawAddressNodes.getLength(); i++) {
+        for (int i = 0; i < bawAddressNodes.getLength(); i++) {
             Node bawAddress = bawAddressNodes.item(i);
             Element adminArea = (Element) igcXpathUtil.getNode(bawAddress, "./administrative-area");
             adminArea.setAttribute("id", "1");
@@ -859,14 +865,30 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             igcXpathUtil.getNode(bawAddress, "administrativeArea").setTextContent("Karlsruhe");
             igcXpathUtil.getNode(bawAddress, "city").setTextContent("Karlsruhe");
         }
+    }
 
-        // Fix address types for sections
+    private void fixDepartmentAddressType(Element igcRoot) {
         String addressXpath = "//address-instance[./type-of-address/@id='0' and starts-with(./communication/communication-value/text(), 'daten-') and contains(./communication/communication-value/text(), '@baw.de')]";
         NodeList addressNodes = igcXpathUtil.getNodeList(igcRoot, addressXpath);
 
         for(int i=0; i<addressNodes.getLength(); i++) {
             Element element = (Element) igcXpathUtil.getNode(addressNodes.item(i), "type-of-address");
             element.setAttribute("id", "1");
+        }
+    }
+
+    private void fixFreeAddresses(Element igcRoot) {
+        // Don't import @baw.de addresses as free addresses, since free addresses cannot be moved later on
+        String addressXpath = "//address-instance[./type-of-address/@id='3' and contains(./communication/communication-value/text(), '@baw.de')]";
+        NodeList addressNodes = igcXpathUtil.getNodeList(igcRoot, addressXpath);
+
+        for(int i=0; i<addressNodes.getLength(); i++) {
+            Element addressNode = (Element) addressNodes.item(i);
+            Element element = (Element) igcXpathUtil.getNode(addressNode, "type-of-address");
+            element.setAttribute("id", "2");
+
+            igcDomUtil.addElement(addressNode, "parent-address/address-identifier")
+                    .addText(BAW_ORG_UUID);
         }
     }
 
