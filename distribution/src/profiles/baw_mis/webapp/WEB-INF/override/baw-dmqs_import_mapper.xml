@@ -73,6 +73,19 @@
     
     
     <!-- SEARCH / INDEX CONFIGURATION -->
+    <bean id="dscDocumentProducer" class="de.ingrid.iplug.dsc.index.DscDocumentProducer">
+        <property name="recordSetProducer" ref="recordSetProducer" />
+        <property name="recordMapperList">
+            <list>
+                <ref bean="recordMapper"/>
+                <ref bean="recordProfileMapper"/>
+                <ref bean="recordMapperBawMisPostProcessing"/>
+                <ref bean="idfProducerIndexMapper"/>
+            </list>
+        </property>
+        <property name="indexInfo" ref="indexInfo"/>
+    </bean>
+
     <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
         <property name="mappingScripts">
             <list>
@@ -85,6 +98,8 @@
         </property>
         <property name="compile" value="true" />
     </bean>
+
+    <bean id="recordMapperBawMisPostProcessing" class="de.ingrid.mdek.job.mapping.profiles.baw.IgcToLucenePostProcessorBaw" />
 
     <!-- IDF creation -->
     <bean id="dscRecordCreator" class="de.ingrid.iplug.dsc.record.DscRecordCreator">
