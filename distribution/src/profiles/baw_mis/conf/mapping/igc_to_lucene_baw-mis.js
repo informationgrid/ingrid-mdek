@@ -65,9 +65,9 @@ for(var i=0; i<addnFieldRows.size(); i++) {
     }
 }
 
-getAdditionalFieldValueBWastr(objId);
-getFirstAdditionalFieldValue(objId, "bawAuftragsnummer", "bawauftragsnummer");
-getFirstAdditionalFieldValue(objId, "bawAuftragstitel", "bawauftragstitel");
+indexAdditionalFieldValueBWastr(objId);
+indexFirstAdditionalFieldValue(objId, "bawAuftragsnummer", "bawauftragsnummer");
+indexFirstAdditionalFieldValue(objId, "bawAuftragstitel", "bawauftragstitel");
 
 function indexChildAdditionalFieldAsKeywords(parentRow, childKey, syslistId) {
     var parentFieldId = +parentRow.get("id");
@@ -96,7 +96,7 @@ function indexPhysicalParameters(parentRow) {
     }
 }
 
-function getFirstAdditionalFieldValue(objId, fieldKey, indexField) {
+function indexFirstAdditionalFieldValue(objId, fieldKey, indexField) {
     var query = "SELECT obj.data FROM additional_field_data obj WHERE obj.obj_id=? AND obj.field_key=?";
     var row = SQL.first(query, [objId, fieldKey]);
     if(hasValue(row)) {
@@ -104,7 +104,7 @@ function getFirstAdditionalFieldValue(objId, fieldKey, indexField) {
     }
 }
 
-function getAdditionalFieldValueBWastr(objId) {
+function indexAdditionalFieldValueBWastr(objId) {
     var query = "SELECT DISTINCT fd1.sort FROM additional_field_data fd0 " +
         "JOIN additional_field_data fd1 ON fd1.parent_field_id = fd0.id " +
         "WHERE fd0.obj_id = ? ORDER BY fd1.sort";
