@@ -77,12 +77,20 @@
       "type": "keyword",
       "store": true
     },
+    "bawauftragstitel": {
+      "type": "keyword",
+      "store": true
+    },
     "simprocess": {
       "type": "keyword",
       "store": true
     },
     "simspatialdimension": {
       "type": "keyword",
+      "store": true
+    },
+    "physicalparameter.name": {
+      "type": "text",
       "store": true
     },
     "additional_html_citation_quote": {

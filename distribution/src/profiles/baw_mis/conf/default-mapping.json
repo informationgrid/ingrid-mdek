@@ -89,6 +89,10 @@
       "type": "keyword",
       "store": true
     },
+    "physicalparameter.name": {
+      "type": "text",
+      "store": true
+    },
     "additional_html_citation_quote": {
       "type": "keyword",
       "store": true

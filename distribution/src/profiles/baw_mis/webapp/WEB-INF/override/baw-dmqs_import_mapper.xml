@@ -73,27 +73,17 @@
     
     
     <!-- SEARCH / INDEX CONFIGURATION -->
-    <bean id="dscDocumentProducer" class="de.ingrid.iplug.dsc.index.DscDocumentProducer">
-        <property name="recordSetProducer" ref="recordSetProducer" />
-        <property name="recordMapperList">
-            <list>
-                <ref bean="recordMapper"/>
-                <ref bean="recordProfileMapper"/>
-                <ref bean="recordMapperBawMisPostProcessing"/>
-                <ref bean="idfProducerIndexMapper"/>
-            </list>
-        </property>
-        <property name="indexInfo" ref="indexInfo"/>
-    </bean>
-
-    <bean id="recordMapperBawMisPostProcessing" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
+    <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
         <property name="mappingScripts">
             <list>
                 <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/igc_to_lucene.js</value>
+
+                <!-- Profile-specific post-processing -->
                 <value>classpath:mapping/igc_to_lucene_baw-mis.js</value>
             </list>
         </property>
-        <property name="compile" value="false" />
+        <property name="compile" value="true" />
     </bean>
 
     <!-- IDF creation -->
