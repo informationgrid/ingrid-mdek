@@ -57,9 +57,9 @@ Contribute
 * in Maven panel expand "Profiles" (global entry on top of the project tree) and make sure "development" is checked
 * run compile task from Maven panel or run "mvn compile -Pdevelopment" from Commandline (unpacks base-webapp)
 * run ingrid-mdek-job.src.main.java.de.ingrid.mdek.MdekServer
-** A new run configuration "MdekServer" should appear
-** Make sure in "Edit Configurations" (Run configuration) that the working directory (ingrid-mdek-job) is set to the module directory 
-** Restart the MdekServer run configuration after any configuration change
+  * A new run configuration "MdekServer" should appear
+  * Make sure in "Edit Configurations" (Run configuration) that the working directory (ingrid-mdek-job) is set to the module directory 
+  * Restart the MdekServer run configuration after any configuration change
 * in browser call "http://localhost:10017" with login "admin/admin"
 
 ### Run with elastic search component
