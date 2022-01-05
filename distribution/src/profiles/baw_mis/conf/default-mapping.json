@@ -37,7 +37,14 @@
     },
     "bwstr-bwastr_name": {
       "type": "keyword",
-      "store": true
+      "store": true,
+      "fields": {
+        "phrase": {
+          "type":  "text",
+          "analyzer": "phrase",
+          "search_analyzer": "phrase"
+        }
+      }
     },
     "bwstr-strecken_name": {
       "type": "keyword",
