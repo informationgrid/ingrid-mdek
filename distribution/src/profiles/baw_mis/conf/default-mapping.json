@@ -470,6 +470,10 @@
     "wkt_geo": {
       "type": "geo_shape"
     },
+    "wkt_geo_text": {
+      "type": "text",
+      "store": true
+    },
     "sort_hash": {
       "type": "keyword"
     }
