@@ -1138,8 +1138,8 @@ function addWKT(objId) {
             var wkt2geojson = Java.type("de.ingrid.geo.utils.transformation.WktToGeoJsonTransformUtil");
             var geojson = wkt2geojson.wktToGeoJson(wkt);
             var wktDoc = {
-                wkt: true,
-                wkt_geo: JSON.parse(geojson)
+                wkt_geo: JSON.parse(geojson),
+                wkt_geo_text: geojson,
             };
             IDX.addAllFromJSON(JSON.stringify(wktDoc));
         }
