@@ -463,10 +463,6 @@
       "type": "keyword",
       "store": true
     },
-    "wkt": {
-      "type": "keyword",
-      "store": true
-    },
     "wkt_geo": {
       "type": "geo_shape"
     },
