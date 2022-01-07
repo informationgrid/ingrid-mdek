@@ -38,6 +38,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -54,7 +55,7 @@ public final class IsoImportValidationUtil {
 
     private static final Logger LOG = Logger.getLogger(IsoImportValidationUtil.class);
 
-    private static final String GMD_XSD_FILESYSTEM_LOCATION = "org/isotc211/2005/gmd/gmd.xsd";
+    private static final String GMD_XSD_URL = "http://schemas.opengis.net/csw/2.0.2/profiles/apiso/1.0.0/apiso.xsd";
 
     public static final String ISO_ELEMENTS_RESOURCE_BUNDLE = "de.ingrid.mdek.job.mapping.validation.iso.Elements";
     public static final String ISO_MESSAGES_RESOURCE_BUNDLE = "de.ingrid.mdek.job.mapping.validation.iso.Messages";
@@ -202,7 +203,7 @@ public final class IsoImportValidationUtil {
     private Validator getIsoSchemaValidator() {
         try {
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            URL url = getClass().getClassLoader().getResource(GMD_XSD_FILESYSTEM_LOCATION);
+            URL url = new URL(GMD_XSD_URL);
             Schema schema = sf.newSchema(url);
 
             Validator validator = schema.newValidator();
@@ -211,13 +212,15 @@ public final class IsoImportValidationUtil {
             return validator;
         } catch (SAXException ex) {
             String msgKey = "xml.schema.definition.invalid";
-            String defaultMsg = "ISO GMD Schema at following location is invalid: " + GMD_XSD_FILESYSTEM_LOCATION;
+            String defaultMsg = "ISO GMD Schema at following location is invalid: " + GMD_XSD_URL;
             String msg = getLocalisedString(
                     msgKey,
                     defaultMsg,
-                    GMD_XSD_FILESYSTEM_LOCATION);
+                    GMD_XSD_URL);
             warn(msgKey, defaultMsg);
             LOG.error(msg, ex);
+        } catch (MalformedURLException ignored) {
+            // Ignore because we know that the URL is okay
         }
         return null;
     }
