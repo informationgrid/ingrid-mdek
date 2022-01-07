@@ -1135,8 +1135,13 @@ function addWKT(objId) {
     if (hasValue(wktRow)) {
         var wkt = wktRow.get("data");
         if(hasValue(wkt)) {
-            IDX.add("wkt", true);
-            IDX.add("wkt_geo", wkt);
+            var wkt2geojson = Java.type("de.ingrid.geo.utils.transformation.WktToGeoJsonTransformUtil");
+            var geojson = wkt2geojson.wktToGeoJson(wkt);
+            var wktDoc = {
+                wkt: true,
+                wkt_geo: JSON.parse(geojson)
+            };
+            IDX.addAllFromJSON(JSON.stringify(wktDoc));
         }
     }
 }
