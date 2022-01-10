@@ -2643,8 +2643,36 @@ function addDistributionInfo(mdMetadata, objId) {
     }
 
 
+    function addMissingUrlParameters(connUrl, row) {
+        // try to get type from connection point parameter of getCapabilities
+        var servOpId = row.get("id");
+        var rowsParams = SQL.all("SELECT servOpPara.* FROM t011_obj_serv_operation servOp, t011_obj_serv_op_para servOpPara WHERE servOpPara.obj_serv_op_id = servOp.id AND servOpPara.obj_serv_op_id=? AND servOp.name_key=?", [+servOpId, 1]);
+        for (j = 0; j < rowsParams.size(); j++) {
+            var isServiceParam = rowsParams.get(j).get("descr") === "Service type";
+            if (isServiceParam) {
+                if (connUrl.indexOf("?") === -1) {
+                    if (connUrl.lastIndexOf("/") === connUrl.length() - 1) {
+                        connUrl = connUrl.substring(0, connUrl.length() - 1) + "?";
+                    } else {
+                        connUrl += "?";
+                    }
+                }
+                // if connUrl or parameters already contains a ? or & at the end then do not add another one!
+                if (!(connUrl.lastIndexOf("?") === connUrl.length() - 1)
+                    && !(connUrl.lastIndexOf("&") === connUrl.length() - 1)) {
+                    connUrl += "&";
+                }
+                connUrl += rowsParams.get(j).get("name");
+                break;
+            }
+        }
 
-    // add connection to the service(s) for class 1 (Map) and 3 (Service)
+        var type = parseInt(row.get("type_key"));
+
+        return connUrl + CAPABILITIES.getMissingCapabilitiesParameter(connUrl, type);
+    }
+
+// add connection to the service(s) for class 1 (Map) and 3 (Service)
     if (objClass.equals("1") || objClass.equals("3")) {
         // ---------- <gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:online/gmd:CI_OnlineResource ----------
 
@@ -2676,11 +2704,11 @@ function addDistributionInfo(mdMetadata, objId) {
         // the links should all come from service objects (class=3)
         if (objClass.equals("1")) {
             // get all getCapabilities-URLs from operations table of the coupled service
-            rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
+            rows = SQL.all("SELECT t01obj.obj_name, serv.type_key, servOp.id, servOp.name_value, servOpConn.connect_point FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
         } else {
             // Service Object
             // Fetch now Services of all types but still operation has to be of name_key=1 (GetCapabilities), see REDMINE-85
-            rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objId, 3]);
+            rows = SQL.all("SELECT t01obj.obj_name, serv.type_key, servOp.id, servOp.name_value, servOpConn.connect_point FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objId, 3]);
         }
 
         for (i=0; i<rows.size(); i++) {
@@ -2698,8 +2726,8 @@ function addDistributionInfo(mdMetadata, objId) {
                 // Preparing getCapabilitiesUrl deprecated, see INGRID-2259
 				// NOT deprecated here! See INGRID-2344
                 var connUrl = rows.get(i).get("connect_point");
-                var type = parseInt( rows.get(i).get("type_key") );
-                connUrl += CAPABILITIES.getMissingCapabilitiesParameter(connUrl, type);
+
+                connUrl = addMissingUrlParameters(connUrl, rows.get(i));
                 idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(connUrl);
                 // add name of referencing service object to avoid blank url in detail view, see https://redmine.wemove.com/issues/340
                 // e.g. 'Dienst "WMS - Avifaunistisch wertvolle Bereiche in Niedersachsen Brutvögel" (GetCapabilities)'

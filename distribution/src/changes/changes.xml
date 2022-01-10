@@ -35,6 +35,9 @@
       <action type="fix" dev="wemove" issue="3316">
         IGE: Import of key catalog from ISO
       </action>
+      <action type="fix" dev="wemove" issue="3262">
+        Improve determination of getCapabilities service-parameter
+      </action>
     </release>
 
     <release version="5.10.0" date="2021-10-21" description="Release 5.10.0">
