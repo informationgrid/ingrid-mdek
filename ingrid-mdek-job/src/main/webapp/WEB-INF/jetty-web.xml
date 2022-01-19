@@ -8,12 +8,12 @@
   Licensed under the EUPL, Version 1.1 or – as soon they will be
   approved by the European Commission - subsequent versions of the
   EUPL (the "Licence");
-  
+
   You may not use this work except in compliance with the Licence.
   You may obtain a copy of the Licence at:
-  
+
   http://ec.europa.eu/idabc/eupl5
-  
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the Licence is distributed on an "AS IS" basis,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,7 +29,9 @@
     <New class="org.mortbay.resource.ResourceCollection">
       <Arg>
         <Array type="java.lang.String">
-          <!-- mCloud -->
+          <!-- BAW MIS -->
+          <!--<Item>../distribution/src/profiles/baw_mis/webapp</Item>-->
+         <!-- mCloud -->
           <!--<Item>../distribution/src/profiles/mcloud/webapp</Item>-->
           <!-- UVP -->
           <!--<Item>../distribution/src/profiles/uvp/webapp</Item>-->
@@ -39,6 +41,8 @@
           <!-- <Item>../distribution/src/profiles/hzg/webapp</Item> -->
           <!-- NOKIS -->
           <!--<Item>../distribution/src/profiles/nokis/webapp</Item>-->
+          <!-- SH-UP -->
+          <!--<Item>../distribution/src/profiles/up-sh/webapp</Item>-->
           <!-- HMDK -->
           <!-- <Item>../distribution/src/profiles/hmdk/webapp</Item>-->
           <Item>src/main/webapp</Item>

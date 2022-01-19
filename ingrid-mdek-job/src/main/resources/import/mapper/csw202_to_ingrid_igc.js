@@ -2,7 +2,7 @@
  * **************************************************-
  * Ingrid Portal MDEK Application
  * ==================================================
- * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -406,33 +406,33 @@ var mappingDescription = {"mappings":[
 						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-ref-referenced-param"
 					},
 					{
-						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation",
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation/gmd:geometricObjects",
 	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/vector-format",
 						"newNodeName":"geo-vector",
 						"subMappings": {
 							"mappings": [
 								{
-									"srcXpath": "gmd:topologyLevel/gmd:MD_TopologyLevelCode/@codeListValue",
+									"srcXpath": "../gmd:topologyLevel/gmd:MD_TopologyLevelCode/@codeListValue",
 									"targetNode": "vector-topology-level",
-	        						"targetAttribute":"iso-code",
+									"targetAttribute":"iso-code",
 									"transform":{
 										"funct":transformISOToIgcDomainId,
 										"params":[528, "Could not transform vector topology level: "]
 									}
 								},
-		      	  				{
-		      			  			"srcXpath":"gmd:geometricObjects/gmd:MD_GeometricObjects/gmd:geometricObjectType/gmd:MD_GeometricObjectTypeCode/@codeListValue",
-		      			  			"targetNode":"geometric-object-type",
-		      			  			"targetAttribute":"iso-code",
-		      			  			"transform":{
-		      							"funct":transformISOToIgcDomainId,
-		      							"params":[515, "Could not transform geometric object type code: "]
-		      						}
-		      			  		},
-		      	  				{
-		      			  			"srcXpath":"gmd:geometricObjects/gmd:MD_GeometricObjects/gmd:geometricObjectCount/gco:Integer",
-		      			  			"targetNode":"geometric-object-count"
-		      			  		}
+								{
+									"srcXpath":"gmd:MD_GeometricObjects/gmd:geometricObjectType/gmd:MD_GeometricObjectTypeCode/@codeListValue",
+									"targetNode":"geometric-object-type",
+									"targetAttribute":"iso-code",
+									"transform":{
+										"funct":transformISOToIgcDomainId,
+										"params":[515, "Could not transform geometric object type code: "]
+									}
+								},
+								{
+									"srcXpath":"gmd:MD_GeometricObjects/gmd:geometricObjectCount/gco:Integer",
+									"targetNode":"geometric-object-count"
+								}
 							]
 						}
 	        		},
@@ -445,6 +445,26 @@ var mappingDescription = {"mappings":[
 		      	  				{
 		      			  			"srcXpath":"gco:LocalName",
 		      			  			"targetNode":""
+		      			  		}
+	      	  				]
+	      				}
+	        		},
+	        		{
+	        			"srcXpath":"//gmd:contentInfo/gmd:MD_FeatureCatalogueDescription/gmd:featureCatalogueCitation/gmd:CI_Citation",
+	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map",
+	        			"newNodeName":"key-catalogue",
+	        			"subMappings":{
+	        				"mappings": [
+		      	  				{
+		      			  			"srcXpath":"gmd:title/gco:CharacterString",
+		      			  			"targetNode":"key-cat"
+		      			  		},
+		      	  				{
+		      			  			"srcXpath":"gmd:date//gco:DateTime",
+		      			  			"targetNode":"key-date",
+									"transform":{
+										"funct":transformDateIso8601ToIndex
+									}
 		      			  		}
 	      	  				]
 	      				}
@@ -1275,7 +1295,7 @@ var mappingDescription = {"mappings":[
   		    }		
   		},
   		{
-  		    "srcXpath":"//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString='OGDD-Kategorien']/gmd:keyword/gco:CharacterString",
+  		    "srcXpath":"//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:thesaurusName) and gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='theme']/gmd:keyword/gco:CharacterString",
   		    "targetNode":"/igc/data-sources/data-source/data-source-instance/subject-terms",
   		    "newNodeName":"controlled-term",
   		    "subMappings":{
@@ -1292,9 +1312,7 @@ var mappingDescription = {"mappings":[
   		                         "targetNode":"",
   		                         "targetAttribute":"id",
   		                         "transform":{
-  		                             "funct":transformToIgcDomainId,
-  		                             // PASS "" as language to check all localized values !!!
-  		                             "params":[6400, "", "Could not map OpenData Category:", true]
+  		                             "funct":transformToOpendataCategory,
   		                         }
   		                     },
   		                     {
@@ -2250,7 +2268,7 @@ function mapLegalConstraints(source, target) {
 }
 
 function mapUncontrolledTerms(source, target) {
-    var terms = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='place') and (not(gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString) or ( (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='OGDD-Kategorien') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='German Environmental Classification - Topic, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='GEMET - INSPIRE themes, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Service Classification, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Further legal basis') ))]/gmd:keyword/gco:CharacterString");
+    var terms = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='place') and (not(not(gmd:thesaurusName) and gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='theme')) and (not(gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString) or ( (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='German Environmental Classification - Topic, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='GEMET - INSPIRE themes, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Service Classification, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Further legal basis') ))]/gmd:keyword/gco:CharacterString");
     if (hasValue(terms)) {
         for (i=0; i<terms.getLength(); i++ ) {
             var term = getLocalisedCharacterString(terms.item(i));
@@ -2428,6 +2446,22 @@ function transformGeneric(val, mappings, caseSensitive, logErrorOnNotFound) {
 		protocol(WARN, logErrorOnNotFound + val)
 	}
 	return val;
+}
+
+function transformToOpendataCategory(val) {
+	if (hasValue(val)) {
+		// transform to IGC domain id
+		var syslistId = TRANSF.getISOCodeListEntryIdByDataFilter(6400, val);
+		if (hasValue(syslistId)) {
+			return syslistId;
+		} else {
+			if (log.isWarnEnabled()) {
+				log.warn("Domain Data '" + val + "' unknown in code list 6400.");
+				protocol(WARN, "Domain Data '" + val + "' unknown in code list 6400.")
+			}
+			return "";
+		}
+	}
 }
 
 function transformToIgcDomainId(val, codeListId, languageId, logErrorOnNotFound, doRobustComparison) {
@@ -2744,69 +2778,21 @@ function getTypeOfAddress(source, target) {
 }
 
 function handleBoundingPolygon(source, target) {
-	var gmlPointPosNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:Point/gml:pos" +
-		" | //gmd:identificationInfo//gmd:polygon/gml311:Point/gml311:pos");
-	for(var i=0; i<gmlPointPosNodes.getLength(); i++) {
-		var wkt = gmlPosListToWktCoordinates(gmlPointPosNodes.item(i));
-		if (wkt) {
-			wkt = "POINT " + wkt;
-			addPolygonWktToIgc(target, wkt);
-		}
-	}
+    var gml2wkt = Java.type("de.ingrid.geo.utils.transformation.GmlToWktTransformUtil");
+    var gmlPolygonNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon");
+    var wkt = "";
 
-	var gmlLineStringPosListNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:LineString/gml:posList" +
-		" | //gmd:identificationInfo//gmd:polygon/gml311:LineString/gml311:posList");
-	for(var i=0; i<gmlLineStringPosListNodes.getLength(); i++) {
-		var wkt = gmlPosListToWktCoordinates(gmlLineStringPosListNodes.item(i));
-		if (wkt) {
-			wkt = "LINESTRING " + wkt;
-			addPolygonWktToIgc(target, wkt);
-		}
-	}
-
-	// Polygon elements
-	var gmlPolygonNodes = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:polygon/gml:Polygon" +
-		" | //gmd:identificationInfo//gmd:polygon/gml311:Polygon");
-	for(var i=0; i<gmlPolygonNodes.getLength(); i++) {
-		var wkt = "";
-	    var polygonNode = gmlPolygonNodes.item(i);
-
-		var exteriorNode = XPATH.getNode(polygonNode, "./gml:exterior/gml:LinearRing/gml:posList" +
-			" | ./gml311:exterior/gml311:LinearRing/gml311:posList");
-		wkt += gmlPosListToWktCoordinates(exteriorNode);
-
-		var interiorNodes = XPATH.getNodeList(polygonNode, "./gml:interior/gml:LinearRing/gml:posList" +
-			" | ./gml311:interior/gml311:LinearRing/gml311:posList");
-		for(var j=0; j<interiorNodes.getLength(); j++) {
-			var str = gmlPosListToWktCoordinates(interiorNodes.item(j));
-			if (wkt && str)  {
-				wkt += ", ";
-			}
-			wkt += str;
-		}
-		if (wkt) {
-			wkt = "POLYGON (" + wkt + ")";
-			addPolygonWktToIgc(target, wkt);
-		}
-	}
-}
-
-function gmlPosListToWktCoordinates(node) {
-	if (!node) return "";
-
-	var posList = node.getTextContent();
-	if (!hasValue(posList)) return "";
-
-	posList = posList.replace(/[\r\n]/g, ""); // Remove newlines
-	var coords = "";
-	var arr = posList.split(/\s+/);
-	for(var i=0; i<arr.length; i+=2) {
-		if (coords) { // not empty
-			coords += ", ";
-		}
-		coords += arr[i] + " " + arr[i+1];
-	}
-	return "(" + coords + ")";
+    for(var i=0; i<gmlPolygonNodes.getLength(); i++) {
+        var gmlPolygonNode = gmlPolygonNodes.item(i);
+        if(XPATH.nodeExists(gmlPolygonNode, "./gml:*")) {
+            wkt = gml2wkt.gml3_2ToWktString(XPATH.getNode(gmlPolygonNode, "./gml:*"));
+        } else if(XPATH.nodeExists(gmlPolygonNode, "./gml311:*")) {
+            wkt = gml2wkt.gml3ToWktString(XPATH.getNode(gmlPolygonNode, "./gml311:*"));
+        }
+    }
+    if (hasValue(wkt)) {
+        addPolygonWktToIgc(target, wkt);
+    }
 }
 
 function addPolygonWktToIgc(target, wkt) {

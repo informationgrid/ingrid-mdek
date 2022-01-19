@@ -2,17 +2,17 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * http://ec.europa.eu/idabc/eupl5
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -1131,10 +1131,17 @@ function addDOIInfo(objId) {
 }
 
 function addWKT(objId) {
-  var wktRow = SQL.first("SELECT fd.data AS data FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'boundingPolygon'", [+objId]);
-  if (hasValue(wktRow)) {
-      var wkt = wktRow.get("data");
-      wkt = wkt.replace(/[\r\n]/g, ";");
-      IDX.add("wkt", wkt);
-  }
+    var wktRow = SQL.first("SELECT fd.data AS data FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'boundingPolygon'", [+objId]);
+    if (hasValue(wktRow)) {
+        var wkt = wktRow.get("data");
+        if(hasValue(wkt)) {
+            var wkt2geojson = Java.type("de.ingrid.geo.utils.transformation.WktToGeoJsonTransformUtil");
+            var geojson = wkt2geojson.wktToGeoJson(wkt);
+            var wktDoc = {
+                wkt_geo: JSON.parse(geojson),
+                wkt_geo_text: geojson,
+            };
+            IDX.addAllFromJSON(JSON.stringify(wktDoc));
+        }
+    }
 }

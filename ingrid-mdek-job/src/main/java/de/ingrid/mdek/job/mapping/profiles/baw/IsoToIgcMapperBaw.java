@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -24,6 +24,7 @@ package de.ingrid.mdek.job.mapping.profiles.baw;
 
 import de.ingrid.iplug.dsc.utils.DOMUtils;
 import de.ingrid.iplug.dsc.utils.DOMUtils.IdfElement;
+import de.ingrid.mdek.job.Configuration;
 import de.ingrid.mdek.job.MdekException;
 import de.ingrid.mdek.job.mapping.ImportDataMapper;
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
@@ -53,8 +54,12 @@ import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
 public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
     private static final Logger LOG = Logger.getLogger(IsoToIgcMapperBaw.class);
+    private static final String BAW_ORG_UUID = "891d8fdf-e6cf-3f61-9ca4-668880483ca8";
 
-    private final NumberFormat numberFormat = NumberFormat.getNumberInstance();
+    @Autowired
+    private Configuration igeConfig;
+
+    private final NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.GERMANY);
 
     private MdekCatalogService catalogService;
 
@@ -89,7 +94,8 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             String addnValuesXpath = "/igc/data-sources/data-source/data-source-instance/general/general-additional-values";
             Element additionalValues = (Element) igcXpathUtil.createElementFromXPath(igcRoot, addnValuesXpath);
 
-            mapCrossReferences(mdIdentification, additionalValues, protocolHandler);
+            mapLFSLinks(igcRoot, additionalValues);
+            mapCrossReferences(mdIdentification, additionalValues);
 
             mapAuftragInfos(mdIdentification, additionalValues);
             mapHierarchyLevelName(mdMetadata, additionalValues, protocolHandler);
@@ -102,6 +108,8 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             mapDgsValues(mdMetadata, additionalValues, protocolHandler);
 
             mapOnlineFunctionCode(mdMetadata, igcRoot);
+            checkAddressTypes(igcRoot);
+            fixDefaultStatementImport(igcRoot);
 
         } catch (MdekException e) {
             protocolHandler.addMessage(Type.ERROR, e.getMessage());
@@ -109,7 +117,84 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         }
     }
 
-    private void mapCrossReferences(Element mdIdentification, Element additionalValues, ProtocolHandler protocolHandler) {
+    private void mapLFSLinks(Element igcRoot, Element additionalValues) {
+        String linkageXpath = "//data-source-instance/available-linkage[starts-with(./linkage-url/text(), '" + igeConfig.bawLfsBaseURL + "')]";
+        NodeList nodes = igcXpathUtil.getNodeList(igcRoot, linkageXpath);
+
+        for(int i=0; i<nodes.getLength(); i++) {
+            Node linkageNode = nodes.item(i);
+
+            Node linkageNameNode = igcXpathUtil.getNode(linkageNode, "linkage-name");
+            Node linkageUrlNode = igcXpathUtil.getNode(linkageNode, "linkage-url");
+            Node linkageUrlTypeNode = igcXpathUtil.getNode(linkageNode, "linkage-url-type");
+            Node linkageDatatypeNode = igcXpathUtil.getNode(linkageNode, "linkage-datatype");
+            Node linkageDescriptionNode = igcXpathUtil.getNode(linkageNode, "linkage-description");
+
+            String linkageName = getNodeText(linkageNameNode);
+            String linkageUrl = getNodeText(linkageUrlNode);
+            String linkageUrlType = getNodeText(linkageUrlTypeNode);
+            String linkageDatatype = getNodeText(linkageDatatypeNode);
+            String linkageDescription = getNodeText(linkageDescriptionNode);
+
+            String line = Integer.toString(i + 1);
+
+            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", line);
+            additionalValue.addElement("field-key")
+                    .addText("name");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(linkageName);
+            additionalValue.addElement("field-key-parent")
+                    .addText("lfsLinkTable");
+
+            additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", line);
+            additionalValue.addElement("field-key")
+                    .addText("link");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(linkageUrl.replace(igeConfig.bawLfsBaseURL + '/', ""));
+            additionalValue.addElement("field-key-parent")
+                    .addText("lfsLinkTable");
+
+            additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", line);
+            additionalValue.addElement("field-key")
+                    .addText("urlType");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(linkageUrlType);
+            additionalValue.addElement("field-key-parent")
+                    .addText("lfsLinkTable");
+
+            additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", line);
+            additionalValue.addElement("field-key")
+                    .addText("fileFormat");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(linkageDatatype);
+            additionalValue.addElement("field-key-parent")
+                    .addText("lfsLinkTable");
+
+            additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", line);
+            additionalValue.addElement("field-key")
+                    .addText("explanation");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(linkageDescription);
+            additionalValue.addElement("field-key-parent")
+                    .addText("lfsLinkTable");
+
+
+            // Finally, remove the original node
+            linkageNode.getParentNode().removeChild(linkageNode);
+        }
+    }
+
+    private void mapCrossReferences(Element mdIdentification, Element additionalValues) {
         String xpath = "./gmd:aggregationInfo/gmd:MD_AggregateInformation[./gmd:associationType/gmd:DS_AssociationTypeCode/@codeListValue=\"crossReference\"]/gmd:aggregateDataSetName/gmd:CI_Citation";
         List<String> allAuthors = new ArrayList<>();
         List<String> allPublishers = new ArrayList<>();
@@ -217,7 +302,6 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         }
 
         // Remove authors and publishers for cross-references
-        String removeRelatedAddressXpathPattern = "//related-address[./address-identifier/text()=\"%s\"]";
         String addressIdXpath = "//related-address[./type-of-relation/@entry-id=\"10\" or ./type-of-relation/@entry-id=\"11\"]/address-identifier";
         String addressInstanceXpathPattern = "/igc/addresses/address/address-instance[./address-identifier/text()=\"%s\"]";
 
@@ -529,7 +613,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
 
         String paramNameXpath = "./gmd:valueType/gco:RecordType";
         String valueXpath = "./gmd:value/gco:Record";
-        String typeAttrXpath = valueXpath + "[@type='gml:integerList' or @type='gml:doubleList']";
+        String typeAttrXpath = valueXpath + "[@xsi:type='gml:integerList' or @xsi:type='gml:doubleList']";
 
         String paramTypeXpath = "./gmd:lineage/*/gmd:source/*/gmd:description/gco:CharacterString";
 
@@ -650,8 +734,8 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                     valueType = VALUE_TYPE_RANGE_NUMERIC;
                 }
 
-                String valuesFormatted = "";
-                if (valueType == VALUE_TYPE_RANGE_NUMERIC) {
+                String valuesFormatted;
+                if (VALUE_TYPE_RANGE_NUMERIC.equals(valueType)) {
                     valuesFormatted = String.format("[ %s .. %s ]",
                             numberFormat.format(jsonArray.get(0)),
                             numberFormat.format(jsonArray.get(1)));
@@ -758,6 +842,61 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                         .addAttribute("id", "9990")
                         .addText("Datendownload");
             }
+        }
+    }
+
+    private void checkAddressTypes(Element igcRoot) {
+        fixBawOrgAddress(igcRoot);
+        fixDepartmentAddressType(igcRoot);
+        fixFreeAddresses(igcRoot);
+    }
+
+    private void fixBawOrgAddress(Element igcRoot) {
+        String bawXpath = String.format("//address-instance[./address-identifier/text() = '%s']", BAW_ORG_UUID);
+        NodeList bawAddressNodes = igcXpathUtil.getNodeList(igcRoot, bawXpath);
+
+        for (int i = 0; i < bawAddressNodes.getLength(); i++) {
+            Node bawAddress = bawAddressNodes.item(i);
+            Element adminArea = (Element) igcXpathUtil.getNode(bawAddress, "./administrative-area");
+            adminArea.setAttribute("id", "1");
+
+            igcXpathUtil.getNode(bawAddress, "postal-code").setTextContent("76187");
+            igcXpathUtil.getNode(bawAddress, "street").setTextContent("Ku\u00DFmaulstr. 17");
+            igcXpathUtil.getNode(bawAddress, "administrativeArea").setTextContent("Karlsruhe");
+            igcXpathUtil.getNode(bawAddress, "city").setTextContent("Karlsruhe");
+        }
+    }
+
+    private void fixDepartmentAddressType(Element igcRoot) {
+        String addressXpath = "//address-instance[./type-of-address/@id='0' and starts-with(./communication/communication-value/text(), 'daten-') and contains(./communication/communication-value/text(), '@baw.de')]";
+        NodeList addressNodes = igcXpathUtil.getNodeList(igcRoot, addressXpath);
+
+        for(int i=0; i<addressNodes.getLength(); i++) {
+            Element element = (Element) igcXpathUtil.getNode(addressNodes.item(i), "type-of-address");
+            element.setAttribute("id", "1");
+        }
+    }
+
+    private void fixFreeAddresses(Element igcRoot) {
+        // Don't import @baw.de addresses as free addresses, since free addresses cannot be moved later on
+        String addressXpath = "//address-instance[./type-of-address/@id='3' and contains(./communication/communication-value/text(), '@baw.de')]";
+        NodeList addressNodes = igcXpathUtil.getNodeList(igcRoot, addressXpath);
+
+        for(int i=0; i<addressNodes.getLength(); i++) {
+            Element addressNode = (Element) addressNodes.item(i);
+            Element element = (Element) igcXpathUtil.getNode(addressNode, "type-of-address");
+            element.setAttribute("id", "2");
+
+            igcDomUtil.addElement(addressNode, "parent-address/address-identifier")
+                    .addText(BAW_ORG_UUID);
+        }
+    }
+
+    private void fixDefaultStatementImport(Element igcRoot) {
+        NodeList nodes = igcXpathUtil.getNodeList(igcRoot, "//technical-domain/map/data");
+        for(int i=0; i<nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            node.getParentNode().removeChild(node);
         }
     }
 

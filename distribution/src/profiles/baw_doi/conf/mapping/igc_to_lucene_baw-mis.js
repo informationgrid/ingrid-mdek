@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -56,11 +56,44 @@ for(var i=0; i<addnFieldRows.size(); i++) {
         IDX.add("simspatialdimension", data);
     } else if (fieldKey && data && fieldKey == "simProcess") {
         IDX.add("simprocess", data);
+    } else if (fieldKey && fieldKey == "bawKeywordCatalogueTable") {
+        indexChildAdditionalFieldAsKeywords(row, "bawKeywordCatalogueEntry", 3950005);
+    } else if (fieldKey && fieldKey == "simModelTypeTable") {
+        indexChildAdditionalFieldAsKeywords(row, "simModelType", 3950003);
+    } else if (fieldKey && fieldKey == "simParamTable") {
+        indexPhysicalParameters(row);
     }
 }
 
 getAdditionalFieldValueBWastr(objId);
 getAdditionalFieldValueBWastrSpatialRefFree(objId);
+
+function indexChildAdditionalFieldAsKeywords(parentRow, childKey, syslistId) {
+    var parentFieldId = +parentRow.get("id");
+
+    var rows = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id = ? AND field_key = ?", [parentFieldId, childKey]);
+    for (var i=0; i<rows.size(); i++) {
+        var data = rows.get(i).get("data");
+        if (hasValue(data)) {
+            var kw = hasValue(syslistId) ? TRANSF.getIGCSyslistEntryName(syslistId, data, "de"): data;
+            addSearchtermValue("F", kw, "");
+        }
+    }
+}
+
+function indexPhysicalParameters(parentRow) {
+    var parentFieldId = +parentRow.get("id");
+
+    var rows = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id = ? AND field_key = ?", [parentFieldId, "simParamName"]);
+    for (var i=0; i<rows.size(); i++) {
+        var data = rows.get(i).get("data");
+        if (hasValue(data)) {
+            data.split(";").forEach(function (paramName) {
+                IDX.add("physicalparameter.name", paramName.trim());
+            });
+        }
+    }
+}
 
 function getAdditionalFieldValueBWastrSpatialRefFree(objId) {
     var query = "SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value " + 

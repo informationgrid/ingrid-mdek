@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -347,8 +347,6 @@ public class CSWImportTest extends TestSetup {
 
                     // open data
                     assertThat( docOut.getString( MdekKeys.IS_OPEN_DATA ), is( "Y" ) );
-                    assertThat( docOut.getArrayList( MdekKeys.OPEN_DATA_CATEGORY_LIST ).size(), is( 2 ) );
-                    assertSubjectTerms( docOut.getArrayList( MdekKeys.OPEN_DATA_CATEGORY_LIST ), "Umwelt und Klima", "Gesundheit" );
 
                     // INSPIRE-topics
                     assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ).size(), is( 2 ) );

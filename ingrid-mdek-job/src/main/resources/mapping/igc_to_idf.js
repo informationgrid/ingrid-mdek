@@ -2,17 +2,17 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * http://ec.europa.eu/idabc/eupl5
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -339,7 +339,10 @@ for (i=0; i<objRows.size(); i++) {
                             dimensionNode.addElement("gmd:dimensionSize").addAttribute("gco:nilReason", "unknown");
                         }
                         if (hasValue(resolutionDim)) {
-                            dimensionNode.addElement("gmd:resolution/gco:Scale").addText(resolutionDim);
+                            dimensionNode
+                                .addElement("gmd:resolution/gco:Scale")
+                                .addAttribute("uom", "m")
+                                .addText(resolutionDim);
                         }
                     }
                 }
@@ -488,7 +491,10 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(doi) && hasValue(doi.id)) {
         var citationIdentifier = ciCitation.addElement("gmd:identifier/gmd:MD_Identifier");
         if (hasValue(doi.type)) {
-            citationIdentifier.addElement("gmd:authority/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(doi.type);
+            var nestedCitation = citationIdentifier.addElement("gmd:authority/gmd:CI_Citation");
+            nestedCitation.addElement("gmd:title").addAttribute("gco:nilReason", "missing");
+            nestedCitation.addElement("gmd:date").addAttribute("gco:nilReason", "missing");
+            nestedCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString").addText(doi.type);
         }
         citationIdentifier.addElement("gmd:code/gco:CharacterString").addText("https://doi.org/" + doi.id);
     }
@@ -923,26 +929,15 @@ for (i=0; i<objRows.size(); i++) {
     mdKeywords = DOM.createElement("gmd:MD_Keywords");
     rows = SQL.all("SELECT category_key, category_value FROM object_open_data_category WHERE obj_id=? ORDER BY line", [+objId]);
     for (i=0; i<rows.size(); i++) {
-        IDF_UTIL.addLocalizedCharacterstring(mdKeywords.addElement("gmd:keyword"), rows.get(i).get("category_value"));
+        var opendataTheme = TRANSF.getISOCodeListEntryData(6400, rows.get(i).get("category_value"));
+        IDF_UTIL.addLocalizedCharacterstring(mdKeywords.addElement("gmd:keyword"), opendataTheme);
     }
 
     // only add thesaurus information if any category is available
     if (rows.size() > 0) {
-
-	    // Also add thesaurus to opendata keywords, see https://redmine.wemove.com/issues/339
-	    mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
+        mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
 	    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_KeywordTypeCode")
 	    .addAttribute("codeListValue", "theme");
-
-	    // and now the name of the thesaurus
-	    var thesCit = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
-	    thesCit.addElement("gmd:title/gco:CharacterString").addText("OGDD-Kategorien");
-	    var thesCitDate = thesCit.addElement("gmd:date/gmd:CI_Date");
-	    thesCitDate.addElement("gmd:date/gco:Date").addText("2012-11-27");
-	    thesCitDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
-            .addAttribute("codeListValue", "publication")
-            .addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode")
-            .addText("publication");
 	    identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
 
@@ -2291,80 +2286,26 @@ function addExtent(identificationInfo, objRow) {
     // ---------- <gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon> ----------
     var wktRow = SQL.first("SELECT fd.data AS data FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'boundingPolygon'", [+objId]);
     if (hasValue(wktRow)) {
+        var wkt2gml = Java.type("de.ingrid.geo.utils.transformation.WktToGmlTransformUtil");
+
         var wkt = wktRow.get("data");
         log.debug("WKT for polygon is: " + wkt);
 
-        // Remove newlines
-        wkt = wkt.replace(/[\r\n]/g, "");
-        var wktLower = wkt.trim().toLowerCase();
+        // Convert to gml
+        var gml = wkt2gml.wktToGml3_2AsElement(wkt);
 
-        /*
-         * \(     -> opening parenthesis
-         * \s     -> {0,n} whitespace characters
-         * (      -> start capture group
-         * [^()]+  -> one or more characters other than opening and closing parenthesis
-         * )      -> end of capture group
-         * \s*    -> {0,n} whitespace characters
-         * )      -> closing parenthesis
-         */
-        var regex = /\(\s*([^()]+)\s*\)/;
-        if (wktLower.startsWith("point")) {
-            var match = wkt.match(regex);
-            if (hasValue(match)) {
-                var coords = match[1]    // first capture group
-                    .replace(/,/g, " ")  // replace commas with strings
-                    .replace(/  +/g, " "); // replace multiple consecutive spaces with a single space
+        var gmdBoundingPolygon = identificationInfo.addElement(extentElemName)
+            .addElement("gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon");
+        gmdBoundingPolygon.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
+        var polygon = gmdBoundingPolygon.addElement("gmd:polygon");
 
-                var lineString = createAndGetPolygonFirstChild(identificationInfo, extentElemName, "Point");
-                lineString.addElement("gml:pos").addText(coords);
-            }
-        } else if (wktLower.startsWith("linestring")) {
-            var match = wkt.match(regex);
-            if (hasValue(match)) {
-                var coords = match[1]    // first capture group
-                    .replace(/,/g, " ")  // replace commas with strings
-                    .replace(/  +/g, " "); // replace multiple consecutive spaces with a single space
-
-                var lineString = createAndGetPolygonFirstChild(identificationInfo, extentElemName, "LineString");
-                lineString.addElement("gml:posList").addText(coords);
-            }
-        } else if (wktLower.startsWith("polygon")) {
-            /*
-             * \(     -> opening parenthesis
-             * \s     -> {0,n} whitespace characters
-             * (      -> start capture group
-             * [^()]+  -> one or more characters other than opening and closing parentheses ( and )
-             * )      -> end of capture group
-             * \s*    -> {0,n} whitespace characters
-             * )      -> closing parenthesis
-             *
-             * The g flag at the end returns all matches
-             */
-            var ringRegex = /\(\s*([^()]+)\s*\)/g;
-            var arr;
-            var rings = [];
-            while((arr = ringRegex.exec(wkt)) !== null) {
-                if (hasValue(arr[1]) && arr[1].trim()) { // Value exists and isn't empty
-                    var coords = arr[1].replace(/,/g, " ") // Replace all commas with spaces
-                        .replace(/  +/g, " "); // Replace multiple consecutive spaces with single space
-                    rings.push(coords);
-                }
-            }
-
-            // Create the polygon element
-            var polygon;
-            if (rings.length > 0) {
-                polygon = createAndGetPolygonFirstChild(identificationInfo, extentElemName, "Polygon");
-            }
-
-            // add the rings
-            for(var i=0; i<rings.length; i++) {
-                var path = i === 0 ? "gml:exterior/" : "gml:interior/";
-                path += "gml:LinearRing/gml:posList";
-
-                polygon.addElement(path).addText(rings[i]);
-            }
+        var adopted = idfDoc.adoptNode(gml);
+        if (hasValue(adopted)) {
+            polygon.addElement(adopted);
+        } else {
+            log.error("Failed to adopt GML3 Element: " + gml.getTagName());
         }
+
     }
 
     // ---------- <gmd:EX_Extent/gmd:geographicElement> ----------
@@ -2702,8 +2643,36 @@ function addDistributionInfo(mdMetadata, objId) {
     }
 
 
+    function addMissingUrlParameters(connUrl, row) {
+        // try to get type from connection point parameter of getCapabilities
+        var servOpId = row.get("id");
+        var rowsParams = SQL.all("SELECT servOpPara.* FROM t011_obj_serv_operation servOp, t011_obj_serv_op_para servOpPara WHERE servOpPara.obj_serv_op_id = servOp.id AND servOpPara.obj_serv_op_id=? AND servOp.name_key=?", [+servOpId, 1]);
+        for (j = 0; j < rowsParams.size(); j++) {
+            var isServiceParam = rowsParams.get(j).get("descr") === "Service type";
+            if (isServiceParam) {
+                if (connUrl.indexOf("?") === -1) {
+                    if (connUrl.lastIndexOf("/") === connUrl.length() - 1) {
+                        connUrl = connUrl.substring(0, connUrl.length() - 1) + "?";
+                    } else {
+                        connUrl += "?";
+                    }
+                }
+                // if connUrl or parameters already contains a ? or & at the end then do not add another one!
+                if (!(connUrl.lastIndexOf("?") === connUrl.length() - 1)
+                    && !(connUrl.lastIndexOf("&") === connUrl.length() - 1)) {
+                    connUrl += "&";
+                }
+                connUrl += rowsParams.get(j).get("name");
+                break;
+            }
+        }
 
-    // add connection to the service(s) for class 1 (Map) and 3 (Service)
+        var type = parseInt(row.get("type_key"));
+
+        return connUrl + CAPABILITIES.getMissingCapabilitiesParameter(connUrl, type);
+    }
+
+// add connection to the service(s) for class 1 (Map) and 3 (Service)
     if (objClass.equals("1") || objClass.equals("3")) {
         // ---------- <gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:online/gmd:CI_OnlineResource ----------
 
@@ -2735,11 +2704,11 @@ function addDistributionInfo(mdMetadata, objId) {
         // the links should all come from service objects (class=3)
         if (objClass.equals("1")) {
             // get all getCapabilities-URLs from operations table of the coupled service
-            rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
+            rows = SQL.all("SELECT t01obj.obj_name, serv.type_key, servOp.id, servOp.name_value, servOpConn.connect_point FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
         } else {
             // Service Object
             // Fetch now Services of all types but still operation has to be of name_key=1 (GetCapabilities), see REDMINE-85
-            rows = SQL.all("SELECT t01obj.obj_name, serv.*, servOp.*, servOpConn.* FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objId, 3]);
+            rows = SQL.all("SELECT t01obj.obj_name, serv.type_key, servOp.id, servOp.name_value, servOpConn.connect_point FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objId, 3]);
         }
 
         for (i=0; i<rows.size(); i++) {
@@ -2757,8 +2726,8 @@ function addDistributionInfo(mdMetadata, objId) {
                 // Preparing getCapabilitiesUrl deprecated, see INGRID-2259
 				// NOT deprecated here! See INGRID-2344
                 var connUrl = rows.get(i).get("connect_point");
-                var type = parseInt( rows.get(i).get("type_key") );
-                connUrl += CAPABILITIES.getMissingCapabilitiesParameter(connUrl, type);
+
+                connUrl = addMissingUrlParameters(connUrl, rows.get(i));
                 idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(connUrl);
                 // add name of referencing service object to avoid blank url in detail view, see https://redmine.wemove.com/issues/340
                 // e.g. 'Dienst "WMS - Avifaunistisch wertvolle Bereiche in Niedersachsen Brutvögel" (GetCapabilities)'

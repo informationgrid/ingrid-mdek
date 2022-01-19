@@ -37,7 +37,14 @@
     },
     "bwstr-bwastr_name": {
       "type": "keyword",
-      "store": true
+      "store": true,
+      "fields": {
+        "phrase": {
+          "type":  "text",
+          "analyzer": "phrase",
+          "search_analyzer": "phrase"
+        }
+      }
     },
     "bwstr-strecken_name": {
       "type": "keyword",
@@ -77,12 +84,20 @@
       "type": "keyword",
       "store": true
     },
+    "bawauftragstitel": {
+      "type": "keyword",
+      "store": true
+    },
     "simprocess": {
       "type": "keyword",
       "store": true
     },
     "simspatialdimension": {
       "type": "keyword",
+      "store": true
+    },
+    "physicalparameter.name": {
+      "type": "text",
       "store": true
     },
     "additional_html_citation_quote": {
@@ -448,8 +463,11 @@
       "type": "keyword",
       "store": true
     },
-    "wkt": {
-      "type": "keyword",
+    "wkt_geo": {
+      "type": "geo_shape"
+    },
+    "wkt_geo_text": {
+      "type": "text",
       "store": true
     },
     "sort_hash": {

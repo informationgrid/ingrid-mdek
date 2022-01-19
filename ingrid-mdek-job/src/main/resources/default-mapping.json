@@ -339,7 +339,7 @@
       "store": true
     },
     "t04_search.searchterm": {
-      "type": "keyword",
+      "type": "text",
       "store": true
     },
     "t017_url_ref.url_link": {
@@ -382,8 +382,11 @@
       "type": "keyword",
       "store": true
     },
-    "wkt": {
-      "type": "keyword",
+    "wkt_geo": {
+      "type": "geo_shape"
+    },
+    "wkt_geo_text": {
+      "type": "text",
       "store": true
     },
     "sort_hash": {

@@ -5,6 +5,59 @@
   </properties>
   <body>
 
+    <release version="5.11.0" date="2022-01-19" description="Release 5.11.0">
+      <action type="add" dev="wemove" issue="1582">
+        UVP: Optimierte Darstellung der Verfahren in der Karte
+      </action>
+      <action type="fix" dev="wemove" issue="3292">
+        Kritische Sicherheitslücke Log4Shell in der weitverbreiteten Java-Logging-Bibliothek log4j
+      </action>
+      <action type="add" dev="wemove" issue="3034">
+        iPlug IGE: Umgang mit WKT-Geometrien verbessern
+      </action>
+      <action type="add" dev="wemove" issue="2618">
+        BKG: Add use constraints to lucene.
+      </action>
+      <action type="update" dev="wemove" issue="1989">
+        Update opendata categories to match GovData categories.
+        This change requires a migration so codelist-repository,
+        mdek and portal must all be updated.
+      </action>
+      <action type="update" dev="wemove" issue="2823">
+        Add mapping and import of geometry context.
+      </action>
+      <action type="fix" dev="wemove" issue="3150">
+        Fix import of vector formats.
+      </action>
+      <action type="fix" dev="wemove" issue="3299">
+        IGE: Fix iso of grid format element
+      </action>
+      <action type="fix" dev="wemove" issue="3316">
+        IGE: Import of key catalog from ISO
+      </action>
+      <action type="fix" dev="wemove" issue="3262">
+        Improve determination of getCapabilities service-parameter
+      </action>
+      <action type="fix" dev="wemove" issue="3245">
+        Indexing WKT as GeoJSON
+      </action>
+      <action type="update" dev="wemove" issue="3344">
+        Add additional field to BWaStr. name index field
+      </action>
+      <action type="update" dev="wemove" issue="2678">
+        Add LFS links to indexed document for search
+      </action>
+      <action type="fix" dev="wemove" issue="2886">
+        Fix XSD validation error for DOIs
+      </action>
+      <action type="fix" dev="wemove" issue="3232">
+        Fix dataQualityInfo import
+      </action>
+      <action type="update" dev="wemove" issue="2746">
+        Add bwa title and number to index
+      </action>
+    </release>
+
     <release version="5.10.0" date="2021-10-21" description="Release 5.10.0">
       <action type="add" dev="wemove" issue="1845">
         Fix import of 'historie' field for geodata-service types

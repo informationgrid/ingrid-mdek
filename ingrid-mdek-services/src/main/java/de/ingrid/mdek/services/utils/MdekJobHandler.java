@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2021 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.thoughtworks.xstream.security.AnyTypePermission;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -79,6 +80,7 @@ public class MdekJobHandler {
 		
         try {
             xstream = new XStream();
+            xstream.addPermission(AnyTypePermission.ANY);
         } catch (Throwable ex) {
         	LOG.error("Initial Xstream creation failed.", ex);
             throw new ExceptionInInitializerError(ex);
