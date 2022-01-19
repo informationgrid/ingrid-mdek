@@ -5,7 +5,7 @@
   </properties>
   <body>
 
-    <release version="5.11.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.11.0-SNAPSHOT">
+    <release version="5.11.0" date="2022-01-19" description="Release 5.11.0">
       <action type="add" dev="wemove" issue="1582">
         UVP: Optimierte Darstellung der Verfahren in der Karte
       </action>
@@ -37,6 +37,24 @@
       </action>
       <action type="fix" dev="wemove" issue="3262">
         Improve determination of getCapabilities service-parameter
+      </action>
+      <action type="fix" dev="wemove" issue="3245">
+        Indexing WKT as GeoJSON
+      </action>
+      <action type="update" dev="wemove" issue="3344">
+        Add additional field to BWaStr. name index field
+      </action>
+      <action type="update" dev="wemove" issue="2678">
+        Add LFS links to indexed document for search
+      </action>
+      <action type="fix" dev="wemove" issue="2886">
+        Fix XSD validation error for DOIs
+      </action>
+      <action type="fix" dev="wemove" issue="3232">
+        Fix dataQualityInfo import
+      </action>
+      <action type="update" dev="wemove" issue="2746">
+        Add bwa title and number to index
       </action>
     </release>
 
