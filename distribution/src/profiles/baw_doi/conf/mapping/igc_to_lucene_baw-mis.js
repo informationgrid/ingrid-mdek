@@ -172,26 +172,21 @@ function addBWaStrData(bwastrId, bwastrKmStart, bwastrKmEnd) {
             bwastrName = "Bundeswasserstraßen";
         } else if (bwastrId === "9900") {
             bwastrName = "Sonstige Gewässer";
-        } else if (hasValue(bwastrKmStart)) {
-            var bwstrIdAndKm = bwastrId + "-" + bwastrKmStart + "-" + bwastrKmEnd;
-            for (var k=bwastrId.length; k<4; k++) {
-                bwstrIdAndKm = "0" + bwstrIdAndKm;
+        } else {
+            var bwastrInfo = BWST_LOC_TOOL.doBWaStrInfoQuery(bwastrId);
+            var name = bwastrInfo.get("bwastr_name");
+            var strecke = bwastrInfo.get("strecken_name");
+
+            if (hasValue(name)) {
+                bwastrName = name;
             }
-            var parts = BWST_LOC_TOOL.parseCenterSectionFromBwstrIdAndKm(bwstrIdAndKm);
-            var response = BWST_LOC_TOOL.getResponse(parts[0], parts[1], parts[2]);
-            if(response) {
-                var parsedResponse = BWST_LOC_TOOL.parse(response);
-                var locNames = BWST_LOC_TOOL.getLocationNames(parsedResponse);
-                if (locNames && locNames.length==2) {
-                    bwastrName = locNames[0];
-                    bwastrStreckenName = locNames[1];
-                }
+
+            if (hasValue(strecke)) {
+                bwastrStreckenName = strecke;
             }
         }
-        // Add the BWaStr-ID itself to the index.
-        // Use workaround to store it as string to preserve leading zeros and
-        // have a predictable behaviour in elasticsearch.
-        var bwastrIdPrefix = "id_";
+
+        var bwastrIdPrefix = "";
         for (var k=bwastrId.length; k<4; k++) {
             bwastrIdPrefix += "0";
         }
