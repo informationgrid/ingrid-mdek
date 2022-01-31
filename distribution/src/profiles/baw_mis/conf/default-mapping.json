@@ -23,6 +23,16 @@
       "type": "keyword",
       "store": true
     },
+    "baw_abteilung_short": {
+      "type": "keyword",
+      "store": true
+    },
+    "baw_abteilung_long": {
+      "type": "text",
+      "store": true,
+      "analyzer": "phrase",
+      "search_analyzer": "phrase"
+    },
     "bwstr-bwastr-id": {
       "type": "keyword",
       "store": true

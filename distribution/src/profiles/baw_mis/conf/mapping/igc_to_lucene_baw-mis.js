@@ -70,6 +70,8 @@ indexAdditionalFieldValueBWastrSpatialRefFree(objId);
 indexFirstAdditionalFieldValue(objId, "bawAuftragsnummer", "bawauftragsnummer");
 indexFirstAdditionalFieldValue(objId, "bawAuftragstitel", "bawauftragstitel");
 
+indexBawAbteilung(objId);
+
 function indexChildAdditionalFieldAsKeywords(parentRow, childKey, syslistId) {
     var parentFieldId = +parentRow.get("id");
 
@@ -205,6 +207,31 @@ function addBWaStrData(bwastrId, bwastrKmStart, bwastrKmEnd) {
         IDX.add("bwstr-strecken_km_bis", bwastrKmEnd);
         IDX.add("bwstr-bwastr_name", bwastrName);
         IDX.add("bwstr-strecken_name", bwastrStreckenName);
+    }
+}
+
+function indexBawAbteilung(objId) {
+    var query = "SELECT adr_uuid FROM t012_obj_adr WHERE obj_id = ? AND type = 7"; // type = 7 for Ansprechperson
+    var rows = SQL.all(query, [objId]);
+    for(var i=0; i<rows.size(); i++) {
+        var row = rows.get(i);
+        var addrUuid = rows.get(i).get("adr_uuid");
+        if (addrUuid === "9341dbb5-4e09-3fca-b343-2990fc935761") {
+            IDX.add("baw_abteilung_short", "b");
+            IDX.add("baw_abteilung_long", "Bautechnik");
+        } else if (addrUuid === "88b9d568-288e-391f-9649-af31fc0fc128") {
+            IDX.add("baw_abteilung_short", "g");
+            IDX.add("baw_abteilung_long", "Geotechnik");
+        } else if (addrUuid === "30d30a3b-27fe-3470-aec2-63183b8052ce") {
+            IDX.add("baw_abteilung_short", "w");
+            IDX.add("baw_abteilung_long", "Wasserbau im Binnenbereich");
+        } else if (addrUuid === "eaaf4d0d-44cd-356e-a3e3-520191945ca5") {
+            IDX.add("baw_abteilung_short", "k");
+            IDX.add("baw_abteilung_long", "Wasserbau im Küstenbereich");
+        } else if (addrUuid === "d28ee28e-83d3-3996-aaf7-d053a05ec7ff") {
+            IDX.add("baw_abteilung_short", "z");
+            IDX.add("baw_abteilung_long", "Zentraler Service");
+        }
     }
 }
 
