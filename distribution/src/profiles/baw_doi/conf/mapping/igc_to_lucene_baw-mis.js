@@ -65,8 +65,8 @@ for(var i=0; i<addnFieldRows.size(); i++) {
     }
 }
 
-getAdditionalFieldValueBWastr(objId);
-getAdditionalFieldValueBWastrSpatialRefFree(objId);
+indexAdditionalFieldValueBWastr(objId);
+indexAdditionalFieldValueBWastrSpatialRefFree(objId);
 
 function indexChildAdditionalFieldAsKeywords(parentRow, childKey, syslistId) {
     var parentFieldId = +parentRow.get("id");
@@ -95,8 +95,8 @@ function indexPhysicalParameters(parentRow) {
     }
 }
 
-function getAdditionalFieldValueBWastrSpatialRefFree(objId) {
-    var query = "SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value " + 
+function indexAdditionalFieldValueBWastrSpatialRefFree(objId) {
+    var query = "SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value " +
         "WHERE spatial_ref_value.type = 'F' AND " +
         "spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?";
     var rows = SQL.all(query, [objId]);
@@ -127,7 +127,7 @@ function getAdditionalFieldValueBWastrSpatialRefFree(objId) {
     }
 }
 
-function getAdditionalFieldValueBWastr(objId) {
+function indexAdditionalFieldValueBWastr(objId) {
     var query = "SELECT DISTINCT fd1.sort FROM additional_field_data fd0 " +
         "JOIN additional_field_data fd1 ON fd1.parent_field_id = fd0.id " +
         "WHERE fd0.obj_id = ? ORDER BY fd1.sort";
