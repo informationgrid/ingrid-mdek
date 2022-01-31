@@ -152,6 +152,13 @@
     </dependency> -->
 
     <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+      <version>2.12.2</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
       <groupId>jaxen</groupId>
       <artifactId>jaxen</artifactId>
       <version>1.1.1</version>
