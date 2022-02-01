@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -936,7 +936,7 @@ for (i=0; i<objRows.size(); i++) {
     // only add thesaurus information if any category is available
     if (rows.size() > 0) {
         mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
-	    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_KeywordTypeCode")
+	    .addAttribute("codeList", globalCodeListAttrURL)
 	    .addAttribute("codeListValue", "theme");
 	    identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
@@ -2693,7 +2693,7 @@ function addDistributionInfo(mdMetadata, objId) {
             atomOnlineResource.addElement("gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url") + objUuid);
             atomOnlineResource.addElement("gmd:name/gco:CharacterString").addText("Get Download Service Metadata");
             atomOnlineResource.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
-                .addAttribute("codeList", "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_OnLineFunctionCode")
+                .addAttribute("codeList", globalCodeListAttrURL)
                 .addAttribute("codeListValue", "information")
                 .addText("information");
         }
