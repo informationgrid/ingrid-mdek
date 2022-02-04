@@ -160,41 +160,44 @@ function indexAdditionalFieldValueBWastr(objId) {
 }
 
 function addBWaStrData(bwastrId, bwastrKmStart, bwastrKmEnd) {
+    var syslistId = 3950010;
+
     if (hasValue(bwastrId)) {
         var bwastrName = "";
         var bwastrStreckenName = "";
-        log.debug("BWaStr. ID is: " + bwastrId + ", km start is: " + bwastrKmStart + ", km end is: " + bwastrKmEnd);
-        if (bwastrId === "9600") {
-            bwastrName = "Binnenwasserstraßen";
-        } else if (bwastrId === "9700") {
-            bwastrName = "Seewasserstraßen";
-        } else if (bwastrId === "9800") {
-            bwastrName = "Bundeswasserstraßen";
-        } else if (bwastrId === "9900") {
-            bwastrName = "Sonstige Gewässer";
-        } else {
-            var bwastrInfo = BWST_LOC_TOOL.doBWaStrInfoQuery(bwastrId);
-            var name = bwastrInfo.get("bwastr_name");
-            var strecke = bwastrInfo.get("strecken_name");
+        if (log.isDebugEnabled()) {
+            log.debug("BWaStr. ID is: " + bwastrId + ", km start is: " + bwastrKmStart + ", km end is: " + bwastrKmEnd);
+        }
 
-            if (hasValue(name)) {
-                bwastrName = name;
+        var entryName = TRANSF.getIGCSyslistEntryName(syslistId, +bwastrId, "de");
+        if (log.isDebugEnabled()) {
+            log.debug("Entry name for id " + bwastrId + " in codelist 3950010 is: " + entryName);
+        }
+
+        bwastrId = "" + bwastrId; // convert to string
+        while(bwastrId.length < 4) {
+            bwastrId = "0" + bwastrId;
+        }
+        IDX.add("bwstr-bwastr-id", bwastrId);
+
+        if (hasValue(entryName)) {
+            // entryName has format: BWaStr-name, stretch-name - [id]
+            entryName = entryName.replace(" - [" + bwastrId + "]", "");
+            var arr = entryName.split(",");
+            if (hasValue(arr[0])) {
+                IDX.add("bwstr-bwastr_name", arr[0].trim());
             }
-
-            if (hasValue(strecke)) {
-                bwastrStreckenName = strecke;
+            if (hasValue(arr[1])) {
+                IDX.add("bwstr-strecken_name", arr[1].trim());
             }
         }
 
-        var bwastrIdPrefix = "";
-        for (var k=bwastrId.length; k<4; k++) {
-            bwastrIdPrefix += "0";
+        if (hasValue(bwastrKmStart)) {
+            IDX.add("bwstr-strecken_km_von", bwastrKmStart);
         }
-        IDX.add("bwstr-bwastr-id", bwastrIdPrefix + bwastrId);
-        IDX.add("bwstr-strecken_km_von", bwastrKmStart);
-        IDX.add("bwstr-strecken_km_bis", bwastrKmEnd);
-        IDX.add("bwstr-bwastr_name", bwastrName);
-        IDX.add("bwstr-strecken_name", bwastrStreckenName);
+        if (hasValue(bwastrKmEnd)) {
+            IDX.add("bwstr-strecken_km_bis", bwastrKmEnd);
+        }
     }
 }
 
