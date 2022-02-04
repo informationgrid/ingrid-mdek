@@ -936,7 +936,7 @@ for (i=0; i<objRows.size(); i++) {
     // only add thesaurus information if any category is available
     if (rows.size() > 0) {
         mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
-	    .addAttribute("codeList", globalCodeListAttrURL)
+	    .addAttribute("codeList", globalCodeListAttrURL + "#MD_KeywordTypeCode")
 	    .addAttribute("codeListValue", "theme");
 	    identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
@@ -2693,7 +2693,7 @@ function addDistributionInfo(mdMetadata, objId) {
             atomOnlineResource.addElement("gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url") + objUuid);
             atomOnlineResource.addElement("gmd:name/gco:CharacterString").addText("Get Download Service Metadata");
             atomOnlineResource.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
-                .addAttribute("codeList", globalCodeListAttrURL)
+                .addAttribute("codeList", globalCodeListAttrURL + "#CI_OnLineFunctionCode")
                 .addAttribute("codeListValue", "information")
                 .addText("information");
         }
