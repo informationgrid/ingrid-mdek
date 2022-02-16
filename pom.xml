@@ -23,7 +23,7 @@
     <ingrid-codelist-service.version>5.11.0</ingrid-codelist-service.version>
     <ingrid-utils.version>5.11.0</ingrid-utils.version>
     <ingrid-iplug-dsc.version>5.12.0-SNAPSHOT</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>5.11.0</ingrid-base-webapp.version>
+    <ingrid-base-webapp.version>5.12.0-SNAPSHOT</ingrid-base-webapp.version>
     <spring.version>5.3.14</spring.version>
   </properties>
 
