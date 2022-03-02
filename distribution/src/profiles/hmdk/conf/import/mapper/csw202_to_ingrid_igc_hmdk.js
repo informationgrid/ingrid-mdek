@@ -91,7 +91,26 @@ function mapSpecialFields(source, target) {
         XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(additionalValue, "field-data"), "id", keyword);
         XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key-parent"), "Informationsgegenstand");
 
-        // remove keyword from general information
+        // remove keyword hmbtg_12_oeffentliche_plaene from general information
         XMLUtils.remove(XPATH.getNode(targetEl, "/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term[.='" + keyword + "']"));
     }
+
+    /**
+     * Delete optional keyboards
+     */
+    var registeredKeyboards = XPATH.getNodeList(target, "/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term");
+    for (var j=0; j<registeredKeyboards.getLength(); j++ ) {
+        var keyboard = registeredKeyboards.item(j);
+        //  #opendata_hh#: Open Data checkbox is already set through InGrid standard import (by keyword: opendata)
+        if (keyboard.getTextContent() === "#opendata_hh#") {
+            XPATH.removeElementAtXPath(keyboard, ".");
+            log.debug("Removing optional keyboard: " + keyboard.getTextContent());
+        }
+        //  Öffentliche Pläne: already imported in field 'Informationsgegenstand' (by keyword: hmbtg_12_oeffentliche_plaene and its field's logic
+        else if(keyboard.getTextContent() === "Öffentliche Pläne"){
+            XPATH.removeElementAtXPath(keyboard, ".");
+            log.debug("Removing optional keyboard: " + keyboard.getTextContent());
+        }
+    }
+
 }
