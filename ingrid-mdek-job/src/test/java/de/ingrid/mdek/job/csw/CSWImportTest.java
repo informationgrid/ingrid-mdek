@@ -614,11 +614,11 @@ public class CSWImportTest extends TestSetup {
 
                     // free spatial ref
                     List<Object> locs = docOut.getArrayList( MdekKeys.LOCATIONS );
-                    assertThat( locs.size(), is( 2 ) );
+                    assertThat( locs.size(), is( 1 ) );
 
-                    // Bounding Boxes are not bound to a name in ISO, so we cannot correctly map it to our structure
-                    assertLocation( locs.get( 0 ), "Hamburg", null, null, null, null );
-                    assertLocation( locs.get( 1 ), "Raumbezug des Datensatzes", 8.420551, 10.326304, 53.394985, 53.964153 );
+                    // see (#2097), assume relationship since object has exactly 2 gmd:geographicElement AND
+                    //their order is  1. gmd:EX_GeographicDescription 2. gmd:EX_GeographicBoundingBox
+                    assertLocation( locs.get( 0 ), "Hamburg", 8.420551, 10.326304, 53.394985, 53.964153 );
 
                     // time range
                     assertThat( docOut.getString( MdekKeys.BEGINNING_DATE ), is( "20160301000000000" ) );
