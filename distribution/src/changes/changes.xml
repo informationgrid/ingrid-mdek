@@ -9,6 +9,10 @@
       <action type="fix" dev="wemove" issue="3492">
         Reduce elasticsearch memoryusage - Change Phrase Analyzer
       </action>
+      <action type="update" dev="wemove" issue="2097">
+        HMDK: Remove unwanted optional keywords.
+        Add special case in import of spatial reference.
+      </action>
     </release>
 
     <release version="5.11.0" date="2022-01-19" description="Release 5.11.0">
