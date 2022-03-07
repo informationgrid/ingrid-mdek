@@ -1097,6 +1097,11 @@ var mappingDescription = {"mappings":[
 						"targetNode":"uncontrolled-location/location-name"
 					},
 					{
+						"defaultValue":"-1",
+						"targetNode":"uncontrolled-location/location-name",
+						"targetAttribute":"id"
+					},
+					{
 						"srcXpath":"gmd:geographicElement[2]/gmd:EX_GeographicBoundingBox/gmd:westBoundLongitude/gco:Decimal",
 						"targetNode":"bounding-coordinates/west-bounding-coordinate",
 						"transform":{
