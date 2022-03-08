@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,12 +38,12 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 
 var id = sourceRecord.get("id");
 
-var contentLabel = SQL.all("SELECT add1.data FROM additional_field_data add1 WHERE add1.obj_id=? AND add1.field_key=?", [id, "publicationHmbTG"]);
+var contentLabel = SQL.all("SELECT add1.data FROM additional_field_data add1 WHERE add1.obj_id=? AND add1.field_key=?", [+id, "publicationHmbTG"]);
 if (contentLabel && contentLabel.size() > 0) {
     var isChecked = contentLabel.get(0).get("data") == "true";
     if (isChecked) {
 
-        var objRow = SQL.first("SELECT obj_class FROM t01_object WHERE id=?", [id]);
+        var objRow = SQL.first("SELECT obj_class FROM t01_object WHERE id=?", [+id]);
         var objClass = objRow.get("obj_class");
 
         var i;
@@ -79,7 +79,7 @@ if (contentLabel && contentLabel.size() > 0) {
 
 
 var columnName = 'informationHmbTG'; // the column of the table to get the value from
-var contentLabel = SQL.all("SELECT add2.data, add2.list_item_id FROM additional_field_data add1, additional_field_data add2 WHERE add1.obj_id=? AND add1.field_key=? AND add2.parent_field_id=add1.id AND add2.field_key=?", [id, "Informationsgegenstand", columnName]);
+var contentLabel = SQL.all("SELECT add2.data, add2.list_item_id FROM additional_field_data add1, additional_field_data add2 WHERE add1.obj_id=? AND add1.field_key=? AND add2.parent_field_id=add1.id AND add2.field_key=?", [+id, "Informationsgegenstand", columnName]);
 
 if ( contentLabel && contentLabel.size() > 0) {
     var i;
