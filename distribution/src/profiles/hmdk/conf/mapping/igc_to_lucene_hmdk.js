@@ -46,8 +46,8 @@ for (i=0; i<objRows.size(); i++) {
 function addT01Object(row) {
     // add additional keyword explicit for hh ! Needed for new facet (REDMINE-122)
     if (hasValue(row.get("is_open_data")) && row.get("is_open_data")=='Y') {
-        if (log.isInfoEnabled()) {
-            log.info("LGV HH: Adding index Field \"t04_search.searchterm:#opendata_hh#\"");
+        if (log.isDebugEnabled()) {
+            log.debug("LGV HH: Adding index Field \"t04_search.searchterm:#opendata_hh#\"");
         }
         // add as FREIER term, no alternate value
         addSearchtermValue("F", "#opendata_hh#", "");
