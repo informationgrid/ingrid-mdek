@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 
 // ---------- t01_object ----------
 var objId = sourceRecord.get("id");
-var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
+var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [+objId]);
 for (i=0; i<objRows.size(); i++) {
 	addT01Object(objRows.get(i));
 }
@@ -62,9 +62,9 @@ function addSearchtermValue(type, value, alternate_value) {
 
 function hasValue(val) {
     if (typeof val == "undefined") {
-        return false; 
+        return false;
     } else if (val == null) {
-        return false; 
+        return false;
     } else if (typeof val == "string" && val == "") {
         return false;
     } else if (typeof val == "object" && val.toString().equals("")) {

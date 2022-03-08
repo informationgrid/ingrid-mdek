@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,7 +39,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
 var objId = +sourceRecord.get("id");
 
-var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
+var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [+objId]);
 for (i=0; i<objRows.size(); i++) {
     handleBKGUseConstraints();
 }
@@ -48,14 +48,14 @@ function handleBKGUseConstraints() {
     // get the container for the select and free text field
     var bkgUseConstraintId = getAdditionalFieldFromObject(objId, null, 'bkg_useConstraints', 'id');
     if (hasValue(bkgUseConstraintId)) {
-        
+
         // get value from select box
         var bkgUseConstraintSelectListItem = getAdditionalFieldFromObject(null, bkgUseConstraintId, 'bkg_useConstraints_select', 'list_item_id');
-            
+
         if (log.isDebugEnabled()) {
             log.debug("BKG use constraint select field contains value: " + bkgUseConstraintSelectListItem);
         }
-        
+
         // get value from free text field
         var bkgUseConstraintFreeText = getAdditionalFieldFromObject(null, bkgUseConstraintId, 'bkg_useConstraints_freeText', 'data');
         if (hasValue(bkgUseConstraintFreeText)) {
@@ -71,7 +71,7 @@ function handleBKGUseConstraints() {
                 log.debug("BKG use constraint free text field contains value: " + bkgSourceNoteText);
             }
         }
-        
+
         // add select value and free text to ISO depending on selection
         // if there is any value
         if (hasValue(bkgUseConstraintSelectListItem) || hasValue(bkgUseConstraintFreeText)) {
@@ -113,9 +113,9 @@ function getAdditionalFieldFromObject(objId, parentId, fieldId, property) {
 
 function hasValue(val) {
     if (typeof val == "undefined") {
-        return false; 
+        return false;
     } else if (val == null) {
-        return false; 
+        return false;
     } else if (typeof val == "string" && val == "") {
         return false;
     } else if (typeof val == "object" && val.toString().equals("")) {

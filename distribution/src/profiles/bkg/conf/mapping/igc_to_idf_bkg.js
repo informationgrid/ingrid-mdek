@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,19 +42,19 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 var body = DOM.getElement(idfDoc, "/idf:html/idf:body/idf:idfMdMetadata");
 
 var objId = sourceRecord.get("id");
-var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [objId]);
+var objRows = SQL.all("SELECT * FROM t01_object WHERE id=?", [+objId]);
 for (i=0; i<objRows.size(); i++) {
     var objRow = objRows.get(i);
     var objUuid = objRow.get("obj_uuid");
     var objClass = objRow.get("obj_class");
     var objParentUuid = null; // will be set below
-    
+
     // local variables
     var row = null;
     var rows = null;
     var value = null;
     var elem = null;
-    
+
     handleBKGUseConstraints();
     handleBKGUseLimitation();
 }
@@ -63,14 +63,14 @@ function handleBKGUseConstraints() {
     // get the container for the select and free text field
     var bkgUseConstraintId = getAdditionalFieldFromObject(objId, null, 'bkg_useConstraints', 'id');
     if (bkgUseConstraintId) {
-        
+
         // get value from select box
         var bkgUseConstraintSelectListItem = getAdditionalFieldFromObject(null, bkgUseConstraintId, 'bkg_useConstraints_select', 'list_item_id');
-            
+
         if (log.isDebugEnabled()) {
             log.debug("BKG use constraint select field contains value: " + bkgUseConstraintSelectListItem);
         }
-        
+
         // get value from free text field
         var bkgUseConstraintFreeText = getAdditionalFieldFromObject(null, bkgUseConstraintId, 'bkg_useConstraints_freeText', 'data');
         if (bkgUseConstraintFreeText) {
@@ -86,7 +86,7 @@ function handleBKGUseConstraints() {
                 log.debug("BKG use constraint free text field contains value: " + bkgSourceNoteText);
             }
         }
-        
+
         // add select value and free text to ISO depending on selection
         // if there is any value
         if ((bkgUseConstraintSelectListItem && bkgUseConstraintSelectListItem !== "") || bkgUseConstraintFreeText !== "") {
@@ -145,14 +145,14 @@ function getIdentificationInfo() {
 }
 
 function getFirstNodeInIdentificationBefore(subNode) {
-    var nodeOrder = ["gmd:resourceConstraints", "gmd:resourceSpecificUsage", "gmd:descriptiveKeywords", "gmd:resourceFormat", "gmd:graphicOverview", "gmd:resourceMaintenance", 
+    var nodeOrder = ["gmd:resourceConstraints", "gmd:resourceSpecificUsage", "gmd:descriptiveKeywords", "gmd:resourceFormat", "gmd:graphicOverview", "gmd:resourceMaintenance",
         "gmd:pointOfContact", "gmd:status", "gmd:credit", "gmd:purpose", "gmd:abstract"];
     var identificationInfo = getIdentificationInfo();
-    
+
     // get first element before "resourceConstraints", so that we can insert in front of all other entries
     var beforeResourceElement;
     for (var i=0; i<nodeOrder.length; i++) {
-        // try to get last(!) element 
+        // try to get last(!) element
         beforeResourceElement = DOM.getElement(identificationInfo, nodeOrder[i] + "[last()]");
         if (beforeResourceElement) {
             if (i === 0 && subNode) {
@@ -164,7 +164,7 @@ function getFirstNodeInIdentificationBefore(subNode) {
             break;
         }
     }
-    
+
     return beforeResourceElement;
 }
 
@@ -198,7 +198,7 @@ function addUseConstraints(legalConstraint, codelistEntryId, valueFree, sourceNo
 }
 
 /**
- * 
+ *
  * @param legalConstraint
  * @param restrictionCodeValues
  * @param {string[]} otherConstraints
@@ -211,7 +211,7 @@ function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherC
             .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
             .addText(restrictionCodeValues[i]);
     }
-    
+
 
     if (hasValue(otherConstraints)) {
         legalConstraint.addElement("gmd:useConstraints/gmd:MD_RestrictionCode")
@@ -247,7 +247,7 @@ function isInspireRelevant() {
 function handleBKGUseLimitation() {
     // remove "Nutzungseinschränkungen" from useLimitation
     var useLimitationCharNodes = XPATH.getNodeList(body.getElement(), "//gmd:resourceConstraints/gmd:MD_LegalConstraints/gmd:useLimitation/gco:CharacterString");
-    
+
     if (hasValue(useLimitationCharNodes)) {
         for (var i=0; i < useLimitationCharNodes.getLength(); i++) {
             var myCharNode = useLimitationCharNodes.item(i);
@@ -266,7 +266,7 @@ function removeConstraintPraefixBkg(val) {
 
     	// remove GDI-DE prefix
     	val = val.replace("Nutzungseinschränkungen: ", "");
-    	// keep "Nutzungsbedingungen", this one marks fake useLimitations ! 
+    	// keep "Nutzungsbedingungen", this one marks fake useLimitations !
 //    	val = val.replace("Nutzungsbedingungen: ", "");
 
 //    	log.warn("MM OUT constraint : " + val);
