@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.11.4-SNAPSHOT" date="2021-xx-xx" description="Release 5.11.4-SNAPSHOT">
+      <action type="fix" dev="wemove" issue="3596">
+        IT-Sicherheitsmängel in Docker Basis Images beseitigen
+      </action>
       <action type="update" dev="wemove" issue="2097">
         HMDK: Remove unwanted optional keywords.
         Add special case in import of spatial reference.
