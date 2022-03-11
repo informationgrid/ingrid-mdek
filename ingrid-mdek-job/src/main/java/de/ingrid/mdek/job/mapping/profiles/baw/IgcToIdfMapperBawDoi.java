@@ -40,7 +40,7 @@ public class IgcToIdfMapperBawDoi implements IIdfMapper {
             throw new IllegalArgumentException("Record is no DatabaseRecord!");
         }
 
-        LOG.debug("Additional mapping from source record to idf document for baw_mis profile: " + sourceRecord);
+        LOG.debug("Additional mapping from source record to idf document for baw_doi profile: " + sourceRecord);
 
         try {
             IgcToIdfHelperBaw helper = new IgcToIdfHelperBaw(sourceRecord, target);
