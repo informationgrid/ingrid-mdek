@@ -30,9 +30,9 @@ import org.springframework.core.annotation.Order;
 import org.w3c.dom.Document;
 
 @Order(2)
-public class IgcToIdfMapperBaw implements IIdfMapper {
+public class IgcToIdfMapperBawMis implements IIdfMapper {
 
-    private static final Logger LOG = Logger.getLogger(IgcToIdfMapperBaw.class);
+    private static final Logger LOG = Logger.getLogger(IgcToIdfMapperBawMis.class);
 
     @Override
     public void map(SourceRecord sourceRecord, Document target) throws Exception {
