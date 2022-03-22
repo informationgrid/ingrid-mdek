@@ -70,7 +70,7 @@ mdMetadata.addAttribute("xmlns:gts", DOM.getNS("gts"));
 mdMetadata.addAttribute("xmlns:xlink", DOM.getNS("xlink"));
 // and schema references
 mdMetadata.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-mdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schemas.opengis.net/csw/2.0.2/profiles/apiso/1.0.0/apiso.xsd");
+mdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://repository.gdi-de.org/schemas/geonetwork/2020-12-11/csw/2.0.2/profiles/apiso/1.0.1/apiso.xsd");
 
 // ========== t03_catalogue ==========
 var catRow = SQL.first("SELECT * FROM t03_catalogue");
@@ -669,7 +669,8 @@ for (i=0; i<objRows.size(); i++) {
         }
 
 
-
+        // the fields "Systemumgebung" and "Erläuterung zum Fachbezug" will be added to the abstract, since
+        // for a service there's no environmentDescription-element (see also https://redmine.informationgrid.eu/issues/3462)
         if (hasValue(objServRow.get("environment"))) {
             abstractPostfix = abstractPostfix + "Systemumgebung: " + objServRow.get("environment") + "\n";
         }
