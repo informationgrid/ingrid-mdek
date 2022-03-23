@@ -5,7 +5,7 @@
   </properties>
   <body>
 
-    <release version="5.11.4-SNAPSHOT" date="2021-xx-xx" description="Release 5.11.4-SNAPSHOT">
+    <release version="5.11.4" date="2021-03-23" description="Release 5.11.4">
       <action type="fix" dev="wemove" issue="3596">
         IT-Sicherheitsmängel in Docker Basis Images beseitigen
       </action>
