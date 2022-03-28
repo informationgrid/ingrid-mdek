@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.12.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.12.0-SNAPSHOT">
+      <action type="update" dev="wemove" issue="3377">
+        Portal: Detail-Ausgabe für Vektordaten werden nicht vollständig angezeigt
+      </action>
       <action type="fix" dev="wemove" issue="3596">
         IT-Sicherheitsmängel in Docker Basis Images beseitigen
       </action>

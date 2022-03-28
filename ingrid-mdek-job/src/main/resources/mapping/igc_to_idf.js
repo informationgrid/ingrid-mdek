@@ -255,7 +255,7 @@ for (i=0; i<objRows.size(); i++) {
         objGeoId = objGeoRow.get("id");
 
         // ---------- <gmd:MD_GeometricObjects> ----------
-        var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [+objGeoId]);
+        var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=? ORDER BY line", [+objGeoId]);
         for (var j=0; j<objGeoVectorRows.size(); j++) {
             var objGeoVectorRow = objGeoVectorRows.get(j);
             var geoTopologyLevel = objGeoVectorRow.get("vector_topology_level");
