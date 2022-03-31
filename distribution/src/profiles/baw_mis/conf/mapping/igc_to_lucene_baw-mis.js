@@ -206,9 +206,13 @@ function addBWaStrData(bwastrId, bwastrKmStart, bwastrKmEnd) {
 
         if (hasValue(bwastrKmStart)) {
             IDX.add("bwstr-strecken_km_von", bwastrKmStart);
+        } else {
+            IDX.add("bwstr-strecken_km_von", "");
         }
         if (hasValue(bwastrKmEnd)) {
             IDX.add("bwstr-strecken_km_bis", bwastrKmEnd);
+        } else {
+            IDX.add("bwstr-strecken_km_bis", "");
         }
     }
 }
