@@ -232,21 +232,33 @@ class IgcToIdfHelperBaw {
         }
     }
 
-    void addCrossReferences() throws SQLException {
-        Map<Integer, Map<String, String>> rows = getOrderedAdditionalFieldDataTableRows(objId, "doiCrossReferenceTable");
+    void addLiteratureCrossReference() throws SQLException {
+        Map<Integer, Map<String, String>> rows = getOrderedAdditionalFieldDataTableRows(objId, "bawLiteratureXrefTable");
         for(Map.Entry<Integer, Map<String, String>> entry: rows.entrySet()) {
             Map<String, String> row = entry.getValue();
 
-            String xrefTitle = row.get("doiCrossReferenceTitle");
-            String xrefDateMillisLong = row.get("doiCrossReferenceDate");
-            String xrefAuthorString = row.get("doiCrossReferenceAuthor");
-            String xrefIdentifier = row.get("doiCrossReferenceIdentifier");
-            String xrefPublisher = row.get("doiCrossReferencePublisher");
+            String uuid = row.get("bawLiteratureXrefUuid");
+            if (uuid == null) {
+                LOG.warn("Literature cross-reference table has an entry without a UUID");
+                return;
+            }
 
-            LocalDate date = Instant.ofEpochMilli(Long.parseLong(xrefDateMillisLong))
-                    .atOffset(ZoneOffset.UTC)
-                    .toLocalDate();
+            Map<String, String> litRow = sqlUtils.first("SELECT id, obj_name FROM t01_object WHERE obj_uuid = ? AND work_state = 'V'", new Object[]{uuid});
+            if (litRow == null || litRow.isEmpty()) {
+                LOG.warn("Couldn't find a published literature cross-reference object with UUID " + uuid);
+                return;
+            }
 
+            Long litObjId = Long.parseLong(litRow.get("id"));
+            String litTitle = litRow.get("obj_name");
+
+            Map<String, String> pubDateRow = sqlUtils.first("SELECT reference_date FROM t0113_dataset_reference WHERE obj_id = ? AND type = 2", new Object[]{litObjId});
+            if (pubDateRow == null || pubDateRow.isEmpty()) {
+                LOG.warn("Cross-referenced literature object with UUID " + uuid + " doesn't have a publication date. Cross reference won't be added to the XML output.");
+                return;
+            }
+            String pubDate = trafoUtil.getISODateFromIGCDate(pubDateRow.get("reference_date"));
+            pubDate = pubDate.substring(0, pubDate.indexOf('T'));
 
             String aggrInfoQname = "gmd:aggregationInfo";
             String mdAggrInfoQname = aggrInfoQname + "/gmd:MD_AggregateInformation";
@@ -260,37 +272,127 @@ class IgcToIdfHelperBaw {
             }
 
             IdfElement ciCitation = mdAggregateInformation.addElement("gmd:aggregateDataSetName/gmd:CI_Citation");
+
+            // Add uuidref attribute to gmd:
+            ciCitation.getParent().addAttribute("uuidref", uuid);
+
             ciCitation.addElement("gmd:title/" + GCO_CHARACTER_STRING_QNAME)
-                    .addText(xrefTitle);
+                    .addText(litTitle);
 
             IdfElement ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
             ciDate.addElement("gmd:date/gco:Date")
-                    .addText(date.format(ISO_DATE));
+                    .addText(pubDate);
             ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                     .addAttribute("codeList", CODELIST_URL + "gmd:CI_DateTypeCode")
                     .addAttribute("codeListValue", "publication")
                     .addText("publication");
 
-            ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/" + GCO_CHARACTER_STRING_QNAME)
-                    .addText(xrefIdentifier);
-
-            for(String author: xrefAuthorString.split(";")) {
-                IdfElement ciResponsibleParty = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
-                ciResponsibleParty.addElement("gmd:individualName/" + GCO_CHARACTER_STRING_QNAME)
-                        .addText(author.trim());
-                ciResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
-                        .addAttribute("codeList", CODELIST_URL + "CI_RoleCode")
-                        .addAttribute("codeListValue", "author")
-                        .addText("author");
+            List<String> identifiers = new ArrayList<>();
+            Map<String, String> doiRow = sqlUtils.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiId'", new Object[]{litObjId});
+            if (doiRow != null) {
+                identifiers.add("https://doi.org/" + doiRow.get("data"));
             }
-            if (xrefPublisher != null && !xrefPublisher.trim().isEmpty()) {
+            String handle = getFirstAdditionalFieldValue(litObjId, "bawLiteratureHandle");
+            if (handle != null) {
+                identifiers.add(handle);
+            }
+
+            for(String identifier: identifiers) {
+                ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(identifier);
+            }
+
+            String query = "SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name " +
+                    "FROM t012_obj_adr, t02_address " +
+                    "WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid " +
+                    "      AND t02_address.work_state='V'" +
+                    "      AND t012_obj_adr.obj_id=?" +
+                    "      AND t012_obj_adr.type=?" +
+                    "      AND t012_obj_adr.special_ref=505 " +
+                    "ORDER BY line";
+
+            final int authorKey = 11;
+            final int publisherKey = 10;
+
+            String uuidKey = "uuid";
+            String firstNameKey = "firstName";
+            String lastNameKey = "lastName";
+            String orgKey = "organisation";
+            String roleKey = "role";
+
+            List<Map<String, String>> contacts = new ArrayList<>();
+            for(Map<String, String> author: sqlUtils.all(query, new Object[] {litObjId, authorKey})) {
+                Map<String, String> map = new HashMap<>();
+
+                map.put(uuidKey, author.get("adr_uuid"));
+                map.put(firstNameKey, author.get("firstname"));
+                map.put(lastNameKey, author.get("lastname"));
+                map.put(orgKey, author.get("institution"));
+                map.put(roleKey, "author");
+
+                contacts.add(map);
+            }
+            for(Map.Entry<Integer, Map<String, String>> authorEntry: getOrderedAdditionalFieldDataTableRows(litObjId, "bawLiteratureAuthorsTable").entrySet()) {
+                Map<String, String> author = authorEntry.getValue();
+                Map<String, String> map = new HashMap<>();
+
+                map.put(firstNameKey, author.get("authorGivenName"));
+                map.put(lastNameKey, author.get("authorFamilyName"));
+                map.put(orgKey, author.get("authorOrganisation"));
+                map.put(roleKey, "author");
+
+                contacts.add(map);
+            }
+
+            Map<String, String> publisher = sqlUtils.first(query, new Object[]{litObjId, publisherKey});
+            if (publisher != null) {
+                Map<String, String> map = new HashMap<>();
+
+                map.put(uuidKey, publisher.get("adr_uuid"));
+                map.put(firstNameKey, publisher.get("firstname"));
+                map.put(lastNameKey, publisher.get("lastname"));
+                map.put(orgKey, publisher.get("institution"));
+                map.put(roleKey, "publisher");
+
+                contacts.add(map);
+            }
+            String publisherOrg = getFirstAdditionalFieldValue(litObjId, "bawLiteraturePublisher");
+            if (publisherOrg != null) {
+                Map<String, String> map = new HashMap<>();
+
+                map.put(orgKey, publisherOrg);
+                map.put(roleKey, "publisher");
+
+                contacts.add(map);
+            }
+
+            for(Map<String, String> contact: contacts) {
+                String contactUuid = contact.get(uuidKey);
+                String firstName = contact.get(firstNameKey);
+                String lastName = contact.get(lastNameKey);
+                String organisation = contact.get(orgKey);
+                String role = contact.get(roleKey);
+
                 IdfElement ciResponsibleParty = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
-                ciResponsibleParty.addElement("gmd:organisationName/" + GCO_CHARACTER_STRING_QNAME)
-                        .addText(xrefPublisher);
+
+                if (contactUuid != null) {
+                    ciResponsibleParty.addAttribute("uuid", contactUuid);
+                }
+
+                if (firstName != null && lastName != null) {
+                    ciResponsibleParty.addElement("gmd:individualName/" + GCO_CHARACTER_STRING_QNAME)
+                            .addText(lastName + ", " + firstName);
+                }
+
+                if (organisation != null) {
+                    ciResponsibleParty.addElement("gmd:organisationName/" + GCO_CHARACTER_STRING_QNAME)
+                            .addText(organisation);
+                }
+
                 ciResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
                         .addAttribute("codeList", CODELIST_URL + "CI_RoleCode")
-                        .addAttribute("codeListValue", "publisher")
-                        .addText("publisher");
+                        .addAttribute("codeListValue", role)
+                        .addText(role);
             }
 
             mdAggregateInformation.addElement("gmd:associationType/gmd:DS_AssociationTypeCode")
