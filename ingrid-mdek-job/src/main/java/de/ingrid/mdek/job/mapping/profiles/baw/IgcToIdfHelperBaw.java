@@ -42,14 +42,10 @@ import org.w3c.dom.Element;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
-import static java.time.format.DateTimeFormatter.ISO_DATE;
 
 class IgcToIdfHelperBaw {
 
@@ -129,6 +125,21 @@ class IgcToIdfHelperBaw {
             "gmd:environmentDescription",
             "gmd:extent",
             "gmd:supplementalInformation"
+    );
+    private static final List<String> CI_CITATION_CHILDREN = Arrays.asList(
+            "gmd:title",
+            "gmd:alternateTitle",
+            "gmd:date",
+            "gmd:edition",
+            "gmd:editionDate",
+            "gmd:identifier",
+            "gmd:citedResponsibleParty",
+            "gmd:presentationForm",
+            "gmd:series",
+            "gmd:otherCitationDetails",
+            "gmd:collectiveTitle",
+            "gmd:ISBN",
+            "gmd:ISSN"
     );
 
     IgcToIdfHelperBaw(SourceRecord sourceRecord, Document target) {
@@ -229,6 +240,64 @@ class IgcToIdfHelperBaw {
     void logMissingMetadataContact() {
         if (!XPATH.nodeExists(mdMetadata, "gmd:contact")) {
             LOG.error("No responsible party for metadata found!");
+        }
+    }
+
+    void addAuthorsAndPublishersNotInCatalogue() throws SQLException {
+        // Only continue if objectClass is literature
+        Map<String, String> objClassRow = sqlUtils.first("SELECT obj_class FROM t01_object WHERE id=?", new Object[]{objId});
+        if (!Objects.equals(objClassRow.get("obj_class"), "2")) return;
+
+        String contactQname = "gmd:pointOfContact";
+
+        Map<Integer, Map<String, String>> authorsRows = getOrderedAdditionalFieldDataTableRows(objId, "bawLiteratureAuthorsTable");
+        for(Map.Entry<Integer, Map<String, String>> entry: authorsRows.entrySet()) {
+            Map<String, String> row = entry.getValue();
+
+            String givenName = row.get("authorGivenName");
+            String familyName = row.get("authorFamilyName");
+            String organisation = row.get("authorOrganisation");
+
+            IdfElement contact;
+            IdfElement previousSibling = findPreviousSibling(contactQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
+            if (previousSibling == null) {
+                contact = domUtil.addElement(mdIdentification.getElement(), contactQname);
+            } else {
+                contact = previousSibling.addElementAsSibling(contactQname);
+            }
+
+            IdfElement ciResponsibleParty = contact.addElement("gmd:CI_ResponsibleParty");
+            if (givenName != null && familyName != null) {
+                ciResponsibleParty.addElement("gmd:individualName/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(familyName + ", " + givenName);
+            }
+            if (organisation != null) {
+                ciResponsibleParty.addElement("gmd:organisationName/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(organisation);
+            }
+            ciResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
+                    .addAttribute("codeList", CODELIST_URL + "gmd:CI_RoleCode")
+                    .addAttribute("codeListValue", "author")
+                    .addText("author");
+        }
+
+        String publisher = getFirstAdditionalFieldValue(objId, "bawLiteraturePublisher");
+        if (publisher != null) {
+            IdfElement contact;
+            IdfElement previousSibling = findPreviousSibling(contactQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
+            if (previousSibling == null) {
+                contact = domUtil.addElement(mdIdentification.getElement(), contactQname);
+            } else {
+                contact = previousSibling.addElementAsSibling(contactQname);
+            }
+
+            IdfElement ciResponsibleParty = contact.addElement("gmd:CI_ResponsibleParty");
+            ciResponsibleParty.addElement("gmd:organisationName/" + GCO_CHARACTER_STRING_QNAME)
+                    .addText(publisher);
+            ciResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
+                    .addAttribute("codeList", CODELIST_URL + "gmd:CI_RoleCode")
+                    .addAttribute("codeListValue", "publisher")
+                    .addText("publisher");
         }
     }
 
@@ -400,6 +469,25 @@ class IgcToIdfHelperBaw {
                     .addAttribute("codeListValue", "crossReference")
                     .addText("crossReference");
         }
+    }
+
+    void addHandleInformation() throws SQLException {
+        String handle = getFirstAdditionalFieldValue(objId, "bawLiteratureHandle");
+        if (handle == null || handle.trim().isEmpty()) return;
+
+        String identifierQname = "gmd:identifier";
+        IdfElement ciCitation = domUtil.getElement(mdIdentification, "gmd:citation/gmd:CI_Citation");
+
+        IdfElement identifier;
+        IdfElement previousSibling = findPreviousSibling(identifierQname, ciCitation.getElement(), CI_CITATION_CHILDREN);
+        if (previousSibling == null) {
+            identifier = domUtil.addElement(mdIdentification.getElement(), identifierQname);
+        } else {
+            identifier = previousSibling.addElementAsSibling(identifierQname);
+        }
+
+        identifier.addElement("gmd:MD_Identifier/gmd:code/" + GCO_CHARACTER_STRING_QNAME)
+                .addText(handle);
     }
 
     void setHierarchyLevelName() throws SQLException {

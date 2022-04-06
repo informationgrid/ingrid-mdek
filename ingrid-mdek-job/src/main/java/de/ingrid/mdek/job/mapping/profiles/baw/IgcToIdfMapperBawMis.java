@@ -48,7 +48,9 @@ public class IgcToIdfMapperBawMis implements IIdfMapper {
             helper.addWaterwayInformation();
 
             helper.addLfsLinks();
+            helper.addAuthorsAndPublishersNotInCatalogue();
             helper.addLiteratureCrossReference();
+            helper.addHandleInformation();
 
             helper.setHierarchyLevelName();
             helper.addAuftragsInfos();
