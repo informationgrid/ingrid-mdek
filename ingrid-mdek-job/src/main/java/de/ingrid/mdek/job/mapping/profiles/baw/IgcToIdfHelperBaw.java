@@ -36,7 +36,6 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -51,7 +50,6 @@ class IgcToIdfHelperBaw {
 
     private static final Logger LOG = Logger.getLogger(IgcToIdfHelperBaw.class);
 
-    @Autowired
     private Configuration igeConfig;
 
     private static final XPathUtils XPATH = new XPathUtils(new IDFNamespaceContext());
@@ -62,6 +60,9 @@ class IgcToIdfHelperBaw {
     private static final String GCO_CHARACTER_STRING_QNAME = "gco:CharacterString";
     private static final String VALUE_UNIT_ID_PREFIX = "valueUnit_";
 
+    private static final String LITERATURE_OBJ_CLASS = "2";
+    private static final String PROJECT_OBJ_CLASS = "4";
+
     private final JSONParser jsonParser = new JSONParser();
 
     private DOMUtils domUtil;
@@ -69,6 +70,7 @@ class IgcToIdfHelperBaw {
     private TransformationUtils trafoUtil;
 
     Long objId;
+    String objClass;
     private Element mdMetadata;
     private IdfElement mdIdentification;
     private Map<String, Object> idxDoc;
@@ -142,7 +144,7 @@ class IgcToIdfHelperBaw {
             "gmd:ISSN"
     );
 
-    IgcToIdfHelperBaw(SourceRecord sourceRecord, Document target) {
+    IgcToIdfHelperBaw(SourceRecord sourceRecord, Document target, Configuration igeConfig) throws SQLException {
 
         domUtil = new DOMUtils(target, XPATH);
         domUtil.addNS("idf", "http://www.portalu.de/IDF/1.0");
@@ -165,6 +167,11 @@ class IgcToIdfHelperBaw {
 
         // id is primary key and cannot be duplicate. Fetch the only record from the database
         objId = Long.parseLong((String) sourceRecord.get("id"));
+
+        Map<String, String> objClassRow = sqlUtils.first("SELECT obj_class FROM t01_object WHERE id=?", new Object[]{objId});
+        objClass = objClassRow.get("obj_class");
+
+        this.igeConfig = igeConfig;
     }
 
     void addLfsLinks() throws SQLException {
@@ -245,8 +252,7 @@ class IgcToIdfHelperBaw {
 
     void addAuthorsAndPublishersNotInCatalogue() throws SQLException {
         // Only continue if objectClass is literature
-        Map<String, String> objClassRow = sqlUtils.first("SELECT obj_class FROM t01_object WHERE id=?", new Object[]{objId});
-        if (!Objects.equals(objClassRow.get("obj_class"), "2")) return;
+        if (!Objects.equals(objClass, LITERATURE_OBJ_CLASS)) return;
 
         String contactQname = "gmd:pointOfContact";
 
@@ -517,36 +523,54 @@ class IgcToIdfHelperBaw {
         String title = getFirstAdditionalFieldValue(objId, "bawAuftragstitel");
 
 
-        if (number == null && title != null) {
-            LOG.error("Auftragstitel is defined but no Auftragsnummer found for object with id: " + objId);
-        }
-        if (number != null && title == null) {
-            LOG.error("Auftragsnummer is defined but no Auftragstitel found for object with id: " + objId);
-        }
-        if (number == null || title == null) return;
+        if (Objects.equals(objClass, PROJECT_OBJ_CLASS)) {
+            if (number != null && !number.trim().isEmpty()) {
+                String identifierQname = "gmd:identifier";
+                IdfElement ciCitation = domUtil.getElement(mdIdentification, "gmd:citation/gmd:CI_Citation");
 
-        String aggInfoQname = "gmd:aggregationInfo";
-        IdfElement previousSibling = findPreviousSibling(aggInfoQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
+                IdfElement identifier;
+                IdfElement previousSibling = findPreviousSibling(identifierQname, ciCitation.getElement(), CI_CITATION_CHILDREN);
+                if (previousSibling == null) {
+                    identifier = domUtil.addElement(mdIdentification.getElement(), identifierQname);
+                } else {
+                    identifier = previousSibling.addElementAsSibling(identifierQname);
+                }
 
-        String mdAggregateInfoPath = aggInfoQname + "/gmd:MD_AggregateInformation";
-        IdfElement mdAggregateInfoElement;
-        if (previousSibling == null) {
-            mdAggregateInfoElement = mdIdentification.addElement(mdAggregateInfoPath);
+                identifier.addElement("gmd:MD_Identifier/gmd:code/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(number);
+            }
         } else {
-            mdAggregateInfoElement = previousSibling.addElementAsSibling(mdAggregateInfoPath);
+            if (number == null && title != null) {
+                LOG.error("Auftragstitel is defined but no Auftragsnummer found for object with id: " + objId);
+            }
+            if (number != null && title == null) {
+                LOG.error("Auftragsnummer is defined but no Auftragstitel found for object with id: " + objId);
+            }
+            if (number == null || title == null) return;
+
+            String aggInfoQname = "gmd:aggregationInfo";
+            IdfElement previousSibling = findPreviousSibling(aggInfoQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
+
+            String mdAggregateInfoPath = aggInfoQname + "/gmd:MD_AggregateInformation";
+            IdfElement mdAggregateInfoElement;
+            if (previousSibling == null) {
+                mdAggregateInfoElement = mdIdentification.addElement(mdAggregateInfoPath);
+            } else {
+                mdAggregateInfoElement = previousSibling.addElementAsSibling(mdAggregateInfoPath);
+            }
+
+            IdfElement aggInfoCitationElement = mdAggregateInfoElement.addElement("gmd:aggregateDataSetName/gmd:CI_Citation");
+            aggInfoCitationElement.addElement("gmd:title/gco:CharacterString")
+                    .addText(title);
+            aggInfoCitationElement.addElement("gmd:date")
+                    .addAttribute("gco:nilReason", "unknown");
+            aggInfoCitationElement.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString")
+                    .addText(number);
+
+            mdAggregateInfoElement.addElement("gmd:associationType/gmd:DS_AssociationTypeCode")
+                    .addAttribute("codeList", CODELIST_URL + "DS_AssociationTypeCode")
+                    .addAttribute("codeListValue", "largerWorkCitation");
         }
-
-        IdfElement aggInfoCitationElement = mdAggregateInfoElement.addElement("gmd:aggregateDataSetName/gmd:CI_Citation");
-        aggInfoCitationElement.addElement("gmd:title/gco:CharacterString")
-                .addText(title);
-        aggInfoCitationElement.addElement("gmd:date")
-                .addAttribute("gco:nilReason", "unknown");
-        aggInfoCitationElement.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString")
-                .addText(number);
-
-        mdAggregateInfoElement.addElement("gmd:associationType/gmd:DS_AssociationTypeCode")
-                .addAttribute("codeList", CODELIST_URL + "DS_AssociationTypeCode")
-                .addAttribute("codeListValue", "largerWorkCitation");
     }
 
     void addBWaStrIdentifiers() throws SQLException {

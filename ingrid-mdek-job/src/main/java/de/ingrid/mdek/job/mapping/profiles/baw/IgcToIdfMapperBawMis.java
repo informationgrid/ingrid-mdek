@@ -25,7 +25,9 @@ package de.ingrid.mdek.job.mapping.profiles.baw;
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
 import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
+import de.ingrid.mdek.job.Configuration;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.w3c.dom.Document;
 
@@ -33,6 +35,9 @@ import org.w3c.dom.Document;
 public class IgcToIdfMapperBawMis implements IIdfMapper {
 
     private static final Logger LOG = Logger.getLogger(IgcToIdfMapperBawMis.class);
+
+    @Autowired
+    private Configuration igeConfig;
 
     @Override
     public void map(SourceRecord sourceRecord, Document target) throws Exception {
@@ -43,7 +48,7 @@ public class IgcToIdfMapperBawMis implements IIdfMapper {
         LOG.debug("Additional mapping from source record to idf document for baw_mis profile: " + sourceRecord);
 
         try {
-            IgcToIdfHelperBaw helper = new IgcToIdfHelperBaw(sourceRecord, target);
+            IgcToIdfHelperBaw helper = new IgcToIdfHelperBaw(sourceRecord, target, igeConfig);
             helper.logMissingMetadataContact();
             helper.addWaterwayInformation();
 

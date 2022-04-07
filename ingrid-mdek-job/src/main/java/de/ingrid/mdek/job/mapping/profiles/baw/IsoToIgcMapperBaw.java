@@ -109,7 +109,7 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             mapIsbn(fileIdentifier, mdIdentification, igcRoot);
             mapHandle(mdIdentification, additionalValues);
 
-            mapAuftragInfos(mdIdentification, additionalValues);
+            mapAuftragInfos(hierarchyLevel, hierarchyLevelName, mdIdentification, additionalValues);
             mapHierarchyLevelName(hierarchyLevel, hierarchyLevelName, additionalValues, protocolHandler);
             mapBWaStrIdentifiers(mdIdentification, additionalValues, protocolHandler);
             mapKeywordCatalogueKeywords(mdIdentification, additionalValues, protocolHandler);
@@ -425,35 +425,50 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         }
     }
 
-    private void mapAuftragInfos(Element mdIdentification, Element additionalValues) {
-        String xpath = "./gmd:aggregationInfo/gmd:MD_AggregateInformation[./gmd:associationType/gmd:DS_AssociationTypeCode/@codeListValue=\"largerWorkCitation\"]/gmd:aggregateDataSetName/gmd:CI_Citation";
-        Element ciCitation = (Element) isoXpathUtil.getNode(mdIdentification, xpath);
-        if (ciCitation == null) return;
+    private void mapAuftragInfos(String hierarchyLevel, String hierarchyLevelName, Element mdIdentification, Element additionalValues) {
+        if (Objects.equals(hierarchyLevel, "nonGeographicDataset") && Objects.equals(hierarchyLevelName, "project")) {
+            String xpath = "./gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString";
+            String pspNumber = getNodeText(isoXpathUtil.getNode(mdIdentification, xpath));
 
-        String titleXpath = "./gmd:title/gco:CharacterString";
-        Element titleElement = (Element) isoXpathUtil.getNode(ciCitation, titleXpath);
-        String auftragsTitel = getNodeText(titleElement);
-        if (!auftragsTitel.isEmpty()) {
-            LOG.debug("Found BAW Auftragstitel: " + auftragsTitel);
+            if (!pspNumber.isEmpty()) {
+                LOG.debug("Found BAW PSP-Number: " + pspNumber);
 
-            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
-            additionalValue.addElement("field-key").
-                    addText("bawAuftragstitel");
-            additionalValue.addElement("field-data")
-                    .addText(auftragsTitel);
-        }
+                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
+                additionalValue.addElement("field-key")
+                        .addText("bawAuftragsnummer");
+                additionalValue.addElement("field-data").
+                        addText(pspNumber);
+            }
+        } else {
+            String xpath = "./gmd:aggregationInfo/gmd:MD_AggregateInformation[./gmd:associationType/gmd:DS_AssociationTypeCode/@codeListValue=\"largerWorkCitation\"]/gmd:aggregateDataSetName/gmd:CI_Citation";
+            Element ciCitation = (Element) isoXpathUtil.getNode(mdIdentification, xpath);
+            if (ciCitation == null) return;
 
-        String pspXpath = "./gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString";
-        Element pspElement = (Element) isoXpathUtil.getNode(ciCitation, pspXpath);
-        String pspNumber = getNodeText(pspElement);
-        if (!pspNumber.isEmpty()) {
-            LOG.debug("Found BAW PSP-Number: " + pspNumber);
+            String titleXpath = "./gmd:title/gco:CharacterString";
+            Element titleElement = (Element) isoXpathUtil.getNode(ciCitation, titleXpath);
+            String auftragsTitel = getNodeText(titleElement);
+            if (!auftragsTitel.isEmpty()) {
+                LOG.debug("Found BAW Auftragstitel: " + auftragsTitel);
 
-            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
-            additionalValue.addElement("field-key")
-                    .addText("bawAuftragsnummer");
-            additionalValue.addElement("field-data").
-                    addText(pspNumber);
+                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
+                additionalValue.addElement("field-key").
+                        addText("bawAuftragstitel");
+                additionalValue.addElement("field-data")
+                        .addText(auftragsTitel);
+            }
+
+            String pspXpath = "./gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString";
+            Element pspElement = (Element) isoXpathUtil.getNode(ciCitation, pspXpath);
+            String pspNumber = getNodeText(pspElement);
+            if (!pspNumber.isEmpty()) {
+                LOG.debug("Found BAW PSP-Number: " + pspNumber);
+
+                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
+                additionalValue.addElement("field-key")
+                        .addText("bawAuftragsnummer");
+                additionalValue.addElement("field-data").
+                        addText(pspNumber);
+            }
         }
     }
 
@@ -934,12 +949,29 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         for (int i = 0; i < bawAddressNodes.getLength(); i++) {
             Node bawAddress = bawAddressNodes.item(i);
             Element adminArea = (Element) igcXpathUtil.getNode(bawAddress, "./administrative-area");
-            adminArea.setAttribute("id", "1");
+            if (adminArea != null) {
+                adminArea.setAttribute("id", "1");
+            }
 
-            igcXpathUtil.getNode(bawAddress, "postal-code").setTextContent("76187");
-            igcXpathUtil.getNode(bawAddress, "street").setTextContent("Ku\u00DFmaulstr. 17");
-            igcXpathUtil.getNode(bawAddress, "administrativeArea").setTextContent("Karlsruhe");
-            igcXpathUtil.getNode(bawAddress, "city").setTextContent("Karlsruhe");
+            Node postCodeNode = igcXpathUtil.getNode(bawAddress, "postal-code");
+            if (postCodeNode != null) {
+                postCodeNode.setTextContent("76187");
+            }
+
+            Node streetNode = igcXpathUtil.getNode(bawAddress, "street");
+            if (streetNode != null) {
+                streetNode.setTextContent("Ku\u00DFmaulstr. 17");
+            }
+
+            Node areaNode = igcXpathUtil.getNode(bawAddress, "administrativeArea");
+            if (areaNode != null) {
+                areaNode.setTextContent("Karlsruhe");
+            }
+
+            Node cityNode = igcXpathUtil.getNode(bawAddress, "city");
+            if (cityNode != null) {
+                cityNode.setTextContent("Karlsruhe");
+            }
         }
     }
 
