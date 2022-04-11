@@ -672,10 +672,10 @@ for (i=0; i<objRows.size(); i++) {
         // the fields "Systemumgebung" and "Erläuterung zum Fachbezug" will be added to the abstract, since
         // for a service there's no environmentDescription-element (see also https://redmine.informationgrid.eu/issues/3462)
         if (hasValue(objServRow.get("environment"))) {
-            abstractPostfix = abstractPostfix + "Systemumgebung: " + objServRow.get("environment") + "\n";
+            abstractPostfix = abstractPostfix + " Systemumgebung: " + objServRow.get("environment");
         }
         if (hasValue(objServRow.get("description"))) {
-            abstractPostfix = abstractPostfix + "Erl\u00E4uterung zum Fachbezug: " + objServRow.get("description") + "\n";
+            abstractPostfix = abstractPostfix + " Erl\u00E4uterung zum Fachbezug: " + objServRow.get("description");
         }
 
         if (abstractPostfix) {
