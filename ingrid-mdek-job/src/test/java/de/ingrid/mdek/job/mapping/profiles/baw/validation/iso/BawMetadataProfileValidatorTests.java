@@ -116,8 +116,9 @@ public class BawMetadataProfileValidatorTests {
         String xpath = "/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:characterSet";
         checkFailureForDeletedElement(xpath);
     }
-
+    
     @Test
+    @Ignore("Validation of hierarchy level disabled")
     public void testHierarchyLevelValue() {
         Document doc = defaultDocument;
         String xpath = "/gmd:MD_Metadata/gmd:hierarchyLevel/gmd:MD_ScopeCode";
@@ -127,6 +128,7 @@ public class BawMetadataProfileValidatorTests {
     }
     
     @Test
+    @Ignore("Validation of hierarchy level disabled")
     public void testMissingHierarchyLevelElement() {
         String xpath = "/gmd:MD_Metadata/gmd:hierarchyLevel/gmd:MD_ScopeCode";
         checkFailureForDeletedElement(xpath);
