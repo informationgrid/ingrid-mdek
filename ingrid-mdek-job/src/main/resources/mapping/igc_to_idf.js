@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -70,7 +70,7 @@ mdMetadata.addAttribute("xmlns:gts", DOM.getNS("gts"));
 mdMetadata.addAttribute("xmlns:xlink", DOM.getNS("xlink"));
 // and schema references
 mdMetadata.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-mdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://schemas.opengis.net/csw/2.0.2/profiles/apiso/1.0.0/apiso.xsd");
+mdMetadata.addAttribute("xsi:schemaLocation", DOM.getNS("gmd") + " http://repository.gdi-de.org/schemas/geonetwork/2020-12-11/csw/2.0.2/profiles/apiso/1.0.1/apiso.xsd");
 
 // ========== t03_catalogue ==========
 var catRow = SQL.first("SELECT * FROM t03_catalogue");
@@ -255,7 +255,7 @@ for (i=0; i<objRows.size(); i++) {
         objGeoId = objGeoRow.get("id");
 
         // ---------- <gmd:MD_GeometricObjects> ----------
-        var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=?", [+objGeoId]);
+        var objGeoVectorRows = SQL.all("SELECT * FROM t011_obj_geo_vector WHERE obj_geo_id=? ORDER BY line", [+objGeoId]);
         for (var j=0; j<objGeoVectorRows.size(); j++) {
             var objGeoVectorRow = objGeoVectorRows.get(j);
             var geoTopologyLevel = objGeoVectorRow.get("vector_topology_level");
@@ -669,12 +669,13 @@ for (i=0; i<objRows.size(); i++) {
         }
 
 
-
+        // the fields "Systemumgebung" and "Erläuterung zum Fachbezug" will be added to the abstract, since
+        // for a service there's no environmentDescription-element (see also https://redmine.informationgrid.eu/issues/3462)
         if (hasValue(objServRow.get("environment"))) {
-            abstractPostfix = abstractPostfix + "Systemumgebung: " + objServRow.get("environment") + "\n";
+            abstractPostfix = abstractPostfix + " Systemumgebung: " + objServRow.get("environment");
         }
         if (hasValue(objServRow.get("description"))) {
-            abstractPostfix = abstractPostfix + "Erl\u00E4uterung zum Fachbezug: " + objServRow.get("description") + "\n";
+            abstractPostfix = abstractPostfix + " Erl\u00E4uterung zum Fachbezug: " + objServRow.get("description");
         }
 
         if (abstractPostfix) {
@@ -936,7 +937,7 @@ for (i=0; i<objRows.size(); i++) {
     // only add thesaurus information if any category is available
     if (rows.size() > 0) {
         mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
-	    .addAttribute("codeList", "http://www.tc211.org/ISO19139/resources/codeList.xml#MD_KeywordTypeCode")
+	    .addAttribute("codeList", globalCodeListAttrURL + "#MD_KeywordTypeCode")
 	    .addAttribute("codeListValue", "theme");
 	    identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
     }
@@ -2693,7 +2694,7 @@ function addDistributionInfo(mdMetadata, objId) {
             atomOnlineResource.addElement("gmd:linkage/gmd:URL").addText(catRow.get("atom_download_url") + objUuid);
             atomOnlineResource.addElement("gmd:name/gco:CharacterString").addText("Get Download Service Metadata");
             atomOnlineResource.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
-                .addAttribute("codeList", "http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_OnLineFunctionCode")
+                .addAttribute("codeList", globalCodeListAttrURL + "#CI_OnLineFunctionCode")
                 .addAttribute("codeListValue", "information")
                 .addText("information");
         }

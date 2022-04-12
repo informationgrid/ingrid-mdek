@@ -9,7 +9,7 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>5.11.0</version>
+  <version>5.12.0</version>
   <name>InGrid iPlug IGE</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.
   </description>
@@ -22,8 +22,8 @@
     <ingrid-udk-importer.version>5.11.0</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>5.11.0</ingrid-codelist-service.version>
     <ingrid-utils.version>5.11.0</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>5.11.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>5.11.0</ingrid-base-webapp.version>
+    <ingrid-iplug-dsc.version>5.12.0</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>5.12.0</ingrid-base-webapp.version>
     <spring.version>5.3.14</spring.version>
   </properties>
 
@@ -119,13 +119,13 @@
       <dependency>
         <groupId>com.thoughtworks.xstream</groupId>
         <artifactId>xstream</artifactId>
-        <version>1.4.18</version>
+        <version>1.4.19</version>
       </dependency>
       <!-- An updated version is needed for log4j2! -->
       <dependency>
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
-        <version>2.7.1</version>
+        <version>2.12.2</version>
       </dependency>
       <dependency>
         <groupId>de.ingrid</groupId>

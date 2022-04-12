@@ -65,8 +65,8 @@ for(var i=0; i<addnFieldRows.size(); i++) {
     }
 }
 
-getAdditionalFieldValueBWastr(objId);
-getAdditionalFieldValueBWastrSpatialRefFree(objId);
+indexAdditionalFieldValueBWastr(objId);
+indexAdditionalFieldValueBWastrSpatialRefFree(objId);
 
 function indexChildAdditionalFieldAsKeywords(parentRow, childKey, syslistId) {
     var parentFieldId = +parentRow.get("id");
@@ -95,8 +95,8 @@ function indexPhysicalParameters(parentRow) {
     }
 }
 
-function getAdditionalFieldValueBWastrSpatialRefFree(objId) {
-    var query = "SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value " + 
+function indexAdditionalFieldValueBWastrSpatialRefFree(objId) {
+    var query = "SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value " +
         "WHERE spatial_ref_value.type = 'F' AND " +
         "spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?";
     var rows = SQL.all(query, [objId]);
@@ -127,7 +127,7 @@ function getAdditionalFieldValueBWastrSpatialRefFree(objId) {
     }
 }
 
-function getAdditionalFieldValueBWastr(objId) {
+function indexAdditionalFieldValueBWastr(objId) {
     var query = "SELECT DISTINCT fd1.sort FROM additional_field_data fd0 " +
         "JOIN additional_field_data fd1 ON fd1.parent_field_id = fd0.id " +
         "WHERE fd0.obj_id = ? ORDER BY fd1.sort";
@@ -160,46 +160,48 @@ function getAdditionalFieldValueBWastr(objId) {
 }
 
 function addBWaStrData(bwastrId, bwastrKmStart, bwastrKmEnd) {
+    var syslistId = 3950010;
+
     if (hasValue(bwastrId)) {
         var bwastrName = "";
         var bwastrStreckenName = "";
-        log.debug("BWaStr. ID is: " + bwastrId + ", km start is: " + bwastrKmStart + ", km end is: " + bwastrKmEnd);
-        if (bwastrId === "9600") {
-            bwastrName = "Binnenwasserstraßen";
-        } else if (bwastrId === "9700") {
-            bwastrName = "Seewasserstraßen";
-        } else if (bwastrId === "9800") {
-            bwastrName = "Bundeswasserstraßen";
-        } else if (bwastrId === "9900") {
-            bwastrName = "Sonstige Gewässer";
-        } else if (hasValue(bwastrKmStart)) {
-            var bwstrIdAndKm = bwastrId + "-" + bwastrKmStart + "-" + bwastrKmEnd;
-            for (var k=bwastrId.length; k<4; k++) {
-                bwstrIdAndKm = "0" + bwstrIdAndKm;
+        if (log.isDebugEnabled()) {
+            log.debug("BWaStr. ID is: " + bwastrId + ", km start is: " + bwastrKmStart + ", km end is: " + bwastrKmEnd);
+        }
+
+        var entryName = TRANSF.getIGCSyslistEntryName(syslistId, +bwastrId, "de");
+        if (log.isDebugEnabled()) {
+            log.debug("Entry name for id " + bwastrId + " in codelist 3950010 is: " + entryName);
+        }
+
+        bwastrId = "" + bwastrId; // convert to string
+        while(bwastrId.length < 4) {
+            bwastrId = "0" + bwastrId;
+        }
+        IDX.add("bwstr-bwastr-id", bwastrId);
+
+        if (hasValue(entryName)) {
+            // entryName has format: BWaStr-name, stretch-name - [id]
+            entryName = entryName.replace(" - [" + bwastrId + "]", "");
+            var arr = entryName.split(",");
+            if (hasValue(arr[0])) {
+                IDX.add("bwstr-bwastr_name", arr[0].trim());
             }
-            var parts = BWST_LOC_TOOL.parseCenterSectionFromBwstrIdAndKm(bwstrIdAndKm);
-            var response = BWST_LOC_TOOL.getResponse(parts[0], parts[1], parts[2]);
-            if(response) {
-                var parsedResponse = BWST_LOC_TOOL.parse(response);
-                var locNames = BWST_LOC_TOOL.getLocationNames(parsedResponse);
-                if (locNames && locNames.length==2) {
-                    bwastrName = locNames[0];
-                    bwastrStreckenName = locNames[1];
-                }
+            if (hasValue(arr[1])) {
+                IDX.add("bwstr-strecken_name", arr[1].trim());
             }
         }
-        // Add the BWaStr-ID itself to the index.
-        // Use workaround to store it as string to preserve leading zeros and
-        // have a predictable behaviour in elasticsearch.
-        var bwastrIdPrefix = "id_";
-        for (var k=bwastrId.length; k<4; k++) {
-            bwastrIdPrefix += "0";
+
+        if (hasValue(bwastrKmStart)) {
+            IDX.add("bwstr-strecken_km_von", bwastrKmStart);
+        } else {
+            IDX.add("bwstr-strecken_km_von", "");
         }
-        IDX.add("bwstr-bwastr-id", bwastrIdPrefix + bwastrId);
-        IDX.add("bwstr-strecken_km_von", bwastrKmStart);
-        IDX.add("bwstr-strecken_km_bis", bwastrKmEnd);
-        IDX.add("bwstr-bwastr_name", bwastrName);
-        IDX.add("bwstr-strecken_name", bwastrStreckenName);
+        if (hasValue(bwastrKmEnd)) {
+            IDX.add("bwstr-strecken_km_bis", bwastrKmEnd);
+        } else {
+            IDX.add("bwstr-strecken_km_bis", "");
+        }
     }
 }
 

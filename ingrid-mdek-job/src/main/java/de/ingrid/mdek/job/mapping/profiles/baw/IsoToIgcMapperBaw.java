@@ -44,8 +44,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.text.NumberFormat;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -94,11 +92,25 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
             String addnValuesXpath = "/igc/data-sources/data-source/data-source-instance/general/general-additional-values";
             Element additionalValues = (Element) igcXpathUtil.createElementFromXPath(igcRoot, addnValuesXpath);
 
-            mapLFSLinks(igcRoot, additionalValues);
-            mapCrossReferences(mdIdentification, additionalValues);
+            String fileIdentifier = getFileIdentifier(mdMetadata);
+            String hierarchyLevel = getHierarchyLevel(mdMetadata);
+            String hierarchyLevelName = getHierarchyLevelName(mdMetadata);
 
-            mapAuftragInfos(mdIdentification, additionalValues);
-            mapHierarchyLevelName(mdMetadata, additionalValues, protocolHandler);
+            fixObjectClassAndTechnicalDomain(fileIdentifier, hierarchyLevel, hierarchyLevelName, igcRoot);
+
+            mapLFSLinks(igcRoot, additionalValues);
+
+            if (Objects.equals(hierarchyLevelName, "document")) {
+                mapAuthorsAndPublisherNotInCatalogue(mdIdentification, additionalValues);
+            }
+            mapLiteratureCrossReference(mdIdentification, additionalValues);
+            removeContactsNotInCatalogue(igcRoot);
+
+            mapIsbn(fileIdentifier, mdIdentification, igcRoot);
+            mapHandle(mdIdentification, additionalValues);
+
+            mapAuftragInfos(hierarchyLevel, hierarchyLevelName, mdIdentification, additionalValues);
+            mapHierarchyLevelName(hierarchyLevel, hierarchyLevelName, additionalValues, protocolHandler);
             mapBWaStrIdentifiers(mdIdentification, additionalValues, protocolHandler);
             mapKeywordCatalogueKeywords(mdIdentification, additionalValues, protocolHandler);
             mapSimSpatialDimensions(mdIdentification, additionalValues, protocolHandler);
@@ -114,6 +126,46 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         } catch (MdekException e) {
             protocolHandler.addMessage(Type.ERROR, e.getMessage());
             throw e;
+        }
+    }
+
+    private String getFileIdentifier(Element mdMetadata) {
+        Node node = isoXpathUtil.getNode(mdMetadata, "gmd:fileIdentifier/gco:CharacterString");
+        return getNodeText(node);
+    }
+
+    private String getHierarchyLevel(Element mdMetadata) {
+        String hlXpath = "./gmd:hierarchyLevel/gmd:MD_ScopeCode";
+        Element hlElement = (Element) isoXpathUtil.getNode(mdMetadata, hlXpath);
+        String hierarchyLevel = hlElement.getAttribute("codeListValue");
+
+        return hierarchyLevel == null ? "" : hierarchyLevel;
+    }
+
+    private String getHierarchyLevelName(Element mdMetadata) {
+        Node node = isoXpathUtil.getNode(mdMetadata, "gmd:hierarchyLevelName/gco:CharacterString");
+        return getNodeText(node);
+    }
+
+    private void fixObjectClassAndTechnicalDomain(String fileIdentifier, String hierarchyLevel, String hierarchyLevelName, Element igcRoot) {
+        // We only need to fix the object class for hierarchyLevel nonGeographicDataset
+        if (!Objects.equals(hierarchyLevel, "nonGeographicDataset")) return;
+
+        String objectClassXpath = "//data-source-instance/general[./object-identifier/text()=\"" + fileIdentifier + "\"]/object-class";
+        Element objectClassElement = (Element) igcXpathUtil.getNode(igcRoot, objectClassXpath);
+
+        if (Objects.equals(hierarchyLevelName, "document")) {
+            objectClassElement.setAttribute("id", "2");
+        } else if (Objects.equals(hierarchyLevelName, "project")) {
+            objectClassElement.setAttribute("id", "4");
+        } else if (Objects.equals(hierarchyLevelName, "application")) {
+            objectClassElement.setAttribute("id", "6");
+        }
+
+        String techDomainXpath = "//data-source-instance[./general/object-identifier/text()=\"" + fileIdentifier + "\"]/technical-domain/map";
+        Node techDomainNode = igcXpathUtil.getNode(igcRoot, techDomainXpath);
+        if (techDomainNode != null) {
+            techDomainNode.getParentNode().removeChild(techDomainNode);
         }
     }
 
@@ -194,149 +246,173 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         }
     }
 
-    private void mapCrossReferences(Element mdIdentification, Element additionalValues) {
-        String xpath = "./gmd:aggregationInfo/gmd:MD_AggregateInformation[./gmd:associationType/gmd:DS_AssociationTypeCode/@codeListValue=\"crossReference\"]/gmd:aggregateDataSetName/gmd:CI_Citation";
-        List<String> allAuthors = new ArrayList<>();
-        List<String> allPublishers = new ArrayList<>();
+    private void mapAuthorsAndPublisherNotInCatalogue(Element mdIdentification, Element additionalValues) {
+        String authorsXpath = "gmd:pointOfContact/gmd:CI_ResponsibleParty[@uuid=\"ffffffff-ffff-ffff-ffff-ffffffffffff\" and ./gmd:role/gmd:CI_RoleCode/@codeListValue=\"author\"]";
+        String publisherXpath = "gmd:pointOfContact/gmd:CI_ResponsibleParty[@uuid=\"ffffffff-ffff-ffff-ffff-ffffffffffff\" and ./gmd:role/gmd:CI_RoleCode/@codeListValue=\"publisher\"]";
 
-        NodeList rows = isoXpathUtil.getNodeList(mdIdentification, xpath);
-        for(int i=0; i<rows.getLength(); i++) {
-            Element ciCitation = (Element) rows.item(i);
+        String individualNameXpath = "gmd:individualName/gco:CharacterString";
+        String organisationXpath = "gmd:organisationName/gco:CharacterString";
 
-            String titleXpath = "./gmd:title/gco:CharacterString";
-            Element titleElement = (Element) isoXpathUtil.getNode(ciCitation, titleXpath);
-            String xrefTitle = getNodeText(titleElement);
+        NodeList authorsNodeList = isoXpathUtil.getNodeList(mdIdentification, authorsXpath);
+        for(int i=0; i<authorsNodeList.getLength(); i++) {
             String line = Integer.toString(i + 1);
-            if (!xrefTitle.isEmpty()) {
-                LOG.debug("Found title for cross-reference: " + xrefTitle);
+            Node node = authorsNodeList.item(i);
 
-                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
-                        .addAttribute("line", line);
-                additionalValue.addElement("field-key")
-                        .addText("doiCrossReferenceTitle");
-                additionalValue.addElement("field-data")
-                        .addAttribute("id", "-1")
-                        .addText(xrefTitle);
-                additionalValue.addElement("field-key-parent")
-                        .addText("doiCrossReferenceTable");
-            }
-
-            String dateXpath = "./gmd:date/gmd:CI_Date[./gmd:dateType/gmd:CI_DateTypeCode/@codeListValue=\"publication\"]/gmd:date/gco:Date";
-            Element dateElement = (Element) isoXpathUtil.getNode(ciCitation, dateXpath);
-            String xrefDate = getNodeText(dateElement);
-            if (!xrefDate.isEmpty()) {
-                LOG.debug("Found date for cross-reference: " + xrefDate);
-                long epochDateMillis = LocalDate.parse(xrefDate)
-                        .atStartOfDay()
-                        .atOffset(ZoneOffset.UTC)
-                        .toInstant().toEpochMilli();
-
-                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
-                        .addAttribute("line", line);
-                additionalValue.addElement("field-key")
-                        .addText("doiCrossReferenceDate");
-                additionalValue.addElement("field-data")
-                        .addAttribute("id", "-1")
-                        .addText(Long.toString(epochDateMillis));
-                additionalValue.addElement("field-key-parent")
-                        .addText("doiCrossReferenceTable");
-            }
-
-            String identifierXpath = "./gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString";
-            Element identifierElement = (Element) isoXpathUtil.getNode(ciCitation, identifierXpath);
-            String xrefIdentifier = getNodeText(identifierElement);
-            if (!xrefIdentifier.isEmpty()) {
-                LOG.debug("Found identifier (e.g. DOI) for cross-reference: " + xrefIdentifier);
-
-                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
-                        .addAttribute("line", line);
-                additionalValue.addElement("field-key")
-                       .addText("doiCrossReferenceIdentifier");
-                additionalValue.addElement("field-data")
-                        .addAttribute("id", "-1")
-                        .addText(xrefIdentifier);
-                additionalValue.addElement("field-key-parent")
-                        .addText("doiCrossReferenceTable");
-            }
-
-            String authorXpath = "./gmd:citedResponsibleParty/gmd:CI_ResponsibleParty[./gmd:role/gmd:CI_RoleCode/@codeListValue=\"author\"]/gmd:individualName/gco:CharacterString";
-            NodeList authorNodes = isoXpathUtil.getNodeList(ciCitation, authorXpath);
-            List<String> authorsList = new ArrayList<>();
-            for (int j=0; j<authorNodes.getLength(); j++) {
-                authorsList.add(getNodeText(authorNodes.item(j)));
-            }
-            allAuthors.addAll(authorsList);
-            if (authorsList.size() > 0) {
-                String xrefAuthor = String.join("; ", authorsList);
-
-                LOG.debug("Found " + authorsList.size() + " author(s): " + xrefAuthor);
-
-                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
-                        .addAttribute("line", line);
-                additionalValue.addElement("field-key")
-                        .addText("doiCrossReferenceAuthor");
-                additionalValue.addElement("field-data")
-                        .addAttribute("id", "-1")
-                        .addText(xrefAuthor);
-                additionalValue.addElement("field-key-parent")
-                        .addText("doiCrossReferenceTable");
-            }
-
-            String publisherXpath = "./gmd:citedResponsibleParty/gmd:CI_ResponsibleParty[./gmd:role/gmd:CI_RoleCode/@codeListValue=\"publisher\"]/gmd:organisationName/gco:CharacterString";
-            Element publisherElement = (Element) isoXpathUtil.getNode(ciCitation, publisherXpath);
-            String xrefPublisher = getNodeText(publisherElement);
-            allPublishers.add(xrefPublisher);
-            if (!xrefPublisher.isEmpty()) {
-                LOG.debug("Found publisher for cross-reference: " + xrefPublisher);
+            String individualName = getNodeText(isoXpathUtil.getNode(node, individualNameXpath));
+            String organisation = getNodeText(isoXpathUtil.getNode(node, organisationXpath));
+            if (!individualName.isEmpty()) {
+                String[] names = individualName.split(",");
 
                 IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
                         .addAttribute("line", line);
                 additionalValue.addElement("field-key").
-                        addText("doiCrossReferencePublisher");
+                        addText("authorFamilyName");
                 additionalValue.addElement("field-data")
                         .addAttribute("id", "-1")
-                        .addText(xrefPublisher);
+                        .addText(names[0].trim());
                 additionalValue.addElement("field-key-parent")
-                        .addText("doiCrossReferenceTable");
+                        .addText("bawLiteratureAuthorsTable");
+
+                if (names.length > 1) {
+                    additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                            .addAttribute("line", line);
+                    additionalValue.addElement("field-key").
+                            addText("authorGivenName");
+                    additionalValue.addElement("field-data")
+                            .addAttribute("id", "-1")
+                            .addText(names[1].trim());
+                    additionalValue.addElement("field-key-parent")
+                            .addText("bawLiteratureAuthorsTable");
+                }
+            }
+
+            if (!organisation.isEmpty()) {
+                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", line);
+                additionalValue.addElement("field-key").
+                        addText("authorOrganisation");
+                additionalValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(organisation);
+                additionalValue.addElement("field-key-parent")
+                        .addText("bawLiteratureAuthorsTable");
             }
         }
 
-        // Remove authors and publishers for cross-references
-        String addressIdXpath = "//related-address[./type-of-relation/@entry-id=\"10\" or ./type-of-relation/@entry-id=\"11\"]/address-identifier";
-        String addressInstanceXpathPattern = "/igc/addresses/address/address-instance[./address-identifier/text()=\"%s\"]";
+        String publisher = getNodeText(isoXpathUtil.getNode(mdIdentification, publisherXpath + '/' + organisationXpath));
+        if (!publisher.isEmpty()) {
+            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
+            additionalValue.addElement("field-key")
+                    .addText("bawLiteraturePublisher");
+            additionalValue.addElement("field-data")
+                    .addText(publisher);
+        }
+    }
 
-        List<Node> nodesToRemove = new ArrayList<>();
-        NodeList addressIdNodes = igcXpathUtil.getNodeList(additionalValues, addressIdXpath);
-        for(int i=0; i<addressIdNodes.getLength(); i++) {
-            Node addressIdNode = addressIdNodes.item(i);
-            String addressUuid = getNodeText(addressIdNode);
-            if (addressUuid.isEmpty()) continue;
+    private void mapLiteratureCrossReference(Element mdIdentification, Element additionalValues) {
+        String xpath = "gmd:aggregationInfo[./gmd:MD_AggregateInformation/gmd:aggregateDataSetName/@uuidref and ./gmd:MD_AggregateInformation/gmd:associationType/gmd:DS_AssociationTypeCode/@codeListValue=\"crossReference\"]";
+        String aggDataSetXpath = "gmd:MD_AggregateInformation/gmd:aggregateDataSetName";
+        String titleXpath = "gmd:CI_Citation/gmd:title";
+        NodeList nodeList = isoXpathUtil.getNodeList(mdIdentification, xpath);
+        for(int i=0; i<nodeList.getLength(); i++) {
+            String line = Integer.toString(i + 1);
 
-            String addressInstanceXpath = String.format(addressInstanceXpathPattern, addressUuid);
-            Node addressInstance = igcXpathUtil.getNode(additionalValues, addressInstanceXpath);
-            String name = getNodeText(igcXpathUtil.getNode(addressInstance, "./name"));
-            String organisation = getNodeText(igcXpathUtil.getNode(addressInstance, "./organisation"));
-            Node communicationNode = igcXpathUtil.getNode(addressInstance, "./communication");
-            if (communicationNode == null && (allAuthors.contains(name) || allPublishers.contains(organisation))) {
-                nodesToRemove.add(addressInstance);
-                nodesToRemove.add(addressIdNode.getParentNode());
+            Element node = (Element) isoXpathUtil.getNode(nodeList.item(i), aggDataSetXpath);
+            String uuid = node.getAttribute("uuidref");
+
+            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                    .addAttribute("line", line);
+            additionalValue.addElement("field-key").
+                    addText("bawLiteratureXrefUuid");
+            additionalValue.addElement("field-data")
+                    .addAttribute("id", "-1")
+                    .addText(uuid);
+            additionalValue.addElement("field-key-parent")
+                    .addText("bawLiteratureXrefTable");
+
+            String title = getNodeText(isoXpathUtil.getNode(node, titleXpath));
+            if (!title.isEmpty()) {
+                additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", line);
+                additionalValue.addElement("field-key").
+                        addText("bawLiteratureXrefTitle");
+                additionalValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(title);
+                additionalValue.addElement("field-key-parent")
+                        .addText("bawLiteratureXrefTable");
+
+                String href = "<a href=\"#\" class=\"\" title=\"" + title + "\" onclick=\"require('ingrid/menu').handleSelectNodeInTree('" + uuid + "', 'O');\">" + title + "</a>";
+                additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value")
+                        .addAttribute("line", line);
+                additionalValue.addElement("field-key").
+                        addText("bawLiteratureXrefLink");
+                additionalValue.addElement("field-data")
+                        .addAttribute("id", "-1")
+                        .addText(href);
+                additionalValue.addElement("field-key-parent")
+                        .addText("bawLiteratureXrefTable");
             }
         }
-        for(Node node: nodesToRemove) {
+    }
+
+    private void removeContactsNotInCatalogue(Element igcRoot) {
+        // Remove authors and publishers that are not present as contacts in catalogue
+        String relatedAddressXpath = "//related-address[(./type-of-relation/@entry-id=\"10\" or ./type-of-relation/@entry-id=\"11\") and ./address-identifier/text()=\"ffffffff-ffff-ffff-ffff-ffffffffffff\"]";
+        String addressInstanceXpath = "//address-instance[./address-identifier/text()=\"ffffffff-ffff-ffff-ffff-ffffffffffff\"]";
+
+        NodeList relatedAddressNodes = igcXpathUtil.getNodeList(igcRoot, relatedAddressXpath);
+        for(int i=0; i<relatedAddressNodes.getLength(); i++) {
+            Node node = relatedAddressNodes.item(i);
+            node.getParentNode().removeChild(node);
+        }
+
+        NodeList addressInstanceNodes = igcXpathUtil.getNodeList(igcRoot, addressInstanceXpath);
+        for(int i=0; i<addressInstanceNodes.getLength(); i++) {
+            Node node = addressInstanceNodes.item(i);
             node.getParentNode().removeChild(node);
         }
     }
 
-    private void mapHierarchyLevelName(Element mdMetadata, Element additionalValues, ProtocolHandler ph) {
-        String xpath = "./gmd:hierarchyLevelName/gco:CharacterString";
-        Node hlNameElement = isoXpathUtil.getNode(mdMetadata, xpath);
-        String hlName = getNodeText(hlNameElement);
-        if (!hlName.isEmpty()) {
-            LOG.debug("Found BAW hierarchy level name: " + hlName);
+    private void mapIsbn(String fileIdentifier, Element mdIdentification, Element igcRoot) {
+        String isbnXpath = "./gmd:citation/gmd:CI_Citation/gmd:ISBN/gco:CharacterString";
+        Node node = isoXpathUtil.getNode(mdIdentification, isbnXpath);
 
-            Integer key = catalogService.getSysListEntryKey(BAW_HIERARCHY_LEVEL_NAME_CODELIST_ID, hlName, "", false);
+        String isbn = node == null ? "" : node.getTextContent();
+        if (isbn != null && !isbn.trim().isEmpty()) {
+            String technicalDomainXpath = "//data-source-instance[./general/object-identifier/text()=\"" + fileIdentifier + "\"]/technical-domain";
+            IdfElement dataSourceInstance = igcDomUtil.getElement(igcRoot, technicalDomainXpath);
+            if (dataSourceInstance != null) {
+                dataSourceInstance.addElement("document/isbn")
+                        .addText(isbn);
+            }
+        }
+    }
+
+    private void mapHandle(Element mdIdentification, Element additionalValues) {
+        String handleXpath = "./gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString[contains(text(), \"hdl.handle.net\")]";
+        Node node = isoXpathUtil.getNode(mdIdentification, handleXpath);
+
+        String handle = node == null ? "" : node.getTextContent();
+        if (handle != null && !handle.trim().isEmpty()) {
+            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
+            additionalValue.addElement("field-key")
+                    .addText("bawLiteratureHandle");
+            additionalValue.addElement("field-data")
+                    .addText(handle);
+        }
+    }
+
+    private void mapHierarchyLevelName(String hierarchyLevel, String hierarchyLevelName, Element additionalValues, ProtocolHandler ph) {
+        // Only map hierarchyLevelName if hierarchyLevel is dataset
+        if (!Objects.equals(hierarchyLevel, "dataset")) return;
+
+        if (!hierarchyLevelName.isEmpty()) {
+            LOG.debug("Found BAW hierarchy level name: " + hierarchyLevelName);
+
+            Integer key = catalogService.getSysListEntryKey(BAW_HIERARCHY_LEVEL_NAME_CODELIST_ID, hierarchyLevelName, "", false);
             if (key == null || key < 0) {
-                ph.addMessage(Type.WARN, "Hierarchy level name not found in BAW codelist: '" + hlName + '\'');
+                ph.addMessage(Type.WARN, "Hierarchy level name not found in BAW codelist: '" + hierarchyLevelName + '\'');
                 key = -1;
             }
 
@@ -345,39 +421,54 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
                     .addText("bawHierarchyLevelName");
             additionalValue.addElement("field-data")
                     .addAttribute("id", key.toString())
-                    .addText(hlName);
+                    .addText(hierarchyLevelName);
         }
     }
 
-    private void mapAuftragInfos(Element mdIdentification, Element additionalValues) {
-        String xpath = "./gmd:aggregationInfo/gmd:MD_AggregateInformation[./gmd:associationType/gmd:DS_AssociationTypeCode/@codeListValue=\"largerWorkCitation\"]/gmd:aggregateDataSetName/gmd:CI_Citation";
-        Element ciCitation = (Element) isoXpathUtil.getNode(mdIdentification, xpath);
-        if (ciCitation == null) return;
+    private void mapAuftragInfos(String hierarchyLevel, String hierarchyLevelName, Element mdIdentification, Element additionalValues) {
+        if (Objects.equals(hierarchyLevel, "nonGeographicDataset") && Objects.equals(hierarchyLevelName, "project")) {
+            String xpath = "./gmd:citation/gmd:CI_Citation/gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString";
+            String pspNumber = getNodeText(isoXpathUtil.getNode(mdIdentification, xpath));
 
-        String titleXpath = "./gmd:title/gco:CharacterString";
-        Element titleElement = (Element) isoXpathUtil.getNode(ciCitation, titleXpath);
-        String auftragsTitel = getNodeText(titleElement);
-        if (!auftragsTitel.isEmpty()) {
-            LOG.debug("Found BAW Auftragstitel: " + auftragsTitel);
+            if (!pspNumber.isEmpty()) {
+                LOG.debug("Found BAW PSP-Number: " + pspNumber);
 
-            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
-            additionalValue.addElement("field-key").
-                    addText("bawAuftragstitel");
-            additionalValue.addElement("field-data")
-                    .addText(auftragsTitel);
-        }
+                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
+                additionalValue.addElement("field-key")
+                        .addText("bawAuftragsnummer");
+                additionalValue.addElement("field-data").
+                        addText(pspNumber);
+            }
+        } else {
+            String xpath = "./gmd:aggregationInfo/gmd:MD_AggregateInformation[./gmd:associationType/gmd:DS_AssociationTypeCode/@codeListValue=\"largerWorkCitation\"]/gmd:aggregateDataSetName/gmd:CI_Citation";
+            Element ciCitation = (Element) isoXpathUtil.getNode(mdIdentification, xpath);
+            if (ciCitation == null) return;
 
-        String pspXpath = "./gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString";
-        Element pspElement = (Element) isoXpathUtil.getNode(ciCitation, pspXpath);
-        String pspNumber = getNodeText(pspElement);
-        if (!pspNumber.isEmpty()) {
-            LOG.debug("Found BAW PSP-Number: " + pspNumber);
+            String titleXpath = "./gmd:title/gco:CharacterString";
+            Element titleElement = (Element) isoXpathUtil.getNode(ciCitation, titleXpath);
+            String auftragsTitel = getNodeText(titleElement);
+            if (!auftragsTitel.isEmpty()) {
+                LOG.debug("Found BAW Auftragstitel: " + auftragsTitel);
 
-            IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
-            additionalValue.addElement("field-key")
-                    .addText("bawAuftragsnummer");
-            additionalValue.addElement("field-data").
-                    addText(pspNumber);
+                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
+                additionalValue.addElement("field-key").
+                        addText("bawAuftragstitel");
+                additionalValue.addElement("field-data")
+                        .addText(auftragsTitel);
+            }
+
+            String pspXpath = "./gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString";
+            Element pspElement = (Element) isoXpathUtil.getNode(ciCitation, pspXpath);
+            String pspNumber = getNodeText(pspElement);
+            if (!pspNumber.isEmpty()) {
+                LOG.debug("Found BAW PSP-Number: " + pspNumber);
+
+                IdfElement additionalValue = igcDomUtil.addElement(additionalValues, "general-additional-value");
+                additionalValue.addElement("field-key")
+                        .addText("bawAuftragsnummer");
+                additionalValue.addElement("field-data").
+                        addText(pspNumber);
+            }
         }
     }
 
@@ -858,12 +949,29 @@ public class IsoToIgcMapperBaw implements ImportDataMapper<Document, Document> {
         for (int i = 0; i < bawAddressNodes.getLength(); i++) {
             Node bawAddress = bawAddressNodes.item(i);
             Element adminArea = (Element) igcXpathUtil.getNode(bawAddress, "./administrative-area");
-            adminArea.setAttribute("id", "1");
+            if (adminArea != null) {
+                adminArea.setAttribute("id", "1");
+            }
 
-            igcXpathUtil.getNode(bawAddress, "postal-code").setTextContent("76187");
-            igcXpathUtil.getNode(bawAddress, "street").setTextContent("Ku\u00DFmaulstr. 17");
-            igcXpathUtil.getNode(bawAddress, "administrativeArea").setTextContent("Karlsruhe");
-            igcXpathUtil.getNode(bawAddress, "city").setTextContent("Karlsruhe");
+            Node postCodeNode = igcXpathUtil.getNode(bawAddress, "postal-code");
+            if (postCodeNode != null) {
+                postCodeNode.setTextContent("76187");
+            }
+
+            Node streetNode = igcXpathUtil.getNode(bawAddress, "street");
+            if (streetNode != null) {
+                streetNode.setTextContent("Ku\u00DFmaulstr. 17");
+            }
+
+            Node areaNode = igcXpathUtil.getNode(bawAddress, "administrativeArea");
+            if (areaNode != null) {
+                areaNode.setTextContent("Karlsruhe");
+            }
+
+            Node cityNode = igcXpathUtil.getNode(bawAddress, "city");
+            if (cityNode != null) {
+                cityNode.setTextContent("Karlsruhe");
+            }
         }
     }
 

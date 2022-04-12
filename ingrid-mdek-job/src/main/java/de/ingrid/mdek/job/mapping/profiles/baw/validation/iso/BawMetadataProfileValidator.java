@@ -66,7 +66,7 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
         validateDatasetLanguage(validator);
         validateMetadataCharset(validator);
         validateDatasetCharset(validator);
-        validateHierarchyLevel(validator);
+        /////validateHierarchyLevel(validator);
         //// TODO hierarchy level name
         ////validateParentIdentifier(dom4jDoc, reportHelper);
         validateMdContactDetails(validator);
@@ -161,6 +161,7 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
                 .doChecks(TEXT_CONTENT_EQUALS);
     }
 
+    /*
     private void validateHierarchyLevel(IsoImportValidationUtil validator) {
         String xpath = "/gmd:MD_Metadata/gmd:hierarchyLevel/gmd:MD_ScopeCode";
         String tagKey = "iso.hierarchyLevel.6";
@@ -174,7 +175,6 @@ public final class BawMetadataProfileValidator implements ImportDataMapper<org.w
                 .doChecks(EXACTLY_ONE_NODE_EXISTS, TEXT_CONTENT_EQUALS);
     }
 
-    /*
     private void validateParentIdentifier(Document dom4jDoc, ValidationReportHelper reportHelper) {
         String xpathPid = "/gmd:MD_Metadata/gmd:parentIdentifier/gco:CharacterString";
         String xpathHln = "/gmd:MD_Metadata/gmd:hierarchyLevelName/gco:CharacterString";

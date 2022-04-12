@@ -77,7 +77,7 @@ public class IgcToLucenePostProcessorBaw implements IRecordMapper {
 				}
 
 				if (Objects.equals(key, "link")) {
-					idx.add("t017_url_ref.url_link", igeConfig.bawLfsBaseURL + data);
+					idx.add("t017_url_ref.url_link", igeConfig.bawLfsBaseURL + '/' + data);
 				} else if (Objects.equals(key, "name")) {
 					idx.add("t017_url_ref.content", data);
 				} else if (Objects.equals(key, "fileFormat")) {

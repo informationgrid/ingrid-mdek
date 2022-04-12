@@ -1079,8 +1079,62 @@ var mappingDescription = {"mappings":[
             },
             "targetNode":"/igc/data-sources/data-source/data-source-instance/spatial-domain/description-of-spatial-domain"
         },
+		// if extent has exactly two geographicElement AND the the order is: 1. EX_GeographicDescription 2. EX_GeographicBoundingBox
+		// assume there is a correlation between the two (#2097)
+		{
+			"srcXpath":"//gmd:identificationInfo//gmd:EX_Extent[count(./gmd:geographicElement)=2 and " +
+				"./gmd:geographicElement[1][*[1][self::gmd:EX_GeographicDescription]] and " +
+				"./gmd:geographicElement[2][*[1][self::gmd:EX_GeographicBoundingBox]]]",
+			"targetNode":"/igc/data-sources/data-source/data-source-instance/spatial-domain",
+			"newNodeName":"geo-location",
+			"subMappings":{
+				"mappings": [
+					{
+						"srcXpath":"gmd:geographicElement[1]/gmd:EX_GeographicDescription/gmd:geographicIdentifier/*/gmd:code/gco:CharacterString",
+						"srcXpathTransform": {
+							"funct":getLocalisedCharacterString
+						},
+						"targetNode":"uncontrolled-location/location-name"
+					},
+					{
+						"defaultValue":"-1",
+						"targetNode":"uncontrolled-location/location-name",
+						"targetAttribute":"id"
+					},
+					{
+						"srcXpath":"gmd:geographicElement[2]/gmd:EX_GeographicBoundingBox/gmd:westBoundLongitude/gco:Decimal",
+						"targetNode":"bounding-coordinates/west-bounding-coordinate",
+						"transform":{
+							"funct":transformNumberStrToIGCNumber
+						}
+					},
+					{
+						"srcXpath":"gmd:geographicElement[2]/gmd:EX_GeographicBoundingBox/gmd:eastBoundLongitude/gco:Decimal",
+						"targetNode":"bounding-coordinates/east-bounding-coordinate",
+						"transform":{
+							"funct":transformNumberStrToIGCNumber
+						}
+					},
+					{
+						"srcXpath":"gmd:geographicElement[2]/gmd:EX_GeographicBoundingBox/gmd:northBoundLatitude/gco:Decimal",
+						"targetNode":"bounding-coordinates/north-bounding-coordinate",
+						"transform":{
+							"funct":transformNumberStrToIGCNumber
+						}
+					},
+					{
+						"srcXpath":"gmd:geographicElement[2]/gmd:EX_GeographicBoundingBox/gmd:southBoundLatitude/gco:Decimal",
+						"targetNode":"bounding-coordinates/south-bounding-coordinate",
+						"transform":{
+							"funct":transformNumberStrToIGCNumber
+						}
+					}
+				]
+			}
+		},
   		{
-  			"srcXpath":"//gmd:identificationInfo//gmd:EX_Extent/gmd:geographicElement",
+  			"srcXpath":"//gmd:identificationInfo//gmd:EX_Extent[not(./gmd:geographicElement[1][*[1][self::gmd:EX_GeographicDescription]] and " +
+				"./gmd:geographicElement[2][*[1][self::gmd:EX_GeographicBoundingBox]] and count(./gmd:geographicElement)=2)]/gmd:geographicElement",
   			"targetNode":"/igc/data-sources/data-source/data-source-instance/spatial-domain",
   			"newNodeName":"geo-location",
   			"subMappings":{

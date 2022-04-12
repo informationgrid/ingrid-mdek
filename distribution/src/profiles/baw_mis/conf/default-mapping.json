@@ -23,6 +23,16 @@
       "type": "keyword",
       "store": true
     },
+    "baw_abteilung_short": {
+      "type": "keyword",
+      "store": true
+    },
+    "baw_abteilung_long": {
+      "type": "text",
+      "store": true,
+      "analyzer": "phrase",
+      "search_analyzer": "phrase"
+    },
     "bwstr-bwastr-id": {
       "type": "keyword",
       "store": true
@@ -314,11 +324,6 @@
       "analyzer": "german",
       "store": true,
       "fields": {
-        "phrase": {
-          "type":  "text",
-          "analyzer": "ngram_phrase",
-          "search_analyzer": "phrase"
-        },
         "ngram": {
           "type":  "text",
           "analyzer": "ngram",
@@ -344,11 +349,6 @@
       "analyzer": "german",
       "store": true,
       "fields": {
-        "phrase": {
-          "type":  "text",
-          "analyzer": "ngram_phrase",
-          "search_analyzer": "phrase"
-        },
         "ngram": {
           "type":  "text",
           "analyzer": "ngram",
@@ -366,11 +366,6 @@
       "analyzer": "german",
       "store": true,
       "fields": {
-        "phrase": {
-          "type":  "text",
-          "analyzer": "ngram_phrase",
-          "search_analyzer": "phrase"
-        },
         "ngram": {
           "type":  "text",
           "analyzer": "ngram",

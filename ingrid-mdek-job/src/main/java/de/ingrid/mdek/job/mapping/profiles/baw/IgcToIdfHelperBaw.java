@@ -24,7 +24,6 @@ package de.ingrid.mdek.job.mapping.profiles.baw;
 
 import de.ingrid.iplug.dsc.om.DatabaseSourceRecord;
 import de.ingrid.iplug.dsc.om.SourceRecord;
-import de.ingrid.iplug.dsc.record.mapper.IIdfMapper;
 import de.ingrid.iplug.dsc.utils.DOMUtils;
 import de.ingrid.iplug.dsc.utils.DOMUtils.IdfElement;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
@@ -37,29 +36,20 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.ingrid.mdek.job.mapping.profiles.baw.BawConstants.*;
-import static java.time.format.DateTimeFormatter.ISO_DATE;
 
-@Order(2)
-public class IgcToIdfMapperBaw implements IIdfMapper {
+class IgcToIdfHelperBaw {
 
-    private static final Logger LOG = Logger.getLogger(IgcToIdfMapperBaw.class);
+    private static final Logger LOG = Logger.getLogger(IgcToIdfHelperBaw.class);
 
-    @Autowired
     private Configuration igeConfig;
 
     private static final XPathUtils XPATH = new XPathUtils(new IDFNamespaceContext());
@@ -70,11 +60,20 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
     private static final String GCO_CHARACTER_STRING_QNAME = "gco:CharacterString";
     private static final String VALUE_UNIT_ID_PREFIX = "valueUnit_";
 
+    private static final String LITERATURE_OBJ_CLASS = "2";
+    private static final String PROJECT_OBJ_CLASS = "4";
+
     private final JSONParser jsonParser = new JSONParser();
 
     private DOMUtils domUtil;
     private SQLUtils sqlUtils;
     private TransformationUtils trafoUtil;
+
+    Long objId;
+    String objClass;
+    private Element mdMetadata;
+    private IdfElement mdIdentification;
+    private Map<String, Object> idxDoc;
 
     private static final List<String> MD_METADATA_CHILDREN = Arrays.asList(
             "gmd:fileIdentifier",
@@ -129,14 +128,23 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             "gmd:extent",
             "gmd:supplementalInformation"
     );
+    private static final List<String> CI_CITATION_CHILDREN = Arrays.asList(
+            "gmd:title",
+            "gmd:alternateTitle",
+            "gmd:date",
+            "gmd:edition",
+            "gmd:editionDate",
+            "gmd:identifier",
+            "gmd:citedResponsibleParty",
+            "gmd:presentationForm",
+            "gmd:series",
+            "gmd:otherCitationDetails",
+            "gmd:collectiveTitle",
+            "gmd:ISBN",
+            "gmd:ISSN"
+    );
 
-    @Override
-    public void map(SourceRecord sourceRecord, Document target) throws Exception {
-        if (!(sourceRecord instanceof DatabaseSourceRecord)) {
-            throw new IllegalArgumentException("Record is no DatabaseRecord!");
-        }
-
-        LOG.debug("Additional BAW specific mapping from source record to idf document: " + sourceRecord.toString());
+    IgcToIdfHelperBaw(SourceRecord sourceRecord, Document target, Configuration igeConfig) throws SQLException {
 
         domUtil = new DOMUtils(target, XPATH);
         domUtil.addNS("idf", "http://www.portalu.de/IDF/1.0");
@@ -145,54 +153,28 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         domUtil.addNS("gml", Csw202NamespaceContext.NAMESPACE_URI_GML);
         domUtil.addNS("xlink", Csw202NamespaceContext.NAMESPACE_URI_XLINK);
 
-        try {
-            Connection connection = (Connection) sourceRecord.get(DatabaseSourceRecord.CONNECTION);
-            sqlUtils = new SQLUtils(connection);
-            trafoUtil = new TransformationUtils(sqlUtils);
+        Connection connection = (Connection) sourceRecord.get(DatabaseSourceRecord.CONNECTION);
+        sqlUtils = new SQLUtils(connection);
+        trafoUtil = new TransformationUtils(sqlUtils);
 
-            // Fetch elements for use later on
-            Element mdMetadata = (Element) XPATH.getNode(target, "/idf:html/idf:body/idf:idfMdMetadata");
+        // Fetch elements for use later on
+        mdMetadata = (Element) XPATH.getNode(target, "/idf:html/idf:body/idf:idfMdMetadata");
 
-            String xpath = "./gmd:identificationInfo/gmd:MD_DataIdentification|./gmd:identificationInfo/srv:SV_ServiceIdentification";
-            IdfElement mdIdentification = domUtil.getElement(mdMetadata, xpath);
+        String xpath = "./gmd:identificationInfo/gmd:MD_DataIdentification|./gmd:identificationInfo/srv:SV_ServiceIdentification";
+        mdIdentification = domUtil.getElement(mdMetadata, xpath);
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> idxDoc = (Map<String, Object>) sourceRecord.get("idxDoc");
+        idxDoc = (Map<String, Object>) sourceRecord.get("idxDoc");
 
-            // ===== Operations that don't require a database data =====
-            logMissingMetadataContact(mdMetadata);
-            addWaterwayInformation(mdMetadata, idxDoc);
+        // id is primary key and cannot be duplicate. Fetch the only record from the database
+        objId = Long.parseLong((String) sourceRecord.get("id"));
 
-            // ===== Operations that require a database data =====
+        Map<String, String> objClassRow = sqlUtils.first("SELECT obj_class FROM t01_object WHERE id=?", new Object[]{objId});
+        objClass = objClassRow.get("obj_class");
 
-            // id is primary key and cannot be duplicate. Fetch the only record from the database
-            Long objId = Long.parseLong((String) sourceRecord.get("id"));
-            Map<String, String> objRow = sqlUtils.first("SELECT * FROM t01_object WHERE id=?", new Object[]{objId});
-            if (objRow == null || objRow.isEmpty()) {
-                LOG.info("No database record found in table t01_object for id: " + objId);
-                return;
-            }
-
-            addLfsLinks(mdMetadata, objId);
-            addCrossReferences(mdIdentification, objId);
-
-            setHierarchyLevelName(mdMetadata, objId);
-            addAuftragsInfos(mdIdentification, objId);
-            addBWaStrIdentifiers(mdIdentification, objId);
-            addBawKewordCatalogeKeywords(mdIdentification, objId);
-            addSimSpatialDimensionKeyword(mdIdentification, objId);
-            addSimModelMethodKeyword(mdIdentification, objId);
-            addSimModelTypeKeywords(mdIdentification, objId);
-            addTimestepSizeElement(mdMetadata, objId);
-            addDgsValues(mdMetadata, objId);
-            changeMetadataDateAsDateTime(mdMetadata, objRow.get("mod_time"));
-        } catch (Exception e) {
-            LOG.error("Error mapping source record to idf document.", e);
-            throw e;
-        }
+        this.igeConfig = igeConfig;
     }
 
-    private void addLfsLinks(Element mdMetadata, Long objId) throws SQLException {
+    void addLfsLinks() throws SQLException {
         Map<Integer, Map<String, String>> rows = getOrderedAdditionalFieldDataTableRows(objId, "lfsLinkTable");
         if (rows.isEmpty()) return;
 
@@ -262,27 +244,96 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         }
     }
 
-    private void logMissingMetadataContact(Node mdMetadata) {
+    void logMissingMetadataContact() {
         if (!XPATH.nodeExists(mdMetadata, "gmd:contact")) {
             LOG.error("No responsible party for metadata found!");
         }
     }
 
-    private void addCrossReferences(IdfElement mdIdentification, Long objId) throws SQLException {
-        Map<Integer, Map<String, String>> rows = getOrderedAdditionalFieldDataTableRows(objId, "doiCrossReferenceTable");
+    void addAuthorsAndPublishersNotInCatalogue() throws SQLException {
+        // Only continue if objectClass is literature
+        if (!Objects.equals(objClass, LITERATURE_OBJ_CLASS)) return;
+
+        String contactQname = "gmd:pointOfContact";
+
+        Map<Integer, Map<String, String>> authorsRows = getOrderedAdditionalFieldDataTableRows(objId, "bawLiteratureAuthorsTable");
+        for(Map.Entry<Integer, Map<String, String>> entry: authorsRows.entrySet()) {
+            Map<String, String> row = entry.getValue();
+
+            String givenName = row.get("authorGivenName");
+            String familyName = row.get("authorFamilyName");
+            String organisation = row.get("authorOrganisation");
+
+            IdfElement contact;
+            IdfElement previousSibling = findPreviousSibling(contactQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
+            if (previousSibling == null) {
+                contact = domUtil.addElement(mdIdentification.getElement(), contactQname);
+            } else {
+                contact = previousSibling.addElementAsSibling(contactQname);
+            }
+
+            IdfElement ciResponsibleParty = contact.addElement("gmd:CI_ResponsibleParty");
+            if (givenName != null && familyName != null) {
+                ciResponsibleParty.addElement("gmd:individualName/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(familyName + ", " + givenName);
+            }
+            if (organisation != null) {
+                ciResponsibleParty.addElement("gmd:organisationName/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(organisation);
+            }
+            ciResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
+                    .addAttribute("codeList", CODELIST_URL + "gmd:CI_RoleCode")
+                    .addAttribute("codeListValue", "author")
+                    .addText("author");
+        }
+
+        String publisher = getFirstAdditionalFieldValue(objId, "bawLiteraturePublisher");
+        if (publisher != null) {
+            IdfElement contact;
+            IdfElement previousSibling = findPreviousSibling(contactQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
+            if (previousSibling == null) {
+                contact = domUtil.addElement(mdIdentification.getElement(), contactQname);
+            } else {
+                contact = previousSibling.addElementAsSibling(contactQname);
+            }
+
+            IdfElement ciResponsibleParty = contact.addElement("gmd:CI_ResponsibleParty");
+            ciResponsibleParty.addElement("gmd:organisationName/" + GCO_CHARACTER_STRING_QNAME)
+                    .addText(publisher);
+            ciResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
+                    .addAttribute("codeList", CODELIST_URL + "gmd:CI_RoleCode")
+                    .addAttribute("codeListValue", "publisher")
+                    .addText("publisher");
+        }
+    }
+
+    void addLiteratureCrossReference() throws SQLException {
+        Map<Integer, Map<String, String>> rows = getOrderedAdditionalFieldDataTableRows(objId, "bawLiteratureXrefTable");
         for(Map.Entry<Integer, Map<String, String>> entry: rows.entrySet()) {
             Map<String, String> row = entry.getValue();
 
-            String xrefTitle = row.get("doiCrossReferenceTitle");
-            String xrefDateMillisLong = row.get("doiCrossReferenceDate");
-            String xrefAuthorString = row.get("doiCrossReferenceAuthor");
-            String xrefIdentifier = row.get("doiCrossReferenceIdentifier");
-            String xrefPublisher = row.get("doiCrossReferencePublisher");
+            String uuid = row.get("bawLiteratureXrefUuid");
+            if (uuid == null) {
+                LOG.warn("Literature cross-reference table has an entry without a UUID");
+                return;
+            }
 
-            LocalDate date = Instant.ofEpochMilli(Long.parseLong(xrefDateMillisLong))
-                    .atOffset(ZoneOffset.UTC)
-                    .toLocalDate();
+            Map<String, String> litRow = sqlUtils.first("SELECT id, obj_name FROM t01_object WHERE obj_uuid = ? AND work_state = 'V'", new Object[]{uuid});
+            if (litRow == null || litRow.isEmpty()) {
+                LOG.warn("Couldn't find a published literature cross-reference object with UUID " + uuid);
+                return;
+            }
 
+            Long litObjId = Long.parseLong(litRow.get("id"));
+            String litTitle = litRow.get("obj_name");
+
+            Map<String, String> pubDateRow = sqlUtils.first("SELECT reference_date FROM t0113_dataset_reference WHERE obj_id = ? AND type = 2", new Object[]{litObjId});
+            if (pubDateRow == null || pubDateRow.isEmpty()) {
+                LOG.warn("Cross-referenced literature object with UUID " + uuid + " doesn't have a publication date. Cross reference won't be added to the XML output.");
+                return;
+            }
+            String pubDate = trafoUtil.getISODateFromIGCDate(pubDateRow.get("reference_date"));
+            pubDate = pubDate.substring(0, pubDate.indexOf('T'));
 
             String aggrInfoQname = "gmd:aggregationInfo";
             String mdAggrInfoQname = aggrInfoQname + "/gmd:MD_AggregateInformation";
@@ -296,37 +347,127 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             }
 
             IdfElement ciCitation = mdAggregateInformation.addElement("gmd:aggregateDataSetName/gmd:CI_Citation");
+
+            // Add uuidref attribute to gmd:
+            ciCitation.getParent().addAttribute("uuidref", uuid);
+
             ciCitation.addElement("gmd:title/" + GCO_CHARACTER_STRING_QNAME)
-                    .addText(xrefTitle);
+                    .addText(litTitle);
 
             IdfElement ciDate = ciCitation.addElement("gmd:date/gmd:CI_Date");
             ciDate.addElement("gmd:date/gco:Date")
-                    .addText(date.format(ISO_DATE));
+                    .addText(pubDate);
             ciDate.addElement("gmd:dateType/gmd:CI_DateTypeCode")
                     .addAttribute("codeList", CODELIST_URL + "gmd:CI_DateTypeCode")
                     .addAttribute("codeListValue", "publication")
                     .addText("publication");
 
-            ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/" + GCO_CHARACTER_STRING_QNAME)
-                    .addText(xrefIdentifier);
-
-            for(String author: xrefAuthorString.split(";")) {
-                IdfElement ciResponsibleParty = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
-                ciResponsibleParty.addElement("gmd:individualName/" + GCO_CHARACTER_STRING_QNAME)
-                        .addText(author.trim());
-                ciResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
-                        .addAttribute("codeList", CODELIST_URL + "CI_RoleCode")
-                        .addAttribute("codeListValue", "author")
-                        .addText("author");
+            List<String> identifiers = new ArrayList<>();
+            Map<String, String> doiRow = sqlUtils.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'doiId'", new Object[]{litObjId});
+            if (doiRow != null) {
+                identifiers.add("https://doi.org/" + doiRow.get("data"));
             }
-            if (xrefPublisher != null && !xrefPublisher.trim().isEmpty()) {
+            String handle = getFirstAdditionalFieldValue(litObjId, "bawLiteratureHandle");
+            if (handle != null) {
+                identifiers.add(handle);
+            }
+
+            for(String identifier: identifiers) {
+                ciCitation.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(identifier);
+            }
+
+            String query = "SELECT t02_address.*, t012_obj_adr.type, t012_obj_adr.special_name " +
+                    "FROM t012_obj_adr, t02_address " +
+                    "WHERE t012_obj_adr.adr_uuid=t02_address.adr_uuid " +
+                    "      AND t02_address.work_state='V'" +
+                    "      AND t012_obj_adr.obj_id=?" +
+                    "      AND t012_obj_adr.type=?" +
+                    "      AND t012_obj_adr.special_ref=505 " +
+                    "ORDER BY line";
+
+            final int authorKey = 11;
+            final int publisherKey = 10;
+
+            String uuidKey = "uuid";
+            String firstNameKey = "firstName";
+            String lastNameKey = "lastName";
+            String orgKey = "organisation";
+            String roleKey = "role";
+
+            List<Map<String, String>> contacts = new ArrayList<>();
+            for(Map<String, String> author: sqlUtils.all(query, new Object[] {litObjId, authorKey})) {
+                Map<String, String> map = new HashMap<>();
+
+                map.put(uuidKey, author.get("adr_uuid"));
+                map.put(firstNameKey, author.get("firstname"));
+                map.put(lastNameKey, author.get("lastname"));
+                map.put(orgKey, author.get("institution"));
+                map.put(roleKey, "author");
+
+                contacts.add(map);
+            }
+            for(Map.Entry<Integer, Map<String, String>> authorEntry: getOrderedAdditionalFieldDataTableRows(litObjId, "bawLiteratureAuthorsTable").entrySet()) {
+                Map<String, String> author = authorEntry.getValue();
+                Map<String, String> map = new HashMap<>();
+
+                map.put(firstNameKey, author.get("authorGivenName"));
+                map.put(lastNameKey, author.get("authorFamilyName"));
+                map.put(orgKey, author.get("authorOrganisation"));
+                map.put(roleKey, "author");
+
+                contacts.add(map);
+            }
+
+            Map<String, String> publisher = sqlUtils.first(query, new Object[]{litObjId, publisherKey});
+            if (publisher != null) {
+                Map<String, String> map = new HashMap<>();
+
+                map.put(uuidKey, publisher.get("adr_uuid"));
+                map.put(firstNameKey, publisher.get("firstname"));
+                map.put(lastNameKey, publisher.get("lastname"));
+                map.put(orgKey, publisher.get("institution"));
+                map.put(roleKey, "publisher");
+
+                contacts.add(map);
+            }
+            String publisherOrg = getFirstAdditionalFieldValue(litObjId, "bawLiteraturePublisher");
+            if (publisherOrg != null) {
+                Map<String, String> map = new HashMap<>();
+
+                map.put(orgKey, publisherOrg);
+                map.put(roleKey, "publisher");
+
+                contacts.add(map);
+            }
+
+            for(Map<String, String> contact: contacts) {
+                String contactUuid = contact.get(uuidKey);
+                String firstName = contact.get(firstNameKey);
+                String lastName = contact.get(lastNameKey);
+                String organisation = contact.get(orgKey);
+                String role = contact.get(roleKey);
+
                 IdfElement ciResponsibleParty = ciCitation.addElement("gmd:citedResponsibleParty/gmd:CI_ResponsibleParty");
-                ciResponsibleParty.addElement("gmd:organisationName/" + GCO_CHARACTER_STRING_QNAME)
-                        .addText(xrefPublisher);
+
+                if (contactUuid != null) {
+                    ciResponsibleParty.addAttribute("uuid", contactUuid);
+                }
+
+                if (firstName != null && lastName != null) {
+                    ciResponsibleParty.addElement("gmd:individualName/" + GCO_CHARACTER_STRING_QNAME)
+                            .addText(lastName + ", " + firstName);
+                }
+
+                if (organisation != null) {
+                    ciResponsibleParty.addElement("gmd:organisationName/" + GCO_CHARACTER_STRING_QNAME)
+                            .addText(organisation);
+                }
+
                 ciResponsibleParty.addElement("gmd:role/gmd:CI_RoleCode")
                         .addAttribute("codeList", CODELIST_URL + "CI_RoleCode")
-                        .addAttribute("codeListValue", "publisher")
-                        .addText("publisher");
+                        .addAttribute("codeListValue", role)
+                        .addText(role);
             }
 
             mdAggregateInformation.addElement("gmd:associationType/gmd:DS_AssociationTypeCode")
@@ -336,7 +477,26 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         }
     }
 
-    private void setHierarchyLevelName(Element mdMetadata, Long objId) throws SQLException {
+    void addHandleInformation() throws SQLException {
+        String handle = getFirstAdditionalFieldValue(objId, "bawLiteratureHandle");
+        if (handle == null || handle.trim().isEmpty()) return;
+
+        String identifierQname = "gmd:identifier";
+        IdfElement ciCitation = domUtil.getElement(mdIdentification, "gmd:citation/gmd:CI_Citation");
+
+        IdfElement identifier;
+        IdfElement previousSibling = findPreviousSibling(identifierQname, ciCitation.getElement(), CI_CITATION_CHILDREN);
+        if (previousSibling == null) {
+            identifier = domUtil.addElement(mdIdentification.getElement(), identifierQname);
+        } else {
+            identifier = previousSibling.addElementAsSibling(identifierQname);
+        }
+
+        identifier.addElement("gmd:MD_Identifier/gmd:code/" + GCO_CHARACTER_STRING_QNAME)
+                .addText(handle);
+    }
+
+    void setHierarchyLevelName() throws SQLException {
         String hlName = getFirstAdditionalFieldValue(objId, "bawHierarchyLevelName");
         if (hlName == null || hlName.trim().isEmpty()) return;
 
@@ -358,44 +518,62 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         }
     }
 
-    private void addAuftragsInfos(IdfElement mdIdentification, Long objId) throws SQLException {
+    void addAuftragsInfos() throws SQLException {
         String number = getFirstAdditionalFieldValue(objId, "bawAuftragsnummer");
         String title = getFirstAdditionalFieldValue(objId, "bawAuftragstitel");
 
 
-        if (number == null && title != null) {
-            LOG.error("Auftragstitel is defined but no Auftragsnummer found for object with id: " + objId);
-        }
-        if (number != null && title == null) {
-            LOG.error("Auftragsnummer is defined but no Auftragstitel found for object with id: " + objId);
-        }
-        if (number == null || title == null) return;
+        if (Objects.equals(objClass, PROJECT_OBJ_CLASS)) {
+            if (number != null && !number.trim().isEmpty()) {
+                String identifierQname = "gmd:identifier";
+                IdfElement ciCitation = domUtil.getElement(mdIdentification, "gmd:citation/gmd:CI_Citation");
 
-        String aggInfoQname = "gmd:aggregationInfo";
-        IdfElement previousSibling = findPreviousSibling(aggInfoQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
+                IdfElement identifier;
+                IdfElement previousSibling = findPreviousSibling(identifierQname, ciCitation.getElement(), CI_CITATION_CHILDREN);
+                if (previousSibling == null) {
+                    identifier = domUtil.addElement(mdIdentification.getElement(), identifierQname);
+                } else {
+                    identifier = previousSibling.addElementAsSibling(identifierQname);
+                }
 
-        String mdAggregateInfoPath = aggInfoQname + "/gmd:MD_AggregateInformation";
-        IdfElement mdAggregateInfoElement;
-        if (previousSibling == null) {
-            mdAggregateInfoElement = mdIdentification.addElement(mdAggregateInfoPath);
+                identifier.addElement("gmd:MD_Identifier/gmd:code/" + GCO_CHARACTER_STRING_QNAME)
+                        .addText(number);
+            }
         } else {
-            mdAggregateInfoElement = previousSibling.addElementAsSibling(mdAggregateInfoPath);
+            if (number == null && title != null) {
+                LOG.error("Auftragstitel is defined but no Auftragsnummer found for object with id: " + objId);
+            }
+            if (number != null && title == null) {
+                LOG.error("Auftragsnummer is defined but no Auftragstitel found for object with id: " + objId);
+            }
+            if (number == null || title == null) return;
+
+            String aggInfoQname = "gmd:aggregationInfo";
+            IdfElement previousSibling = findPreviousSibling(aggInfoQname, mdIdentification.getElement(), MD_IDENTIFICATION_CHILDREN);
+
+            String mdAggregateInfoPath = aggInfoQname + "/gmd:MD_AggregateInformation";
+            IdfElement mdAggregateInfoElement;
+            if (previousSibling == null) {
+                mdAggregateInfoElement = mdIdentification.addElement(mdAggregateInfoPath);
+            } else {
+                mdAggregateInfoElement = previousSibling.addElementAsSibling(mdAggregateInfoPath);
+            }
+
+            IdfElement aggInfoCitationElement = mdAggregateInfoElement.addElement("gmd:aggregateDataSetName/gmd:CI_Citation");
+            aggInfoCitationElement.addElement("gmd:title/gco:CharacterString")
+                    .addText(title);
+            aggInfoCitationElement.addElement("gmd:date")
+                    .addAttribute("gco:nilReason", "unknown");
+            aggInfoCitationElement.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString")
+                    .addText(number);
+
+            mdAggregateInfoElement.addElement("gmd:associationType/gmd:DS_AssociationTypeCode")
+                    .addAttribute("codeList", CODELIST_URL + "DS_AssociationTypeCode")
+                    .addAttribute("codeListValue", "largerWorkCitation");
         }
-
-        IdfElement aggInfoCitationElement = mdAggregateInfoElement.addElement("gmd:aggregateDataSetName/gmd:CI_Citation");
-        aggInfoCitationElement.addElement("gmd:title/gco:CharacterString")
-                .addText(title);
-        aggInfoCitationElement.addElement("gmd:date")
-                .addAttribute("gco:nilReason", "unknown");
-        aggInfoCitationElement.addElement("gmd:identifier/gmd:MD_Identifier/gmd:code/gco:CharacterString")
-                .addText(number);
-
-        mdAggregateInfoElement.addElement("gmd:associationType/gmd:DS_AssociationTypeCode")
-                .addAttribute("codeList", CODELIST_URL + "DS_AssociationTypeCode")
-                .addAttribute("codeListValue", "largerWorkCitation");
     }
 
-    private void addBWaStrIdentifiers(IdfElement mdIdentification, Long objId) throws SQLException {
+    void addBWaStrIdentifiers() throws SQLException {
         Map<Integer, Map<String, String>> rows = getOrderedAdditionalFieldDataTableRows(objId, "bwastrTable");
 
         String extentQname = "gmd:extent";
@@ -453,7 +631,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         return extentElement;
     }
 
-    private void addBawKewordCatalogeKeywords(IdfElement mdIdentification, Long objId) throws SQLException {
+    void addBawKewordCatalogeKeywords() throws SQLException {
         List<Map<String, String>> rows = getOrderedAdditionalFieldDataTableRowData(objId, "bawKeywordCatalogueEntry");
 
         // Collect keywords to add them to the same descriptiveKeywords element
@@ -478,7 +656,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         }
     }
 
-    private void addSimSpatialDimensionKeyword(IdfElement mdIdentification, Long objId) throws SQLException {
+    void addSimSpatialDimensionKeyword() throws SQLException {
         String value = getFirstAdditionalFieldValue(objId, "simSpatialDimension");
         if (value == null) return; // There's nothing to do if there is no value
 
@@ -494,7 +672,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 value);
     }
 
-    private void addSimModelMethodKeyword(IdfElement mdIdentification, Long objId) throws SQLException {
+    void addSimModelMethodKeyword() throws SQLException {
         String value = getFirstAdditionalFieldValue(objId, "simProcess");
         if (value == null) return; // There's nothing to do if there is no value
 
@@ -510,7 +688,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 value);
     }
 
-    private void addSimModelTypeKeywords(IdfElement mdIdentification, Long objId) throws SQLException {
+    void addSimModelTypeKeywords() throws SQLException {
         List<Map<String, String>> rows = getOrderedAdditionalFieldDataTableRowData(objId, "simModelType");
         if (rows.isEmpty()) return;
 
@@ -535,7 +713,14 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 allValues.toArray(new String[allValues.size()]));
     }
 
-    private void changeMetadataDateAsDateTime(Node mdMetadata, String dateString) {
+    void changeMetadataDateAsDateTime() throws SQLException {
+        Map<String, String> objRow = sqlUtils.first("SELECT * FROM t01_object WHERE id=?", new Object[]{objId});
+        if (objRow == null || objRow.isEmpty()) {
+            LOG.info("No database record found in table t01_object for id: " + objId);
+            return;
+        }
+
+        String dateString = objRow.get("mod_time");
         if (dateString == null || dateString.trim().isEmpty()) {
             LOG.info("Database entry doesn't have a modified time.");
             return;
@@ -551,7 +736,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         }
     }
 
-    private void addTimestepSizeElement(Element mdMetadata, Long objId) throws SQLException {
+    void addTimestepSizeElement() throws SQLException {
         String value = getFirstAdditionalFieldValue(objId, "dqAccTimeMeas");
         if (value == null || "NaN".equals(value)) return; // There's nothing to do if there is no value
 
@@ -565,7 +750,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
                 .addText(String.format("%.1f", Double.parseDouble(value)));
     }
 
-    private void addDgsValues(Element mdMetadata, Long objId) throws SQLException, ParseException {
+    void addDgsValues() throws SQLException, ParseException {
         Map<Integer, Map<String, String>> groupedRows = getOrderedAdditionalFieldDataTableRows(objId, "simParamTable");
 
         for(Map.Entry<Integer, Map<String, String>> entry: groupedRows.entrySet()) {
@@ -580,8 +765,6 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
             JSONArray valuesJsonArray = (JSONArray) jsonParser.parse(simParamValues);
 
             boolean areValuesIntegers = valuesJsonArray.stream().allMatch(e -> e instanceof Long);
-            boolean areValuesDoubles = !areValuesIntegers
-                    && valuesJsonArray.stream().allMatch(e -> e instanceof Double);
 
             List<String> values = (List<String>) valuesJsonArray.stream()
                     .map(e -> e.toString())
@@ -655,7 +838,7 @@ public class IgcToIdfMapperBaw implements IIdfMapper {
         return dqElement;
     }
 
-    private void addWaterwayInformation(Element mdMetadata, Map<String, Object> idxDoc) {
+    void addWaterwayInformation() {
         IdfElement additionalDataSection = domUtil.addElement(mdMetadata, "idf:additionalDataSection")
                 .addAttribute("id", "bawDmqsAdditionalFields");
         additionalDataSection.addElement("idf:title")
