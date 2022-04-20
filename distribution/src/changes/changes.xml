@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.13.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.13.0-SNAPSHOT">
+      <action type="update" dev="wemove" issue="3759">
+        Einfügen eines Trenners in der Beschreibung des ISOs
+      </action>
     </release>
 
     <release version="5.12.0" date="2022-04-12" description="Release 5.12.0">
