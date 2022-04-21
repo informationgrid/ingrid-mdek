@@ -5,6 +5,12 @@
   </properties>
   <body>
 
+    <release version="5.9.2.5" date="2022-04-21" description="Release 5.9.2.5">
+      <action type="fix" dev="wemove" issue="3769">
+        Fix SQL queries for use in postgresql
+      </action>
+    </release>
+
     <release version="5.9.2.4" date="2022-03-11" description="Release 5.9.2.4">
       <action type="fix" dev="wemove" issue="3596">
         IT-Sicherheitsmängel in Docker Basis Images beseitigen
