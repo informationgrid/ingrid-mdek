@@ -22,12 +22,9 @@
  */
 package de.ingrid.mdek.job;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
+import de.ingrid.utils.uuid.UuidUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -97,7 +94,10 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 	private XsltUtils xsltUtils;
 
-    @Autowired
+	@Autowired
+	private Configuration igeConfig;
+
+	@Autowired
     @Qualifier("dscRecordCreatorAddress")
     private DscRecordCreator dscRecordProducer;
 
@@ -527,6 +527,23 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// set specific data to transfer to working copy and store !
 			workflowHandler.processDocOnStore(aDocIn);
+
+			// If flag is set in config, then use UUID3 for new addresses
+			if (aDocIn.get(MdekKeys.UUID) == null && igeConfig.newAddressesUseUuid3) {
+				List<IngridDocument> commList = (List<IngridDocument>) aDocIn.get(MdekKeys.COMMUNICATION);
+				String email = null;
+				for(IngridDocument comm: commList) {
+					if (Objects.equals(comm.get(MdekKeys.COMMUNICATION_MEDIUM_KEY), MdekUtils.COMM_TYPE_EMAIL)) {
+						email = (String) comm.get(MdekKeys.COMMUNICATION_VALUE);
+						break;
+					}
+				}
+
+				if (email != null) {
+					String uuid3 = UuidUtil.uuidType3(UuidUtil.NAMESPACE_DNS, email).toString();
+					aDocIn.put(MdekKeys.UUID, uuid3);
+				}
+			}
 			String uuid = addressService.storeWorkingCopy(aDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???

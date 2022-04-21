@@ -160,6 +160,9 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
     @Value("${baw.lfs.base.url:https://dl.datenfinder.baw.de}")
     public String bawLfsBaseURL;
 
+    @Value("${new.addresses.use.uuid3:false}")
+    public Boolean newAddressesUseUuid3;
+
 
 
 
