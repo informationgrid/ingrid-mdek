@@ -5,7 +5,7 @@
   </properties>
   <body>
 
-    <release version="5.12.1-SNAPSHOT" date="2022-xx-xx" description="Release 5.12.1-SNAPSHOT">
+    <release version="5.12.1" date="2022-05-18" description="Release 5.12.1">
       <action type="update" dev="wemove" issue="3759">
         Einfügen eines Trenners in der Beschreibung des ISOs
       </action>
