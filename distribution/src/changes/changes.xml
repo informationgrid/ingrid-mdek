@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.12.1" date="2022-05-18" description="Release 5.12.1">
+      <action type="fix" dev="wemove" issue="3680">
+        Portal BKG-MIS: Anzeige der Nutzungsbedingungen in der erweiterten Suchergebnis-Anzeige unvollständig
+      </action>
       <action type="update" dev="wemove" issue="3759">
         Einfügen eines Trenners in der Beschreibung des ISOs
       </action>
