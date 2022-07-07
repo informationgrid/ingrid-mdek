@@ -134,13 +134,16 @@ for (i=0; i<objRows.size(); i++) {
     if (hasValue(explicitParentIdentifier)) {
         mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(explicitParentIdentifier);
     } else {
-        rows = SQL.all("SELECT fk_obj_uuid FROM object_node WHERE obj_uuid=?", [objUuid]);
+        rows = SQL.all("SELECT objNode1.fk_obj_uuid, obj.org_obj_id FROM object_node objNode1, object_node objNode2, t01_object obj WHERE objNode1.fk_obj_uuid=objNode2.obj_uuid AND objNode2.obj_id=obj.id AND objNode1.obj_uuid=?", [objUuid]);
         // Should be only one row !
-        objParentUuid = rows.get(0).get("fk_obj_uuid");
+        objParentUuid = rows.get(0).get("org_obj_id");
+        if (!hasValue(objParentUuid)) {
+            objParentUuid = rows.get(0).get("fk_obj_uuid");
+        }
         if (hasValue(objParentUuid)) {
             // check if parent is a folder
             // this query normally shoud return no value if parent is a folder, since they are never published ("V")
-            var parentObjRow = SQL.first("SELECT obj_class FROM t01_object WHERE obj_uuid=? and work_state=?", [objParentUuid, "V"]);
+            var parentObjRow = SQL.first("SELECT obj_class FROM t01_object WHERE (org_obj_id=? OR obj_uuid=?) and work_state=?", [objParentUuid, objParentUuid, "V"]);
             if (hasValue(parentObjRow) && !parentObjRow.get("obj_class").equals("1000")) {
                 mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
             }
