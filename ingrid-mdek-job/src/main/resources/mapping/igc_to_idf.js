@@ -1965,7 +1965,7 @@ function getMdKeywords(rows) {
             keywordValue = TRANSF.getIGCSyslistEntryName(1410, row.get("topic_key"), "en");
         } else if (hasValue(row.get("priority_key"))) {
             asAnchor = true;
-            keywordValue = TRANSF.getIGCSyslistEntryName(6350, row.get("priority_key"), "de");
+            keywordValue = TRANSF.getIGCSyslistEntryName(6350, row.get("priority_key"), catLangCode);
             var priorityData = TRANSF.getISOCodeListEntryData(6350, keywordValue);
             if (hasValue(priorityData)) {
                 try {
