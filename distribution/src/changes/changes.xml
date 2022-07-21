@@ -5,7 +5,7 @@
   </properties>
   <body>
 
-    <release version="5.13.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.13.0-SNAPSHOT">
+    <release version="5.13.0" date="2022-07-21" description="Release 5.13.0">
       <action type="fix" dev="wemove" issue="3680">
         Portal BKG-MIS: Anzeige der Nutzungsbedingungen in der erweiterten Suchergebnis-Anzeige unvollständig
       </action>
@@ -14,6 +14,12 @@
       </action>
       <action type="update" dev="wemove" issue="3491">
         Verwendung der Orig-UUID als ParentIdentifier
+      </action>
+      <action type="update" dev="wemove" issue="3463">
+        Add localisation to  INSPIRE priority dataset
+      </action>
+      <action type="update" dev="wemove" issue="3725">
+        Add option to use UUID3 for new addresses
       </action>
     </release>
 
