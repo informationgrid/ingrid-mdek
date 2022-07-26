@@ -2657,11 +2657,8 @@ function addDistributionInfo(mdMetadata, objId) {
             var isServiceParam = rowsParams.get(j).get("descr") === "Service type";
             if (isServiceParam) {
                 if (connUrl.indexOf("?") === -1) {
-                    if (connUrl.lastIndexOf("/") === connUrl.length() - 1) {
-                        connUrl = connUrl.substring(0, connUrl.length() - 1) + "?";
-                    } else {
-                        connUrl += "?";
-                    }
+                    // if getCapabilities-URL does not contain '?' it'll be not modified (#3369)
+                    return connUrl;
                 }
                 // if connUrl or parameters already contains a ? or & at the end then do not add another one!
                 if (!(connUrl.lastIndexOf("?") === connUrl.length() - 1)
