@@ -67,10 +67,34 @@ for(var i=0; i<addnFieldRows.size(); i++) {
 
 indexAdditionalFieldValueBWastr(objId);
 indexAdditionalFieldValueBWastrSpatialRefFree(objId);
-indexFirstAdditionalFieldValue(objId, "bawAuftragsnummer", "bawauftragsnummer");
-indexFirstAdditionalFieldValue(objId, "bawAuftragstitel", "bawauftragstitel");
+indexAuftragsnummer(objId);
+indexAuftragstitel(objId);
 
 indexBawAbteilung(objId);
+
+function indexAuftragsnummer(objId) {
+    indexFirstAdditionalFieldValue(objId, "bawAuftragsnummer", "bawauftragsnummer");
+}
+
+function indexAuftragstitel(objId) {
+    // Default
+    indexFirstAdditionalFieldValue(objId, "bawAuftragstitel", "bawauftragstitel");
+
+    // Object class 4 (Project) saves the object title in a different field
+    // Index the alternate title (if set) or the object title
+    var row = SQL.first("SELECT obj_name, dataset_alternate_name FROM t01_object WHERE id = ? AND obj_class = 4", [objId]);
+    if (hasValue(row)) {
+        var altTitle = row.get("dataset_alternate_name");
+        if (hasValue(altTitle)) {
+            IDX.add("bawauftragstitel", altTitle);
+        } else {
+            var title = row.get("obj_name");
+            if (hasValue(title)) {
+                IDX.add("bawauftragstitel", title);
+            }
+        }
+    }
+}
 
 function indexChildAdditionalFieldAsKeywords(parentRow, childKey, syslistId) {
     var parentFieldId = +parentRow.get("id");
