@@ -525,7 +525,7 @@ var mappingDescription = {"mappings":[
 	        			"storeValue":"serviceType",
 		      			"transform":{
 		      				"funct":transformGeneric,
-		      				"params":[{"discovery":"1", "view":"2", "download":"3", "transformation":"4", "invoke":"5", "other":"6"}, false, "Could not map serviceType : "]
+		      				"params":[{"discovery":"1", "view":"2", "download":"3", "transformation":"4", "invoke":"5", "other":"6", "wms": "2", "wmts": "2", "wfs": "3", "wfs-g": "3", "csw": "1"}, false, "Could not map serviceType : "]
 		        		}
 		        	},
 		        	{
