@@ -267,9 +267,16 @@ var mappingDescription = {"mappings":[
 		      			  			"targetNode":"scale"
 		      			  		},
 		      	  				{
-		      			  			"srcXpath":"gmd:MD_Resolution/gmd:distance/gco:Distance[@uom='meter' or @uom='m']",
+		      			  			"srcXpath":"gmd:MD_Resolution/gmd:distance/gco:Distance[@uom='meter' or @uom='Meter' or @uom='m']",
 		      			  			"targetNode":"resolution-ground"
 		      			  		},
+								{
+									"srcXpath":"gmd:MD_Resolution/gmd:distance/gco:Distance[@uom='cm']",
+									"targetNode":"resolution-ground",
+									"transform":{
+										"funct":transformCentimeterToMeter
+									}
+								},
 		      	  				{
 		      			  			"srcXpath":"gmd:MD_Resolution/gmd:distance/gco:Distance[@uom='dpi']",
 		      			  			"targetNode":"resolution-scan"
@@ -2871,6 +2878,10 @@ function transformDateIso8601ToIndex(isoFormat) {
 		return isoFormat;
 	}
 	return UtilsCSWDate.mapDateFromIso8601ToIndex(isoFormat);
+}
+
+function transformCentimeterToMeter(centimeter) {
+	return parseToInt(centimeter)/100;
 }
 
 function transformAlternateNameAndProductGroup(source, target) {
