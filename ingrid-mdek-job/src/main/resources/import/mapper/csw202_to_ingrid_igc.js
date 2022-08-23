@@ -87,8 +87,20 @@ var mappingDescription = {"mappings":[
   			"storeValue":"objectClass",
   			"transform":{
 				"funct":getObjectClassFromHierarchyLevel
-			}
+			},
   		},
+		{
+			"srcXpath": "",
+			"targetNode": "/igc/data-sources/data-source/data-source-instance/technical-domain/service/service-type",
+			"conditional": {
+				"storedValue": {
+					"name":"objectClass",
+					"value":"6"
+				}
+			},
+			"targetAttribute": "id",
+			"defaultValue": "3"
+		},
 		{
   			"srcXpath":"//gmd:identificationInfo//gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString",
 			"srcXpathTransform": {
@@ -1755,6 +1767,10 @@ function getObjectClassFromHierarchyLevel(val) {
 		// "Dienst / Anwendung / Informationssystem"
 		result = "3";
 	}
+	if (hasValue(val) && val.toLowerCase() == "application") {
+		//
+		result = "6";
+	}
 	return result;
 }
 
@@ -1770,11 +1786,13 @@ function validateSource(source) {
 	}
 	var hierarchyLevel = XPATH.getString(source, "//gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue");
 	log.debug("Found hierarchyLevel: " + hierarchyLevel);
+	/*
 	if (hierarchyLevel == "application") {
 		log.error("HierarchyLevel 'application' is not supported.");
 		protocol(ERROR, "HierarchyLevel 'application' is not supported.");
 		throw "HierarchyLevel 'application' is not supported.";
 	}
+	*/
 	return true;
 }
 
