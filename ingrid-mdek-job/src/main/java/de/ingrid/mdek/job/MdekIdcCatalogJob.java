@@ -984,22 +984,30 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		int index = completeContent.indexOf(beginOfDataSource);
 		StringBuilder str = new StringBuilder(completeContent);
 
-		String anotherDoc = textContent.substring(
-				textContent.indexOf(beginOfDataSource),
-				textContent.indexOf(endOfDataSource) + endOfDataSource.length());
+		if(textContent.indexOf(beginOfDataSource) > -1) {
+			String anotherDoc = textContent.substring(
+					textContent.indexOf(beginOfDataSource),
+					textContent.indexOf(endOfDataSource) + endOfDataSource.length());
 
-		str.insert(index, anotherDoc);
+			str.insert(index, anotherDoc);
+		}
 
 		// handle addresses
 		String beginOfAddresses = "<addresses>";
 		String endOfAddresses = "</addresses>";
-		int indexAddress = str.indexOf(beginOfAddresses) + beginOfAddresses.length();
+		int insertPosition = str.indexOf(beginOfAddresses) + beginOfAddresses.length();
+		int indexAddress = 0;
+		do {
+			indexAddress = textContent.indexOf(beginOfAddresses, indexAddress) + beginOfAddresses.length();
 
-		String otherAddresses = textContent.substring(
-				textContent.indexOf(beginOfAddresses) + beginOfAddresses.length(),
-				textContent.indexOf(endOfAddresses));
+			if(indexAddress >= beginOfAddresses.length()) {
+				String otherAddresses = textContent.substring(
+						indexAddress,
+					textContent.indexOf(endOfAddresses, indexAddress));
 
-		str.insert(indexAddress, otherAddresses);
+				str.insert(insertPosition, otherAddresses);
+			}
+		} while (indexAddress >= beginOfAddresses.length());
 
 		return str.toString();
 	}
