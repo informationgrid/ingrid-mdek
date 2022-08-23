@@ -2409,6 +2409,24 @@ function mapUncontrolledTerms(source, target) {
             }
         }
     }
+	mapWSVTopics(source, target);
+}
+
+
+function mapWSVTopics(source, target) {
+	var wsvTopics = {"WSV": "GeoKatalog.WSV Themen","TK": "Topografische Karten","DTK25": "DTK25","DTK25K": "DTK25 blattschnittfrei (Kacheln)","DTK25B": "DTK25 Blätter","DTK50": "DTK50","DTK50K": "DTK50 blattschnittfrei (Kacheln)","DTK50B": "DTK50 Blätter","DTK100": "DTK100","DTK100K": "DTK100 blattschnittfrei (Kacheln)","DTK100B": "DTK100 Blätter","DTK200": "DTK200","DTK200K": "DTK200 blattschnittfrei (Kacheln)","DTK200B": "DTK200 Blätter","DTK500": "DTK500","DTK500K": "DTK500 blattschnittfrei (Kacheln)","DTK1000": "DTK1000","DTK1000K": "DTK1000 blattschnittfrei (Kacheln)","DTK1000B": "DTK1000 Blätter","LUFT": "Luftbilder","WSVLUFT": "Luftbilder WSV","NICHTWSVLUFT": "Luftbilder Nicht-WSV","LUFTREGIO": "Luftbilder regional","LUFTUREGIO": "Luftbilder überregional","HIST": "Historische Daten","HISTMAPEXT": "Historische Karten Externer","DBWK": "DBWK","DBWK2": "DBWK2 - Digit. Bundeswasserstrassenkarte 1:2000","DBWK25": "DBWK25 - Digit. Bundeswasserstrassenkarte 1:25000","DBWK100": "DBWK100 - Digit. Bundeswasserstrassenkarte 1:100000","DBWK500": "DBWK500 - Digit. Bundeswasserstrassenkarte 1:500000","DBWK1000": "DBWK1000 - Digit. Bundeswasserstrassenkarte 1:1000000","MESMO": "Messdaten und Modelle","PDBK": "Peildatenbank Küste (PDBK)","GKInfo": "Pegelonline (GKInfo)","QUAGEO": "Quasigeoide","DGMWSV": "Digit. Geländemodell WSV","DGM25": "Digit. Geländemodell Deutschland (DGM-D, DGM25)","DOM": "Digitale Oberflächenmodelle (DOM)","BAU": "Bauvorhaben","BEWSIC": "Beweissicherung","GIS": "GIS-Datensätze","GISDSWSV": "GIS-Datensätze WSV","GISDSDRITTER": "GIS-Datensätze Dritter","FOT": "Fotos","SLFKUESTE": "VPS Schrägluftfotos Küste","EWAKART": "elektronische Wasserstraßenkarten (ENC/IENC)","IENC": "Inland ENC (IENC)","ENC": "ENC","SERVICE": "Dienste","SERVICEWSV": "WSV","SERVICEWSVWMS": "WSV-WMS","SERVICEWSVWMTS": "WSV-WMTS","SERVICEWSVWFS": "WSV-WFS","SERVICEWSVCSW": "WSV-CSW","NICHTSERVICEWSV": "Nicht-WSV","NICHTSERVICEWSVWMS": "Nicht-WSV-WMS","NICHTSERVICEWSVWMTS": "Nicht-WSV-WMTS","NICHTSERVICEWSVWFS": "Nicht-WSV-WFS","NICHTSERVICEWSVCSW": "Nicht-WSV-CSW","APP": "Anwendungen","APPWSV": "WSV","APPWEBAPP": "WSV-Webanwendung","APPDESKTOP": "WSV-Desktop-Anwendung","NICHTAPPWSV": "Nicht-WSV","NICHTAPPWEBAPP": "Nicht-WSV-Webanwendung","NICHTAPPDESKTOP": "Nicht-WSV-Desktop-Anwendung"};
+	var hierarchyLevelNames = XPATH.getNodeList(source, "//gmd:hierarchyLevelName//gco:CharacterString");
+	if (hasValue(hierarchyLevelNames)) {
+		for (i=0; i<hierarchyLevelNames.getLength(); i++ ) {
+			var hierarchyLevelName = getLocalisedCharacterString(hierarchyLevelNames.item(i));
+			if (hasValue(hierarchyLevelName)) {
+				XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term"), "wsv_topic_code:"+hierarchyLevelName);
+				if(wsvTopics.hasOwnProperty(hierarchyLevelName)){
+					XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term"), "wsv_topic:"+wsvTopics[hierarchyLevelName]);
+				}
+			}
+		}
+	}
 }
 
 function mapDistributionLinkages(source, target) {
