@@ -1361,7 +1361,7 @@ var mappingDescription = {"mappings":[
   		    }		
   		},
   		{
-  		    "srcXpath":"//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:thesaurusName) and gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='theme']/gmd:keyword/gco:CharacterString",
+			"srcXpath":"//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString='Data theme (EU MDR)']/gmd:keyword/gco:CharacterString",
   		    "targetNode":"/igc/data-sources/data-source/data-source-instance/subject-terms",
   		    "newNodeName":"controlled-term",
   		    "subMappings":{
@@ -1378,7 +1378,9 @@ var mappingDescription = {"mappings":[
   		                         "targetNode":"",
   		                         "targetAttribute":"id",
   		                         "transform":{
-  		                             "funct":transformToOpendataCategory,
+  		                             "funct":transformToIgcDomainId,
+									 // PASS "" as language to check all localized values !!!
+									 "params":[6400, "", "Could not map OpenData Category:", true]
   		                         }
   		                     },
   		                     {
@@ -2400,7 +2402,7 @@ function mapLegalConstraints(source, target) {
 }
 
 function mapUncontrolledTerms(source, target) {
-    var terms = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='place') and (not(not(gmd:thesaurusName) and gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='theme')) and (not(gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString) or ( (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='German Environmental Classification - Topic, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='GEMET - INSPIRE themes, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Service Classification, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Further legal basis') ))]/gmd:keyword/gco:CharacterString");
+    var terms = XPATH.getNodeList(source, "//gmd:identificationInfo//gmd:descriptiveKeywords/gmd:MD_Keywords[not(gmd:type/gmd:MD_KeywordTypeCode/@codeListValue='place') and (not(gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString) or ( (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Data theme (EU MDR)') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='German Environmental Classification - Topic, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='GEMET - INSPIRE themes, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Service Classification, version 1.0') and (gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString!='Further legal basis') ))]/gmd:keyword/gco:CharacterString");
     if (hasValue(terms)) {
         for (i=0; i<terms.getLength(); i++ ) {
             var term = getLocalisedCharacterString(terms.item(i));
