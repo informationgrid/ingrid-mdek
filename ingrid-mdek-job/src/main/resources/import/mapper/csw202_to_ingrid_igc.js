@@ -802,7 +802,7 @@ var mappingDescription = {"mappings":[
   		//
   		// ****************************************************
   		{
-  			"srcXpath":"//gmd:identificationInfo//gmd:language/gmd:LanguageCode/@codeListValue",
+  			"srcXpath":"//gmd:identificationInfo//gmd:language/gmd:LanguageCode/@codeListValue | //gmd:identificationInfo//gmd:language/gco:CharacterString",
   			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information",
   			"newNodeName":"data-language",
   			"subMappings":{
@@ -827,7 +827,7 @@ var mappingDescription = {"mappings":[
 			}
   		},
   		{
-  			"srcXpath":"//gmd:MD_Metadata/gmd:language/gmd:LanguageCode/@codeListValue",
+  			"srcXpath":"//gmd:MD_Metadata/gmd:language/gmd:LanguageCode/@codeListValue | //gmd:MD_Metadata/gmd:language/gco:CharacterString",
   			"targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information",
   			"newNodeName":"metadata-language",
   			"subMappings":{
