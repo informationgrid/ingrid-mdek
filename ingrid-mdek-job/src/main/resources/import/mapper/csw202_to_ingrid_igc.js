@@ -1146,7 +1146,7 @@ var mappingDescription = {"mappings":[
 		},
   		{
   			"srcXpath":"//gmd:identificationInfo//gmd:EX_Extent[not(./gmd:geographicElement[1][*[1][self::gmd:EX_GeographicDescription]] and " +
-				"./gmd:geographicElement[2][*[1][self::gmd:EX_GeographicBoundingBox]] and count(./gmd:geographicElement)=2)]/gmd:geographicElement",
+				"./gmd:geographicElement[2][*[1][self::gmd:EX_GeographicBoundingBox]] and count(./gmd:geographicElement)=2)]/gmd:geographicElement[./gmd:EX_GeographicBoundingBox or ./gmd:EX_GeographicDescription]",
   			"targetNode":"/igc/data-sources/data-source/data-source-instance/spatial-domain",
   			"newNodeName":"geo-location",
   			"subMappings":{
