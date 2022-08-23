@@ -1983,6 +1983,10 @@ function mapRSIdentifier(source, target)  {
 			var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/map/datasource-identificator");
 			XMLUtils.createOrReplaceTextNode(node, dataSourceID);
 		}
+	} else {
+		log.debug("Found no RS_Identifier records. Use new random UUID.");
+		var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/map/datasource-identificator");
+		XMLUtils.createOrReplaceTextNode(node, createUUID());
 	}
 }
 
