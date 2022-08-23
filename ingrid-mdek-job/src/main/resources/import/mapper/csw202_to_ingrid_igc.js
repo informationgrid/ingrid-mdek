@@ -418,7 +418,7 @@ var mappingDescription = {"mappings":[
 						"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/grid-format/grid-ref-referenced-param"
 					},
 					{
-						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation/gmd:geometricObjects",
+						"srcXpath":"//gmd:spatialRepresentationInfo/gmd:MD_VectorSpatialRepresentation/gmd:geometricObjects[string(../gmd:topologyLevel/gmd:MD_TopologyLevelCode/@codeListValue) or string(gmd:MD_GeometricObjects/gmd:geometricObjectType/gmd:MD_GeometricObjectTypeCode/@codeListValue) or string(gmd:MD_GeometricObjects/gmd:geometricObjectCount/gco:Integer)]",
 	        			"targetNode":"/igc/data-sources/data-source/data-source-instance/technical-domain/map/vector-format",
 						"newNodeName":"geo-vector",
 						"subMappings": {
@@ -433,7 +433,7 @@ var mappingDescription = {"mappings":[
 									}
 								},
 								{
-									"srcXpath":"gmd:MD_GeometricObjects/gmd:geometricObjectType/gmd:MD_GeometricObjectTypeCode/@codeListValue",
+									"srcXpath":"gmd:MD_GeometricObjects/gmd:geometricObjectType/gmd:MD_GeometricObjectTypeCode/@codeListValue[string()]",
 									"targetNode":"geometric-object-type",
 									"targetAttribute":"iso-code",
 									"transform":{
