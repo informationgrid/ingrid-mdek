@@ -58,7 +58,6 @@
         <property name="recordMapperList">
             <list>
                 <ref bean="recordMapper"/>
-                <ref bean="recordMapperHmdk"/>
                 <ref bean="recordProfileMapper"/>
                 <ref bean="idfProducerIndexMapper"/>
             </list>
@@ -66,12 +65,4 @@
         <property name="indexInfo" ref="indexInfo"/>
     </bean>
 
-    <bean id="recordMapperHmdk" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
-        <property name="mappingScripts">
-            <list>
-                <value>classpath:mapping/igc_to_lucene_hmdk.js</value>
-            </list>
-        </property>
-        <property name="compile" value="true" />
-    </bean>
 </beans>
