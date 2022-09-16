@@ -2235,7 +2235,7 @@ function mapAddress(isoAddressNode, igcAdressNodes, individualName, organisation
 	if (hasValue(individualName) && hasValue(parentId)) {
 		var lowerCaseName = individualName.toLowerCase();
 		log.debug("lowerCaseName: "+lowerCaseName);
-		if(lowerCaseName.indexOf("abteilung") != -1 || lowerCaseName.indexOf("referat") != -1 || lowerCaseName.indexOf("dezernat") != -1 || lowerCaseName.indexOf("service") != -1 || lowerCaseName.indexOf("leitung") != -1 || lowerCaseName.indexOf("projektgruppe") != -1){
+		if(lowerCaseName.indexOf("abteilung") != -1 || lowerCaseName.indexOf("referat") != -1 || lowerCaseName.indexOf("dezernat") != -1 || lowerCaseName.indexOf("service") != -1 || lowerCaseName.indexOf("leitung") != -1 || lowerCaseName.indexOf("projektgruppe") != -1 || lowerCaseName.indexOf('sachgebiet') != -1){
 			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "type-of-address"), "id", "1");
 			isEinheit = true;
 		} else {
