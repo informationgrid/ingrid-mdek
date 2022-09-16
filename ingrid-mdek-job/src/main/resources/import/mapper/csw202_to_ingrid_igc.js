@@ -2224,12 +2224,9 @@ function addLegalConstraint(accConstraint, target) {
 }
 
 function mapAddress(isoAddressNode, igcAdressNodes, individualName, organisationName, target, isMdContactNode, parentId, isRelated) {
-	var uuid = createUUIDFromAddress(isoAddressNode);
+    var uuid;
 	var igcAddressNode = XPATH.createElementFromXPathAsSibling(igcAdressNodes, "address");
 	var igcAddressInstanceNode = XPATH.createElementFromXPathAsSibling(igcAddressNode, "address-instance");
-	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "address-identifier"), uuid);
-	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "modificator-identifier"), "xxx");
-	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "responsible-identifier"), "xxx");
 	var isEinheit = false;
 	var isOrganisation = false;
 	if (hasValue(individualName) && hasValue(parentId)) {
@@ -2247,8 +2244,10 @@ function mapAddress(isoAddressNode, igcAdressNodes, individualName, organisation
 		isOrganisation = true;
 	}
 	if(isEinheit){
+		uuid = createUUIDFromAddress(isoAddressNode, false);
 		XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "organisation"), individualName);
 	} else {
+		uuid = createUUIDFromAddress(isoAddressNode, parentId == null);
 		if(hasValue(organisationName)){
 			XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "organisation"), organisationName);
 		}
@@ -2259,6 +2258,9 @@ function mapAddress(isoAddressNode, igcAdressNodes, individualName, organisation
 			XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "name"), individualName);
 		}
 	}
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "address-identifier"), uuid);
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "modificator-identifier"), "xxx");
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "responsible-identifier"), "xxx");
 
 	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "publication-condition"), "1");
 	var countryCode = UtilsCountryCodelist.getCodeFromShortcut3(XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
@@ -3026,7 +3028,7 @@ function call_f(f,args)
 
 
 
-function createUUIDFromAddress(source) {
+function createUUIDFromAddress(source, overwriteExisting) {
 	log.debug("create UUID from address node: " + source);
 	var isoUuid = XPATH.getString(source, "./@uuid");
 	var organisationName = XPATH.getString(source, "gmd:organisationName/gco:CharacterString");
@@ -3052,7 +3054,7 @@ function createUUIDFromAddress(source) {
 
 	var uuid;
 	// first check for valid uuid to be used for address identification
-	if (hasValue(isoUuid)) {
+	if (hasValue(isoUuid) && !overwriteExisting) {
 	    uuid = isoUuid;
 	} else {
 	    // otherwise create a uuid from the content, to try to find an address
