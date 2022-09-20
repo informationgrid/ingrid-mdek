@@ -41,6 +41,12 @@ var objId = sourceRecord.get("id");
 // objClass variable is from script before "igc_to_idf.js"
 if (objClass.equals("1")) {
     removeCoupledServiceInformation();
+    var hierarchyLevel = getAdditionalFieldFromObject(objId, "bawHierarchyLevelName", "data")
+    if (hierarchyLevel === "Messdaten") {
+        addMeasureData();
+    } 
+} else if (objClass.equals("6")) {
+    addSoftwareData();
 }
 
 function removeCoupledServiceInformation() {
@@ -59,3 +65,106 @@ function removeServiceGetCapabilitiesURL(linkage) {
     }
 }
 
+function addMeasureData() {
+    var dataIdent = XPATH.getNode(idfDoc, "//gmd:identificationInfo/gmd:MD_DataIdentification");
+    var measureInfo = DOM.addElement(dataIdent, "measurementInfo");
+
+    measureInfo.addElement(addItemsToDom(objId, "measurementMethod", "measuringMethod", ["measuringMethod"]));
+    measureInfo.addElement("spatialOrientation").addText(getAdditionalFieldFromObject(objId, "spatiality", "data"));
+    measureInfo.addElement("MeasurementDepth")
+        .addElement("measurementDepth").addText(getAdditionalFieldFromObject(objId, "measuringDepth", "data"))
+        .getParent()
+        .addElement("uom").addText(getAdditionalFieldFromObject(objId, "unitOfMeasurement", "data"))
+        .getParent()
+        .addElement("verticalCRS").addText(getAdditionalFieldFromObject(objId, "heightReferenceSystem", "data"))
+    measureInfo.addElement("measurementFrequency").addText(getAdditionalFieldFromObject(objId, "measuringFrequency", "data"));
+    measureInfo.addElement(addItemsToDom(objId, "MeanWaterLevel", "averageWaterLevel", ["waterLevel", "unitOfMeasurement"]));
+    measureInfo.addElement(addItemsToDom(objId, "GaugeDatum", "zeroLevel", ["zeroLevel", "unitOfMeasurement", "verticalCoordinateReferenceSystem", "description"]));
+    measureInfo.addElement("minDischarge").addText(getAdditionalFieldFromObject(objId, "drainMin", "data"));
+    measureInfo.addElement("maxDischarge").addText(getAdditionalFieldFromObject(objId, "drainMax", "data"));
+    measureInfo.addElement(addItemsToDom(objId, "MeasurementDevice", "gauge", ["name", "id", "model", "description"]));
+    measureInfo.addElement(addItemsToDom(objId, "MeasuredQuantities", "targetParameters", ["name", /*"type",*/ "unitOfMeasurement", "formula"]));
+    // measureInfo.addElement("spatialAccuracy").addText(""); // => already exists as core field "ref1PosAccuracy"
+    measureInfo.addElement("dataQualityDescription").addText(getAdditionalFieldFromObject(objId, "dataQualityDescription", "data"));
+    
+}
+
+function addSoftwareData() {
+    var dataIdent = XPATH.getNode(idfDoc, "//gmd:identificationInfo/gmd:MD_DataIdentification");
+    var software = DOM.addElement(dataIdent, "software");
+
+    software.addElement("einsatzzweck").addText(getAdditionalFieldFromObject(objId, "purpose", "data"));
+    var nutzerkreis = software.addElement("Nutzerkreis");
+    nutzerkreis.addElement("baw").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "userGroupBAW", "data"))
+    nutzerkreis.addElement("wsv").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "userGroupWSV", "data"))
+    nutzerkreis.addElement("extern").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "userGroupExtern", "data"))
+    nutzerkreis.addElement("anmerkungen").addText(getAdditionalFieldFromObject(objId, "userGroupNotes", "data"))
+    
+    var produktiverEinsatz = software.addElement("ProduktiverEinsatz");
+    produktiverEinsatz.addElement("wsvAuftrag").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "productiveUseWSVContract", "data"))
+    produktiverEinsatz.addElement("fUndE").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "productiveUseFuE", "data"))
+    produktiverEinsatz.addElement("andere").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "productiveUseOther", "data"))
+    produktiverEinsatz.addElement("wsvAuftrag").addElement("anmerkungen").addText(getAdditionalFieldFromObject(objId, "productiveUseNotes", "data"))
+    
+    var ergaenzungsModul = software.addElement("ErgaenzungsModul");
+    ergaenzungsModul.addElement("ergaenzungsModul").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "hasSupplementaryModule", "data"))
+    ergaenzungsModul.addElement("ergaenzteSoftware").addText(getAdditionalFieldFromObject(objId, "nameOfSoftware", "data"))
+
+    var betriebssystem = software.addElement("Betriebssystem");
+    betriebssystem.addElement("windows").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "operatingSystemWindows", "data"))
+    betriebssystem.addElement("linux").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "operatingSystemLinux", "data"))
+    betriebssystem.addElement("anmerkungen").addText(getAdditionalFieldFromObject(objId, "operatingSystemNotes", "data"))
+
+    software.addElement(addItemsToDom(objId, "Programmiersprache", "programmingLanguage", ["programmingLanguage"]));
+    software.addElement(addItemsToDom(objId, "Entwicklungsumgebung", "developmentEnvironment", ["developmentEnvironment"]));
+    software.addElement(addItemsToDom(objId, "Bibliotheken", "libraries", ["library"]));
+    software.addElement("Erstellungsvertrag")
+        .addElement("vertragsNummer").addText(getAdditionalFieldFromObject(objId, "creationContractNumber", "data"))
+        .getParent()
+        .addElement("datum").addText(getAdditionalFieldFromObject(objId, "creationContractDate", "data"))
+
+    software.addElement("Supportvertrag")
+        .addElement("vertragsNummer").addText(getAdditionalFieldFromObject(objId, "supportContractNumber", "data"))
+        .getParent()
+        .addElement("datum").addText(getAdditionalFieldFromObject(objId, "supportContractDate", "data"))
+
+    var installationsort = software.addElement("Installationsort");
+    installationsort.addElement("lokal").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "operatingSystemWindows", "data"))
+    installationsort.addElement("HLR").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "operatingSystemLinux", "data"))
+    installationsort.addElement("anmerkungen").addText(getAdditionalFieldFromObject(objId, "operatingSystemNotes", "data"))
+
+}
+
+function addItemsToDom(objId, domElementId, tableId, columnIds) {
+    var columns = [];
+    for (var i = 0; i < columnIds.length; i++) {
+        columns.push(getValuesFromTable(objId, tableId, columnIds[i]));
+    }
+    var element = DOM.createElement(domElementId);
+    for (var i = 0; i < columns[0].length; i++) {
+        var item = element.addElement("item");
+        for (var j = 0; j < columnIds.length; j++) {
+            item.addElement(columnIds[j]).addText(columns[j][i]);
+        }
+    }
+    return element;
+}
+
+function getValuesFromTable(objId, tableId, columnId) {
+    var table = getAdditionalForTable(objId, tableId)
+    var result = [];
+    for (var i = 0; i < table.length; i++) {
+        result.push(table[i][columnId].data);
+    }
+
+    return result
+}
+
+function getAdditionalFieldFromObject(objId, fieldId, property) {
+    var field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldId]);
+    if (hasValue(field)) {
+        return field.get(property);
+    } else {
+        return null;
+    }
+}
