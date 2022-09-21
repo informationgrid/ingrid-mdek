@@ -338,7 +338,14 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             for (int i = 0; i < deleteDocs.getLength(); i++) {
                 Node item = deleteDocs.item( i );
                 String propName = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:PropertyName" );
+                if (propName == null) {
+                    throw new Exception( "Missing or empty Constraint \".//ogc:PropertyIsEqualTo/ogc:PropertyName\".");
+                }
+
                 String propValue = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:Literal" );
+                if (propValue == null) {
+                    throw new Exception( "Missing or empty Constraint \".//ogc:PropertyIsEqualTo/ogc:Literal\".");
+                }
 
                 // the property "uuid" is still supported for compatibility reasons, see https://dev.informationgrid.eu/redmine/issues/524
                 if (("uuid".equals( propName ) || PATTERN_IDENTIFIER.matcher( propName ).matches()) && propValue != null) {
