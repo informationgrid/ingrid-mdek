@@ -20,10 +20,10 @@
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
     <ingrid-udk-importer.version>5.12.0</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>5.13.0</ingrid-codelist-service.version>
-    <ingrid-utils.version>5.14.0-SNAPSHOT</ingrid-utils.version>
+    <ingrid-codelist-service.version>5.14.0</ingrid-codelist-service.version>
+    <ingrid-utils.version>5.14.0</ingrid-utils.version>
     <ingrid-iplug-dsc.version>5.12.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>5.12.0</ingrid-base-webapp.version>
+    <ingrid-base-webapp.version>5.14.0</ingrid-base-webapp.version>
     <spring.version>5.3.18</spring.version>
   </properties>
 
