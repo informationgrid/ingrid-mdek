@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>5.13.0</version>
+    <version>5.14.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-mdek-services</artifactId>
@@ -71,14 +71,14 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-hibernate3</artifactId>
-      <version>2.0.6</version>
+      <version>2.0.8</version>
       <!-- this lib is used during runtime! -->
       <!-- <scope>test</scope> -->
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-mock</artifactId>
-      <version>2.0.6</version>
+      <version>2.0.8</version>
       <scope>test</scope>
     </dependency>
     <dependency>

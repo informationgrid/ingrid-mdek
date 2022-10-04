@@ -58,6 +58,7 @@ public class IgcToIdfMapperBawDoi implements IIdfMapper {
             helper.addHandleInformation();
 
             helper.setHierarchyLevelName();
+            helper.addAuftragsInfos();
             helper.addBWaStrIdentifiers();
             helper.addBawKewordCatalogeKeywords();
             helper.addSimSpatialDimensionKeyword();

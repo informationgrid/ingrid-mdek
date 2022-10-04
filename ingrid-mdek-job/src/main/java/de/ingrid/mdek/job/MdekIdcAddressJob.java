@@ -530,19 +530,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// If flag is set in config, then use UUID3 for new addresses
 			if (aDocIn.get(MdekKeys.UUID) == null && igeConfig.newAddressesUseUuid3) {
-				List<IngridDocument> commList = (List<IngridDocument>) aDocIn.get(MdekKeys.COMMUNICATION);
-				String email = null;
-				for(IngridDocument comm: commList) {
-					if (Objects.equals(comm.get(MdekKeys.COMMUNICATION_MEDIUM_KEY), MdekUtils.COMM_TYPE_EMAIL)) {
-						email = (String) comm.get(MdekKeys.COMMUNICATION_VALUE);
-						break;
-					}
-				}
-
-				if (email != null) {
-					String uuid3 = UuidUtil.uuidType3(UuidUtil.NAMESPACE_DNS, email).toString();
-					aDocIn.put(MdekKeys.UUID, uuid3);
-				}
+				addUuid3ForNewAddress(aDocIn);
 			}
 			String uuid = addressService.storeWorkingCopy(aDocIn, userId);
 
@@ -578,6 +566,24 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 		}
 	}
 
+	private static String addUuid3ForNewAddress(IngridDocument aDocIn) {
+		List<IngridDocument> commList = (List<IngridDocument>) aDocIn.get(MdekKeys.COMMUNICATION);
+		String email = null;
+		for(IngridDocument comm: commList) {
+			if (Objects.equals(comm.get(MdekKeys.COMMUNICATION_MEDIUM_KEY), MdekUtils.COMM_TYPE_EMAIL)) {
+				email = (String) comm.get(MdekKeys.COMMUNICATION_VALUE);
+				break;
+			}
+		}
+
+		if (email != null) {
+			String uuid3 = UuidUtil.uuidType3(UuidUtil.NAMESPACE_DNS, email).toString();
+			aDocIn.put(MdekKeys.UUID, uuid3);
+			return uuid3;
+		}
+		return null;
+	}
+	
 	public IngridDocument assignAddressToQA(IngridDocument aDocIn) {
 		String userId = getCurrentUserUuid(aDocIn);
 		boolean removeRunningJob = true;
@@ -805,6 +811,14 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 			
+			if (aDocIn.get(MdekKeys.UUID) == null && igeConfig.newAddressesUseUuid3) {
+				String uuid = addUuid3ForNewAddress(aDocIn);
+				// before publish with a generated UUID we need to store it so that the
+				// checks during publishing still work
+				if (uuid != null) {
+					addressService.storeWorkingCopy(aDocIn, userId);
+				}
+			}
 			String uuid = addressService.publishAddress(aDocIn, forcePubCondition, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???

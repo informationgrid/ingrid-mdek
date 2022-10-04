@@ -240,7 +240,7 @@ class IgcToIdfHelperBaw {
             onlineResourceElement.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
                     .addAttribute("codeList", CODELIST_URL + "gmd:CI_OnLineFunctionCode")
                     .addAttribute("codeListValue", "download")
-                    .addText("publication");
+                    .addText("download");
         }
     }
 

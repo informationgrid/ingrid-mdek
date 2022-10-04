@@ -67,6 +67,32 @@ for(var i=0; i<addnFieldRows.size(); i++) {
 
 indexAdditionalFieldValueBWastr(objId);
 indexAdditionalFieldValueBWastrSpatialRefFree(objId);
+indexAuftragsnummer(objId);
+indexAuftragstitel(objId);
+
+function indexAuftragsnummer(objId) {
+    indexFirstAdditionalFieldValue(objId, "bawAuftragsnummer", "bawauftragsnummer");
+}
+
+function indexAuftragstitel(objId) {
+    // Default
+    indexFirstAdditionalFieldValue(objId, "bawAuftragstitel", "bawauftragstitel");
+
+    // Object class 4 (Project) saves the object title in a different field
+    // Index the alternate title (if set) or the object title
+    var row = SQL.first("SELECT obj_name, dataset_alternate_name FROM t01_object WHERE id = ? AND obj_class = 4", [objId]);
+    if (hasValue(row)) {
+        var altTitle = row.get("dataset_alternate_name");
+        if (hasValue(altTitle)) {
+            IDX.add("bawauftragstitel", altTitle);
+        } else {
+            var title = row.get("obj_name");
+            if (hasValue(title)) {
+                IDX.add("bawauftragstitel", title);
+            }
+        }
+    }
+}
 
 function indexChildAdditionalFieldAsKeywords(parentRow, childKey, syslistId) {
     var parentFieldId = +parentRow.get("id");
@@ -92,6 +118,14 @@ function indexPhysicalParameters(parentRow) {
                 IDX.add("physicalparameter.name", paramName.trim());
             });
         }
+    }
+}
+
+function indexFirstAdditionalFieldValue(objId, fieldKey, indexField) {
+    var query = "SELECT obj.data FROM additional_field_data obj WHERE obj.obj_id=? AND obj.field_key=?";
+    var row = SQL.first(query, [objId, fieldKey]);
+    if(hasValue(row)) {
+        IDX.add(indexField, row.get("data"));
     }
 }
 

@@ -2223,6 +2223,101 @@ function addLegalConstraint(accConstraint, target) {
     }
 }
 
+function mapAddress(isoAddressNode, igcAdressNodes, individualName, organisationName, target, isMdContactNode, parentId, isRelated) {
+    var uuid;
+	var igcAddressNode = XPATH.createElementFromXPathAsSibling(igcAdressNodes, "address");
+	var igcAddressInstanceNode = XPATH.createElementFromXPathAsSibling(igcAddressNode, "address-instance");
+	var isEinheit = false;
+	var isOrganisation = false;
+	if (hasValue(individualName) && hasValue(parentId)) {
+		var lowerCaseName = individualName.toLowerCase();
+		log.debug("lowerCaseName: "+lowerCaseName);
+		if(lowerCaseName.indexOf("abteilung") != -1 || lowerCaseName.indexOf("referat") != -1 || lowerCaseName.indexOf("dezernat") != -1 || lowerCaseName.indexOf("service") != -1 || lowerCaseName.indexOf("leitung") != -1 || lowerCaseName.indexOf("projektgruppe") != -1 || lowerCaseName.indexOf('sachgebiet') != -1){
+			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "type-of-address"), "id", "1");
+			isEinheit = true;
+		} else {
+			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "type-of-address"), "id", "2");
+		}
+	} else {
+		// otherwise import as institution
+		XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "type-of-address"), "id", "0");
+		isOrganisation = true;
+	}
+	if(isEinheit){
+		uuid = createUUIDFromAddress(isoAddressNode, false);
+		XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "organisation"), individualName);
+	} else {
+		uuid = createUUIDFromAddress(isoAddressNode, parentId == null);
+		if(hasValue(organisationName)){
+			XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "organisation"), organisationName);
+		}
+		else if(isOrganisation){
+			XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "organisation"), individualName);
+		}
+		if(!isOrganisation){
+			XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "name"), individualName);
+		}
+	}
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "address-identifier"), uuid);
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "modificator-identifier"), "xxx");
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "responsible-identifier"), "xxx");
+
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "publication-condition"), "1");
+	var countryCode = UtilsCountryCodelist.getCodeFromShortcut3(XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
+	if (hasValue(countryCode)) {
+		XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "country"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
+		XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "country"), "id", countryCode);
+	}
+
+	var administrativeAreaValue = XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:administrativeArea/gco:CharacterString");
+	if (administrativeAreaValue) {
+		var administrativeAreaKey = codeListService.getSysListEntryKey(6250, administrativeAreaValue, "de");
+		XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "administrativeArea"), administrativeAreaValue);
+		if (hasValue(administrativeAreaKey)) {
+			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "administrative-area"), "id", administrativeAreaKey);
+		} else {
+			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "administrative-area"), "id", "-1");
+		}
+	}
+
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "postal-code"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:postalCode/gco:CharacterString"));
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "street"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:deliveryPoint/gco:CharacterString"));
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "city"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:city/gco:CharacterString"));
+	mapCommunicationData(isoAddressNode, igcAddressInstanceNode);
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "function"), getLocalisedCharacterString(XPATH.getNode(isoAddressNode, "gmd:positionName/gco:CharacterString")));
+	// add hours of service (REDMINE-380, REDMINE-1284)
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "hours-of-service"), getLocalisedCharacterString(XPATH.getNode(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:hoursOfService/gco:CharacterString")));
+
+
+	XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "address-identifier"), uuid);
+
+	if(hasValue(parentId)){
+		XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "parent-address/address-identifier"), parentId);
+	}
+
+	// add related addresses
+	if(isRelated){
+		var igcRelatedAddressNode = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/related-address");
+		var addressRoleId = transformISOToIgcDomainId(XPATH.getString(isoAddressNode, "gmd:role/gmd:CI_RoleCode/@codeListValue"), 505, "Could not transform ISO address role code to IGC id: ");
+		if (!hasValue(addressRoleId)) {
+			addressRoleId = "-1";
+		}
+		XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "entry-id", addressRoleId);
+		XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "list-id", "505");
+		var addressRoleValue = transformISOToIgcDomainValue(XPATH.getString(isoAddressNode, "gmd:role/gmd:CI_RoleCode/@codeListValue"), 505, "de", "Could not transform ISO address role code to IGC codelist value: ");
+		XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), addressRoleValue);
+		XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "address-identifier"), uuid);
+
+		if (isMdContactNode) {
+			// set address type of "gmd:contact" addresses with role "Point of Contact" to pointOfContactMd
+			XMLUtils.createOrReplaceAttribute(XPATH.getNode(igcRelatedAddressNode, "./type-of-relation"), "entry-id", "12");
+			XMLUtils.createOrReplaceTextNode(XPATH.getNode(igcRelatedAddressNode, "./type-of-relation"), "pointOfContactMd");
+		}
+	}
+
+	return uuid;
+}
+
 function mapAddresses(source, target) {
 
     var isoAddressNodes = XPATH.getNodeList(source, "//*[not(self::gmd:contact)]/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
@@ -2230,6 +2325,7 @@ function mapAddresses(source, target) {
 
     if (hasValue(isoAddressNodes)) {
         var igcAdressNodes = XPATH.createElementFromXPath(target, "/igc/addresses");
+		var dummyAddressNode = XPATH.createElementFromXPathAsSibling(igcAdressNodes, "address");
 
         // iterate over both isoAddressNodes and contactMdNodes
         for (i=0; i < (isoAddressNodes.getLength() + contactMdNodes.getLength()); i++ ) {
@@ -2241,70 +2337,32 @@ function mapAddresses(source, target) {
                 isoAddressNode = contactMdNodes.item(i - isoAddressNodes.getLength());
                 isMdContactNode = true;
             }
-        	var organisationName = getLocalisedCharacterString(XPATH.getNode(isoAddressNode, "gmd:organisationName/gco:CharacterString"));
-        	var individualName = getLocalisedCharacterString(XPATH.getNode(isoAddressNode, "gmd:individualName/gco:CharacterString"));
+			var organisationNode = XPATH.getNode(isoAddressNode, "gmd:organisationName");
+			var individualNode = XPATH.getNode(isoAddressNode, "gmd:individualName");
 
-        	// then create the actual address
-        	var uuid = createUUIDFromAddress(isoAddressNode);
-    		var igcAddressNode = XPATH.createElementFromXPathAsSibling(igcAdressNodes, "address/address-instance");
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "address-identifier"), uuid);
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "modificator-identifier"), "xxx");
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "responsible-identifier"), "xxx");
-            if (hasValue(individualName)) {
-              	// always use free address type for ISO import if address has an individual name, see https://dev.informationgrid.eu/redmine/issues/494
-                XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "3");
-            } else  {
-            	// otherwise import as institution
-            	XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "type-of-address"), "id", "0");
-            }
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "organisation"), organisationName);
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "name"), individualName);
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "publication-condition"), "1");
-            var countryCode = UtilsCountryCodelist.getCodeFromShortcut3(XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
-            if (hasValue(countryCode)) {
-                XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "country"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
-                XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "country"), "id", countryCode);
-            }
+			var organisationName = getLocalisedCharacterString(XPATH.getNode(organisationNode, "gco:CharacterString"));
+			var individualName = getLocalisedCharacterString(XPATH.getNode(individualNode, "gco:CharacterString"));
 
-            var administrativeAreaValue = XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:administrativeArea/gco:CharacterString");
-            if (administrativeAreaValue) {
-                var administrativeAreaKey = codeListService.getSysListEntryKey(6250, administrativeAreaValue, "de");
-                XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "administrativeArea"), administrativeAreaValue);
-                if (hasValue(administrativeAreaKey)) {
-                    XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "administrative-area"), "id", administrativeAreaKey);
-                } else {
-                    XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressNode, "administrative-area"), "id", "-1");
-                }
-            }
+			var hasIndividualName = hasValue(individualName)
 
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "postal-code"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:postalCode/gco:CharacterString"));
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "street"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:deliveryPoint/gco:CharacterString"));
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "city"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:city/gco:CharacterString"));
-            mapCommunicationData(isoAddressNode, igcAddressNode);
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "function"), getLocalisedCharacterString(XPATH.getNode(isoAddressNode, "gmd:positionName/gco:CharacterString")));
-            // add hours of service (REDMINE-380, REDMINE-1284) 
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressNode, "hours-of-service"), getLocalisedCharacterString(XPATH.getNode(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:hoursOfService/gco:CharacterString")));
+			if(hasIndividualName){
+				XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(isoAddressNode, "gmd:individualName/gco:CharacterString"), "");
+			}
 
-            // add related addresses
-            var igcRelatedAddressNode = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/related-address");
-            var addressRoleId = transformISOToIgcDomainId(XPATH.getString(isoAddressNode, "gmd:role/gmd:CI_RoleCode/@codeListValue"), 505, "Could not transform ISO address role code to IGC id: ");
-            if (!hasValue(addressRoleId)) {
-            	addressRoleId = "-1";
-            }
-            XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "entry-id", addressRoleId);
-            XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "list-id", "505");
-            var addressRoleValue = transformISOToIgcDomainValue(XPATH.getString(isoAddressNode, "gmd:role/gmd:CI_RoleCode/@codeListValue"), 505, "de", "Could not transform ISO address role code to IGC codelist value: ");
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), addressRoleValue);
-            XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "address-identifier"), uuid);
+			var uuidOrganisation = undefined;
+			if(hasValue(organisationName)){
+				uuidOrganisation = mapAddress(isoAddressNode, igcAdressNodes, undefined, organisationName, target, isMdContactNode, undefined, !hasIndividualName);
+			}
 
-            if (isMdContactNode){
-                // set address type of "gmd:contact" addresses with role "Point of Contact" to pointOfContactMd
-                XMLUtils.createOrReplaceAttribute(XPATH.getNode(igcRelatedAddressNode, "./type-of-relation"), "entry-id", "12");
-                XMLUtils.createOrReplaceTextNode(XPATH.getNode(igcRelatedAddressNode, "./type-of-relation"), "pointOfContactMd");
-            }
 
-        }
+			if(hasIndividualName){
+				XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(isoAddressNode, "gmd:individualName/gco:CharacterString"), individualName);
+				//XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(isoAddressNode, "gmd:organisationName/gco:CharacterString"), undefined);
 
+				mapAddress(isoAddressNode, igcAdressNodes, individualName, organisationName, target, isMdContactNode, uuidOrganisation, true);
+			}
+		}
+		XMLUtils.remove(dummyAddressNode);
     }
 
 }
@@ -2970,40 +3028,41 @@ function call_f(f,args)
 
 
 
-function createUUIDFromAddress(source) {
+function createUUIDFromAddress(source, overwriteExisting) {
 	log.debug("create UUID from address node: " + source);
 	var isoUuid = XPATH.getString(source, "./@uuid");
 	var organisationName = XPATH.getString(source, "gmd:organisationName/gco:CharacterString");
 	var individualName = XPATH.getString(source, "gmd:individualName/gco:CharacterString");
 	var email = XPATH.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString");
+	var zipCode = XPATH.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:postalCode/gco:CharacterString");
 
 	var idString = "";
 	if (hasValue(organisationName)) {
 		idString += organisationName;
+		idString += "_";
 	}
 	if (hasValue(individualName)) {
 		idString += individualName;
+		idString += "_";
 	}
 	if (hasValue(email)) {
 		idString += email;
 	}
+	if (hasValue(zipCode)) {
+		idString += zipCode;
+	}
 
 	var uuid;
 	// first check for valid uuid to be used for address identification
-	if (hasValue(isoUuid)) {
+	if (hasValue(isoUuid) && !overwriteExisting) {
 	    uuid = isoUuid;
-	} else if (hasValue(idString) && (hasValue(email) || (hasValue(organisationName) && hasValue(individualName)))) {
+	} else {
 	    // otherwise create a uuid from the content, to try to find an address
 	    // this should work if same address was referenced without a uuid
-	    uuid = createUUIDFromString(idString.toString());
-	} else {
-	    // if no content was given, create a completely new uuid
-		protocol(INFO, "Insufficient data for UUID creation (no 'email' or only one of 'individualName' or 'organisationName' has been set for this address: email='" + email + "', individualName='" + individualName + "', organisationName='" + organisationName + "'!)")
-		protocol(INFO, "A new random UUID will be created!")
-		log.info("Insufficient data for UUID creation (no 'email' or only one of 'individualName' or 'organisationName' has been set for this address: email='" + email + "', individualName='" + individualName + "', organisationName='" + organisationName + "'!)");
-		log.info("A new random UUID will be created!");
-		uuid = createUUID();
+		log.debug("createUUIDFromString: " + idString.toString().toLowerCase());
+	    uuid = createUUIDFromString(idString.toString().toLowerCase());
 	}
+
 	log.info("Created UUID from Address:" + uuid);
 
 	return uuid;

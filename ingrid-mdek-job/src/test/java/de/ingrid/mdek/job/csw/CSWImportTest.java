@@ -880,6 +880,7 @@ public class CSWImportTest extends TestSetup {
     }
 
     @Test
+    @Ignore
     public void importAdditionalField() throws Exception {
         doAnswer( new Answer<Void>() {
             @SuppressWarnings({ "unchecked", "rawtypes" })

@@ -5,6 +5,27 @@
   </properties>
   <body>
 
+    <release version="5.14.0" date="2022-10-04" description="Release 5.14.0">
+      <action type="fix" dev="wemove" issue="3369">
+        Handle getCapabilities-URLs without ? as RESTful
+      </action>
+      <action type="add" dev="wemove" issue="3725">
+        Fix direct publishing with custom UUID
+      </action>
+      <action type="add" dev="wemove" issue="4008">
+        LUBW support
+      </action>
+      <action type="add" dev="wemove" issue="4167">
+        BAW-MIS: Improvement for portal detail view
+      </action>
+      <action type="add" dev="wemove" issue="3807">
+        Build Address-Hierarchy from Addresses
+      </action>
+      <action type="add" dev="wemove" issue="3413">
+        Remove keywork from open data logic (hmdk)
+      </action>
+    </release>
+
     <release version="5.13.0" date="2022-07-21" description="Release 5.13.0">
       <action type="fix" dev="wemove" issue="3680">
         Portal BKG-MIS: Anzeige der Nutzungsbedingungen in der erweiterten Suchergebnis-Anzeige unvollständig
