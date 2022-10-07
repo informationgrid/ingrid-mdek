@@ -69,22 +69,21 @@ function addMeasureData() {
     var dataIdent = XPATH.getNode(idfDoc, "//gmd:identificationInfo/gmd:MD_DataIdentification");
     var measureInfo = DOM.addElement(dataIdent, "measurementInfo");
 
-    measureInfo.addElement(addItemsToDom(objId, "measurementMethod", "measuringMethod", ["measuringMethod"], ["measurementMethod"]));
+    addItemsToDom(objId, measureInfo, "measurementMethod", "measuringMethod", ["measuringMethod"], ["measurementMethod"], true)
     measureInfo.addElement("spatialOrientation").addText(getAdditionalFieldFromObject(objId, "spatiality", "data"));
     measureInfo.addElement("MeasurementDepth")
-        .addElement("measurementDepth").addText(getAdditionalFieldFromObject(objId, "measuringDepth", "data"))
+        .addElement("depth").addText(getAdditionalFieldFromObject(objId, "measuringDepth", "data"))
         .getParent()
         .addElement("uom").addText(getAdditionalFieldFromObject(objId, "unitOfMeasurement", "data"))
         .getParent()
         .addElement("verticalCRS").addText(getAdditionalFieldFromObject(objId, "heightReferenceSystem", "data"));
     measureInfo.addElement("measurementFrequency").addText(getAdditionalFieldFromObject(objId, "measuringFrequency", "data"));
-    measureInfo.addElement(addItemsToDom(objId, "MeanWaterLevel", "averageWaterLevel", ["waterLevel", "unitOfMeasurement"], ["waterLevel", "uom"]));
-    measureInfo.addElement(addItemsToDom(objId, "GaugeDatum", "zeroLevel", ["zeroLevel", "unitOfMeasurement", "verticalCoordinateReferenceSystem", "description"], ["datum", "uom", "verticalCRS", "description"]));
+    addItemsToDom(objId, measureInfo, "MeanWaterLevel", "averageWaterLevel", ["waterLevel", "unitOfMeasurement"], ["waterLevel", "uom"]);
+    addItemsToDom(objId, measureInfo, "GaugeDatum", "zeroLevel", ["zeroLevel", "unitOfMeasurement", "verticalCoordinateReferenceSystem", "description"], ["datum", "uom", "verticalCRS", "description"]);
     measureInfo.addElement("minDischarge").addText(getAdditionalFieldFromObject(objId, "drainMin", "data"));
     measureInfo.addElement("maxDischarge").addText(getAdditionalFieldFromObject(objId, "drainMax", "data"));
-    measureInfo.addElement(addItemsToDom(objId, "MeasurementDevice", "gauge", ["name", "id", "model", "description"], ["deviceName", "deviceID", "deviceModel", "description"]));
-    measureInfo.addElement(addItemsToDom(objId, "MeasuredQuantities", "targetParameters", ["name", /*"type",*/ "unitOfMeasurement", "formula"], ["quantityName", /*"quantityType",*/ "uom", "calculationFormula"]));
-    // measureInfo.addElement("spatialAccuracy").addText(""); // => already exists as core field "ref1PosAccuracy"
+    addItemsToDom(objId, measureInfo, "MeasurementDevice", "gauge", ["name", "id", "model", "description"], ["name", "id", "model", "description"]);
+    addItemsToDom(objId, measureInfo, "MeasuredQuantities", "targetParameters", ["name", "type", "unitOfMeasurement", "formula"], ["name", "type", "uom", "calculationFormula"]);
     measureInfo.addElement("dataQualityDescription").addText(getAdditionalFieldFromObject(objId, "dataQualityDescription", "data"));
 
 }
@@ -115,9 +114,12 @@ function addSoftwareData() {
     betriebssystem.addElement("linux").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "operatingSystemLinux", "data"));
     betriebssystem.addElement("anmerkungen").addText(getAdditionalFieldFromObject(objId, "operatingSystemNotes", "data"));
 
-    software.addElement(addItemsToDom(objId, "Programmiersprache", "programmingLanguage", ["programmingLanguage"], ["programmiersprache"]));
-    software.addElement(addItemsToDom(objId, "Entwicklungsumgebung", "developmentEnvironment", ["developmentEnvironment"], ["entwicklungsumgebung"]));
-    software.addElement(addItemsToDom(objId, "Bibliotheken", "libraries", ["library"], ["bibliothek"]));
+    var language = software.addElement("Programmiersprache");
+    addItemsToDom(objId, language, "programmiersprache", "programmingLanguage", ["programmingLanguage"], ["programmiersprache"], true);
+    var ide = software.addElement("Entwicklungsumgebung");
+    addItemsToDom(objId, ide, "entwicklungsumgebung", "developmentEnvironment", ["developmentEnvironment"], ["entwicklungsumgebung"], true);
+    var libs = software.addElement("Bibliotheken")
+    addItemsToDom(objId, libs, "bibliothek", "libraries", ["library"], null, true);
     software.addElement("Erstellungsvertrag")
         .addElement("vertragsNummer").addText(getAdditionalFieldFromObject(objId, "creationContractNumber", "data"))
         .getParent()
@@ -130,9 +132,14 @@ function addSoftwareData() {
 
     var installationsort = software.addElement("Installationsort");
     installationsort.addElement("lokal").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "installationLocal", "data"));
-    installationsort.addElement("HLR").addElement("hlr").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "installationHLR", "data"));
+    var hlr = installationsort.addElement("HLR");
+    hlr.addElement("hlr").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "installationHLR", "data"));
+    addItemsToDom(objId, hlr, "hlrName", "installationServerNames", ["text"], null, true);
+
     // installationsort.addElement("Server").addText(getAdditionalFieldFromObject(objId, "operatingSystemNotes", "data"));
-    installationsort.addElement("Server").addElement(addItemsToDom(objId, "servername", "installationServerNames", ["text"], ["text"]));
+    var server = installationsort.addElement("Server");
+    server.addElement("server").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "installationServer", "data"));
+    addItemsToDom(objId, server, "servername", "installationServerNames", ["text"], null, true);
     software.addElement("installationsMethode").addText(getAdditionalFieldFromObject(objId, "installBy", "data"));
 
     var bawRechte = software.addElement("BawRechte");
@@ -145,26 +152,33 @@ function addSoftwareData() {
 
 }
 
-function addItemsToDom(objId, domElementId, tableId, columnIds, domColumnIds) {
+function addItemsToDom(objId, targetElement, domElementId, tableId, columnIds, domColumnIds, /*boolean*/mapDirectly) {
     var columns = [];
     for (var i = 0; i < columnIds.length; i++) {
         columns.push(getValuesFromTable(objId, tableId, columnIds[i]));
     }
-    var element = DOM.createElement(domElementId);
     for (var i = 0; i < columns[0].length; i++) {
-        var item = element.addElement("item");
+        var element = DOM.createElement(domElementId);
         for (var j = 0; j < columnIds.length; j++) {
-            item.addElement(domColumnIds[j]).addText(columns[j][i]);
+            if (mapDirectly) {
+                element.addText(columns[j][i]);
+            } else {
+                element.addElement(domColumnIds[j]).addText(columns[j][i]);
+            }
         }
+        targetElement.addElement(element)
     }
-    return element;
 }
 
 function getValuesFromTable(objId, tableId, columnId) {
     var table = getAdditionalForTable(objId, tableId)
     var result = [];
     for (var i = 0; i < table.length; i++) {
-        result.push(table[i][columnId].data);
+        if (table[i][columnId]) {
+            result.push(table[i][columnId].data);
+        } else {
+            result.push("");
+        }
     }
 
     return result

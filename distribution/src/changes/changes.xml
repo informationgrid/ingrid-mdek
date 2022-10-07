@@ -12,6 +12,9 @@
       <action type="add" dev="wemove" issue="3725">
         Fix direct publishing with custom UUID
       </action>
+      <action type="add" dev="wemove" issue="4026">
+        BAW(MIS): Add mapping for custom fields (measurement and software)
+      </action>
     </release>
 
     <release version="5.13.0" date="2022-07-21" description="Release 5.13.0">
