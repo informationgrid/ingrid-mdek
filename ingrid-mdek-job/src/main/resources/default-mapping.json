@@ -74,6 +74,10 @@
     "t012_obj_adr.adr_id": {
       "type": "keyword"
     },
+    "t011_obj_serv_version.serv_version": {
+      "type": "keyword",
+      "store": true
+    },
     "t01_object.mod_uuid": {
       "type": "keyword"
     },
