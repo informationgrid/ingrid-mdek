@@ -1022,30 +1022,56 @@ function addNamespace(identifier, catalog) {
     return myNamespace + identifier;
 }
 function addT01ObjectTo(row, id) {
-  IDX.add("object_reference.obj_uuid", row.get("obj_uuid"));
-  IDX.add("object_reference.obj_name", row.get("obj_name"));
-  IDX.add("object_reference.obj_class", row.get("obj_class"));
-  var tmpRows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
-  if(tmpRows.size() > 0 && row.get("obj_class").equals("3")) {
-    for (t=0; t<tmpRows.size(); t++) {
-      IDX.add("object_reference.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key")));
+    IDX.add("object_reference.obj_uuid", row.get("obj_uuid"));
+    IDX.add("object_reference.obj_name", row.get("obj_name"));
+    IDX.add("object_reference.obj_class", row.get("obj_class"));
+    var tmpRows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
+    var referenceType = "";
+    var referenceVersion = "";
+    if(tmpRows.size() > 0 && row.get("obj_class").equals("3")) {
+        for (t=0; t<tmpRows.size(); t++) {
+            referenceType = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key"));
+            var objServId = tmpRows.get(t).get("id")
+            var tmpVersRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
+            for (v=0; v<tmpVersRows.size(); v++) {
+                var version = tmpVersRows.get(t).get("version_value");
+                if(hasValue(version)){
+                    if (hasValue(referenceVersion)) {
+                        referenceVersion += ",";
+                    }
+                    referenceVersion += version;
+                }
+            }
+        }
     }
-  } else {
-    IDX.add("object_reference.type", "");
-  }
+    IDX.add("object_reference.type", referenceType);
+    IDX.add("object_reference.version", referenceVersion);
 }
 function addT01ObjectFrom(row, id) {
     IDX.add("refering.object_reference.obj_uuid", row.get("obj_uuid"));
     IDX.add("refering.object_reference.obj_name", row.get("obj_name"));
     IDX.add("refering.object_reference.obj_class", row.get("obj_class"));
     var tmpRows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
+    var referenceType = "";
+    var referenceVersion = "";
     if(tmpRows.size() > 0 && row.get("obj_class").equals("3")) {
-      for (t=0; t<tmpRows.size(); t++) {
-        IDX.add("refering.object_reference.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key")));
-      }
-    } else {
-      IDX.add("refering.object_reference.type", "");
+        for (t=0; t<tmpRows.size(); t++) {
+            referenceType = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key"));
+            var objServId = tmpRows.get(t).get("id")
+            var tmpVersRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
+            for (v=0; v<tmpVersRows.size(); v++) {
+                var version = tmpVersRows.get(t).get("version_value");
+                if(hasValue(version)){
+                    if (hasValue(referenceVersion)) {
+                        referenceVersion += ",";
+                    }
+                    referenceVersion += version;
+                }
+            }
+        }
     }
+    IDX.add("refering.object_reference.type", referenceType);
+    IDX.add("refering.object_reference.version", referenceVersion);
 }
 function addT0114EnvTopic(row) {
     IDX.add("t0114_env_topic.line", row.get("line"));
