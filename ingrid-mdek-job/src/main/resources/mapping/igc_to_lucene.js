@@ -1034,7 +1034,7 @@ function addT01ObjectTo(row, id) {
             var objServId = tmpRows.get(t).get("id")
             var tmpVersRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
             for (v=0; v<tmpVersRows.size(); v++) {
-                var version = tmpVersRows.get(t).get("version_value");
+                var version = tmpVersRows.get(v).get("version_value");
                 if(hasValue(version)){
                     if (hasValue(referenceVersion)) {
                         referenceVersion += ",";
@@ -1060,7 +1060,7 @@ function addT01ObjectFrom(row, id) {
             var objServId = tmpRows.get(t).get("id")
             var tmpVersRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
             for (v=0; v<tmpVersRows.size(); v++) {
-                var version = tmpVersRows.get(t).get("version_value");
+                var version = tmpVersRows.get(v).get("version_value");
                 if(hasValue(version)){
                     if (hasValue(referenceVersion)) {
                         referenceVersion += ",";
