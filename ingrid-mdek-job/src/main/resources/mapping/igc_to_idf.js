@@ -1418,7 +1418,8 @@ for (i=0; i<objRows.size(); i++) {
     // OUTGOING references
     rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=?" + publicationConditionFilter, [+objId, 'V']);
     for (i=0; i<rows.size(); i++) {
-        var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE serv.obj_id=? AND serv.type_key=2 AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+rows.get(i).get("id")]);
+        // extract service information if present !
+        var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv WHERE serv.obj_id=?", [+rows.get(i).get("id")]);
         if (log.isDebugEnabled()) {
             log.debug("Service object id: " + rows.get(i).get("id"));
             log.debug("Extracted Service Info: " + srvRow);
@@ -1443,8 +1444,8 @@ for (i=0; i<objRows.size(); i++) {
     // NOTE: This also includes coupled services (class 3) pointing to data object (class 1)
     rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=? AND object_reference.obj_from_id=t01_object.id AND t01_object.work_state=?" + publicationConditionFilter, [objUuid, 'V']);
     for (i=0; i<rows.size(); i++) {
-        // extract service information if present ! (GetCap from WMS ! serv.type_key=2=WMS, servOp.name_key=1=GetCap) !
-        var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE serv.obj_id=? AND serv.type_key=2 AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+rows.get(i).get("id")]);
+        // extract service information if present !
+        var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv WHERE serv.obj_id=?", [+rows.get(i).get("id")]);
         if (log.isDebugEnabled()) {
             log.debug("Service object id: " + rows.get(i).get("id"));
             log.debug("Extracted Service Info: " + srvRow);
@@ -3046,19 +3047,6 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
         idfObjectReference.addElement("idf:description").addText(objRow.get("obj_descr"));
     }
 
-    var objServId = objRow.get("id");
-    var tmpVersRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
-    var referenceVersion = "";
-    for (v=0; v<tmpVersRows.size(); v++) {
-        var version = tmpVersRows.get(v).get("version_value");
-        if(hasValue(version)){
-            if (hasValue(referenceVersion)) {
-                referenceVersion += ",";
-            }
-            referenceVersion += version;
-        }
-    }
-    idfObjectReference.addElement("idf:objectVersion").addText(referenceVersion);
     // map service data if present !
     if (hasValue(srvRow)) {
         var myValue = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, srvRow.get("type_key"));
@@ -3075,6 +3063,19 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
         if (hasConstraint) {
           idfObjectReference.addElement("idf:hasAccessConstraint").addText(hasConstraint);
         }
+        var objServId = objRow.get("id")
+        var tmpVersRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
+        var referenceVersion = "";
+        for (v=0; v<tmpVersRows.size(); v++) {
+            var version = tmpVersRows.get(v).get("version_value");
+            if(hasValue(version)){
+                if (hasValue(referenceVersion)) {
+                    referenceVersion += ",";
+                }
+                referenceVersion += version;
+            }
+        }
+        idfObjectReference.addElement("idf:serviceType").addText(referenceVersion);
     }
 
     // Add graphicOverview
