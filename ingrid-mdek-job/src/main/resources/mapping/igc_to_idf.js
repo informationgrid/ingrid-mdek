@@ -3075,7 +3075,7 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
                 referenceVersion += version;
             }
         }
-        idfObjectReference.addElement("idf:serviceType").addText(referenceVersion);
+        idfObjectReference.addElement("idf:serviceVersion").addText(referenceVersion);
     }
 
     // Add graphicOverview
