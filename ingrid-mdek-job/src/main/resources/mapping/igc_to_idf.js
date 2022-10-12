@@ -3046,6 +3046,19 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
         idfObjectReference.addElement("idf:description").addText(objRow.get("obj_descr"));
     }
 
+    var objServId = objRow.get("id");
+    var tmpVersRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
+    var referenceVersion = "";
+    for (v=0; v<tmpVersRows.size(); v++) {
+        var version = tmpVersRows.get(v).get("version_value");
+        if(hasValue(version)){
+            if (hasValue(referenceVersion)) {
+                referenceVersion += ",";
+            }
+            referenceVersion += version;
+        }
+    }
+    idfObjectReference.addElement("idf:objectVersion").addText(referenceVersion);
     // map service data if present !
     if (hasValue(srvRow)) {
         var myValue = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, srvRow.get("type_key"));
@@ -3062,19 +3075,6 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
         if (hasConstraint) {
           idfObjectReference.addElement("idf:hasAccessConstraint").addText(hasConstraint);
         }
-        var objServId = objRow.get("id")
-        var tmpVersRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
-        var referenceVersion = "";
-        for (v=0; v<tmpVersRows.size(); v++) {
-            var version = tmpVersRows.get(v).get("version_value");
-            if(hasValue(version)){
-                if (hasValue(referenceVersion)) {
-                    referenceVersion += ",";
-                }
-                referenceVersion += version;
-            }
-        }
-        idfObjectReference.addElement("idf:serviceType").addText(referenceVersion);
     }
 
     // Add graphicOverview

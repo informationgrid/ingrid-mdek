@@ -1031,7 +1031,7 @@ function addT01ObjectTo(row, id) {
     if(tmpRows.size() > 0 && row.get("obj_class").equals("3")) {
         for (t=0; t<tmpRows.size(); t++) {
             referenceType = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key"));
-            var objServId = tmpRows.get(t).get("id")
+            var objServId = tmpRows.get(t).get("id");
             var tmpVersRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
             for (v=0; v<tmpVersRows.size(); v++) {
                 var version = tmpVersRows.get(v).get("version_value");
