@@ -3063,7 +3063,7 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
         if (hasConstraint) {
           idfObjectReference.addElement("idf:hasAccessConstraint").addText(hasConstraint);
         }
-        var objServId = objRow.get("id")
+        var objServId = srvRow.get("id")
         var tmpVersRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
         var referenceVersion = "";
         for (v=0; v<tmpVersRows.size(); v++) {
