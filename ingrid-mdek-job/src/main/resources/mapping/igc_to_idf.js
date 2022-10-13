@@ -2694,6 +2694,7 @@ function addDistributionInfo(mdMetadata, objId) {
                                 var match = matcher[0];
                                 if(hasValue(match)) {
                                     connUrl += "&SERVICE=" + match;
+                                    return connUrl;
                                 }
                             }
                         }
