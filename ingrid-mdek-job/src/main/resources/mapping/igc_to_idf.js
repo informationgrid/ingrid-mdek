@@ -2651,28 +2651,57 @@ function addDistributionInfo(mdMetadata, objId) {
 
 
     function addMissingUrlParameters(connUrl, row) {
-        // try to get type from connection point parameter of getCapabilities
-        var servOpId = row.get("id");
-        var rowsParams = SQL.all("SELECT servOpPara.* FROM t011_obj_serv_operation servOp, t011_obj_serv_op_para servOpPara WHERE servOpPara.obj_serv_op_id = servOp.id AND servOpPara.obj_serv_op_id=? AND servOp.name_key=?", [+servOpId, 1]);
-        for (j = 0; j < rowsParams.size(); j++) {
-            var isServiceParam = rowsParams.get(j).get("descr") === "Service type";
-            if (isServiceParam) {
-                if (connUrl.indexOf("?") === -1) {
-                    // if getCapabilities-URL does not contain '?' it'll be not modified (#3369)
-                    return connUrl;
+        if (connUrl.indexOf("?") === -1) {
+            // if getCapabilities-URL does not contain '?' it'll be not modified (#3369)
+            return connUrl;
+        } else {
+            // try to get type from connection point parameter of getCapabilities
+            var servOpId = row.get("id");
+            var rowsParams = SQL.all("SELECT servOpPara.* FROM t011_obj_serv_operation servOp, t011_obj_serv_op_para servOpPara WHERE servOpPara.obj_serv_op_id = servOp.id AND servOpPara.obj_serv_op_id=? AND servOp.name_key=?", [+servOpId, 1]);
+            for (j = 0; j < rowsParams.size(); j++) {
+                var isServiceParam = rowsParams.get(j).get("descr") === "Service type";
+                if (isServiceParam) {
+
+                    // if connUrl or parameters already contains a ? or & at the end then do not add another one!
+                    if (!(connUrl.lastIndexOf("?") === connUrl.length() - 1)
+                        && !(connUrl.lastIndexOf("&") === connUrl.length() - 1)) {
+                        connUrl += "&";
+                    }
+                    connUrl += rowsParams.get(j).get("name");
+                    break;
                 }
-                // if connUrl or parameters already contains a ? or & at the end then do not add another one!
-                if (!(connUrl.lastIndexOf("?") === connUrl.length() - 1)
+            }
+
+            // Check params by service type version
+            if (connUrl.toLowerCase().indexOf("request=getcapabilities") == -1 || connUrl.toLowerCase().indexOf("service=") == -1) {
+
+                if (connUrl.toLowerCase().indexOf("request=getcapabilities") == -1) {
+                    if (!(connUrl.lastIndexOf("?") === connUrl.length() - 1)
                     && !(connUrl.lastIndexOf("&") === connUrl.length() - 1)) {
                     connUrl += "&";
+                    }
+                    connUrl += "Request=GetCapabilities";
                 }
-                connUrl += rowsParams.get(j).get("name");
-                break;
+
+                if (connUrl.toLowerCase().indexOf("service=") == -1) {
+                    var servObjId = row.get("serv_id");
+                    var rowServiceVersion = SQL.first("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+servObjId]);
+                    if (hasValue(rowServiceVersion)) {
+                        var serviceTypeVersion = rowServiceVersion.get("version_value");
+                        if (hasValue(serviceTypeVersion)) {
+                            var matcher = serviceTypeVersion.match("(?<=(\\:| ))(.*?)(?=\\ )");
+                            if (hasValue(matcher)) {
+                                var match = matcher[0];
+                                if(hasValue(match)) {
+                                    connUrl += "&SERVICE=" + match;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
-
         var type = parseInt(row.get("type_key"));
-
         return connUrl + CAPABILITIES.getMissingCapabilitiesParameter(connUrl, type);
     }
 
@@ -2708,11 +2737,11 @@ function addDistributionInfo(mdMetadata, objId) {
         // the links should all come from service objects (class=3)
         if (objClass.equals("1")) {
             // get all getCapabilities-URLs from operations table of the coupled service
-            rows = SQL.all("SELECT t01obj.obj_name, serv.type_key, servOp.id, servOp.name_value, servOpConn.connect_point FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
+            rows = SQL.all("SELECT t01obj.obj_name, serv.type_key, serv.id AS serv_id, servOp.id, servOp.name_value, servOpConn.connect_point FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
         } else {
             // Service Object
             // Fetch now Services of all types but still operation has to be of name_key=1 (GetCapabilities), see REDMINE-85
-            rows = SQL.all("SELECT t01obj.obj_name, serv.type_key, servOp.id, servOp.name_value, servOpConn.connect_point FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objId, 3]);
+            rows = SQL.all("SELECT t01obj.obj_name, serv.type_key, serv.id AS serv_id, servOp.id, servOp.name_value, servOpConn.connect_point FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objId, 3]);
         }
 
         for (i=0; i<rows.size(); i++) {
