@@ -2689,13 +2689,10 @@ function addDistributionInfo(mdMetadata, objId) {
                     if (hasValue(rowServiceVersion)) {
                         var serviceTypeVersion = rowServiceVersion.get("version_value");
                         if (hasValue(serviceTypeVersion)) {
-                            var matcher = serviceTypeVersion.match("(?<=(\\:| ))(.*?)(?=\\ )");
-                            if (hasValue(matcher)) {
-                                var match = matcher[0];
-                                if(hasValue(match)) {
-                                    connUrl += "&SERVICE=" + match;
-                                    return connUrl;
-                                }
+                            var service = CAPABILITIES.extractServiceFromServiceTypeVersion(serviceTypeVersion);
+                            if (hasValue(service)) {
+                                connUrl += "&SERVICE=" + service;
+                                return connUrl;
                             }
                         }
                     }
