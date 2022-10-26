@@ -71,4 +71,16 @@ function mapSpecialFields(source, target) {
             }
         }
     }
+
+    /**
+     * Zusätzliches Feld -> Textbox: "environmentDescription"
+     */
+    var targetEl = target;
+    var environmentDescription = XPATH.getNode(source, "//gmd:MD_DataIdentification/gmd:environmentDescription/gco:CharacterString");
+    if (environmentDescription) {
+        var additionalValues = XPATH.createElementFromXPath(targetEl, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
+        var additionalValue = additionalValues.appendChild(targetEl.getOwnerDocument().createElement("general-additional-value"));
+        XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key"), "environmentDescription");
+        XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-data"), environmentDescription.getTextContent());
+    }
 }
