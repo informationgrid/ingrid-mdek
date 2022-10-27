@@ -36,7 +36,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
     throw new IllegalArgumentException("Record is no DatabaseRecord!");
 }
 
-var objId = sourceRecord.get("id");
+var objId = +sourceRecord.get("id");
 
 // objClass variable is from script before "igc_to_idf.js"
 if (objClass.equals("1")) {
