@@ -12,6 +12,9 @@
     </release>
 
     <release version="5.14.0" date="2022-10-04" description="Release 5.14.0">
+      <action type="add" dev="wemove" issue="4378">
+        LUBW: Add mapping for custom fields (OAC and environmentDescription)
+      </action>
       <action type="fix" dev="wemove" issue="3369">
         Handle getCapabilities-URLs without ? as RESTful
       </action>
