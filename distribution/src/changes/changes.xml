@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.14.1-SNAPSHOT" date="2021-xx-xx" description="Release 5.14.1">
+      <action type="add" dev="wemove" issue="4378">
+        LUBW: Add mapping for custom fields (OAC and environmentDescription)
+      </action>
       <action type="add" dev="wemove" issue="4026">
         BAW(MIS): Add mapping for custom fields (measurement and software)
       </action>
