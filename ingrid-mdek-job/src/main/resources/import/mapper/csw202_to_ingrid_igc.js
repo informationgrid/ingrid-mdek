@@ -2372,7 +2372,7 @@ function mapAddresses(source, target) {
 
 			if (!hasImportedAnAddress) {
 				isSplitOfOrganisation = false
-				mapAddress(isoAddressNode, igcAdressNodes, individualName, organisationName, target, isMdContactNode, uuidOrganisation, false, isSplitOfOrganisation);
+				mapAddress(isoAddressNode, igcAdressNodes, individualName, organisationName, target, isMdContactNode, uuidOrganisation, true, isSplitOfOrganisation);
 			}
 		}
 		XMLUtils.remove(dummyAddressNode);
