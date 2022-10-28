@@ -127,7 +127,7 @@ function getAdditionalForTable(objId, tableId) {
 
     var field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, tableId]);
 
-    if (!hasValue(field)) {return}
+    if (!hasValue(field)) {return []}
 
     var table = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=?", [+field.get("id")])
 
