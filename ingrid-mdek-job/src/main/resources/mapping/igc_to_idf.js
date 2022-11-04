@@ -109,6 +109,7 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     var doi = addDOIInfo(mdMetadata, objId);
+    var regionKey = addRegionKeyInfo(mdMetadata, objId);
 
 // ---------- <gmd:language> ----------
     var metadataLanguage = TRANSF.getLanguageISO639_2FromIGCCode(objRow.get("metadata_language_key"));
@@ -2342,6 +2343,12 @@ function addExtent(identificationInfo, objRow) {
         }
     }
 
+    if(hasValue(regionKey)){
+        var regionKeyElement = identificationInfo.addElement("gmd:geographicElement/gmd:EX_GeographicDescription/gmd:MD_Identifier/gmd:code/gmx:Anchor")
+        regionKeyElement.addAttribute("xlink:href", regionKey.url)
+        regionKeyElement.addText(regionKey.paddedKey)
+    }
+
     // ---------- <gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent> ----------
     var myDateType = objRow.get("time_type");
     var timeRange = getTimeRange(objRow);
@@ -3182,6 +3189,31 @@ function addDOIInfo(parent, objId) {
         return {
             id: doiId,
             type: type
+        };
+    }
+}
+
+function addRegionKeyInfo(parent, objId) {
+    var regionKeyRow = SQL.first("SELECT * FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'regionKey'", [objId]);
+
+    if (hasValue(regionKeyRow)) {
+        var regionKey = regionKeyRow.data
+        var regionKeyElement = parent.addElement("idf:regionKey");
+
+        var paddedKey = regionKey + "000000000000".substring(regionKey.length);
+        var keyUrl = "https://registry.gdi-de.org/id/de.bund.bkg.regschluessel/" + regionKey
+
+
+
+        log.debug("RegionKey: "+ regionKey);
+        log.debug("RegionKey padded: "+ paddedKey);
+        log.debug("RegionKey url: "+ keyUrl);
+
+        regionKeyElement.addElement("key").addText(paddedKey);
+        regionKeyElement.addElement("url").addText(keyUrl);
+        return {
+            paddedKey: paddedKey,
+            url: keyUrl
         };
     }
 }
