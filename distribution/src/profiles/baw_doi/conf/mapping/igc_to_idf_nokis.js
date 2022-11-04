@@ -69,7 +69,7 @@ function addMeasureData() {
     var dataIdent = XPATH.getNode(idfDoc, "//gmd:identificationInfo/gmd:MD_DataIdentification");
     var measureInfo = DOM.addElement(dataIdent, "measurementInfo");
 
-    addItemsToDom(objId, measureInfo, "measurementMethod", "measuringMethod", ["measuringMethod"], ["measurementMethod"], true)
+    addItemsToDom(objId, measureInfo.addElement("MeasurementMethod"), "measurementMethod", "measuringMethod", ["measuringMethod"], ["measurementMethod"], true)
     measureInfo.addElement("spatialOrientation").addText(getAdditionalFieldFromObject(objId, "spatiality", "data"));
     measureInfo.addElement("MeasurementDepth")
         .addElement("depth").addText(getAdditionalFieldFromObject(objId, "measuringDepth", "data"))
@@ -78,12 +78,12 @@ function addMeasureData() {
         .getParent()
         .addElement("verticalCRS").addText(getAdditionalFieldFromObject(objId, "heightReferenceSystem", "data"));
     measureInfo.addElement("measurementFrequency").addText(getAdditionalFieldFromObject(objId, "measuringFrequency", "data"));
-    addItemsToDom(objId, measureInfo, "MeanWaterLevel", "averageWaterLevel", ["waterLevel", "unitOfMeasurement"], ["waterLevel", "uom"]);
-    addItemsToDom(objId, measureInfo, "GaugeDatum", "zeroLevel", ["zeroLevel", "unitOfMeasurement", "verticalCoordinateReferenceSystem", "description"], ["datum", "uom", "verticalCRS", "description"]);
+    addItemsToDom(objId, measureInfo.addElement("MeanWaterLevel"), "meanWaterLevel", "averageWaterLevel", ["waterLevel", "unitOfMeasurement"], ["waterLevel", "uom"]);
+    addItemsToDom(objId, measureInfo.addElement("GaugeDatum"), "gaugeDatum", "zeroLevel", ["zeroLevel", "unitOfMeasurement", "verticalCoordinateReferenceSystem", "description"], ["datum", "uom", "verticalCRS", "description"]);
     measureInfo.addElement("minDischarge").addText(getAdditionalFieldFromObject(objId, "drainMin", "data"));
     measureInfo.addElement("maxDischarge").addText(getAdditionalFieldFromObject(objId, "drainMax", "data"));
-    addItemsToDom(objId, measureInfo, "MeasurementDevice", "gauge", ["name", "id", "model", "description"], ["name", "id", "model", "description"]);
-    addItemsToDom(objId, measureInfo, "MeasuredQuantities", "targetParameters", ["name", "type", "unitOfMeasurement", "formula"], ["name", "type", "uom", "calculationFormula"]);
+    addItemsToDom(objId, measureInfo.addElement("MeasurementDevice"), "measurementDevice", "gauge", ["name", "id", "model", "description"], ["name", "id", "model", "description"]);
+    addItemsToDom(objId, measureInfo.addElement("MeasuredQuantities"), "measuredQuantities", "targetParameters", ["name", "type", "unitOfMeasurement", "formula"], ["name", "type", "uom", "calculationFormula"]);
     measureInfo.addElement("dataQualityDescription").addText(getAdditionalFieldFromObject(objId, "dataQualityDescription", "data"));
 
 }
