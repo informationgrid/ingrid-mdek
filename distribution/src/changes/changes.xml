@@ -12,6 +12,9 @@
       <action type="add" dev="wemove" issue="4026">
         BAW(MIS): Add mapping for custom fields (measurement and software)
       </action>
+      <action type="add" dev="wemove" issue="3928">
+        Add mapping for region key
+      </action>
     </release>
 
     <release version="5.14.0" date="2022-10-04" description="Release 5.14.0">
