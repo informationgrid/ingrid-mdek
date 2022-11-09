@@ -187,8 +187,10 @@ function getValuesFromTable(objId, tableId, columnId) {
 function getAdditionalFieldFromObject(objId, fieldId, property) {
     var field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldId]);
     if (hasValue(field)) {
-        return field.get(property);
-    } else {
-        return null;
-    }
+        var value= field.get(property);
+        if(hasValue(value) && !value.equals("NaN")){
+          return value;
+        }
+     }
+     return null;
 }
