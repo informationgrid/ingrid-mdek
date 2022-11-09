@@ -2342,12 +2342,15 @@ function addExtent(identificationInfo, objRow) {
             exGeographicBoundingBox.addElement("gmd:northBoundLatitude/gco:Decimal").addText(TRANSF.getISODecimalFromIGCNumber(row.get("y2")));
         }
     }
-
     if(hasValue(regionKey)){
-        var regionKeyElement = identificationInfo.addElement("gmd:geographicElement/gmd:EX_GeographicDescription/gmd:MD_Identifier/gmd:code/gmx:Anchor")
+        if (!exExtent) {
+            exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
+        }
+        var regionKeyElement = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code/gmx:Anchor")
         regionKeyElement.addAttribute("xlink:href", regionKey.url)
         regionKeyElement.addText(regionKey.paddedKey)
     }
+
 
     // ---------- <gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent> ----------
     var myDateType = objRow.get("time_type");
