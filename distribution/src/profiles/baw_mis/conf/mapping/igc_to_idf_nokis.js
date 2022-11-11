@@ -69,7 +69,7 @@ function addMeasureData() {
     var dataIdent = XPATH.getNode(idfDoc, "//gmd:identificationInfo/gmd:MD_DataIdentification");
     var measureInfo = DOM.addElement(dataIdent, "measurementInfo");
 
-    addItemsToDom(objId, measureInfo.addElement("MeasurementMethod"), "measurementMethod", "measuringMethod", ["measuringMethod"], ["measurementMethod"], true)
+    addItemsToDom(objId, measureInfo, "MeasurementMethod", "measuringMethod", ["measuringMethod"], ["measurementMethod"], false)
     measureInfo.addElement("spatialOrientation").addText(getAdditionalFieldFromObject(objId, "spatiality", "data"));
     measureInfo.addElement("MeasurementDepth")
         .addElement("depth").addText(getAdditionalFieldFromObject(objId, "measuringDepth", "data"))
@@ -78,12 +78,12 @@ function addMeasureData() {
         .getParent()
         .addElement("verticalCRS").addText(getAdditionalFieldFromObject(objId, "heightReferenceSystem", "data"));
     measureInfo.addElement("measurementFrequency").addText(getAdditionalFieldFromObject(objId, "measuringFrequency", "data"));
-    addItemsToDom(objId, measureInfo.addElement("MeanWaterLevel"), "meanWaterLevel", "averageWaterLevel", ["waterLevel", "unitOfMeasurement"], ["waterLevel", "uom"]);
-    addItemsToDom(objId, measureInfo.addElement("GaugeDatum"), "gaugeDatum", "zeroLevel", ["zeroLevel", "unitOfMeasurement", "verticalCoordinateReferenceSystem", "description"], ["datum", "uom", "verticalCRS", "description"]);
+    addItemsToDom(objId, measureInfo, "MeanWaterLevel", "averageWaterLevel", ["waterLevel", "unitOfMeasurement"], ["waterLevel", "uom"]);
+    addItemsToDom(objId, measureInfo, "GaugeDatum", "zeroLevel", ["zeroLevel", "unitOfMeasurement", "verticalCoordinateReferenceSystem", "description"], ["datum", "uom", "verticalCRS", "description"]);
     measureInfo.addElement("minDischarge").addText(getAdditionalFieldFromObject(objId, "drainMin", "data"));
     measureInfo.addElement("maxDischarge").addText(getAdditionalFieldFromObject(objId, "drainMax", "data"));
-    addItemsToDom(objId, measureInfo.addElement("MeasurementDevice"), "measurementDevice", "gauge", ["name", "id", "model", "description"], ["name", "id", "model", "description"]);
-    addItemsToDom(objId, measureInfo.addElement("MeasuredQuantities"), "measuredQuantities", "targetParameters", ["name", "type", "unitOfMeasurement", "formula"], ["name", "type", "uom", "calculationFormula"], false, [null, 3950014, null, null]);
+    addItemsToDom(objId, measureInfo, "MeasurementDevice", "gauge", ["name", "id", "model", "description"], ["name", "id", "model", "description"]);
+    addItemsToDom(objId, measureInfo, "MeasuredQuantities", "targetParameters", ["name", "type", "unitOfMeasurement", "formula"], ["name", "type", "uom", "calculationFormula"], false, [null, 3950014, null, null]);
     measureInfo.addElement("dataQualityDescription").addText(getAdditionalFieldFromObject(objId, "dataQualityDescription", "data"));
 
 }
@@ -113,8 +113,8 @@ function addSoftwareData() {
 
     var versionsFromDB = SQL.all("SELECT t011_version.version_value FROM t01_object t01, t011_obj_serv t011, t011_obj_serv_version t011_version WHERE t01.id=? AND t011.obj_id = t01.id AND t011_version.obj_serv_id = t011.id", [+objId]);
     if (versionsFromDB.length > 0) {
-        var version = software.addElement("Version");
         for (var i=0; i<versionsFromDB.size(); i++) {
+            var version = software.addElement("Version");
             var versionItem = versionsFromDB.get(i);
             version.addElement("version").addText(versionItem.get("version_value"));
         }
@@ -129,12 +129,10 @@ function addSoftwareData() {
     betriebssystem.addElement("linux").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "operatingSystemLinux", "data"));
     betriebssystem.addElement("anmerkungen").addText(getAdditionalFieldFromObject(objId, "operatingSystemNotes", "data"));
 
-    var language = software.addElement("Programmiersprache");
-    addItemsToDom(objId, language, "programmiersprache", "programmingLanguage", ["programmingLanguage"], ["programmiersprache"], true);
-    var ide = software.addElement("Entwicklungsumgebung");
-    addItemsToDom(objId, ide, "entwicklungsumgebung", "developmentEnvironment", ["developmentEnvironment"], ["entwicklungsumgebung"], true);
-    var libs = software.addElement("Bibliotheken")
-    addItemsToDom(objId, libs, "bibliothek", "libraries", ["library"], null, true);
+    // var language = software.addElement("Programmiersprache");
+    addItemsToDom(objId, software, "Programmiersprache", "programmingLanguage", ["programmingLanguage"], ["programmiersprache"], false);
+    addItemsToDom(objId, software, "Entwicklungsumgebung", "developmentEnvironment", ["developmentEnvironment"], ["entwicklungsumgebung"], false);
+    addItemsToDom(objId, software, "Bibliotheken", "libraries", ["library"], ["library"], false);
     software.addElement("Erstellungsvertrag")
         .addElement("vertragsNummer").addText(getAdditionalFieldFromObject(objId, "creationContractNumber", "data"))
         .getParent()
@@ -151,12 +149,12 @@ function addSoftwareData() {
     installationsort.addElement("lokal").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "installationLocal", "data"));
     var hlr = installationsort.addElement("HLR");
     hlr.addElement("hlr").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "installationHLR", "data"));
-    addItemsToDom(objId, hlr, "hlrName", "installationServerNames", ["text"], null, true);
+    addItemsToDom(objId, hlr, "hlrName", "installationServerNames", ["text"], ["text"], false);
 
     // installationsort.addElement("Server").addText(getAdditionalFieldFromObject(objId, "operatingSystemNotes", "data"));
     var server = installationsort.addElement("Server");
     server.addElement("server").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "installationServer", "data"));
-    addItemsToDom(objId, server, "servername", "installationServerNames", ["text"], null, true);
+    addItemsToDom(objId, server, "servername", "installationServerNames", ["text"], ["text"], false);
     software.addElement("installationsMethode").addText(getAdditionalFieldFromObject(objId, "installBy", "data"));
 
     var bawRechte = software.addElement("QuellCodeRechte");
@@ -177,7 +175,7 @@ function addSoftwareData() {
  * @param tableId
  * @param columnIds
  * @param domColumnIds
- * @param {boolean} [mapDirectly]
+ * @param {boolean} [mapDirectly] this is not used anymore!
  * @param {number[]} [mapCodelistColumn]
  */
 function addItemsToDom(objId, targetElement, domElementId, tableId, columnIds, domColumnIds, mapDirectly, mapCodelistColumn) {
