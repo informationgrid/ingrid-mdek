@@ -79,7 +79,7 @@ function addMeasureData() {
         .addElement("verticalCRS").addText(getAdditionalFieldFromObject(objId, "heightReferenceSystem", "data"));
     measureInfo.addElement("measurementFrequency").addText(getAdditionalFieldFromObject(objId, "measuringFrequency", "data"));
     addItemsToDom(objId, measureInfo, "MeanWaterLevel", "averageWaterLevel", ["waterLevel", "unitOfMeasurement"], ["waterLevel", "uom"]);
-    addItemsToDom(objId, measureInfo, "GaugeDatum", "zeroLevel", ["zeroLevel", "unitOfMeasurement", "verticalCoordinateReferenceSystem", "description"], ["datum", "uom", "verticalCRS", "description"]);
+    addItemsToDom(objId, measureInfo, "GaugeDatum", "zeroLevel", ["zeroLevel", "unitOfMeasurement", "verticalCoordinateReferenceSystem", "description"], ["datum", "uom", "verticalCRS", "description"], false,[null, null, 101, null]);
     measureInfo.addElement("minDischarge").addText(getAdditionalFieldFromObject(objId, "drainMin", "data"));
     measureInfo.addElement("maxDischarge").addText(getAdditionalFieldFromObject(objId, "drainMax", "data"));
     addItemsToDom(objId, measureInfo, "MeasurementDevice", "gauge", ["name", "id", "model", "description"], ["name", "id", "model", "description"]);
@@ -188,7 +188,7 @@ function addItemsToDom(objId, targetElement, domElementId, tableId, columnIds, d
         for (var j = 0; j < columnIds.length; j++) {
             
             var value = columns[j][i];
-            if (mapCodelistColumn && mapCodelistColumn[j]) value = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(mapCodelistColumn[j], value)
+            if (mapCodelistColumn && mapCodelistColumn[j]) value = TRANSF.getCodeListEntryFromIGCSyslistEntry(mapCodelistColumn[j], value, "de")
             if (mapDirectly) {
                 element.addText(value);
             } else {
