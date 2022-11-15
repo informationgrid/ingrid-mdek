@@ -30,7 +30,7 @@
       <Arg>
         <Array type="java.lang.String">
           <!-- BAW MIS -->
-          <!--<Item>../distribution/src/profiles/baw_mis/webapp</Item>-->
+          <Item>../distribution/src/profiles/baw_mis/webapp</Item>
          <!-- mCloud -->
           <!--<Item>../distribution/src/profiles/mcloud/webapp</Item>-->
           <!-- UVP -->

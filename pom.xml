@@ -3,13 +3,13 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>5.11.0</version>
+    <version>5.15.0.3324-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>5.15.0-SNAPSHOT</version>
+  <version>5.15.0.3324-SNAPSHOT</version>
   <name>InGrid iPlug IGE</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.
   </description>
@@ -21,10 +21,12 @@
     <iplug.type>IPLUG_IGE</iplug.type>
     <ingrid-udk-importer.version>5.12.0</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>5.14.0</ingrid-codelist-service.version>
-    <ingrid-utils.version>5.14.0</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>5.12.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>5.14.0</ingrid-base-webapp.version>
-    <spring.version>5.3.18</spring.version>
+    <ingrid-utils.version>5.15.0.3324-SNAPSHOT</ingrid-utils.version>
+    <ingrid-iplug-dsc.version>5.15.0.3324-SNAPSHOT</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>5.15.0.3324-SNAPSHOT</ingrid-base-webapp.version>
+    <spring.version>2.7.5</spring.version>
+    <log4j2.version>2.19.0</log4j2.version>
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <!-- ==================== Source Code Management ==================== -->
@@ -43,16 +45,6 @@
       <url>https://nexus.informationgrid.eu/repository/maven-public</url>
     </repository>
 
-<!--
-
-    DEPRECATED, repo unreachable?
-
-    <repository>
-      <id>geotoolkit</id>
-      <name>Geotoolkit repository</name>
-      <url>http://maven.geotoolkit.org/</url>
-    </repository>
--->
     <repository>
       <id>osgeo</id>
       <name>OSGeo Release Repository</name>
@@ -99,23 +91,19 @@
         <artifactId>ingrid-import-export</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <!-- Use new spring because of Java 8 compatibility -->
-      <!-- always use spring from base-webapp -->
+
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-beans</artifactId>
+        <!-- Import dependency management from Spring Boot -->
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
         <version>${spring.version}</version>
+        <!-- <relativePath />-->
+        <!-- lookup parent from repository -->
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-core</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
+
+
       <dependency>
         <groupId>com.thoughtworks.xstream</groupId>
         <artifactId>xstream</artifactId>
@@ -174,18 +162,18 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-1.2-api</artifactId>
-      <version>2.17.1</version>
+      <version>${log4j2.version}</version>
     </dependency>
     <!-- end -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <version>2.17.1</version>
+      <version>${log4j2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>2.17.1</version>
+      <version>${log4j2.version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
