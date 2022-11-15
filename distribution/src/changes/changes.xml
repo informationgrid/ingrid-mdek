@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.15.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.15.0-SNAPSHOT">
+      <action type="add" dev="wemove" issue="4378">
+        LUBW: Add custom fields to index for portal URL access
+      </action>
       <action type="add" dev="wemove" issue="4026">
         BAW(MIS): Add mapping for custom fields (measurement and software)
       </action>
