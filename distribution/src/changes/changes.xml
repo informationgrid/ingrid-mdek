@@ -5,6 +5,12 @@
   </properties>
   <body>
 
+    <release version="5.14.2-SNAPSHOT" date="2021-xx-xx" description="Release 5.14.2">
+      <action type="add" dev="wemove" issue="4378">
+        LUBW: Add custom fields to index for portal URL access
+      </action>
+    </release>
+
     <release version="5.14.1" date="2021-11-09" description="Release 5.14.1">
       <action type="add" dev="wemove" issue="4378">
         LUBW: Add mapping for custom fields (OAC and environmentDescription)
