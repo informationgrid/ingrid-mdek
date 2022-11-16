@@ -22,7 +22,7 @@
     <!-- Define the version that we want to use here, so we have a single line to change when upgrating. -->
     <!-- <geotk.version>3.20-geoapi-3.0</geotk.version> -->
     <geotk.version>4.0-M0</geotk.version>
-    <powermock.version>1.7.0RC4</powermock.version>
+    <powermock.version>2.0.9</powermock.version>
     <!--
             <powermock.version>2.0.0-beta.5</powermock.version>
     -->
@@ -40,11 +40,9 @@
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <!--
-                  <artifactId>powermock-api-mockito2</artifactId>
-      -->
-      <version>${powermock.version}</version>
+<!--      <artifactId>powermock-api-mockito</artifactId>-->
+      <artifactId>powermock-api-mockito2</artifactId>
+      <version>2.0.9</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -79,7 +77,7 @@
     <dependency>
       <groupId>org.jmock</groupId>
       <artifactId>jmock</artifactId>
-      <version>2.4.0</version>
+      <version>2.12.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
