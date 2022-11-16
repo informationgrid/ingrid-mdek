@@ -26,8 +26,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 
 import java.io.ByteArrayInputStream;
@@ -65,6 +63,9 @@ import de.ingrid.mdek.services.catalog.MdekObjectService;
 import de.ingrid.mdek.services.utils.MdekJobHandler;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.xml.XMLUtils;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)

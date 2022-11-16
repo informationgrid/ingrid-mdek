@@ -41,6 +41,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -64,10 +65,10 @@ import java.util.zip.GZIPInputStream;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
@@ -259,7 +260,7 @@ public class CSWImportTest extends TestSetup {
         doAnswer( new Answer<Void>() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Void answer(InvocationOnMock invocation) throws Exception {
-                Map doc = invocation.getArgumentAt( 1, Map.class );
+                Map doc = invocation.getArgument( 1, Map.class );
                 List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
                 assertThat( data, is( not( nullValue() ) ) );
                 assertThat( data.size(), is( 1 ) );
@@ -278,7 +279,7 @@ public class CSWImportTest extends TestSetup {
                 }
                 return null;
             }
-        } ).when( jobHandler ).updateJobInfoDB( any(), any(), anyString() );
+        } ).when( jobHandler ).updateJobInfoDB( ArgumentMatchers.any(), any(), anyString() );
 
         IngridDocument docIn = prepareInsertDocument( "csw/insert_nonGeographicDataset.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
@@ -296,7 +297,7 @@ public class CSWImportTest extends TestSetup {
         doAnswer( new Answer<Void>() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Void answer(InvocationOnMock invocation) throws Exception {
-                Map doc = invocation.getArgumentAt( 1, Map.class );
+                Map doc = invocation.getArgument( 1, Map.class );
                 List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
                 assertThat( data, is( not( nullValue() ) ) );
                 assertThat( data.size(), is( 1 ) );
@@ -542,7 +543,7 @@ public class CSWImportTest extends TestSetup {
         doAnswer( new Answer<Void>() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Void answer(InvocationOnMock invocation) throws Exception {
-                Map doc = invocation.getArgumentAt( 1, Map.class );
+                Map doc = invocation.getArgument( 1, Map.class );
                 List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
                 assertThat( data, is( not( nullValue() ) ) );
                 assertThat( data.size(), is( 1 ) );
@@ -794,7 +795,7 @@ public class CSWImportTest extends TestSetup {
     public void handleDocumentUpdate() throws Exception {
         doAnswer( new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) throws Exception {
-                IngridDocument doc = (IngridDocument) invocation.getArgumentAt( 0, Map.class );
+                IngridDocument doc = (IngridDocument) invocation.getArgument( 0, Map.class );
                 assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ) );
                 assertThat( doc.getString( MdekKeys.UUID ), is( "1234-5678-abcd-efgh" ) );
                 assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( false ) );
@@ -804,7 +805,7 @@ public class CSWImportTest extends TestSetup {
 
         doAnswer( new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) throws Exception {
-                HashMap doc = (HashMap) invocation.getArgumentAt( 1, Map.class );
+                HashMap doc = (HashMap) invocation.getArgument( 1, Map.class );
                 when( jobHandler.getJobDetailsAsHashMap( any( JobType.class ), any( String.class ) ) ).thenReturn( doc );
                 return null;
             }
@@ -834,7 +835,7 @@ public class CSWImportTest extends TestSetup {
 
         doAnswer( new Answer<IngridDocument>() {
             public IngridDocument answer(InvocationOnMock invocation) {
-                IngridDocument doc = (IngridDocument) invocation.getArgumentAt( 0, Map.class );
+                IngridDocument doc = (IngridDocument) invocation.getArgument( 0, Map.class );
                 assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ) );
                 assertThat( doc.getString( MdekKeys.UUID ), is( "1234-5678-abcd-efgh" ) );
                 assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( true ) );
@@ -860,7 +861,7 @@ public class CSWImportTest extends TestSetup {
 
         doAnswer( new Answer<IngridDocument>() {
             public IngridDocument answer(InvocationOnMock invocation) {
-                IngridDocument doc = (IngridDocument) invocation.getArgumentAt( 0, Map.class );
+                IngridDocument doc = (IngridDocument) invocation.getArgument( 0, Map.class );
                 assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ) );
                 assertThat( doc.getString( MdekKeys.UUID ), is( "1234-5678-abcd-efgh" ) );
                 assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( true ) );
@@ -885,7 +886,7 @@ public class CSWImportTest extends TestSetup {
         doAnswer( new Answer<Void>() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Void answer(InvocationOnMock invocation) throws Exception {
-                Map doc = invocation.getArgumentAt( 1, Map.class );
+                Map doc = invocation.getArgument( 1, Map.class );
                 List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
                 assertThat( data, is( not( nullValue() ) ) );
                 assertThat( data.size(), is( 1 ) );

@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
@@ -311,7 +310,7 @@ public class TestSetup {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected IngridDocument getDocument(InvocationOnMock invocation, String uuid) {
-        Map doc = invocation.getArgumentAt( 1, Map.class );
+        Map doc = invocation.getArgument( 1, Map.class );
         List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
         assertThat( data, is( not( nullValue() ) ) );
         assertThat( data.size(), is( 1 ) );

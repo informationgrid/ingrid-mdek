@@ -39,8 +39,6 @@ import static de.ingrid.mdek.job.mapping.profiles.baw.validation.iso.ValidatorTe
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
