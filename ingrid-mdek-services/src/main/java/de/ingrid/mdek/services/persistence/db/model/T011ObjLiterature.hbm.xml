@@ -27,7 +27,7 @@
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
    <class name="T011ObjLiterature" table="t011_obj_literature">
       <id name="id" type="long" column="id">
-         <generator class="hilo"/>
+         <generator class="identity"/>
       </id>
       <version name="version" type="integer" column="version"/>
       <property name="objId" type="long" column="obj_id"/>

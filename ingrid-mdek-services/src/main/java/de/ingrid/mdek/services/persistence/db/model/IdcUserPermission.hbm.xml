@@ -27,7 +27,7 @@
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
    <class name="IdcUserPermission" table="idc_user_permission">
       <id name="id" type="long" column="id">
-         <generator class="hilo"/>
+         <generator class="identity"/>
       </id>
       <version name="version" type="integer" column="version"/>
       <property name="permissionId" type="long" column="permission_id"/>

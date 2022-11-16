@@ -27,7 +27,7 @@
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
    <class name="PermissionAddr" table="permission_addr">
       <id name="id" type="long" column="id">
-         <generator class="hilo"/>
+         <generator class="identity"/>
       </id>
       <version name="version" type="integer" column="version"/>
       <property name="uuid" type="string" column="uuid"/>

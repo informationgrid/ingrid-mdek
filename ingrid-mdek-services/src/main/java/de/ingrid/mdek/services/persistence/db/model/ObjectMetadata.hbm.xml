@@ -27,7 +27,7 @@
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
    <class name="ObjectMetadata" table="object_metadata">
       <id name="id" type="long" column="id">
-         <generator class="hilo"/>
+         <generator class="identity"/>
       </id>
       <version name="version" type="integer" column="version"/>
       <property name="expiryState" type="integer" column="expiry_state"/>
