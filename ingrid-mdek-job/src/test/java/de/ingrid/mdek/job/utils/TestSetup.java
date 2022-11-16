@@ -44,6 +44,7 @@ import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
 import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import de.ingrid.mdek.xml.Versioning;
+import de.ingrid.utils.PlugDescription;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
@@ -195,6 +196,9 @@ public class TestSetup {
 
         cswMapper = new ScriptImportDataMapper( daoFactory , igeCswFolderUtil);
         cswMapper.setCatalogService( MdekCatalogService.getInstance( daoFactory ) );
+        PlugDescription plugDescription = new PlugDescription();
+        plugDescription.setConnection(new DatabaseConnection());
+        cswMapper.configure(plugDescription);
 
         ScriptImportDataMapper mapperSpy = spy(cswMapper);
         SQLUtils sqlMock = mock(SQLUtils.class);
@@ -310,7 +314,7 @@ public class TestSetup {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected IngridDocument getDocument(InvocationOnMock invocation, String uuid) {
-        Map doc = invocation.getArgument( 1, Map.class );
+        Map doc = invocation.getArgument( 1 );
         List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
         assertThat( data, is( not( nullValue() ) ) );
         assertThat( data.size(), is( 1 ) );

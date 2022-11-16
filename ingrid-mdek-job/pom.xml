@@ -29,7 +29,16 @@
   </properties>
 
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
-
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>2.23.4</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <!-- ==================== DEPENDENCIES ==================== -->
   <dependencies>
     <dependency>
@@ -183,6 +192,8 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <argLine>--add-opens java.xml/jdk.xml.internal=ALL-UNNAMED</argLine>
+          <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
           <excludes>
             <exclude>**/register/*.java</exclude>
             <exclude>**/repository/*.java</exclude>

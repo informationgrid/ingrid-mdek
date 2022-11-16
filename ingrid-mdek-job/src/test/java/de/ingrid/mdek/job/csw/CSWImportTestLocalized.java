@@ -88,7 +88,7 @@ public class CSWImportTestLocalized extends TestSetup {
         doAnswer( new Answer<Void>() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Void answer(InvocationOnMock invocation) throws Exception {
-                Map doc = invocation.getArgument( 1, Map.class );
+                Map doc = invocation.getArgument( 1 );
                 List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
                 assertThat( data, is( not( nullValue() ) ) );
                 assertThat( data.size(), is( 1 ) );

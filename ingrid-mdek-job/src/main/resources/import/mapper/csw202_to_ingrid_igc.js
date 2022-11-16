@@ -51,15 +51,15 @@
  *		protocol.addMessage(protocol.getCurrentFilename() + ": Debug message");
  * }
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-    load("nashorn:mozilla_compat.js");
-    var ProtocolHandler = Java.type("de.ingrid.mdek.job.protocol.ProtocolHandler");
-}
-
-importPackage(Packages.de.ingrid.utils.udk);
-importPackage(Packages.org.w3c.dom);
-importClass(Packages.de.ingrid.utils.xml.XMLUtils);
-importClass(Packages.de.ingrid.mdek.job.protocol.ProtocolHandler);
+let ProtocolHandler = Java.type("de.ingrid.mdek.job.protocol.ProtocolHandler");
+let TM_PeriodDurationToTimeInterval = Java.type("de.ingrid.utils.udk.TM_PeriodDurationToTimeInterval");
+let TM_PeriodDurationToTimeAlle = Java.type("de.ingrid.utils.udk.TM_PeriodDurationToTimeAlle");
+let XMLUtils = Java.type("de.ingrid.utils.xml.XMLUtils");
+let UtilsCSWDate = Java.type("de.ingrid.utils.udk.UtilsCSWDate");
+let UtilsLanguageCodelist = Java.type("de.ingrid.utils.udk.UtilsLanguageCodelist");
+let UtilsString = Java.type("de.ingrid.utils.udk.UtilsString");
+let UtilsCountryCodelist = Java.type("de.ingrid.utils.udk.UtilsCountryCodelist");
+let UUID = Java.type("java.util.UUID");
 
 var DEBUG = 1;
 var INFO = 2;
@@ -1644,7 +1644,7 @@ function mapToTarget(mapping, source, target) {
 								
 								if (m.targetAttribute) {
 									log.debug("adding '" + m.targetNode + "/@" + m.targetAttribute + "' = '" + nodeText + "'.");
-									XMLUtils.createOrReplaceAttribute(node, m.targetAttribute, nodeText);
+									XMLUtils.createOrReplaceAttribute(node, m.targetAttribute, ""+nodeText);
 								} else {
 									log.debug("adding '" + m.targetNode + "' = '" + nodeText + "'.");
 									XMLUtils.createOrReplaceTextNode(node, nodeText);
@@ -1820,7 +1820,7 @@ function mapReferenceSystemInfo(source, target) {
                 }
             }
 			if (hasValue(coordinateSystemId)) {
-				XMLUtils.createOrReplaceAttribute(node, "id", coordinateSystemId);
+				XMLUtils.createOrReplaceAttribute(node, "id", ""+coordinateSystemId);
 			}
 		}
 	} else {
@@ -1844,7 +1844,7 @@ function mapVerticalExtentVdatum(source, target) {
 	            XMLUtils.createOrReplaceTextNode(node, vDatumName);
 	            var datumId = transformToIgcDomainId(vDatumName, 101, "", "Could not map VerticalDatum: ");
 	            if (hasValue(datumId)) {
-	                XMLUtils.createOrReplaceAttribute(node, "id", datumId);
+	                XMLUtils.createOrReplaceAttribute(node, "id", ""+datumId);
 	            }
             }
         }
@@ -1913,7 +1913,7 @@ function mapTimeConstraints(source, target) {
 		var beginPosition = XPATH.getString(timePeriods.item(0), "gml:beginPosition | gml311:beginPosition");
 		var endPosition = XPATH.getString(timePeriods.item(0), "gml:endPosition | gml311:endPosition");
 		if (hasValue(beginPosition) && hasValue(endPosition)) {
-			if (beginPosition.equals(endPosition)) {
+			if (beginPosition === endPosition) {
 				var node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/beginning-date");
 				XMLUtils.createOrReplaceTextNode(node, transformDateIso8601ToIndex(beginPosition));
 				node = XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/temporal-domain/ending-date");
@@ -2118,7 +2118,7 @@ function addLicenseInfo(node, useConstraint, sourceNote) {
 	var useConstraintId = transformToIgcDomainId(useConstraint, 6500, "", "Could not map use-constraint, use as free entry: ");
 
 	if (hasValue(useConstraintId)) {
-		XMLUtils.createOrReplaceAttribute(node, "id", useConstraintId);
+		XMLUtils.createOrReplaceAttribute(node, "id", ""+useConstraintId);
 	}
 	if (hasValue(sourceNote)) {
 		XMLUtils.createOrReplaceAttribute(node, "source", sourceNote);
@@ -2205,7 +2205,7 @@ function addAccessConstraint(accConstraint, target) {
         XMLUtils.createOrReplaceTextNode(node, accConstraint);
         var accConstraintId = transformToIgcDomainId(accConstraint, 6010, "", "Could not map access-constraint, use as free entry: ");
         if (hasValue(accConstraintId)) {
-            XMLUtils.createOrReplaceAttribute(node, "id", accConstraintId);
+            XMLUtils.createOrReplaceAttribute(node, "id", ""+accConstraintId);
         }
     }
 }
@@ -2218,7 +2218,7 @@ function addLegalConstraint(accConstraint, target) {
         XMLUtils.createOrReplaceTextNode(node, accConstraint);
         var accConstraintId = transformToIgcDomainId(accConstraint, 1350, "", "Could not map access-constraint, use as free entry: ");
         if (hasValue(accConstraintId)) {
-            XMLUtils.createOrReplaceAttribute(node, "id", accConstraintId);
+            XMLUtils.createOrReplaceAttribute(node, "id", ""+accConstraintId);
         }
     }
 }
@@ -2270,7 +2270,7 @@ function mapAddress(isoAddressNode, igcAdressNodes, individualName, organisation
 	var countryCode = UtilsCountryCodelist.getCodeFromShortcut3(XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
 	if (hasValue(countryCode)) {
 		XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "country"), XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:country/gco:CharacterString"));
-		XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "country"), "id", countryCode);
+		XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "country"), "id", ""+countryCode);
 	}
 
 	var administrativeAreaValue = XPATH.getString(isoAddressNode, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:administrativeArea/gco:CharacterString");
@@ -2278,7 +2278,7 @@ function mapAddress(isoAddressNode, igcAdressNodes, individualName, organisation
 		var administrativeAreaKey = codeListService.getSysListEntryKey(6250, administrativeAreaValue, "de");
 		XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "administrativeArea"), administrativeAreaValue);
 		if (hasValue(administrativeAreaKey)) {
-			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "administrative-area"), "id", administrativeAreaKey);
+			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "administrative-area"), "id", ""+administrativeAreaKey);
 		} else {
 			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "administrative-area"), "id", "-1");
 		}
@@ -2306,7 +2306,7 @@ function mapAddress(isoAddressNode, igcAdressNodes, individualName, organisation
 		if (!hasValue(addressRoleId)) {
 			addressRoleId = "-1";
 		}
-		XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "entry-id", addressRoleId);
+		XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "entry-id", ""+addressRoleId);
 		XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), "list-id", "505");
 		var addressRoleValue = transformISOToIgcDomainValue(XPATH.getString(isoAddressNode, "gmd:role/gmd:CI_RoleCode/@codeListValue"), 505, "de", "Could not transform ISO address role code to IGC codelist value: ");
 		XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcRelatedAddressNode, "type-of-relation"), addressRoleValue);
@@ -2407,13 +2407,13 @@ function mapUncontrolledTerms(source, target) {
         		} catch (e) { /* can be ignored */}
                 if (!hasValue(igcCode)) {
 	        		// check "inspireidentifiziert" and add flag !
-	                if (term.equals("inspireidentifiziert")) {
+	                if (term === "inspireidentifiziert") {
 	                    log.debug("adding '/igc/data-sources/data-source/data-source-instance/general/is-inspire-relevant' = 'Y' to target document.");
 	                    XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/is-inspire-relevant"), "Y");
-	                } else if (term.equals("opendata")) {
+	                } else if (term === "opendata") {
                         log.debug("adding '/igc/data-sources/data-source/data-source-instance/general/is-open-data' = 'Y' to target document.");
                         XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/is-open-data"), "Y");
-	                } else if (term.equals("AdVMIS")) {
+	                } else if (term === "AdVMIS") {
 	                    log.debug("adding '/igc/data-sources/data-source/data-source-instance/general/is-adv-compatible' = 'Y' to target document.");
 	                    XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(target, "/igc/data-sources/data-source/data-source-instance/general/is-adv-compatible"), "Y");
 	                } else {
@@ -2473,7 +2473,7 @@ function addAvailableLinkage(linkage, target) {
         XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-url"), linkage.url);
         XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-url-type"), linkage.urlType);
         if (hasValue(linkage.referenceId)) {
-            XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-reference"), "id", linkage.referenceId);
+            XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-reference"), "id", ""+linkage.referenceId);
             if (hasValue(linkage.referenceName)) {
                 XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-reference"), linkage.referenceName);
             }
@@ -2482,7 +2482,7 @@ function addAvailableLinkage(linkage, target) {
             XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-description"), linkage.description);
         }
         if (hasValue(linkage.datatype_key)) {
-            XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), "id", linkage.datatype_key);
+            XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), "id", ""+linkage.datatype_key);
             if (hasValue(linkage.datatype_value)) {
                 XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), linkage.datatype_value);
             }
@@ -2490,7 +2490,7 @@ function addAvailableLinkage(linkage, target) {
             if (hasValue(linkage.datatype_value)) {
                 datatype_key = codeListService.getSysListEntryKey(1320, linkage.datatype_value, catLangCode);
                 if (hasValue(datatype_key)){
-                    XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), "id", datatype_key);
+                    XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), "id", ""+datatype_key);
                 }
                 XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-datatype"), linkage.datatype_value);
             }
@@ -2518,7 +2518,7 @@ function mapServiceClassifications(source, target) {
         		}
         		if (hasValue(igcCode)) {
             		var node = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/technical-domain/service/service-classification");
-            		XMLUtils.createOrReplaceAttribute(node, "id", igcCode);
+            		XMLUtils.createOrReplaceAttribute(node, "id", ""+igcCode);
         		}
             }
         }
@@ -3073,25 +3073,13 @@ function createUUIDFromAddress(source, overwriteExisting) {
 	    // otherwise create a uuid from the content, to try to find an address
 	    // this should work if same address was referenced without a uuid
 		log.debug("createUUIDFromString: " + idString.toString().toLowerCase());
-	    uuid = createUUIDFromString(idString.toString().toLowerCase());
+	    uuid = igeCswFolderUtil.getUUIDFromString(idString.toString().toLowerCase());
 	}
 
 	log.info("Created UUID from Address:" + uuid);
 
 	return uuid;
 }
-
-function createUUIDFromString(str) {
-	// replace multiple white spaces by ' '
-	var uuid = java.util.UUID.nameUUIDFromBytes((new java.lang.String(str).replaceAll("\\s+", " ")).getBytes());
-	var idcUuid = new java.lang.StringBuffer(uuid.toString().toUpperCase());
-	while (idcUuid.length() < 36) {
-		idcUuid.append("0");
-	}
-	uuid = idcUuid.toString();
-	return uuid;
-}
-
 
 function createUUID() {
 	var uuid = java.util.UUID.randomUUID();

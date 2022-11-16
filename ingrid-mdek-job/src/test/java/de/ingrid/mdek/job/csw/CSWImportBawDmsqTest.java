@@ -356,7 +356,7 @@ public class CSWImportBawDmsqTest {
     @Test
     public void importAdditionalField() throws Exception {
         doAnswer((Answer<Void>) invocation -> {
-            Map doc = invocation.getArgument( 1, Map.class );
+            Map doc = invocation.getArgument( 1 );
             List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
             assertThat( data, is( not( nullValue() ) ) );
             assertThat( data.size(), is( 1 ) );
@@ -383,7 +383,7 @@ public class CSWImportBawDmsqTest {
     @Ignore("Input XML does not seem to match with assertion anymore")
     public void importAdditionalFieldSampleFromBaw() throws Exception {
         doAnswer((Answer<Void>) invocation -> {
-            Map doc = invocation.getArgument( 1, Map.class );
+            Map doc = invocation.getArgument( 1 );
             List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
             assertThat( data, is( not( nullValue() ) ) );
             assertThat( data.size(), is( 1 ) );

@@ -70,7 +70,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"javax.management.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "org.w3c.dom.*", "com.sun.org.apache.xerces.*"})
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ DatabaseConnectionUtils.class, MdekObjectService.class, MdekJobHandler.class })
 public class CSWImportTest extends TestSetup {
@@ -257,29 +257,26 @@ public class CSWImportTest extends TestSetup {
     @Test
     public void analyzeCswDocumentInsert_nonGeographicDataset() throws Exception {
 
-        doAnswer( new Answer<Void>() {
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            public Void answer(InvocationOnMock invocation) throws Exception {
-                Map doc = invocation.getArgument( 1, Map.class );
-                List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
-                assertThat( data, is( not( nullValue() ) ) );
-                assertThat( data.size(), is( 1 ) );
-                InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
-                IngridXMLStreamReader reader = new IngridXMLStreamReader( in, importerCallback, "TEST_USER_ID" );
-                assertThat( reader.getObjectUuids().size(), is( 1 ) );
-                assertThat( reader.getObjectUuids().iterator().next(), is( "993E6356-D262-43AD-A69D-FE8EF62189A4" ) );
-                List<Document> domForObject = reader.getDomForObject( "993E6356-D262-43AD-A69D-FE8EF62189A4" );
-                try {
-                    importMapper.mapDataSource( domForObject.get( 0 ) );
-                    throw new AssertionError( "An exception should have occurred, because 'nonGeographicDataset' is not supported." );
-                } catch (NumberFormatException ex) {
-                    // expected
-                } catch (Exception ex) {
-                    throw new AssertionError( "An unexpected exception occurred: " + ex.getMessage() );
-                }
-                return null;
+        doAnswer((Answer<Void>) invocation -> {
+            Map doc = invocation.getArgument( 1 );
+            List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
+            assertThat( data, is( not( nullValue() ) ) );
+            assertThat( data.size(), is( 1 ) );
+            InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
+            IngridXMLStreamReader reader = new IngridXMLStreamReader( in, importerCallback, "TEST_USER_ID" );
+            assertThat( reader.getObjectUuids().size(), is( 1 ) );
+            assertThat( reader.getObjectUuids().iterator().next(), is( "993E6356-D262-43AD-A69D-FE8EF62189A4" ) );
+            List<Document> domForObject = reader.getDomForObject( "993E6356-D262-43AD-A69D-FE8EF62189A4" );
+            try {
+                importMapper.mapDataSource( domForObject.get( 0 ) );
+                throw new AssertionError( "An exception should have occurred, because 'nonGeographicDataset' is not supported." );
+            } catch (NumberFormatException ex) {
+                // expected
+            } catch (Exception ex) {
+                throw new AssertionError( "An unexpected exception occurred: " + ex.getMessage() );
             }
-        } ).when( jobHandler ).updateJobInfoDB( ArgumentMatchers.any(), any(), anyString() );
+            return null;
+        }).when( jobHandler ).updateJobInfoDB( ArgumentMatchers.any(), any(), anyString() );
 
         IngridDocument docIn = prepareInsertDocument( "csw/insert_nonGeographicDataset.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
@@ -294,237 +291,233 @@ public class CSWImportTest extends TestSetup {
     @Test
     public void analyzeCswDocumentInsert_3_service() throws Exception {
 
-        doAnswer( new Answer<Void>() {
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            public Void answer(InvocationOnMock invocation) throws Exception {
-                Map doc = invocation.getArgument( 1, Map.class );
-                List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
-                assertThat( data, is( not( nullValue() ) ) );
-                assertThat( data.size(), is( 1 ) );
-                InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
-                IngridXMLStreamReader reader = new IngridXMLStreamReader( in, importerCallback, "TEST_USER_ID" );
-                assertThat( reader.getObjectUuids().size(), is( 1 ) );
-                assertThat( reader.getObjectUuids().iterator().next(), is( "D9EE3448-8224-4B08-926B-B9E5EDE360FC" ) );
-                List<Document> domForObject = reader.getDomForObject( "D9EE3448-8224-4B08-926B-B9E5EDE360FC" );
-                try {
-                    IngridDocument docOut = importMapper.mapDataSource( domForObject.get( 0 ) );
-                    System.out.println( XMLUtils.toString( domForObject.get( 0 ) ) );
-                    // JSONObject jsonObject = new JSONObject();
-                    // jsonObject.putAll( docOut );
-                    assertThat( docOut.getString( MdekKeys.TITLE ), is( "Coupling Service" ) );
-                    assertThat( docOut.getInt( MdekKeys.CLASS ), is( 3 ) );
-                    // check responsible
-                    assertThat( docOut.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ), is( "D9EE3448-8224-4B08-926B-B9E5EDE360FC" ) );
+        doAnswer((Answer<Void>) invocation -> {
+            Map doc = invocation.getArgument( 1 );
+            List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
+            assertThat( data, is( not( nullValue() ) ) );
+            assertThat( data.size(), is( 1 ) );
+            InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
+            IngridXMLStreamReader reader = new IngridXMLStreamReader( in, importerCallback, "TEST_USER_ID" );
+            assertThat( reader.getObjectUuids().size(), is( 1 ) );
+            assertThat( reader.getObjectUuids().iterator().next(), is( "D9EE3448-8224-4B08-926B-B9E5EDE360FC" ) );
+            List<Document> domForObject = reader.getDomForObject( "D9EE3448-8224-4B08-926B-B9E5EDE360FC" );
+            try {
+                IngridDocument docOut = importMapper.mapDataSource( domForObject.get( 0 ) );
+                System.out.println( XMLUtils.toString( domForObject.get( 0 ) ) );
+                // JSONObject jsonObject = new JSONObject();
+                // jsonObject.putAll( docOut );
+                assertThat( docOut.getString( MdekKeys.TITLE ), is( "Coupling Service" ) );
+                assertThat( docOut.getInt( MdekKeys.CLASS ), is( 3 ) );
+                // check responsible
+                assertThat( docOut.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ), is( "D9EE3448-8224-4B08-926B-B9E5EDE360FC" ) );
 
-                    // check short description
-                    assertThat( docOut.getString( MdekKeys.DATASET_ALTERNATE_NAME ), is( "Eine kurze Beschreibung" ) );
+                // check short description
+                assertThat( docOut.getString( MdekKeys.DATASET_ALTERNATE_NAME ), is( "Eine kurze Beschreibung" ) );
 
-                    // check preview image
-                    List<IngridDocument> links = (List<IngridDocument>) docOut.get( MdekKeys.LINKAGES );
-                    boolean found = false;
-                    for (IngridDocument link : links) {
-                        if (link.getInt( MdekKeys.LINKAGE_REFERENCE_ID ) == 9000 && "http://some.pic.com".equals( link.getString( MdekKeys.LINKAGE_URL ) )) {
-                            found = true;
-                            break;
-                        }
+                // check preview image
+                List<IngridDocument> links = (List<IngridDocument>) docOut.get( MdekKeys.LINKAGES );
+                boolean found = false;
+                for (IngridDocument link : links) {
+                    if (link.getInt( MdekKeys.LINKAGE_REFERENCE_ID ) == 9000 && "http://some.pic.com".equals( link.getString( MdekKeys.LINKAGE_URL ) )) {
+                        found = true;
+                        break;
                     }
-                    assertThat( "Preview image was not found.", found, is( true ) );
-
-                    // check abstract
-                    assertThat( docOut.getString( MdekKeys.ABSTRACT ), is( "Dienst für den Test um externe gekoppelte Datensätze hinzuzufügen" ) );
-
-                    // check address
-                    List<IngridDocument> addresses = (List<IngridDocument>) docOut.get( MdekKeys.ADR_REFERENCES_TO );
-                    // TODO: dataset gets a new UUID but keeps its origUUID!!!
-                    assertThat( addresses.size(), is( 3 ) );
-                    assertThat( addresses.get( 0 ).getString( MdekKeys.UUID ), is( "3E1B7F21-4E56-11D3-9A6B-0060971A0BF7" ) );
-                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 1 ) );
-                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
-                    assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 12 ) );
-                    assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
-
-                    // inspire relevant
-                    assertThat( docOut.getString( MdekKeys.IS_INSPIRE_RELEVANT ), is( "Y" ) );
-
-                    // open data
-                    assertThat( docOut.getString( MdekKeys.IS_OPEN_DATA ), is( "Y" ) );
-
-                    // INSPIRE-topics
-                    assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ).size(), is( 2 ) );
-                    assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ), "Biogeografische Regionen", "Gebäude" );
-
-                    // optional topics
-                    assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ).size(), is( 3 ) );
-                    assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ), "Adaptronik", "Kabal", "Erdsystem" );
-
-                    // environment topics
-                    // NOT mapped in ISO!?
-                    // TODO: assertThat( docOut.getString( MdekKeys.IS_CATALOG_DATA ), is( "Y" ) );
-                    assertThat( docOut.getArrayList( MdekKeys.ENV_TOPICS ).size(), is( 1 ) );
-                    assertThat( docOut.getArrayList( MdekKeys.ENV_TOPICS ).get( 0 ), is( 6 ) );
-
-                    IngridDocument serviceMap = (IngridDocument) docOut.get( MdekKeys.TECHNICAL_DOMAIN_SERVICE );
-                    // check classification of service: Dauerauftragsdienst (211)
-                    assertThat( serviceMap.getArrayList( MdekKeys.SERVICE_TYPE2_LIST ).size(), is( 1 ) );
-                    assertThat( ((IngridDocument) serviceMap.getArrayList( MdekKeys.SERVICE_TYPE2_LIST ).get( 0 )).getInt( MdekKeys.SERVICE_TYPE2_KEY ), is( 211 ) );
-
-                    // service version
-                    assertThat( ((IngridDocument) serviceMap.getArrayList( MdekKeys.SERVICE_VERSION_LIST ).get( 0 )).getString( MdekKeys.SERVICE_VERSION_VALUE ), is( "OGC:WFS 2.0" ) );
-
-                    // check type of service: Downloaddienst === 3?
-                    assertThat( serviceMap.getInt( MdekKeys.SERVICE_TYPE_KEY ), is( 3 ) );
-
-                    // check is atom feed???
-                    // NOT mapped in ISO!?
-                    // TODO: assertThat( serviceMap.getString( MdekKeys.HAS_ATOM_DOWNLOAD ), is("Y"));
-
-                    // operations
-                    assertThat( serviceMap.getArrayList( MdekKeys.SERVICE_OPERATION_LIST ).size(), is( 1 ) );
-                    assertOperation( serviceMap.getArrayList( MdekKeys.SERVICE_OPERATION_LIST ).get( 0 ), "GetCapabilities", "http://some.cap.com", "WebServices", "GetCap Beschreibung",
-                            "http://some.cap.com/hello?count=10" );
-
-                    // scale
-                    // NOT mapped in ISO! -> only written into abstract
-                    // TODO: assertThat( serviceMap.get( MdekKeys.PUBLICATION_SCALE_LIST ), is( nullValue() ) );
-
-                    // system
-                    // NOT mapped in ISO! -> only written into abstract
-                    // mapping problem since from source: LI_SOURCE has multiple entries, also DATABASE_OF_SYSTEM
-                    // TODO: assertThat( serviceMap.get( MdekKeys.SYSTEM_ENVIRONMENT ), is( "Zeitgeschichte" ) );
-
-                    // history
-                    // NOT mapped in ISO!?
-                    // TODO: assertThat( serviceMap.get( MdekKeys.SYSTEM_HISTORY ), is( "Windows" ) );
-
-                    // explanation
-                    // NOT mapped in ISO!?
-                    // TODO: assertThat( serviceMap.get( MdekKeys.DESCRIPTION_OF_TECH_DOMAIN ), is( "keine weiteren Erläuterungen" ) );
-
-                    // presentational data
-                    // mapping problem since from source: LI_SOURCE has multiple entries, also SYSTEM_ENVIRONMENT
-                    // TODO: assertThat( serviceMap.getString( MdekKeys.DATABASE_OF_SYSTEM ), is( "meine dargestellten Daten" ) );
-
-                    // coupling type
-                    assertThat( serviceMap.getString( MdekKeys.COUPLING_TYPE ), is( "tight" ) );
-
-                    // access constraint
-                    // NOT mapped in ISO!?
-                    // TODO: assertThat( serviceMap.getString( MdekKeys.HAS_ACCESS_CONSTRAINT ), is( "Y" ) );
-
-                    // check spatial ref: EPSG 3068: DHDN / Soldner Berlin
-                    assertThat( docOut.getArrayList( MdekKeys.SPATIAL_SYSTEM_LIST ).size(), is( 1 ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.SPATIAL_SYSTEM_LIST ).get( 0 )).getString( MdekKeys.COORDINATE_SYSTEM ), is( "EPSG 3068: DHDN / Soldner Berlin" ) );
-
-                    // height
-                    assertThat( docOut.get( MdekKeys.VERTICAL_EXTENT_MINIMUM ), is( 4.0 ) );
-                    assertThat( docOut.get( MdekKeys.VERTICAL_EXTENT_MAXIMUM ), is( 6.0 ) );
-                    assertThat( docOut.getInt( MdekKeys.VERTICAL_EXTENT_UNIT ), is( 9001 ) ); // "Meter"
-                    assertThat( docOut.getString( MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE ), is( "DE_DHHN92_NH" ) );
-
-                    // height explanation
-                    assertThat( docOut.getString( MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN ), is( "nicht sehr hoch" ) );
-
-                    // check creation: 17.03.2015
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATASET_REFERENCES ).get( 0 )).getString( MdekKeys.DATASET_REFERENCE_DATE ), is( "20150317000000000" ) );
-
-                    // time explanation
-                    assertThat( docOut.getString( MdekKeys.DESCRIPTION_OF_TEMPORAL_DOMAIN ), is( "nicht sehr alt" ) );
-
-                    // time range
-                    assertThat( docOut.getString( MdekKeys.BEGINNING_DATE ), is( "20160209000000000" ) );
-                    assertThat( docOut.getString( MdekKeys.ENDING_DATE ), is( "20160209000000000" ) );
-
-                    // periodity
-                    assertThat( docOut.getInt( MdekKeys.TIME_PERIOD ), is( 1 ) );
-
-                    // state
-                    assertThat( docOut.getInt( MdekKeys.TIME_STATUS ), is( 5 ) );
-
-                    // interval
-                    // NOT mapped in ISO!?
-                    // TODO: assertThat( docOut.get( MdekKeys.TIME_INTERSECT), is( ) );
-
-                    // check metadata language: Deutsch
-                    assertThat( docOut.getString( MdekKeys.METADATA_LANGUAGE_NAME ), is( "Deutsch" ) );
-
-                    // character set (utf8)
-                    assertThat( docOut.getInt( MdekKeys.METADATA_CHARACTER_SET ), is( 4 ) );
-
-                    // check publication info: Internet
-                    assertThat( docOut.getInt( MdekKeys.PUBLICATION_CONDITION ), is( 1 ) );
-
-                    // check conformity: Technical Guidance for the implementation of INSPIRE Download Services => konform
-                    assertThat( docOut.getArrayList( MdekKeys.CONFORMITY_LIST ).size(), is( 1 ) );
-                    assertConformity( (IngridDocument) docOut.getArrayList( MdekKeys.CONFORMITY_LIST ).get( 0 ), "Technical Guidance for the implementation of INSPIRE Download Services", "konform" );
-
-                    // xml export criteria
-                    // NOT mapped in ISO!?
-                    // TODO: assertThat( docOut.getArrayList( MdekKeys.EXPORT_CRITERIA).size(), is( 1 ) );
-                    // TODO: assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.EXPORT_CRITERIA).get(0)).get(
-                    // MdekKeys.EXPORT_CRITERION_VALUE ), is( "CDS" ) );
-
-                    // law basics
-                    assertThat( docOut.getArrayList( MdekKeys.LEGISLATIONS ).size(), is( 1 ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.LEGISLATIONS ).get( 0 )).getInt( MdekKeys.LEGISLATION_KEY ), is( 24 ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.LEGISLATIONS ).get( 0 )).getString( MdekKeys.LEGISLATION_VALUE ), is( "Bundeswasserstraßengesetz (WaStrG)" ) );
-
-                    // purpose
-                    assertThat( docOut.getString( MdekKeys.DATASET_INTENTIONS ), is( "kein Zweck" ) );
-
-                    // usage
-                    assertThat( docOut.getString( MdekKeys.DATASET_USAGE ), is( "keine Nutzung" ) );
-
-                    // check access constraints: Bedingungen unbekannt
-                    // assertThat( docOut.getArrayList( MdekKeys.USE_LIST ).size(), is( 1 ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_LIST ).get( 0 )).getString( MdekKeys.USE_TERMS_OF_USE_VALUE ), is( "Es gelten keine Bedingungen" ) );
-
-                    // check usage constraints:
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_CONSTRAINTS ).get( 0 )).getString( MdekKeys.USE_LICENSE_VALUE ), is( "eingeschränkte Geolizenz" ) );
-
-                    // check usage condition: Es gelten keine Bedingungen
-                    assertThat( docOut.getArrayList( MdekKeys.ACCESS_LIST ).size(), is( 1 ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.ACCESS_LIST ).get( 0 )).getString( MdekKeys.ACCESS_RESTRICTION_VALUE ), is( "Es gelten keine Bedingungen" ) );
-
-                    // data format
-                    assertThat( docOut.getArrayList( MdekKeys.DATA_FORMATS ).size(), is( 1 ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getString( MdekKeys.FORMAT_NAME ), is( "Excel" ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getInt( MdekKeys.FORMAT_NAME_KEY ), is( 3 ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getString( MdekKeys.FORMAT_VERSION ), is( "2" ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getString( MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE ), is( "zip" ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getString( MdekKeys.FORMAT_SPECIFICATION ), is( "5" ) );
-
-                    // media
-                    assertThat( docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS ).size(), is( 1 ) );
-                    assertMedia( (IngridDocument) docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS ).get( 0 ), 1, 700.0, "c:/" );
-
-                    // order info
-                    assertThat( docOut.getString( MdekKeys.ORDERING_INSTRUCTIONS ), is( "keine Bestellung" ) );
-
-                    // links to
-
-                    // links from
-
-                    // spatial ref
-                    // docOut.get( MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST )
-
-                    // free spatial ref
-                    List<Object> locs = docOut.getArrayList( MdekKeys.LOCATIONS );
-                    // assertThat( locs.size(), is( 1 ));
-                    assertLink( links.get( 2 ), "Datensatz mit zwei Download Links",
-                            "http://192.168.0.247/interface-csw?REQUEST=GetRecordById&SERVICE=CSW&VERSION=2.0.2&id=93BBCF92-BD74-47A2-9865-BE59ABC90C57&iplug=/ingrid-group:iplug-csw-dsc-test&elementSetName=full",
-                            "http://portalu.de/igc_testNS#/b6fb5dab-036d-4c43-82da-98ffa2e9df76#**#93BBCF92-BD74-47A2-9865-BE59ABC90C57" );
-
-                    // Bounding Boxes are not bound to a name in ISO, so we cannot correctly map it to our structure
-                    assertLocation( locs.get( 0 ), "Hannover (03241001)", null, null, null, null );
-                    assertLocation( locs.get( 1 ), "Raumbezug des Datensatzes", 9.603732109069824, 9.919820785522461, 52.30428695678711, 52.454345703125 );
-
-                } catch (Exception ex) {
-                    throw new AssertionError( "An unexpected exception occurred: " + ex.getMessage() );
                 }
-                return null;
-            }
+                assertThat( "Preview image was not found.", found, is( true ) );
 
-        } ).when( jobHandler ).updateJobInfoDB( any(), any(), anyString() );
+                // check abstract
+                assertThat( docOut.getString( MdekKeys.ABSTRACT ), is( "Dienst für den Test um externe gekoppelte Datensätze hinzuzufügen" ) );
+
+                // check address
+                List<IngridDocument> addresses = (List<IngridDocument>) docOut.get( MdekKeys.ADR_REFERENCES_TO );
+                // TODO: dataset gets a new UUID but keeps its origUUID!!!
+                assertThat( addresses.size(), is( 3 ) );
+                assertThat( addresses.get( 0 ).getString( MdekKeys.UUID ), is( "3E1B7F21-4E56-11D3-9A6B-0060971A0BF7" ) );
+                assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 1 ) );
+                assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
+                assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 12 ) );
+                assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
+
+                // inspire relevant
+                assertThat( docOut.getString( MdekKeys.IS_INSPIRE_RELEVANT ), is( "Y" ) );
+
+                // open data
+                assertThat( docOut.getString( MdekKeys.IS_OPEN_DATA ), is( "Y" ) );
+
+                // INSPIRE-topics
+                assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ).size(), is( 2 ) );
+                assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ), "Biogeografische Regionen", "Gebäude" );
+
+                // optional topics
+                assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ).size(), is( 3 ) );
+                assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ), "Adaptronik", "Kabal", "Erdsystem" );
+
+                // environment topics
+                // NOT mapped in ISO!?
+                // TODO: assertThat( docOut.getString( MdekKeys.IS_CATALOG_DATA ), is( "Y" ) );
+                assertThat( docOut.getArrayList( MdekKeys.ENV_TOPICS ).size(), is( 1 ) );
+                assertThat( docOut.getArrayList( MdekKeys.ENV_TOPICS ).get( 0 ), is( 6 ) );
+
+                IngridDocument serviceMap = (IngridDocument) docOut.get( MdekKeys.TECHNICAL_DOMAIN_SERVICE );
+                // check classification of service: Dauerauftragsdienst (211)
+                assertThat( serviceMap.getArrayList( MdekKeys.SERVICE_TYPE2_LIST ).size(), is( 1 ) );
+                assertThat( ((IngridDocument) serviceMap.getArrayList( MdekKeys.SERVICE_TYPE2_LIST ).get( 0 )).getInt( MdekKeys.SERVICE_TYPE2_KEY ), is( 211 ) );
+
+                // service version
+                assertThat( ((IngridDocument) serviceMap.getArrayList( MdekKeys.SERVICE_VERSION_LIST ).get( 0 )).getString( MdekKeys.SERVICE_VERSION_VALUE ), is( "OGC:WFS 2.0" ) );
+
+                // check type of service: Downloaddienst === 3?
+                assertThat( serviceMap.getInt( MdekKeys.SERVICE_TYPE_KEY ), is( 3 ) );
+
+                // check is atom feed???
+                // NOT mapped in ISO!?
+                // TODO: assertThat( serviceMap.getString( MdekKeys.HAS_ATOM_DOWNLOAD ), is("Y"));
+
+                // operations
+                assertThat( serviceMap.getArrayList( MdekKeys.SERVICE_OPERATION_LIST ).size(), is( 1 ) );
+                assertOperation( serviceMap.getArrayList( MdekKeys.SERVICE_OPERATION_LIST ).get( 0 ), "GetCapabilities", "http://some.cap.com", "WebServices", "GetCap Beschreibung",
+                        "http://some.cap.com/hello?count=10" );
+
+                // scale
+                // NOT mapped in ISO! -> only written into abstract
+                // TODO: assertThat( serviceMap.get( MdekKeys.PUBLICATION_SCALE_LIST ), is( nullValue() ) );
+
+                // system
+                // NOT mapped in ISO! -> only written into abstract
+                // mapping problem since from source: LI_SOURCE has multiple entries, also DATABASE_OF_SYSTEM
+                // TODO: assertThat( serviceMap.get( MdekKeys.SYSTEM_ENVIRONMENT ), is( "Zeitgeschichte" ) );
+
+                // history
+                // NOT mapped in ISO!?
+                // TODO: assertThat( serviceMap.get( MdekKeys.SYSTEM_HISTORY ), is( "Windows" ) );
+
+                // explanation
+                // NOT mapped in ISO!?
+                // TODO: assertThat( serviceMap.get( MdekKeys.DESCRIPTION_OF_TECH_DOMAIN ), is( "keine weiteren Erläuterungen" ) );
+
+                // presentational data
+                // mapping problem since from source: LI_SOURCE has multiple entries, also SYSTEM_ENVIRONMENT
+                // TODO: assertThat( serviceMap.getString( MdekKeys.DATABASE_OF_SYSTEM ), is( "meine dargestellten Daten" ) );
+
+                // coupling type
+                assertThat( serviceMap.getString( MdekKeys.COUPLING_TYPE ), is( "tight" ) );
+
+                // access constraint
+                // NOT mapped in ISO!?
+                // TODO: assertThat( serviceMap.getString( MdekKeys.HAS_ACCESS_CONSTRAINT ), is( "Y" ) );
+
+                // check spatial ref: EPSG 3068: DHDN / Soldner Berlin
+                assertThat( docOut.getArrayList( MdekKeys.SPATIAL_SYSTEM_LIST ).size(), is( 1 ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.SPATIAL_SYSTEM_LIST ).get( 0 )).getString( MdekKeys.COORDINATE_SYSTEM ), is( "EPSG 3068: DHDN / Soldner Berlin" ) );
+
+                // height
+                assertThat( docOut.get( MdekKeys.VERTICAL_EXTENT_MINIMUM ), is( 4.0 ) );
+                assertThat( docOut.get( MdekKeys.VERTICAL_EXTENT_MAXIMUM ), is( 6.0 ) );
+                assertThat( docOut.getInt( MdekKeys.VERTICAL_EXTENT_UNIT ), is( 9001 ) ); // "Meter"
+                assertThat( docOut.getString( MdekKeys.VERTICAL_EXTENT_VDATUM_VALUE ), is( "DE_DHHN92_NH" ) );
+
+                // height explanation
+                assertThat( docOut.getString( MdekKeys.DESCRIPTION_OF_SPATIAL_DOMAIN ), is( "nicht sehr hoch" ) );
+
+                // check creation: 17.03.2015
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATASET_REFERENCES ).get( 0 )).getString( MdekKeys.DATASET_REFERENCE_DATE ), is( "20150317000000000" ) );
+
+                // time explanation
+                assertThat( docOut.getString( MdekKeys.DESCRIPTION_OF_TEMPORAL_DOMAIN ), is( "nicht sehr alt" ) );
+
+                // time range
+                assertThat( docOut.getString( MdekKeys.BEGINNING_DATE ), is( "20160209000000000" ) );
+                assertThat( docOut.getString( MdekKeys.ENDING_DATE ), is( "20160209000000000" ) );
+
+                // periodity
+                assertThat( docOut.getInt( MdekKeys.TIME_PERIOD ), is( 1 ) );
+
+                // state
+                assertThat( docOut.getInt( MdekKeys.TIME_STATUS ), is( 5 ) );
+
+                // interval
+                // NOT mapped in ISO!?
+                // TODO: assertThat( docOut.get( MdekKeys.TIME_INTERSECT), is( ) );
+
+                // check metadata language: Deutsch
+                assertThat( docOut.getString( MdekKeys.METADATA_LANGUAGE_NAME ), is( "Deutsch" ) );
+
+                // character set (utf8)
+                assertThat( docOut.getInt( MdekKeys.METADATA_CHARACTER_SET ), is( 4 ) );
+
+                // check publication info: Internet
+                assertThat( docOut.getInt( MdekKeys.PUBLICATION_CONDITION ), is( 1 ) );
+
+                // check conformity: Technical Guidance for the implementation of INSPIRE Download Services => konform
+                assertThat( docOut.getArrayList( MdekKeys.CONFORMITY_LIST ).size(), is( 1 ) );
+                assertConformity( (IngridDocument) docOut.getArrayList( MdekKeys.CONFORMITY_LIST ).get( 0 ), "Technical Guidance for the implementation of INSPIRE Download Services", "konform" );
+
+                // xml export criteria
+                // NOT mapped in ISO!?
+                // TODO: assertThat( docOut.getArrayList( MdekKeys.EXPORT_CRITERIA).size(), is( 1 ) );
+                // TODO: assertThat( ((IngridDocument)docOut.getArrayList( MdekKeys.EXPORT_CRITERIA).get(0)).get(
+                // MdekKeys.EXPORT_CRITERION_VALUE ), is( "CDS" ) );
+
+                // law basics
+                assertThat( docOut.getArrayList( MdekKeys.LEGISLATIONS ).size(), is( 1 ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.LEGISLATIONS ).get( 0 )).getInt( MdekKeys.LEGISLATION_KEY ), is( 24 ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.LEGISLATIONS ).get( 0 )).getString( MdekKeys.LEGISLATION_VALUE ), is( "Bundeswasserstraßengesetz (WaStrG)" ) );
+
+                // purpose
+                assertThat( docOut.getString( MdekKeys.DATASET_INTENTIONS ), is( "kein Zweck" ) );
+
+                // usage
+                assertThat( docOut.getString( MdekKeys.DATASET_USAGE ), is( "keine Nutzung" ) );
+
+                // check access constraints: Bedingungen unbekannt
+                // assertThat( docOut.getArrayList( MdekKeys.USE_LIST ).size(), is( 1 ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_LIST ).get( 0 )).getString( MdekKeys.USE_TERMS_OF_USE_VALUE ), is( "Es gelten keine Bedingungen" ) );
+
+                // check usage constraints:
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_CONSTRAINTS ).get( 0 )).getString( MdekKeys.USE_LICENSE_VALUE ), is( "eingeschränkte Geolizenz" ) );
+
+                // check usage condition: Es gelten keine Bedingungen
+                assertThat( docOut.getArrayList( MdekKeys.ACCESS_LIST ).size(), is( 1 ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.ACCESS_LIST ).get( 0 )).getString( MdekKeys.ACCESS_RESTRICTION_VALUE ), is( "Es gelten keine Bedingungen" ) );
+
+                // data format
+                assertThat( docOut.getArrayList( MdekKeys.DATA_FORMATS ).size(), is( 1 ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getString( MdekKeys.FORMAT_NAME ), is( "Excel" ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getInt( MdekKeys.FORMAT_NAME_KEY ), is( 3 ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getString( MdekKeys.FORMAT_VERSION ), is( "2" ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getString( MdekKeys.FORMAT_FILE_DECOMPRESSION_TECHNIQUE ), is( "zip" ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 )).getString( MdekKeys.FORMAT_SPECIFICATION ), is( "5" ) );
+
+                // media
+                assertThat( docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS ).size(), is( 1 ) );
+                assertMedia( (IngridDocument) docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS ).get( 0 ), 1, 700.0, "c:/" );
+
+                // order info
+                assertThat( docOut.getString( MdekKeys.ORDERING_INSTRUCTIONS ), is( "keine Bestellung" ) );
+
+                // links to
+
+                // links from
+
+                // spatial ref
+                // docOut.get( MdekKeys.SPATIAL_REPRESENTATION_TYPE_LIST )
+
+                // free spatial ref
+                List<Object> locs = docOut.getArrayList( MdekKeys.LOCATIONS );
+                // assertThat( locs.size(), is( 1 ));
+                assertLink( links.get( 2 ), "Datensatz mit zwei Download Links",
+                        "http://192.168.0.247/interface-csw?REQUEST=GetRecordById&SERVICE=CSW&VERSION=2.0.2&id=93BBCF92-BD74-47A2-9865-BE59ABC90C57&iplug=/ingrid-group:iplug-csw-dsc-test&elementSetName=full",
+                        "http://portalu.de/igc_testNS#/b6fb5dab-036d-4c43-82da-98ffa2e9df76#**#93BBCF92-BD74-47A2-9865-BE59ABC90C57" );
+
+                // Bounding Boxes are not bound to a name in ISO, so we cannot correctly map it to our structure
+                assertLocation( locs.get( 0 ), "Hannover (03241001)", null, null, null, null );
+                assertLocation( locs.get( 1 ), "Raumbezug des Datensatzes", 9.603732109069824, 9.919820785522461, 52.30428695678711, 52.454345703125 );
+
+            } catch (Exception ex) {
+                throw new AssertionError( "An unexpected exception occurred: " + ex.getMessage() );
+            }
+            return null;
+        }).when( jobHandler ).updateJobInfoDB( any(), any(), anyString() );
 
         IngridDocument docIn = prepareInsertDocument( "csw/insert_class3_service.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
@@ -540,143 +533,139 @@ public class CSWImportTest extends TestSetup {
 
     @Test
     public void analyzeCSWDocumentInsert_1_dataset() throws Exception {
-        doAnswer( new Answer<Void>() {
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            public Void answer(InvocationOnMock invocation) throws Exception {
-                Map doc = invocation.getArgument( 1, Map.class );
-                List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
-                assertThat( data, is( not( nullValue() ) ) );
-                assertThat( data.size(), is( 1 ) );
-                InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
-                IngridXMLStreamReader reader = new IngridXMLStreamReader( in, importerCallback, "TEST_USER_ID" );
-                assertThat( reader.getObjectUuids().size(), is( 1 ) );
-                assertThat( reader.getObjectUuids().iterator().next(), is( "4915275a-733a-47cd-b1a6-1a3f1e976948" ) );
-                List<Document> domForObject = reader.getDomForObject( "4915275a-733a-47cd-b1a6-1a3f1e976948" );
-                try {
-                    IngridDocument docOut = importMapper.mapDataSource( domForObject.get( 0 ) );
-                    // System.out.println( XMLUtils.toString( domForObject.get( 0 ) ) );
+        doAnswer((Answer<Void>) invocation -> {
+            Map doc = invocation.getArgument( 1 );
+            List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
+            assertThat( data, is( not( nullValue() ) ) );
+            assertThat( data.size(), is( 1 ) );
+            InputStream in = new GZIPInputStream( new ByteArrayInputStream( data.get( 0 ) ) );
+            IngridXMLStreamReader reader = new IngridXMLStreamReader( in, importerCallback, "TEST_USER_ID" );
+            assertThat( reader.getObjectUuids().size(), is( 1 ) );
+            assertThat( reader.getObjectUuids().iterator().next(), is( "4915275a-733a-47cd-b1a6-1a3f1e976948" ) );
+            List<Document> domForObject = reader.getDomForObject( "4915275a-733a-47cd-b1a6-1a3f1e976948" );
+            try {
+                IngridDocument docOut = importMapper.mapDataSource( domForObject.get( 0 ) );
+                // System.out.println( XMLUtils.toString( domForObject.get( 0 ) ) );
 
-                    assertThat( docOut.getString( MdekKeys.TITLE ), is( "Bebauungsplan Barmbek-Nord 18 (1.Änderung) Hamburg" ) );
-                    assertThat( docOut.getInt( MdekKeys.CLASS ), is( 1 ) );
-                    // check responsible
-                    assertThat( docOut.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ), is( "4915275a-733a-47cd-b1a6-1a3f1e976948" ) );
+                assertThat( docOut.getString( MdekKeys.TITLE ), is( "Bebauungsplan Barmbek-Nord 18 (1.Änderung) Hamburg" ) );
+                assertThat( docOut.getInt( MdekKeys.CLASS ), is( 1 ) );
+                // check responsible
+                assertThat( docOut.getString( MdekKeys.ORIGINAL_CONTROL_IDENTIFIER ), is( "4915275a-733a-47cd-b1a6-1a3f1e976948" ) );
 
-                    // check short description
-                    assertThat( docOut.getString( MdekKeys.DATASET_ALTERNATE_NAME ), is( "BN 18 Ä Textänderungsverfahren" ) );
+                // check short description
+                assertThat( docOut.getString( MdekKeys.DATASET_ALTERNATE_NAME ), is( "BN 18 Ä Textänderungsverfahren" ) );
 
-                    // check abstract
-                    assertThat( docOut.getString( MdekKeys.ABSTRACT ), is( "siehe Originalplan" ) );
+                // check abstract
+                assertThat( docOut.getString( MdekKeys.ABSTRACT ), is( "siehe Originalplan" ) );
 
-                    // inspire relevant
-                    assertThat( docOut.getString( MdekKeys.IS_INSPIRE_RELEVANT ), is( nullValue() ) );
+                // inspire relevant
+                assertThat( docOut.getString( MdekKeys.IS_INSPIRE_RELEVANT ), is( nullValue() ) );
 
-                    // open data
-                    assertThat( docOut.getString( MdekKeys.IS_OPEN_DATA ), is( nullValue() ) );
+                // open data
+                assertThat( docOut.getString( MdekKeys.IS_OPEN_DATA ), is( nullValue() ) );
 
-                    // INSPIRE-topics
-                    assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ).size(), is( 1 ) );
-                    assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ), "Land use" );
+                // INSPIRE-topics
+                assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ).size(), is( 1 ) );
+                assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS_INSPIRE ), "Land use" );
 
-                    // optional topics
-                    assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ).size(), is( 4 ) );
-                    assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ), "Raumbezogene Information", "Bauleitplanung", "Bebauungsplan", "Geoinformation" );
+                // optional topics
+                assertThat( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ).size(), is( 4 ) );
+                assertSubjectTerms( docOut.getArrayList( MdekKeys.SUBJECT_TERMS ), "Raumbezogene Information", "Bauleitplanung", "Bebauungsplan", "Geoinformation" );
 
-                    // check access constraints: Bedingungen unbekannt
-                    // assertThat( docOut.getArrayList( MdekKeys.USE_LIST ).size(), is( 1 ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_LIST ).get( 0 )).getString( MdekKeys.USE_TERMS_OF_USE_VALUE ),
-                            is( "Datenlizenz Deutschland - Namensnennung - Version 2.0; <a href=\"https://www.govdata.de/dl-de/by-2-0\">https://www.govdata.de/dl-de/by-2-0</a>; dl-de-by-2.0; Namensnennung: \"Freie und Hansestadt Hamburg, Bezirksamt Nord, Fachamt Stadt- und Landschaftsplanung\"" ) );
+                // check access constraints: Bedingungen unbekannt
+                // assertThat( docOut.getArrayList( MdekKeys.USE_LIST ).size(), is( 1 ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_LIST ).get( 0 )).getString( MdekKeys.USE_TERMS_OF_USE_VALUE ),
+                        is( "Datenlizenz Deutschland - Namensnennung - Version 2.0; <a href=\"https://www.govdata.de/dl-de/by-2-0\">https://www.govdata.de/dl-de/by-2-0</a>; dl-de-by-2.0; Namensnennung: \"Freie und Hansestadt Hamburg, Bezirksamt Nord, Fachamt Stadt- und Landschaftsplanung\"" ) );
 
-                    // check usage constraints:
-                    assertThat( docOut.getArrayList( MdekKeys.USE_CONSTRAINTS ).size(), is( 0 ) );
-                    //assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_CONSTRAINTS ).get( 1 )).getString( MdekKeys.USE_LICENSE_VALUE ), is( "eingeschränkte Geolizenz" ) );
+                // check usage constraints:
+                assertThat( docOut.getArrayList( MdekKeys.USE_CONSTRAINTS ).size(), is( 0 ) );
+                //assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.USE_CONSTRAINTS ).get( 1 )).getString( MdekKeys.USE_LICENSE_VALUE ), is( "eingeschränkte Geolizenz" ) );
 
-                    // check usage condition: Es gelten keine Bedingungen
-                    assertThat( docOut.getArrayList( MdekKeys.ACCESS_LIST ).size(), is( 3 ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.ACCESS_LIST ).get( 0 )).getString( MdekKeys.ACCESS_RESTRICTION_VALUE ), is( "keine" ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.ACCESS_LIST ).get( 1 )).getString( MdekKeys.ACCESS_RESTRICTION_VALUE ), is( "Baugesetzbuch (BauGB)" ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.ACCESS_LIST ).get( 2 )).getString( MdekKeys.ACCESS_RESTRICTION_VALUE ), is( "Baunutzungsverordnung (BauNVO)" ) );
+                // check usage condition: Es gelten keine Bedingungen
+                assertThat( docOut.getArrayList( MdekKeys.ACCESS_LIST ).size(), is( 3 ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.ACCESS_LIST ).get( 0 )).getString( MdekKeys.ACCESS_RESTRICTION_VALUE ), is( "keine" ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.ACCESS_LIST ).get( 1 )).getString( MdekKeys.ACCESS_RESTRICTION_VALUE ), is( "Baugesetzbuch (BauGB)" ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.ACCESS_LIST ).get( 2 )).getString( MdekKeys.ACCESS_RESTRICTION_VALUE ), is( "Baunutzungsverordnung (BauNVO)" ) );
 
-                    // environment topics
-                    assertThat( docOut.getArrayList( MdekKeys.ENV_TOPICS ).size(), is( 0 ) );
+                // environment topics
+                assertThat( docOut.getArrayList( MdekKeys.ENV_TOPICS ).size(), is( 0 ) );
 
-                    // ISO topics
-                    assertThat( docOut.getArrayList( MdekKeys.TOPIC_CATEGORIES ).size(), is( 1 ) );
-                    assertThat( docOut.getArrayList( MdekKeys.TOPIC_CATEGORIES ).get( 0 ), is( 15 ) );
+                // ISO topics
+                assertThat( docOut.getArrayList( MdekKeys.TOPIC_CATEGORIES ).size(), is( 1 ) );
+                assertThat( docOut.getArrayList( MdekKeys.TOPIC_CATEGORIES ).get( 0 ), is( 15 ) );
 
-                    // check metadata language: Deutsch
-                    assertThat( docOut.getString( MdekKeys.METADATA_LANGUAGE_NAME ), is( "Deutsch" ) );
+                // check metadata language: Deutsch
+                assertThat( docOut.getString( MdekKeys.METADATA_LANGUAGE_NAME ), is( "Deutsch" ) );
 
-                    // character set (utf8)
-                    assertThat( docOut.get( MdekKeys.METADATA_CHARACTER_SET ), is( nullValue() ) );
+                // character set (utf8)
+                assertThat( docOut.get( MdekKeys.METADATA_CHARACTER_SET ), is( nullValue() ) );
 
-                    // check spatial ref: EPSG 3068: DHDN / Soldner Berlin
-                    assertThat( docOut.getArrayList( MdekKeys.SPATIAL_SYSTEM_LIST ).size(), is( 1 ) );
-                    assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.SPATIAL_SYSTEM_LIST ).get( 0 )).getString( MdekKeys.COORDINATE_SYSTEM ), is( "EPSG 25832: ETRS89 / UTM Zone 32N" ) );
+                // check spatial ref: EPSG 3068: DHDN / Soldner Berlin
+                assertThat( docOut.getArrayList( MdekKeys.SPATIAL_SYSTEM_LIST ).size(), is( 1 ) );
+                assertThat( ((IngridDocument) docOut.getArrayList( MdekKeys.SPATIAL_SYSTEM_LIST ).get( 0 )).getString( MdekKeys.COORDINATE_SYSTEM ), is( "EPSG 25832: ETRS89 / UTM Zone 32N" ) );
 
-                    // free spatial ref
-                    List<Object> locs = docOut.getArrayList( MdekKeys.LOCATIONS );
-                    assertThat( locs.size(), is( 1 ) );
+                // free spatial ref
+                List<Object> locs = docOut.getArrayList( MdekKeys.LOCATIONS );
+                assertThat( locs.size(), is( 1 ) );
 
-                    // see (#2097), assume relationship since object has exactly 2 gmd:geographicElement AND
-                    //their order is  1. gmd:EX_GeographicDescription 2. gmd:EX_GeographicBoundingBox
-                    assertLocation( locs.get( 0 ), "Hamburg", 8.420551, 10.326304, 53.394985, 53.964153 );
+                // see (#2097), assume relationship since object has exactly 2 gmd:geographicElement AND
+                //their order is  1. gmd:EX_GeographicDescription 2. gmd:EX_GeographicBoundingBox
+                assertLocation( locs.get( 0 ), "Hamburg", 8.420551, 10.326304, 53.394985, 53.964153 );
 
-                    // time range
-                    assertThat( docOut.getString( MdekKeys.BEGINNING_DATE ), is( "20160301000000000" ) );
-                    assertThat( docOut.getString( MdekKeys.ENDING_DATE ), is( nullValue() ) );
+                // time range
+                assertThat( docOut.getString( MdekKeys.BEGINNING_DATE ), is( "20160301000000000" ) );
+                assertThat( docOut.getString( MdekKeys.ENDING_DATE ), is( nullValue() ) );
 
-                    // data formats
-                    assertThat( docOut.getArrayList( MdekKeys.DATA_FORMATS ).size(), is( 3 ) );
-                    assertDataFormat( (IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 ), "Geographic Markup Language (GML)", 99, null, null, null );
-                    assertDataFormat( (IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 1 ), "XPlanGML", 98, "4.1", null, null );
-                    assertDataFormat( (IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 2 ), "XPlanGML", 98, "3.0", null, null );
+                // data formats
+                assertThat( docOut.getArrayList( MdekKeys.DATA_FORMATS ).size(), is( 3 ) );
+                assertDataFormat( (IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 0 ), "Geographic Markup Language (GML)", 99, null, null, null );
+                assertDataFormat( (IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 1 ), "XPlanGML", 98, "4.1", null, null );
+                assertDataFormat( (IngridDocument) docOut.getArrayList( MdekKeys.DATA_FORMATS ).get( 2 ), "XPlanGML", 98, "3.0", null, null );
 
-                    // media
-                    assertThat( docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS ).size(), is( 0 ) );
-                    //assertMedia( (IngridDocument) docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS ).get( 0 ), 1, 700.0, "c:/" );
+                // media
+                assertThat( docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS ).size(), is( 0 ) );
+                //assertMedia( (IngridDocument) docOut.getArrayList( MdekKeys.MEDIUM_OPTIONS ).get( 0 ), 1, 700.0, "c:/" );
 
-                    List<IngridDocument> links = (List<IngridDocument>) docOut.get( MdekKeys.LINKAGES );
-                    assertThat( links.size(), is( 4 ) );
-                    assertLink( links.get( 0 ), "Bekanntmachung im HmbGVBl als PDF Datei",
-                            "http://daten-hamburg.de/infrastruktur_bauen_wohnen/bebauungsplaene/pdfs/bplan/Barmbek-Nord18(1Aend).pdf",
-                            null );
-                    assertLink( links.get( 1 ), "URL zu weiteren Informationen über den Datensatz",
-                            "http://www.hamburg.de/bebauungsplaene-online.de",
-                            null );
-                    assertLink( links.get( 2 ), "Begründung des Bebauungsplans als PDF Datei",
-                            "http://daten-hamburg.de/infrastruktur_bauen_wohnen/bebauungsplaene/pdfs/bplan_begr/Barmbek-Nord18(1Aend).pdf",
-                            null );
-                    assertLink( links.get( 3 ), "Festsetzungen (Planzeichnung / Verordnung) als PDF Datei",
-                            "http://daten-hamburg.de/infrastruktur_bauen_wohnen/bebauungsplaene/pdfs/bplan/Barmbek-Nord18(1Aend).pdf",
-                            null );
+                List<IngridDocument> links = (List<IngridDocument>) docOut.get( MdekKeys.LINKAGES );
+                assertThat( links.size(), is( 4 ) );
+                assertLink( links.get( 0 ), "Bekanntmachung im HmbGVBl als PDF Datei",
+                        "http://daten-hamburg.de/infrastruktur_bauen_wohnen/bebauungsplaene/pdfs/bplan/Barmbek-Nord18(1Aend).pdf",
+                        null );
+                assertLink( links.get( 1 ), "URL zu weiteren Informationen über den Datensatz",
+                        "http://www.hamburg.de/bebauungsplaene-online.de",
+                        null );
+                assertLink( links.get( 2 ), "Begründung des Bebauungsplans als PDF Datei",
+                        "http://daten-hamburg.de/infrastruktur_bauen_wohnen/bebauungsplaene/pdfs/bplan_begr/Barmbek-Nord18(1Aend).pdf",
+                        null );
+                assertLink( links.get( 3 ), "Festsetzungen (Planzeichnung / Verordnung) als PDF Datei",
+                        "http://daten-hamburg.de/infrastruktur_bauen_wohnen/bebauungsplaene/pdfs/bplan/Barmbek-Nord18(1Aend).pdf",
+                        null );
 
-                    // check conformity: Technical Guidance for the implementation of INSPIRE Download Services => konform
-                    assertThat( docOut.getArrayList( MdekKeys.CONFORMITY_LIST ).size(), is( 1 ) );
-                    assertConformity( (IngridDocument) docOut.getArrayList( MdekKeys.CONFORMITY_LIST ).get( 0 ), "INSPIRE Richtlinie", "nicht konform" );
+                // check conformity: Technical Guidance for the implementation of INSPIRE Download Services => konform
+                assertThat( docOut.getArrayList( MdekKeys.CONFORMITY_LIST ).size(), is( 1 ) );
+                assertConformity( (IngridDocument) docOut.getArrayList( MdekKeys.CONFORMITY_LIST ).get( 0 ), "INSPIRE Richtlinie", "nicht konform" );
 
-                    IngridDocument techDomain = (IngridDocument) docOut.get( MdekKeys.TECHNICAL_DOMAIN_MAP );
-                    assertThat( techDomain.getString( MdekKeys.TECHNICAL_BASE ), is( "vergl. eGovernment Vorhaben \"PLIS\"" ) );
-                    assertThat( techDomain.getString( MdekKeys.METHOD_OF_PRODUCTION ),
-                            is( "Die in den Planwerken der verbindlichen Bauleitplanung dokumentierten Festsetzungen, Kennzeichnungen und Hinweise werden auf der Grundlage der aktuellen Örtlichkeit der Liegenschaftskarte (ALKIS) mit Hilfe von Fachapplikationen (AutoCAD + WS LANDCAD bzw. ArcGIS + GeoOffice) digitalisiert." ) );
+                IngridDocument techDomain = (IngridDocument) docOut.get( MdekKeys.TECHNICAL_DOMAIN_MAP );
+                assertThat( techDomain.getString( MdekKeys.TECHNICAL_BASE ), is( "vergl. eGovernment Vorhaben \"PLIS\"" ) );
+                assertThat( techDomain.getString( MdekKeys.METHOD_OF_PRODUCTION ),
+                        is( "Die in den Planwerken der verbindlichen Bauleitplanung dokumentierten Festsetzungen, Kennzeichnungen und Hinweise werden auf der Grundlage der aktuellen Örtlichkeit der Liegenschaftskarte (ALKIS) mit Hilfe von Fachapplikationen (AutoCAD + WS LANDCAD bzw. ArcGIS + GeoOffice) digitalisiert." ) );
 
-                    // check address
-                    List<IngridDocument> addresses = (List<IngridDocument>) docOut.get( MdekKeys.ADR_REFERENCES_TO );
-                    // TODO: dataset gets a new UUID but keeps its origUUID!!!
-                    assertThat( addresses.size(), is( 2 ) );
-                    assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 12 ) );
-                    assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
-                    assertThat( addresses.get( 1 ).getString( MdekKeys.UUID ), is( "110C6012-1713-44C0-9A33-4E2C24D06966" ) );
-                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 7 ) );
-                    assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
-                    assertThat( addresses.get( 0 ).getString( MdekKeys.UUID ), is( "DA64401A-2AFC-458D-A8AF-58D0A3C35AA9" ) );
+                // check address
+                List<IngridDocument> addresses = (List<IngridDocument>) docOut.get( MdekKeys.ADR_REFERENCES_TO );
+                // TODO: dataset gets a new UUID but keeps its origUUID!!!
+                assertThat( addresses.size(), is( 2 ) );
+                assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 12 ) );
+                assertThat( addresses.get( 1 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
+                assertThat( addresses.get( 1 ).getString( MdekKeys.UUID ), is( "110C6012-1713-44C0-9A33-4E2C24D06966" ) );
+                assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_ID ), is( 7 ) );
+                assertThat( addresses.get( 0 ).getInt( MdekKeys.RELATION_TYPE_REF ), is( 505 ) );
+                assertThat( addresses.get( 0 ).getString( MdekKeys.UUID ), is( "DA64401A-2AFC-458D-A8AF-58D0A3C35AA9" ) );
 
-                } catch (Exception ex) {
-                    throw new AssertionError( "An unexpected exception occurred: " + ex.getMessage() );
-                }
-                return null;
+            } catch (Exception ex) {
+                throw new AssertionError( "An unexpected exception occurred: " + ex.getMessage() );
             }
-
-        } ).when( jobHandler ).updateJobInfoDB( any(), any(), anyString() );
+            return null;
+        }).when( jobHandler ).updateJobInfoDB( any(), any(), anyString() );
 
         IngridDocument docIn = prepareInsertDocument( "csw/insert_class1_dataset.xml" );
         IngridDocument analyzeImportData = catJob.analyzeImportData( docIn );
@@ -795,7 +784,7 @@ public class CSWImportTest extends TestSetup {
     public void handleDocumentUpdate() throws Exception {
         doAnswer( new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) throws Exception {
-                IngridDocument doc = (IngridDocument) invocation.getArgument( 0, Map.class );
+                IngridDocument doc = (IngridDocument) invocation.getArgument( 0 );
                 assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ) );
                 assertThat( doc.getString( MdekKeys.UUID ), is( "1234-5678-abcd-efgh" ) );
                 assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( false ) );
@@ -805,7 +794,7 @@ public class CSWImportTest extends TestSetup {
 
         doAnswer( new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) throws Exception {
-                HashMap doc = (HashMap) invocation.getArgument( 1, Map.class );
+                HashMap doc = (HashMap) invocation.getArgument( 1 );
                 when( jobHandler.getJobDetailsAsHashMap( any( JobType.class ), any( String.class ) ) ).thenReturn( doc );
                 return null;
             }
@@ -835,7 +824,7 @@ public class CSWImportTest extends TestSetup {
 
         doAnswer( new Answer<IngridDocument>() {
             public IngridDocument answer(InvocationOnMock invocation) {
-                IngridDocument doc = (IngridDocument) invocation.getArgument( 0, Map.class );
+                IngridDocument doc = (IngridDocument) invocation.getArgument( 0 );
                 assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ) );
                 assertThat( doc.getString( MdekKeys.UUID ), is( "1234-5678-abcd-efgh" ) );
                 assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( true ) );
@@ -861,7 +850,7 @@ public class CSWImportTest extends TestSetup {
 
         doAnswer( new Answer<IngridDocument>() {
             public IngridDocument answer(InvocationOnMock invocation) {
-                IngridDocument doc = (IngridDocument) invocation.getArgument( 0, Map.class );
+                IngridDocument doc = (IngridDocument) invocation.getArgument( 0 );
                 assertThat( doc.getString( MdekKeys.USER_ID ), is( "TEST_USER_ID" ) );
                 assertThat( doc.getString( MdekKeys.UUID ), is( "1234-5678-abcd-efgh" ) );
                 assertThat( doc.getBoolean( MdekKeys.REQUESTINFO_FORCE_DELETE_REFERENCES ), is( true ) );
@@ -886,7 +875,7 @@ public class CSWImportTest extends TestSetup {
         doAnswer( new Answer<Void>() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Void answer(InvocationOnMock invocation) throws Exception {
-                Map doc = invocation.getArgument( 1, Map.class );
+                Map doc = invocation.getArgument( 1 );
                 List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
                 assertThat( data, is( not( nullValue() ) ) );
                 assertThat( data.size(), is( 1 ) );
