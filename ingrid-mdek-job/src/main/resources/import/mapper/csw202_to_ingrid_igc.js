@@ -2223,7 +2223,7 @@ function addLegalConstraint(accConstraint, target) {
     }
 }
 
-function mapAddress(isoAddressNode, igcAdressNodes, individualName, organisationName, target, isMdContactNode, parentId, isRelated) {
+function mapAddress(isoAddressNode, igcAdressNodes, individualName, organisationName, target, isMdContactNode, parentId, isRelated, isSplitOfOrganisation) {
     var uuid;
 	var igcAddressNode = XPATH.createElementFromXPathAsSibling(igcAdressNodes, "address");
 	var igcAddressInstanceNode = XPATH.createElementFromXPathAsSibling(igcAddressNode, "address-instance");
@@ -2238,6 +2238,10 @@ function mapAddress(isoAddressNode, igcAdressNodes, individualName, organisation
 		} else {
 			XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "type-of-address"), "id", "2");
 		}
+	} else if (hasValue(individualName)) {
+        // always use free address type for ISO import if address has an individual name, see https://dev.informationgrid.eu/redmine/issues/494
+		XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "type-of-address"), "id", "3");
+		isOrganisation = false;
 	} else {
 		// otherwise import as institution
 		XMLUtils.createOrReplaceAttribute(XPATH.createElementFromXPath(igcAddressInstanceNode, "type-of-address"), "id", "0");
@@ -2247,7 +2251,7 @@ function mapAddress(isoAddressNode, igcAdressNodes, individualName, organisation
 		uuid = createUUIDFromAddress(isoAddressNode, false);
 		XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "organisation"), individualName);
 	} else {
-		uuid = createUUIDFromAddress(isoAddressNode, parentId == null);
+		uuid = createUUIDFromAddress(isoAddressNode, isSplitOfOrganisation);
 		if(hasValue(organisationName)){
 			XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(igcAddressInstanceNode, "organisation"), organisationName);
 		}
@@ -2344,6 +2348,8 @@ function mapAddresses(source, target) {
 			var individualName = getLocalisedCharacterString(XPATH.getNode(individualNode, "gco:CharacterString"));
 
 			var hasIndividualName = hasValue(individualName)
+			var hasImportedAnAddress = false;
+			var isSplitOfOrganisation = false;
 
 			if(hasIndividualName){
 				XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(isoAddressNode, "gmd:individualName/gco:CharacterString"), "");
@@ -2351,15 +2357,22 @@ function mapAddresses(source, target) {
 
 			var uuidOrganisation = undefined;
 			if(hasValue(organisationName)){
-				uuidOrganisation = mapAddress(isoAddressNode, igcAdressNodes, undefined, organisationName, target, isMdContactNode, undefined, !hasIndividualName);
+				isSplitOfOrganisation = hasIndividualName
+				uuidOrganisation = mapAddress(isoAddressNode, igcAdressNodes, undefined, organisationName, target, isMdContactNode, undefined, !hasIndividualName, isSplitOfOrganisation);
+				hasImportedAnAddress = true;
 			}
-
 
 			if(hasIndividualName){
 				XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(isoAddressNode, "gmd:individualName/gco:CharacterString"), individualName);
 				//XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(isoAddressNode, "gmd:organisationName/gco:CharacterString"), undefined);
+				isSplitOfOrganisation = false
+				mapAddress(isoAddressNode, igcAdressNodes, individualName, organisationName, target, isMdContactNode, uuidOrganisation, true, isSplitOfOrganisation);
+				hasImportedAnAddress = true;
+			}
 
-				mapAddress(isoAddressNode, igcAdressNodes, individualName, organisationName, target, isMdContactNode, uuidOrganisation, true);
+			if (!hasImportedAnAddress) {
+				isSplitOfOrganisation = false
+				mapAddress(isoAddressNode, igcAdressNodes, individualName, organisationName, target, isMdContactNode, uuidOrganisation, true, isSplitOfOrganisation);
 			}
 		}
 		XMLUtils.remove(dummyAddressNode);
