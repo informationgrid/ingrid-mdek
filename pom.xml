@@ -20,7 +20,7 @@
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
     <ingrid-udk-importer.version>5.12.0</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>5.14.0</ingrid-codelist-service.version>
+    <ingrid-codelist-service.version>5.15.0.3324-SNAPSHOT</ingrid-codelist-service.version>
     <ingrid-utils.version>5.15.0.3324-SNAPSHOT</ingrid-utils.version>
     <ingrid-iplug-dsc.version>5.15.0.3324-SNAPSHOT</ingrid-iplug-dsc.version>
     <ingrid-base-webapp.version>5.15.0.3324-SNAPSHOT</ingrid-base-webapp.version>
@@ -125,6 +125,17 @@
         <artifactId>slf4j-api</artifactId>
         <version>1.7.7</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-1.2-api</artifactId>
+        <version>${log4j2.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j2.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -133,7 +144,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-communication</artifactId>
-      <version>5.11.0</version>
+      <version>5.15.0.3324-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>log4j</groupId>
@@ -155,6 +166,14 @@
         <exclusion>
           <groupId>log4j</groupId>
           <artifactId>log4j</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-1.2-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-core</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

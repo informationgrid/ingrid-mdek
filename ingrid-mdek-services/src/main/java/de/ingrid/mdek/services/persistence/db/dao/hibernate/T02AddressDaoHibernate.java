@@ -69,7 +69,7 @@ public class T02AddressDaoHibernate
 			q.setMaxResults(maxNum);
 		}
 
-		return q.setResultTransformer(new DistinctRootEntityResultTransformer())
+		return q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 	public String getCsvHQLObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId) {
@@ -101,7 +101,7 @@ public class T02AddressDaoHibernate
 			q.setMaxResults(maxNum);
 		}
 
-		return q.setResultTransformer(new DistinctRootEntityResultTransformer())
+		return q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 	public String getCsvHQLAllAddressesOfResponsibleUser(String responsibleUserUuid) {

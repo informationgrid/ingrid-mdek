@@ -120,7 +120,7 @@ public class ObjectNodeDaoHibernate
 
 		List<ObjectNode> oNodes = session.createQuery(qString)
 			.setString(0, origId)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		ObjectNode retNode = null;
@@ -167,7 +167,7 @@ public class ObjectNodeDaoHibernate
 		}
 		
 		List<ObjectNode> oNodes = session.createQuery(q)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return oNodes;
@@ -204,7 +204,7 @@ public class ObjectNodeDaoHibernate
 		
 		List<ObjectNode> oNodes = session.createQuery(q)
 			.setString(0, parentUuid)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return oNodes;
@@ -240,7 +240,7 @@ public class ObjectNodeDaoHibernate
 		}
 		
 		List<ObjectNode> oNodes = session.createQuery(q)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return oNodes;
@@ -261,7 +261,7 @@ public class ObjectNodeDaoHibernate
 		}
 		
 		List<ObjectNode> oNodes = session.createQuery(q)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return oNodes;
@@ -404,7 +404,7 @@ public class ObjectNodeDaoHibernate
 						"where oRef.objToUuid = ?" +
 					")")
 					.setString(0, uuid)
-					.setResultTransformer(new DistinctRootEntityResultTransformer())
+					.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 					.list();
 
 		}
@@ -416,7 +416,7 @@ public class ObjectNodeDaoHibernate
 					"LEFT JOIN FETCH oNode.t01ObjectPublished oPub WHERE ";
 			query += MdekUtils.createSplittedSqlQuery( "oNode.id", nodeIdsPubOnly, 500 );
 			nodesPubOnly = session.createQuery(query)
-					.setResultTransformer(new DistinctRootEntityResultTransformer())
+					.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 					.list();
 		}
 
@@ -478,7 +478,7 @@ public class ObjectNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return retList;
@@ -547,7 +547,7 @@ public class ObjectNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return retList;
@@ -569,7 +569,7 @@ public class ObjectNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return retList;
@@ -940,7 +940,7 @@ public class ObjectNodeDaoHibernate
 		List<ObjectNode> oNodes = session.createQuery(qStringSelect)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	
 		// return results
@@ -1344,7 +1344,7 @@ public class ObjectNodeDaoHibernate
 		List<ObjectNode> oNodes = qSelect
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	
 		// and return results

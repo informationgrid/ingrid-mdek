@@ -60,7 +60,7 @@ public class T01ObjectDaoHibernate
 			q.setMaxResults(maxNum);
 		}
 
-		return q.setResultTransformer(new DistinctRootEntityResultTransformer())
+		return q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 	public String getCsvHQLAllObjectsOfResponsibleUser(String responsibleUserUuid) {
