@@ -89,6 +89,8 @@ function addMeasureData() {
 }
 
 function convertToISODate(date) {
+    if(!hasValue(date)) return null;
+
     // add UTC to date to extract the correct date without timezone issues
     var isoDate = new Date(date.split('.').reverse() + " UTC");
     return isoDate.toISOString().split('T')[0];
