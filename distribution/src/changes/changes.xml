@@ -5,7 +5,7 @@
   </properties>
   <body>
 
-    <release version="5.15.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.15.0-SNAPSHOT">
+    <release version="5.15.0-SNAPSHOT" date="2023-xx-xx" description="Release 5.15.0-SNAPSHOT">
       <action type="add" dev="wemove" issue="4378">
         LUBW: Add custom fields to index for portal URL access
       </action>
@@ -14,6 +14,9 @@
       </action>
       <action type="add" dev="wemove" issue="3928">
         Add mapping for region key
+      </action>
+      <action type="add" dev="wemove" issue="2771">
+        Fix saving address references
       </action>
     </release>
 

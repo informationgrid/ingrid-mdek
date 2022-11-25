@@ -89,6 +89,8 @@ function addMeasureData() {
 }
 
 function convertToISODate(date) {
+    if(!hasValue(date)) return null;
+
     // add UTC to date to extract the correct date without timezone issues
     var isoDate = new Date(date.split('.').reverse() + " UTC");
     return isoDate.toISOString().split('T')[0];
@@ -149,7 +151,7 @@ function addSoftwareData() {
     installationsort.addElement("lokal").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "installationLocal", "data"));
     var hlr = installationsort.addElement("HLR");
     hlr.addElement("hlr").addElement("gco:Boolean").addText(getAdditionalFieldFromObject(objId, "installationHLR", "data"));
-    addItemsToDom(objId, hlr, "hlrName", "installationServerNames", ["text"], ["text"], false);
+    addItemsToDom(objId, hlr, "hlrName", "installationHLR", ["text"], ["text"], false);
 
     // installationsort.addElement("Server").addText(getAdditionalFieldFromObject(objId, "operatingSystemNotes", "data"));
     var server = installationsort.addElement("Server");
