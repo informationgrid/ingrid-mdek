@@ -1219,7 +1219,7 @@ function addMissingUrlParameters(connUrl, row) {
                 }
             }
         }
-        if (connUrl.toLowerCase().indexOf("request=getcapabilities") === -1 || connUrl.toLowerCase().indexOf("service=") === -1) {
+        if (connUrl.toLowerCase().indexOf("service=") === -1) {
             var type = parseInt(row.get("type_key"));
             connUrl += CAPABILITIES.getMissingCapabilitiesParameter(connUrl, type);
         }
