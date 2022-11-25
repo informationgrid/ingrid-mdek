@@ -1181,7 +1181,7 @@ function addMissingUrlParameters(connUrl, row) {
         var servOpId = row.get("id");
         var rowsParams = SQL.all("SELECT servOpPara.* FROM t011_obj_serv_operation servOp, t011_obj_serv_op_para servOpPara WHERE servOpPara.obj_serv_op_id = servOp.id AND servOpPara.obj_serv_op_id=? AND servOp.name_key=?", [+servOpId, 1]);
         for (j = 0; j < rowsParams.size(); j++) {
-            var isServiceParam = rowsParams.get(j).get("descr") === "Service type";
+            var isServiceParam = rowsParams.get(j).get("name").toLowerCase().indexOf("service=") === -1;
             if (isServiceParam) {
 
                 // if connUrl or parameters already contains a ? or & at the end then do not add another one!
@@ -1214,13 +1214,15 @@ function addMissingUrlParameters(connUrl, row) {
                         var service = CAPABILITIES.extractServiceFromServiceTypeVersion(serviceTypeVersion);
                         if (hasValue(service)) {
                             connUrl += "&SERVICE=" + service;
-                            return connUrl;
                         }
                     }
                 }
             }
         }
+        if (connUrl.toLowerCase().indexOf("request=getcapabilities") === -1 || connUrl.toLowerCase().indexOf("service=") === -1) {
+            var type = parseInt(row.get("type_key"));
+            connUrl += CAPABILITIES.getMissingCapabilitiesParameter(connUrl, type);
+        }
+        return connUrl;
     }
-    var type = parseInt(row.get("type_key"));
-    return connUrl + CAPABILITIES.getMissingCapabilitiesParameter(connUrl, type);
 }
