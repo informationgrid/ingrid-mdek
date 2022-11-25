@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.15.0-SNAPSHOT" date="2023-xx-xx" description="Release 5.15.0-SNAPSHOT">
+      <action type="fix" dev="wemove" issue="4260">
+        MD zu CSW-Geodatendiensten: GetCapabilities-Verweis wird im MD doppelt angelegt
+      </action>
       <action type="add" dev="wemove" issue="4378">
         LUBW: Add custom fields to index for portal URL access
       </action>
