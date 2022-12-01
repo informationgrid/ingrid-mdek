@@ -128,7 +128,7 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
             if (administrativeAreaKey == -1) {
                 IDF_UTIL.addLocalizedCharacterstring(ciAddress.addElement("gmd:administrativeArea"), addressRow.get("administrative_area_value"));
             } else {
-                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, addressRow.get("administrative_area_key")));
+                ciAddress.addElement("gmd:administrativeArea/gco:CharacterString").addText(TRANSF.getIGCSyslistEntryName(6250, +addressRow.get("administrative_area_key")));
             }
         }
     };
@@ -384,7 +384,7 @@ function getIdfObjectReference(objRow, elementName) {
       // Issue: https://redmine.informationgrid.eu/issues/2199
       var hasConstraint = false; 
       if (hasValue(srvRow.get("has_access_constraint"))) {
-          hasConstraint = srvRow.get("has_access_constraint").equals("Y");
+          hasConstraint = srvRow.get("has_access_constraint") == "Y";
       }
       log.debug("hasConstraint: " + hasConstraint);
       if (hasConstraint) {
@@ -412,7 +412,7 @@ function addAttachedToField(row, parentElement, addAsISO) {
       hasValue(attachedToFieldValue)) {
 
       var textContent;
-      if (attachedToFieldKey.equals("-1")) {
+      if (attachedToFieldKey == "-1") {
           // free entry, only add if ISO
           if (addAsISO) {
               if (validKeys.indexOf(attachedToFieldKey) !== -1) {
@@ -421,7 +421,7 @@ function addAttachedToField(row, parentElement, addAsISO) {
                   textContent = "information";
               }
           }
-      } else if (!attachedToFieldKey.equals("9999")) {
+      } else if (!attachedToFieldKey == "9999") {
 
           // syslist entry, NOT "unspezifischer Verweis"
           if (addAsISO) {

@@ -97,7 +97,7 @@ function handleBKGUseConstraints() {
 
         // add json from codelist-data field for open data datasets
         if (isOpenData()) {
-            var licenseJSON = TRANSF.getISOCodeListEntryData(10003, TRANSF.getIGCSyslistEntryName(10003, bkgUseConstraintSelectListItem));
+            var licenseJSON = TRANSF.getISOCodeListEntryData(10003, TRANSF.getIGCSyslistEntryName(10003, +bkgUseConstraintSelectListItem));
             if (hasValue(licenseJSON)) {
                 if (bkgSourceNoteText) {
                     var licenseJSONParsed = JSON.parse(licenseJSON);
@@ -193,7 +193,7 @@ function addUseConstraints(legalConstraint, codelistEntryId, valueFree, sourceNo
         addUseConstraintElements(legalConstraint, ["restricted"], [valueFree, sourceNote]);
         break;
     default:
-        addUseConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), valueFree, sourceNote]);
+        addUseConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10004, +codelistEntryId), valueFree, sourceNote]);
     }
 }
 

@@ -76,7 +76,7 @@ function handleBKGUseConstraints() {
         // if there is any value
         if (hasValue(bkgUseConstraintSelectListItem) || hasValue(bkgUseConstraintFreeText)) {
             if (hasValue(bkgUseConstraintSelectListItem)) {
-                var bkgUseConstraintSelectListItemSysListValue = TRANSF.getIGCSyslistEntryName(10004, bkgUseConstraintSelectListItem);
+                var bkgUseConstraintSelectListItemSysListValue = TRANSF.getIGCSyslistEntryName(10004, +bkgUseConstraintSelectListItem);
                 if (hasValue(bkgUseConstraintSelectListItemSysListValue)) {
                     IDX.add("object_use_constraint.license_value", bkgUseConstraintSelectListItemSysListValue);
                 }
