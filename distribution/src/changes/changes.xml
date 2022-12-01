@@ -5,12 +5,24 @@
   </properties>
   <body>
 
-    <release version="5.15.0-SNAPSHOT" date="2021-xx-xx" description="Release 5.15.0-SNAPSHOT">
+    <release version="5.15.0-SNAPSHOT" date="2023-xx-xx" description="Release 5.15.0-SNAPSHOT">
+      <action type="add" dev="wemove" issue="4008">
+        LUBW: Add "Zugang geschützt" to import
+      </action>
+      <action type="fix" dev="wemove" issue="4260">
+        MD zu CSW-Geodatendiensten: GetCapabilities-Verweis wird im MD doppelt angelegt
+      </action>
+      <action type="add" dev="wemove" issue="4378">
+        LUBW: Add custom fields to index for portal URL access
+      </action>
       <action type="add" dev="wemove" issue="4026">
         BAW(MIS): Add mapping for custom fields (measurement and software)
       </action>
       <action type="add" dev="wemove" issue="3928">
         Add mapping for region key
+      </action>
+      <action type="add" dev="wemove" issue="2771">
+        Fix saving address references
       </action>
     </release>
 

@@ -690,10 +690,12 @@ public class DocToBeanMapper implements IMapper {
 		for (IngridDocument aDocTo : aDocsTo) {
 			String inUuidTo = (String) aDocTo.get(MdekKeys.UUID);
 			Integer inRelType = (Integer) aDocTo.get(MdekKeys.RELATION_TYPE_ID);
+			String inRelTypeName = (String) aDocTo.get(MdekKeys.RELATION_TYPE_NAME);
 			boolean found = false;
 			for (T012ObjAdr oA : oAs) {
-				if (oA.getAdrUuid().equals(inUuidTo) &&
-					oA.getType().equals(inRelType))
+				boolean sameAsOtherReference = oA.getAdrUuid().equals(inUuidTo) &&
+						oA.getType().equals(inRelType) && (inRelType != -1 || oA.getSpecialName().equals(inRelTypeName));
+				if (sameAsOtherReference)
 				{
 					mapT012ObjAdr(oIn, aDocTo, oA, line, howMuch);
 					oAs_unprocessed.remove(oA);

@@ -73,6 +73,28 @@ function mapSpecialFields(source, target) {
     }
 
     /**
+     * Existierendes Feld -> Checkbox: "Zugang geschützt"
+     */
+    for (var i=0; i<keywords.getLength(); i++ ) {
+        var keyword = keywords.item(i).getTextContent();
+        if (keyword != null && keyword.startsWith("zugangGeschuetzt:")) {
+            var zugangGeschuetzt = keyword.replace("zugangGeschuetzt:", "");
+            var targetEl = target;
+            var hasAccessConstraintNode = XPATH.createElementFromXPath(targetEl, "/igc/data-sources/data-source/data-source-instance/technical-domain/service/has-access-constraint");
+            XMLUtils.createOrReplaceTextNode(hasAccessConstraintNode, zugangGeschuetzt == "true" ? "Y" : "N");
+
+            // remove as normal keyword
+            var terms = XPATH.getNodeList(target, "/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term");
+            for (var j=0; j<terms.getLength(); j++ ) {
+                var termNode = terms.item(j);
+                if (termNode.getTextContent() === keyword) {
+                    XPATH.removeElementAtXPath(termNode, ".");
+                }
+            }
+        }
+    }
+
+    /**
      * Zusätzliches Feld -> Textbox: "environmentDescription"
      */
     var targetEl = target;
