@@ -33,6 +33,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.ingrid.admin.Config;
+import de.ingrid.mdek.job.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -49,7 +51,7 @@ public class MdekClientTest {
     public void testShutdown() throws Exception {
         MdekServer temp = null;
         try {
-            temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-server.properties").toURI()), new JobRepositoryFacade(null));
+            temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-server.properties").toURI()), new JobRepositoryFacade(null), new Configuration());
         } catch (URISyntaxException e1) {
             Assert.fail();
         }
@@ -98,7 +100,8 @@ public class MdekClientTest {
         MdekServer temp = null;
         try {
             temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-client.properties").toURI()),
-                    new JobRepositoryFacade(null));
+                    new JobRepositoryFacade(null),
+                    new Configuration());
         } catch (URISyntaxException e1) {
             Assert.fail();
         }
@@ -144,7 +147,8 @@ public class MdekClientTest {
         }
 
         MdekServer temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-client.properties").toURI()),
-                new JobRepositoryFacade(null));
+                new JobRepositoryFacade(null),
+                new Configuration());
         final MdekServer mdekServer = temp;
         Assert.assertNotNull(mdekServer);
         Thread server = mdekServer.runBackend();
@@ -163,8 +167,10 @@ public class MdekClientTest {
 
     @Test
     public void testMdekServerAsComClientReconnection() throws Exception {
-        MdekServer temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-client.xml").toURI()),
-                new JobRepositoryFacade(null));
+        MdekServer temp = new MdekServer(
+                new File(MdekClientTest.class.getResource("/communication-client.xml").toURI()),
+                new JobRepositoryFacade(null),
+                new Configuration());
         final MdekServer mdekServer = temp;
         Assert.assertNotNull(mdekServer);
         Thread server = mdekServer.runBackend();
@@ -203,7 +209,7 @@ public class MdekClientTest {
     @Test
     public void testMessageToBig() throws URISyntaxException, InterruptedException, IOException {
         MdekServer temp = new MdekServer(new File(MdekClientTest.class.getResource(
-                "/communication-server_WithSmallMessageSize.properties").toURI()), new JobRepositoryFacade(null));
+                "/communication-server_WithSmallMessageSize.properties").toURI()), new JobRepositoryFacade(null), new Configuration());
         final MdekServer mdekServer = temp;
         Assert.assertNotNull(mdekServer);
         Thread server = mdekServer.runBackend();

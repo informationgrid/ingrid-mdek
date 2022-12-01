@@ -131,9 +131,10 @@ public class MdekServer {
     }
 
     // constructor used for tests
-    public MdekServer(File communication, IJobRepositoryFacade jobRepositoryFacade) throws IOException {
+    public MdekServer(File communication, IJobRepositoryFacade jobRepositoryFacade, Configuration igeConfig) throws IOException {
         _communicationProperties = communication;
         _jobRepositoryFacade = jobRepositoryFacade;
+        this.igeConfig = igeConfig;
     }
 
     private class CommunicationThread extends Thread {

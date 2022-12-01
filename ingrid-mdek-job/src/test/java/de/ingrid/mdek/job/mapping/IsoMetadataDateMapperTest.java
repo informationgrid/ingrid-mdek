@@ -32,9 +32,9 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -51,8 +51,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
 public class IsoMetadataDateMapperTest extends IgcDbUnitEnabledTestCase {
 
     DocumentBuilder builder;
@@ -63,7 +61,7 @@ public class IsoMetadataDateMapperTest extends IgcDbUnitEnabledTestCase {
         this.datasourceFileName = "src/test/resources/de/ingrid/mdek/job/mapping/db.test.xml";
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         DocumentBuilderFactory domFactory = DocumentBuilderFactory
@@ -83,7 +81,7 @@ public class IsoMetadataDateMapperTest extends IgcDbUnitEnabledTestCase {
 
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         super.tearDown();
     }
