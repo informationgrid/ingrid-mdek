@@ -109,7 +109,7 @@ public class MdekServer {
             throw new RuntimeException(e);
         }
         if (igeConfig != null) {
-            igeConfig.initialize();
+            igeConfig.initialize(baseConfig);
         } else {
             log.info("No external configuration found.");
         }
