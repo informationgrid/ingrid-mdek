@@ -27,9 +27,9 @@ import de.ingrid.mdek.job.mapping.validation.iso.ISO_19115_2003_ConditionsValida
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import de.ingrid.mdek.job.mapping.validation.iso.ISO_19115_2003_SchemaValidator;
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -59,7 +59,7 @@ public class ISO_19115_2003_ValidatorTests {
         validator = new ISO_19115_2003_ConditionsValidator();
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         try {
             defaultDocument = ValidatorTestsTemplateHelper.defaultDocument();
@@ -68,7 +68,7 @@ public class ISO_19115_2003_ValidatorTests {
         }
     }
 
-    @After
+    @AfterEach
     public void logMessages() {
     }
 

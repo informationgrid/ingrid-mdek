@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,17 @@
  */
 package de.ingrid.mdek;
 
+import de.ingrid.mdek.job.Configuration;
+import de.ingrid.mdek.job.DateJob;
+import de.ingrid.mdek.job.repository.IJobRepository;
+import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
+import de.ingrid.mdek.job.repository.JobRepositoryFacade;
+import de.ingrid.mdek.job.repository.Pair;
+import de.ingrid.utils.IngridDocument;
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
@@ -32,18 +43,6 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-
-import de.ingrid.admin.Config;
-import de.ingrid.mdek.job.Configuration;
-import org.junit.Assert;
-import org.junit.Test;
-
-import de.ingrid.mdek.job.DateJob;
-import de.ingrid.mdek.job.repository.IJobRepository;
-import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
-import de.ingrid.mdek.job.repository.JobRepositoryFacade;
-import de.ingrid.mdek.job.repository.Pair;
-import de.ingrid.utils.IngridDocument;
 
 public class MdekClientTest {
 
@@ -132,37 +131,38 @@ public class MdekClientTest {
         Thread.sleep(6000);
     }
 
-    @Test(expected = IOException.class)
     public void testMdekClientAsComServerWithNoMdekServer() throws Exception {
-        MdekClient mdekClient = MdekClient.getInstance(new File(MdekClientTest.class.getResource(
-                "/communication-server.properties").toURI()));
-        Thread.sleep(6000);
-        Assert.assertNotNull(mdekClient);
-
-        try {
+        Assertions.assertThrows(IOException.class, () -> {
+            MdekClient mdekClient = MdekClient.getInstance(new File(MdekClientTest.class.getResource(
+                    "/communication-server.properties").toURI()));
             Thread.sleep(6000);
+            Assert.assertNotNull(mdekClient);
+
+            try {
+                Thread.sleep(6000);
+                new Socket("localhost", 56561);
+            } catch (IOException e) {
+                Assert.fail();
+            }
+
+            MdekServer temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-client.properties").toURI()),
+                    new JobRepositoryFacade(null),
+                    new Configuration());
+            final MdekServer mdekServer = temp;
+            Assert.assertNotNull(mdekServer);
+            Thread server = mdekServer.runBackend();
+            Thread.sleep(15000);
+
+            mdekClient.shutdown();
+            Thread.sleep(1000);
+
             new Socket("localhost", 56561);
-        } catch (IOException e) {
-            Assert.fail();
-        }
 
-        MdekServer temp = new MdekServer(new File(MdekClientTest.class.getResource("/communication-client.properties").toURI()),
-                new JobRepositoryFacade(null),
-                new Configuration());
-        final MdekServer mdekServer = temp;
-        Assert.assertNotNull(mdekServer);
-        Thread server = mdekServer.runBackend();
-        Thread.sleep(15000);
+            Thread.sleep(10000);
 
-        mdekClient.shutdown();
-        Thread.sleep(1000);
-
-        new Socket("localhost", 56561);
-
-        Thread.sleep(10000);
-
-        MdekServer.shutdown();
-        Thread.sleep(6000);
+            MdekServer.shutdown();
+            Thread.sleep(6000);
+        });
     }
 
     @Test
@@ -222,7 +222,7 @@ public class MdekClientTest {
         Assert.assertNotNull(mdekClient);
         IJobRepositoryFacade jobRepositoryFacade = mdekClient.getJobRepositoryFacade("message-server");
         Assert.assertNotNull(jobRepositoryFacade);
-        
+
         IngridDocument invokeDocument = new IngridDocument();
         invokeDocument.put(IJobRepository.JOB_ID, DateJob.class.getName());
         List<Pair> methodList = new ArrayList<Pair>();

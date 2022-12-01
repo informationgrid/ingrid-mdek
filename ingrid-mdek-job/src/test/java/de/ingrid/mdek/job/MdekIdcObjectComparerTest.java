@@ -29,10 +29,10 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 
-import org.junit.Test;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.job.tools.MdekIdcEntityComparer;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author joachim
