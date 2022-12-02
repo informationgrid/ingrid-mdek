@@ -22,19 +22,7 @@
  */
 package de.ingrid.mdek.job.mapping;
 
-import org.dbunit.DBTestCase;
-import org.dbunit.PropertiesBasedJdbcDatabaseTester;
-import org.dbunit.database.DatabaseConfig;
-import org.dbunit.dataset.*;
-import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
-
-import java.io.FileInputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-public abstract class IgcDbUnitEnabledTestCase extends DBTestCase {
+public abstract class IgcDbUnitEnabledTestCase { /*//extends DBTestCase {
 
     protected String datasourceFileName;
 
@@ -117,5 +105,5 @@ public abstract class IgcDbUnitEnabledTestCase extends DBTestCase {
       } catch (Exception e) {}
 
       return "varchar(255)";
-    }
+    }*/
 }

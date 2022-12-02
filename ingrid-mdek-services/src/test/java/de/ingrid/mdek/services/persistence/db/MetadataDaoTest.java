@@ -22,10 +22,8 @@
  */
 package de.ingrid.mdek.services.persistence.db;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
+import org.junit.jupiter.api.Test;
 
 public class MetadataDaoTest extends AbstractDaoTest {
 
@@ -48,7 +46,7 @@ public class MetadataDaoTest extends AbstractDaoTest {
 		dao.beginTransaction();
 
 		byId = dao.getById(group.getId());
-		Assert.assertNotNull(byId);
-		Assert.assertEquals("test group", byId.getName());
+		assertNotNull(byId);
+		assertEquals("test group", byId.getName());
 	}
 }

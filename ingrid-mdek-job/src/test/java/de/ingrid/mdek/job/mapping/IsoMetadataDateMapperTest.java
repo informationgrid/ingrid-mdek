@@ -48,7 +48,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 
-public class IsoMetadataDateMapperTest extends IgcDbUnitEnabledTestCase {
+public class IsoMetadataDateMapperTest { /*//extends IgcDbUnitEnabledTestCase {
 
     DocumentBuilder builder;
     XPathUtils xpathUtils;
@@ -250,7 +250,7 @@ public class IsoMetadataDateMapperTest extends IgcDbUnitEnabledTestCase {
             fail("Mapper must throw exception.");
         } catch (Exception e) {
         }
-    }
+    }*/
 
 
 

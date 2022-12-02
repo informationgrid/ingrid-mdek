@@ -34,10 +34,9 @@ import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -59,6 +58,10 @@ import de.ingrid.mdek.xml.importer.mapper.IngridXMLMapperFactory;
 import de.ingrid.mdek.xml.util.IngridXMLUtils;
 import de.ingrid.utils.IngridDocument;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestXMLStreamReader {
 
 	private static IngridXMLMapper mapper;
@@ -72,13 +75,13 @@ public class TestXMLStreamReader {
 	private static String plugId;
 	private static final String userId = "admin";
 
-	@BeforeClass
+	@BeforeAll
 	public static void setup() throws XMLStreamException, IOException {
 		setupImporter();
 		setupConnection();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void shutdown() {
 		MdekCaller.shutdown();
 	}
@@ -193,14 +196,14 @@ public class TestXMLStreamReader {
 					continue;
 
 				} else {
-					Assert.assertNotNull("Actual value for key '"+key+"' must not be null.", actualValue);
+					assertNotNull(actualValue, "Actual value for key '"+key+"' must not be null.");
 				}
 
 			} else if (expectedValue instanceof String[]) {
-				Assert.assertArrayEquals((String[]) expectedValue, (String[]) actualValue);
+				assertArrayEquals((String[]) expectedValue, (String[]) actualValue);
 
 			} else {
-				Assert.assertEquals("Values for key '"+key+"' must be equal.", expectedValue, actualValue);
+				assertThat("Values for key '"+key+"' must be equal.", actualValue, is(expectedValue));
 			}
 		}
 	}
@@ -229,11 +232,11 @@ public class TestXMLStreamReader {
 						continue;
 
 					} else {
-						Assert.assertNotNull("Actual value for key '"+key+"' must not be null.", actualValue);
+						assertNotNull(actualValue, "Actual value for key '"+key+"' must not be null.");
 					}
 
 				} else {
-					Assert.assertEquals("Values for key '"+key+"' must be equal.", expectedValue, actualValue);
+					assertThat("Values for key '"+key+"' must be equal.", expectedValue, is(actualValue));
 				}
 			}
 		}
@@ -272,11 +275,11 @@ public class TestXMLStreamReader {
 						continue;
 
 					} else {
-						Assert.assertNotNull("Actual value for key '"+key+"' must not be null.", actualValue);
+						assertNotNull(actualValue, "Actual value for key '"+key+"' must not be null.");
 					}
 
 				} else {
-					Assert.assertEquals("Values for key '"+key+"' must be equal.", expectedValue, actualValue);
+					assertThat("Values for key '"+key+"' must be equal.", expectedValue, is(actualValue));
 				}
 			}
 		}
@@ -288,7 +291,7 @@ public class TestXMLStreamReader {
 				return;
 
 			} else {
-				Assert.assertNotNull("Expected list for key '"+key+"' must not be null.", expectedList);
+				assertNotNull(expectedList, "Expected list for key '"+key+"' must not be null.");
 			}
 
 		} else if (actualList == null && expectedList != null) {
@@ -296,7 +299,7 @@ public class TestXMLStreamReader {
 				return;
 
 			} else {
-				Assert.assertNotNull("Actual list for key '"+key+"' must not be null.", actualList);
+				assertNotNull(actualList, "Actual list for key '"+key+"' must not be null.");
 			}
 		}
 
@@ -306,7 +309,7 @@ public class TestXMLStreamReader {
 
 			} else {
 				System.err.println("Lists for key '"+key+"' are of different size!");
-				Assert.assertTrue(false);
+				assertTrue(false);
 			}
 
 		} else {
@@ -318,7 +321,7 @@ public class TestXMLStreamReader {
 					compare((IngridDocument) expectedValue, (IngridDocument) actualValue);
 
 				} else {
-					Assert.assertEquals(expectedValue, actualValue);
+					assertEquals(expectedValue, actualValue);
 				}
 			}
 		}
@@ -333,11 +336,11 @@ public class TestXMLStreamReader {
 	}
 
 	public static void compareAddressRef(IngridDocument expectedAdr, IngridDocument actualAdr) {
-		Assert.assertEquals(expectedAdr.get(MdekKeys.UUID), actualAdr.get(MdekKeys.UUID));
-		Assert.assertEquals(expectedAdr.get(MdekKeys.DATE_OF_LAST_MODIFICATION), actualAdr.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
-		Assert.assertEquals(expectedAdr.get(MdekKeys.RELATION_TYPE_NAME), actualAdr.get(MdekKeys.RELATION_TYPE_NAME));
-		Assert.assertEquals(expectedAdr.get(MdekKeys.RELATION_TYPE_REF), actualAdr.get(MdekKeys.RELATION_TYPE_REF));
-		Assert.assertEquals(expectedAdr.get(MdekKeys.RELATION_TYPE_ID), actualAdr.get(MdekKeys.RELATION_TYPE_ID));
+		assertEquals(expectedAdr.get(MdekKeys.UUID), actualAdr.get(MdekKeys.UUID));
+		assertEquals(expectedAdr.get(MdekKeys.DATE_OF_LAST_MODIFICATION), actualAdr.get(MdekKeys.DATE_OF_LAST_MODIFICATION));
+		assertEquals(expectedAdr.get(MdekKeys.RELATION_TYPE_NAME), actualAdr.get(MdekKeys.RELATION_TYPE_NAME));
+		assertEquals(expectedAdr.get(MdekKeys.RELATION_TYPE_REF), actualAdr.get(MdekKeys.RELATION_TYPE_REF));
+		assertEquals(expectedAdr.get(MdekKeys.RELATION_TYPE_ID), actualAdr.get(MdekKeys.RELATION_TYPE_ID));
 	}
 
 	public static void compareObjectReferences(List expectedList, List actualList) {
@@ -345,23 +348,23 @@ public class TestXMLStreamReader {
 			IngridDocument expectedObjRef = (IngridDocument) expectedList.get(index);
 			IngridDocument actualObjRef = (IngridDocument) actualList.get(index);
 
-			Assert.assertEquals(expectedObjRef.get(MdekKeys.UUID), actualObjRef.get(MdekKeys.UUID));
-			Assert.assertEquals(expectedObjRef.get(MdekKeys.RELATION_DESCRIPTION), actualObjRef.get(MdekKeys.RELATION_DESCRIPTION));
-			Assert.assertEquals(expectedObjRef.get(MdekKeys.RELATION_TYPE_NAME), actualObjRef.get(MdekKeys.RELATION_TYPE_NAME));
-			Assert.assertEquals(expectedObjRef.get(MdekKeys.RELATION_TYPE_REF), actualObjRef.get(MdekKeys.RELATION_TYPE_REF));
+			assertEquals(expectedObjRef.get(MdekKeys.UUID), actualObjRef.get(MdekKeys.UUID));
+			assertEquals(expectedObjRef.get(MdekKeys.RELATION_DESCRIPTION), actualObjRef.get(MdekKeys.RELATION_DESCRIPTION));
+			assertEquals(expectedObjRef.get(MdekKeys.RELATION_TYPE_NAME), actualObjRef.get(MdekKeys.RELATION_TYPE_NAME));
+			assertEquals(expectedObjRef.get(MdekKeys.RELATION_TYPE_REF), actualObjRef.get(MdekKeys.RELATION_TYPE_REF));
 		}
 	}
 
 	public static void compareSubjectTerms(List expectedList, List actualList) {
 		if (expectedList.size() != actualList.size()) {
 			System.err.println("subject term lists are of different size!");
-			Assert.assertTrue(false);
+			assertTrue(false);
 		}
 
 		for (IngridDocument term : (List<IngridDocument>) expectedList) {
 			if (!listContainsTerm(actualList, term)) {
 				System.err.println("The term "+term+" was not found in the target list.");
-				Assert.assertTrue(false);
+				assertTrue(false);
 			}
 		}
 	}
@@ -424,13 +427,13 @@ public class TestXMLStreamReader {
 	public static void compareAdditionalFields(List expectedList, List actualList) {
 		if (expectedList.size() != actualList.size()) {
 			System.err.println("additional fields lists are of different size!");
-			Assert.assertTrue(false);
+			assertTrue(false);
 		}
 
 		for (IngridDocument additionalField : (List<IngridDocument>) expectedList) {
 			if (!listContainsAdditionalField(actualList, additionalField)) {
 				System.err.println("The additional field "+additionalField+" was not found in the target list.");
-				Assert.assertTrue(false);
+				assertTrue(false);
 			}
 		}
 	}
@@ -457,7 +460,7 @@ public class TestXMLStreamReader {
 	}
 
 	public static void compareModUser(IngridDocument expected, IngridDocument actual) {
-		Assert.assertEquals(expected.get(MdekKeys.UUID), actual.get(MdekKeys.UUID));
+		assertEquals(expected.get(MdekKeys.UUID), actual.get(MdekKeys.UUID));
 	}
 
 	public static boolean isAddressKeyExported(String key, IngridDocument context) {
