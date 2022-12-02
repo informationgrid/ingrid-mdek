@@ -44,7 +44,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 }
 
 // add default boost value
-IDX.addDocumentBoost(1.0);
+IDX.addDocumentBoost((Java.type('java.lang.Float')).parseFloat("1.0"));
 
 // **********************************************
 // The following mapping object must be equal to:

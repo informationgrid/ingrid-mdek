@@ -36,6 +36,7 @@ import net.weta.components.communication.tcp.StartCommunication;
 import net.weta.components.communication.tcp.TcpCommunication;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tomcat.util.scan.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -229,7 +230,9 @@ public class MdekServer {
     public static void main(String[] args) throws Exception {
         Map<String, String> map = readParameters(args);
 
-
+        // avoid FileNotFound exceptions by TomCat's JarScanner
+        System.setProperty(Constants.SKIP_JARS_PROPERTY, "derby*.jar,unit-api*.jar,geo*.jar,si*.jar,jai*.jar,commons*.jar,Geo*.jar,jgrid*.jar,uo*.jar,system*.jar,gt*.jar,jackson*.jar,org*.jar,ej*.jar,jt*.jar,net*.jar,serial*.jar,xml*.jar,xerc*.jar,mchan*.jar");
+        
         _communicationProperties = getCommunicationFile((String) map.get("--descriptor"));
 
         // start the Webserver for admin-page and iplug initialization for search and index
