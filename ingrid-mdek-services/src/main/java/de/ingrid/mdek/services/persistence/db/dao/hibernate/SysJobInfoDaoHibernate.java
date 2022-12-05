@@ -49,12 +49,12 @@ public class SysJobInfoDaoHibernate
 		Session session = getSession();
 		
 		String qString = "from SysJobInfo " +
-			"where jobType = ? " +
-			"and userUuid = ? ";
+			"where jobType = ?1 " +
+			"and userUuid = ?2 ";
 
 		Query q = session.createQuery(qString);
-		q.setString(0, jobType.getDbValue());
-		q.setString(1, userUuid);
+		q.setString(1, jobType.getDbValue());
+		q.setString(2, userUuid);
 
 		return (SysJobInfo) q.uniqueResult();
 	}

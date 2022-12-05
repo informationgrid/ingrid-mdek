@@ -94,10 +94,10 @@ public class AddressNodeDaoHibernate
 			qString += "left join fetch aNode.t02AddressPublished ";			
 		}
 		// DO NOT EXCLUDE HIDDEN ADDRESSES (IGE Users), these ones are also fetched (e.g. in User management)
-		qString += "where aNode.addrUuid = ?";
+		qString += "where aNode.addrUuid = ?1";
 
 		AddressNode aN = (AddressNode) session.createQuery(qString)
-			.setString(0, uuid)
+			.setString(1, uuid)
 			.uniqueResult();
 
 		return aN;
@@ -117,12 +117,12 @@ public class AddressNodeDaoHibernate
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			qString += "left join fetch aNode.t02AddressPublished ";			
 		}
-		qString += "where aWork.orgAdrId = ? ";
+		qString += "where aWork.orgAdrId = ?1 ";
 		// order to guarantee always same node in front if multiple nodes with same orig id ! 
 		qString += "order by aNode.addrUuid";
 
 		List<AddressNode> aNodes = session.createQuery(qString)
-			.setString(0, origId)
+			.setString(1, origId)
 			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
@@ -210,7 +210,7 @@ public class AddressNodeDaoHibernate
 		if (fetchSubNodesChildren) {
 			q += "left join fetch aNode.addressNodeChildren aChildren ";
 		}
-		q += "where aNode.fkAddrUuid = ? ";
+		q += "where aNode.fkAddrUuid = ?1 ";
 
 		if (whichEntityVersion != null) {
 			// only order if only ONE version requested
@@ -224,7 +224,7 @@ public class AddressNodeDaoHibernate
 		}
 		
 		List<AddressNode> aNodes = session.createQuery(q)
-			.setString(0, parentUuid)
+			.setString(1, parentUuid)
 			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
@@ -341,11 +341,11 @@ public class AddressNodeDaoHibernate
 		q += "left join fetch a.t021Communications aComm " +
 		// TODO: FASTER WHITHOUT PRE FETCHING !!!??? Check when all is modeled !
 		// DO NOT EXCLUDE HIDDEN ADDRESSES (IGE Users), these ones are also fetched with details (e.g. in User management)
-			"where aNode.addrUuid = ?";
+			"where aNode.addrUuid = ?1";
  
 		// fetch all at once (one select with outer joins)
 		AddressNode aN = (AddressNode) session.createQuery(q)
-			.setString(0, uuid)
+			.setString(1, uuid)
 			.uniqueResult();
 
 		return aN;
@@ -362,9 +362,9 @@ public class AddressNodeDaoHibernate
 				"from ObjectNode oNode " +
 				"left join oNode.t01ObjectPublished oPub " +
 				"left join oPub.t012ObjAdrs objAdr " +
-				"where objAdr.adrUuid = ? " +
+				"where objAdr.adrUuid = ?1 " +
 				"order by oPub.objName")
-				.setString(0, addressUuid)
+				.setString(1, addressUuid)
 				.list();
 		// extract ids as list !
 		List<Long> nodeIdsPub = new ArrayList<Long>();
@@ -382,9 +382,9 @@ public class AddressNodeDaoHibernate
 				"from ObjectNode oNode " +
 				"left join oNode.t01ObjectWork oWork " +
 				"left join oWork.t012ObjAdrs objAdr " +
-				"where objAdr.adrUuid = ? " +
+				"where objAdr.adrUuid = ?1 " +
 				"order by oWork.objName")
-				.setString(0, addressUuid)
+				.setString(1, addressUuid)
 				.list();			
 		// extract ids as list !
 		List<Long> nodeIdsWork = new ArrayList<Long>();
@@ -487,14 +487,14 @@ public class AddressNodeDaoHibernate
 		String sql = "select oNode from ObjectNode oNode " +
 			"left join oNode.t01ObjectWork oWork " +
 			"left join oWork.t012ObjAdrs objAdr " +
-			"where objAdr.adrUuid = ?";
+			"where objAdr.adrUuid = ?1";
 		
 		if (referenceTypeId != null) {
 			sql += " and objAdr.type = " + referenceTypeId;
 		}
 
 		List<ObjectNode> objs = session.createQuery(sql)
-				.setString(0, addressUuid)
+				.setString(1, addressUuid)
 				.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 				.list();
 		
@@ -1594,11 +1594,11 @@ public class AddressNodeDaoHibernate
 			"where " +
 			// exclude hidden user addresses !
 			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "a") +
-			" AND aNode.addrUuid = ?";
+			" AND aNode.addrUuid = ?1";
 		
 		// fetch all at once (one select with outer joins)
 		AddressNode aN = (AddressNode) session.createQuery(q)
-			.setString(0, uuid)
+			.setString(1, uuid)
 			.uniqueResult();
 
 		return aN;

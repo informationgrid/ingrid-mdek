@@ -52,10 +52,10 @@ public class T01ObjectDaoHibernate
 
 		String hql = "select o " +
 			"from T01Object o " +
-			"where o.responsibleUuid = ?";
+			"where o.responsibleUuid = ?1";
 	
 		Query q = session.createQuery(hql)
-			.setString(0, responsibleUserUuid);
+			.setString(1, responsibleUserUuid);
 		if (maxNum != null) {
 			q.setMaxResults(maxNum);
 		}
@@ -77,13 +77,15 @@ public class T01ObjectDaoHibernate
 	  String hql = "select objAdr " +
       "from T01Object obj " +
       "join obj.t012ObjAdrs objAdr " +
-      "where objAdr.adrUuid = ? and obj.objUuid = ?";
+      "where objAdr.adrUuid = ?1 and obj.objUuid = ?2";
     
     if (realtionTypeId != null) {
       hql += " and objAdr.type = " + realtionTypeId;
     }
 
-    Query q = session.createQuery(hql).setString(0, addressUuid).setString(1, objectUuid);
+    Query q = session.createQuery(hql)
+			.setString(1, addressUuid)
+			.setString(2, objectUuid);
 
     return !q.list().isEmpty();
 	}

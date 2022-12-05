@@ -54,8 +54,8 @@ public class IdcGroupDaoHibernate
 		Session session = getSession();
 
 		IdcGroup grp = (IdcGroup) session.createQuery("from IdcGroup grp " +
-			"where grp.name = ?")
-			.setString(0, name)
+			"where grp.name = ?1")
+			.setString(1, name)
 			.uniqueResult();
 		
 		return grp;
@@ -77,8 +77,8 @@ public class IdcGroupDaoHibernate
 		// fetch all at once (one select with outer joins)
 		IdcGroup grp = (IdcGroup) session.createQuery(
 			createGroupDetailsQueryString() +
-			"where grp.name = ?")
-			.setString(0, name)
+			"where grp.name = ?1")
+			.setString(1, name)
 			.uniqueResult();
 
 		return grp;
@@ -90,8 +90,8 @@ public class IdcGroupDaoHibernate
 		// fetch all at once (one select with outer joins)
 		IdcGroup grp = (IdcGroup) session.createQuery(
 			createGroupDetailsQueryString() +
-			"where grp.id = ?")
-			.setLong(0, groupId)
+			"where grp.id = ?1")
+			.setLong(1, groupId)
 			.uniqueResult();
 
 		return grp;

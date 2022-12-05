@@ -91,10 +91,10 @@ public class ObjectNodeDaoHibernate
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			qString += "left join fetch oNode.t01ObjectPublished ";			
 		}
-		qString += "where oNode.objUuid = ?";
+		qString += "where oNode.objUuid = ?1";
 
 		ObjectNode oN = (ObjectNode) session.createQuery(qString)
-			.setString(0, uuid)
+			.setString(1, uuid)
 			.uniqueResult();
 
 		return oN;
@@ -114,12 +114,12 @@ public class ObjectNodeDaoHibernate
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			qString += "left join fetch oNode.t01ObjectPublished ";			
 		}
-		qString += "where oWork.orgObjId = ? ";
+		qString += "where oWork.orgObjId = ?1 ";
 		// order to guarantee always same node in front if multiple nodes with same orig id ! 
 		qString += "order by oNode.objUuid";
 
 		List<ObjectNode> oNodes = session.createQuery(qString)
-			.setString(0, origId)
+			.setString(1, origId)
 			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
@@ -193,7 +193,7 @@ public class ObjectNodeDaoHibernate
 		if (fetchSubNodesChildren) {
 			q += "left join fetch oNode.objectNodeChildren ";
 		}
-		q += "where oNode.fkObjUuid = ? ";
+		q += "where oNode.fkObjUuid = ?1 ";
 
 		if (whichEntityVersion != null) {
 			// only order if only ONE version requested
@@ -203,7 +203,7 @@ public class ObjectNodeDaoHibernate
 		}
 		
 		List<ObjectNode> oNodes = session.createQuery(q)
-			.setString(0, parentUuid)
+			.setString(1, parentUuid)
 			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
@@ -342,14 +342,14 @@ public class ObjectNodeDaoHibernate
 //			"left join fetch spatialRefVal.spatialRefSns " +
 		// url refs 
 //			"left join fetch o.t017UrlRefs urlRef " +
-			"where oNode.objUuid = ?";
+			"where oNode.objUuid = ?1";
 
 		// enable address filter ?
 //		session.enableFilter("t012ObjAdrFilter").setParameter("type", 1);
 		
 		// fetch all at once (one select with outer joins)
 		ObjectNode oN = (ObjectNode) session.createQuery(q)
-			.setString(0, uuid)
+			.setString(1, uuid)
 			.uniqueResult();
 
 //		session.disableFilter("t012ObjAdrFilter");
@@ -366,8 +366,8 @@ public class ObjectNodeDaoHibernate
 				"select distinct oNode.id from ObjectNode oNode " +
 				"left join oNode.t01ObjectWork oWork " +
 				"left join oWork.objectReferences oRef " +
-				"where oRef.objToUuid = ?")
-				.setString(0, uuid)
+				"where oRef.objToUuid = ?1")
+				.setString(1, uuid)
 				.list();
 
 		// then select all references from published ones
@@ -375,8 +375,8 @@ public class ObjectNodeDaoHibernate
 				"select distinct oNode.id from ObjectNode oNode " +
 				"left join oNode.t01ObjectPublished oPub " +
 				"left join oPub.objectReferences oRef " +
-				"where oRef.objToUuid = ?")
-				.setString(0, uuid)
+				"where oRef.objToUuid = ?1")
+				.setString(1, uuid)
 				.list();
 
 		// then remove all published references also contained in working references.
@@ -401,9 +401,9 @@ public class ObjectNodeDaoHibernate
 						"select distinct oNode2.id from ObjectNode oNode2 " +
 						"left join oNode2.t01ObjectWork oWork2 " +
 						"left join oWork2.objectReferences oRef " +
-						"where oRef.objToUuid = ?" +
+						"where oRef.objToUuid = ?1" +
 					")")
-					.setString(0, uuid)
+					.setString(1, uuid)
 					.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 					.list();
 
@@ -1498,10 +1498,10 @@ public class ObjectNodeDaoHibernate
 			"from ObjectNode oNode " +
 				"inner join oNode.t01ObjectPublished o " +
 				"inner join o.t014InfoImparts oExp " +
-			"where oExp.impartValue = ?";
+			"where oExp.impartValue = ?1";
 		
 		List<String> uuids = session.createQuery(q)
-				.setString(0, exportCriterion)
+				.setString(1, exportCriterion)
 				.list();
 
 		return uuids;
@@ -1563,11 +1563,11 @@ public class ObjectNodeDaoHibernate
 //			"left join fetch o.t017UrlRefs " +
 //			"left join fetch o.objectConformitys " +
 //			"left join fetch o.objectAccesss " +
-			"where oNode.objUuid = ?";
+			"where oNode.objUuid = ?1";
 		
 		// fetch all at once (one select with outer joins)
 		ObjectNode oN = (ObjectNode) session.createQuery(q)
-			.setString(0, uuid)
+			.setString(1, uuid)
 			.uniqueResult();
 
 		return oN;

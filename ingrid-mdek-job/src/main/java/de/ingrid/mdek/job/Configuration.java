@@ -49,7 +49,7 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
 
     private static Log log = LogFactory.getLog(Configuration.class);
 
-    @Value("${iplug.database.dialect:org.hibernate.dialect.MySQLInnoDBDialect}")
+    @Value("${iplug.database.dialect:org.hibernate.dialect.MySQLDialect}")
     public String databaseDialect;
 
     @Value("${iplug.database.debugSQL:false}")

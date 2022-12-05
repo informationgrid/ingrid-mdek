@@ -57,14 +57,14 @@ public class T02AddressDaoHibernate
 		String hql = "select obj " +
 			"from T01Object obj " +
 			"join obj.t012ObjAdrs objAdr " +
-			"where objAdr.adrUuid = ?";
+			"where objAdr.adrUuid = ?1";
 		
 		if (referenceTypeId != null) {
 			hql += " and objAdr.type = " + referenceTypeId;
 		}
 
 		Query q = session.createQuery(hql)
-			.setString(0, addressUuid);
+			.setString(1, addressUuid);
 		if (maxNum != null) {
 			q.setMaxResults(maxNum);
 		}
@@ -93,10 +93,10 @@ public class T02AddressDaoHibernate
 			"where " +
 			// exclude hidden user addresses !
 			AddressType.getHQLExcludeIGEUsersViaAddress("a") +
-			" AND a.responsibleUuid = ?";
+			" AND a.responsibleUuid = ?1";
 		
 		Query q = session.createQuery(hql)
-			.setString(0, responsibleUserUuid);
+			.setString(1, responsibleUserUuid);
 		if (maxNum != null) {
 			q.setMaxResults(maxNum);
 		}

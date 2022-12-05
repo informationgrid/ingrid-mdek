@@ -23,11 +23,11 @@
   -->
 
 <!DOCTYPE hibernate-mapping
-  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
    <class name="T02Address" table="t02_address">
       <id name="id" type="long" column="id">
-         <generator class="identity"/>
+         <generator class="increment"/>
       </id>
       <version name="version" type="integer" column="version"/>
       <property name="adrUuid" type="string" column="adr_uuid"/>
