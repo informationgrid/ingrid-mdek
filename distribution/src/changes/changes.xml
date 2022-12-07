@@ -6,6 +6,9 @@
   <body>
 
     <release version="5.15.0-SNAPSHOT" date="2023-xx-xx" description="Release 5.15.0-SNAPSHOT">
+      <action type="add" dev="wemove" issue="4576">
+        LUBW: Add "access constraints" fields to index
+      </action>
       <action type="add" dev="wemove" issue="4008">
         LUBW: Add "Zugang geschützt" to import
       </action>
