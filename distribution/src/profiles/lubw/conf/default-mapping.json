@@ -71,6 +71,14 @@
       "type": "keyword",
       "store": true
     },
+    "object_access.restriction_value": {
+      "type": "keyword",
+      "store": true
+    },
+    "object_access.restriction_key": {
+      "type": "keyword",
+      "store": true
+    },
     "t011_obj_serv.type": {
       "type": "keyword",
       "store": true
