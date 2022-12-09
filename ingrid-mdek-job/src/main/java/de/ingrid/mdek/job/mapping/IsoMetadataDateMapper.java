@@ -200,7 +200,7 @@ public class IsoMetadataDateMapper implements IIdfMapper {
                 throw new RuntimeException("No compatible node found to add metadata date to the IDF. Supported nodes are: '/idf:html/idf:body/idf:idfMdMetadata/gmd:dateStamp[./gco:Date or ./gco:DateTime]'");
             }
 
-            sql = "UPDATE t01_object SET iso_hash=?, metadata_time=? WHERE id=?";
+            sql = "UPDATE t01_object SET iso_hash=?1, metadata_time=?2 WHERE id=?3";
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setString(1, isoFingerprint);
                 ps.setString(2, nowIgcDate);
