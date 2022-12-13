@@ -42,6 +42,8 @@ import de.ingrid.utils.xml.XMLUtils;
 import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Source;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.w3c.dom.Document;
@@ -49,15 +51,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -69,8 +65,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ScriptImportDataMapper implements ImportDataMapper<Document, Document>, IConfigurable {
 
     final protected static Log log = LogFactory.getLog(ScriptImportDataMapper.class);
-
-    private ScriptEngine engine = null;
 
     // Injected by Spring
     private Resource[] mapperScript;
@@ -143,9 +137,7 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
             // Better if docTarget is only header and footer where
             // new objects made from template will be put into?
             //parameters.put("template", template);
-            doMap(parameters);
-
-            mapAdditionalFields(targetIgc);
+            doMap(parameters, targetIgc);
 
             String targetString = XMLUtils.toString(targetIgc);
             if (log.isDebugEnabled()) {
@@ -162,7 +154,7 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
         return new SQLUtils(conn);
     }
 
-    private void mapAdditionalFields(Document docTarget) throws Exception {
+    private void mapAdditionalFields(Document docTarget, Context engine) throws Exception {
         String igcProfileStr = null;
         try (Connection conn = DatabaseConnectionUtils.getInstance().openConnection(internalDatabaseConnection)) {
             try (PreparedStatement ps = conn.prepareStatement("SELECT value_string AS igc_profile FROM sys_generic_key WHERE key_name='profileXML'")) {
@@ -186,13 +178,13 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
             if (log.isDebugEnabled()) {
                 log.debug("cswMappingImport found: " + igcProfileCswMappingImports.getLength());
             }
-            engine.put("igcProfile", igcProfile);
+            engine.getBindings("js").putMember("igcProfile", igcProfile);
 
             for (int i = 0; i < igcProfileCswMappingImports.getLength(); i++) {
                 String igcProfileCswMapping = igcProfileCswMappingImports.item(i).getTextContent();
 
                 // ScriptEngine.execute(this.mappingScripts, parameters, compile);
-                engine.eval(new StringReader(igcProfileCswMapping));
+                engine.eval(Source.newBuilder("js", new StringReader(igcProfileCswMapping), "additionalMapping").build());
             }
         }
     }
@@ -287,25 +279,24 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
         }
     }
 
-    private void doMap(Map<String, Object> parameters) throws Exception {
-        try {
-            ScriptEngine engine = this.getScriptEngine();
+    private void doMap(Map<String, Object> parameters, Document targetIgc) throws Exception {
+        try (Context engine = this.getScriptEngine()) {
 
             // pass all parameters
             for (String param : parameters.keySet())
-                engine.put(param, parameters.get(param));
+                engine.getBindings("js").putMember(param, parameters.get(param));
 
 
             // execute the mapping
             for (Resource resource : mapperScript) {
                 log.debug("Mapping with script: " + resource);
-                engine.eval(new InputStreamReader(resource.getInputStream()));
+                Reader inputStreamReader = new InputStreamReader(resource.getInputStream());
+                engine.eval(Source.newBuilder("js", inputStreamReader, "importer-script").build());
             }
 
-        } catch (ScriptException e) {
-            log.error("Error while evaluating the script!", e);
-            throw e;
-        } catch (IOException e) {
+            mapAdditionalFields(targetIgc, engine);
+
+        } catch (Exception e) {
             log.error("Error while accessing the mapper script!", e);
             throw e;
         }
@@ -335,13 +326,16 @@ public class ScriptImportDataMapper implements ImportDataMapper<Document, Docume
      *
      * @return script engine.
      */
-    protected ScriptEngine getScriptEngine() {
+    protected Context getScriptEngine() {
+        return Context.newBuilder("js").allowAllAccess(true).build();
+        /*context.getBindings("js").putMember("polyglot.js.allowAllAccess", true);
+        
         if (engine == null) {
             ScriptEngineManager manager = new ScriptEngineManager();
             engine = manager.getEngineByName("JavaScript");
             engine.createBindings().put("polyglot.js.allowAllAccess", true);
         }
-        return engine;
+        return engine;*/
     }
 
     public void setMapperScript(Resource[] scripts) {
