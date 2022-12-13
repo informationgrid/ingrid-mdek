@@ -69,18 +69,10 @@ import java.util.Map;
                 @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.iplug.dsc.webapp.object.*"),
                 @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.iplug.dsc.webapp.controller.DatabaseParameterController"),
                 @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.iplug.dsc.webapp.controller.EditorController"),
-                /*
-                * <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.SpringConfiguration*" />
-        <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.DscSearchPlug" />
-        <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.Configuration" />
-        <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.webapp.object.*" />
-        <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.webapp.controller.DatabaseParameterController" />
-        <context:exclude-filter type="regex" expression="de.ingrid.iplug.dsc.webapp.controller.EditorController" />
-*/
         })
 public class MdekServer {
 
-    private static Log log = LogFactory.getLog(MdekClient.class);
+    private static final Log log = LogFactory.getLog(MdekClient.class);
 
     private static int _intervall = 30;
 
@@ -93,7 +85,7 @@ public class MdekServer {
     private static volatile boolean _shutdown = false;
 
     public static Configuration conf;
-    private Configuration igeConfig;
+    private final Configuration igeConfig;
 
     @Autowired
     public MdekServer(IJobRepositoryFacade jobRepositoryFacade, Config baseConfig, Configuration igeConfig) {
@@ -149,7 +141,7 @@ public class MdekServer {
                     if (_communication instanceof TcpCommunication) {
                         TcpCommunication tcpCom = (TcpCommunication) _communication;
                         // if no connection to ibus then try to connect again
-                        if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
+                        if (!tcpCom.isConnected(tcpCom.getServerNames().get(0))) {
                             closeConnections();
                             _communication = initCommunication(_communicationProperties);
                             ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
@@ -178,7 +170,7 @@ public class MdekServer {
         int count = 0;
         if (_communication instanceof TcpCommunication) {
             TcpCommunication tcpCom = (TcpCommunication) _communication;
-            while (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0)) && (count < retries)) {
+            while (!tcpCom.isConnected(tcpCom.getServerNames().get(0)) && (count < retries)) {
                 synchronized (MdekServer.class) {
                     try {
                         MdekServer.class.wait(1000);
@@ -220,7 +212,7 @@ public class MdekServer {
     }
 
     private static Map<String, String> readParameters(String[] args) {
-        Map<String, String> argumentMap = new HashMap<String, String>();
+        Map<String, String> argumentMap = new HashMap<>();
         for (int i = 0; i < args.length; i = i + 2) {
             argumentMap.put(args[i], args[i + 1]);
         }
@@ -233,22 +225,20 @@ public class MdekServer {
         // avoid FileNotFound exceptions by TomCat's JarScanner
         System.setProperty(Constants.SKIP_JARS_PROPERTY, "derby*.jar,unit-api*.jar,geo*.jar,si*.jar,jai*.jar,commons*.jar,Geo*.jar,jgrid*.jar,uo*.jar,system*.jar,gt*.jar,jackson*.jar,org*.jar,ej*.jar,jt*.jar,net*.jar,serial*.jar,xml*.jar,xerc*.jar,mchan*.jar");
         
-        _communicationProperties = getCommunicationFile((String) map.get("--descriptor"));
+        _communicationProperties = getCommunicationFile(map.get("--descriptor"));
 
         // start the Webserver for admin-page and iplug initialization for search and index
         // this also initializes all spring services and does autowiring
         SpringApplication.run(MdekServer.class, args);
         
         // shutdown the server normally
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                try {
-                    shutdown();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                shutdown();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        });
+        }));
     }
 
     private static File getCommunicationFile(String communicationFile) throws IOException {
@@ -266,7 +256,7 @@ public class MdekServer {
     }
 
     private List<String> getRegisteredMdekServers() {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         if (_communication instanceof TcpCommunication) {
             TcpCommunication tcpCom = (TcpCommunication) _communication;
             result = tcpCom.getRegisteredClients();
@@ -276,15 +266,14 @@ public class MdekServer {
 
     static private IngridDocument callJob(IJobRepositoryFacade jobRepo,
                                           String jobId, String methodName, IngridDocument methodParams) {
-        ArrayList<Pair> methodList = new ArrayList<Pair>();
+        ArrayList<Pair> methodList = new ArrayList<>();
         methodList.add(new Pair(methodName, methodParams));
 
         IngridDocument invokeDocument = new IngridDocument();
         invokeDocument.put(IJobRepository.JOB_ID, jobId);
         invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
 
-        IngridDocument response = jobRepo.execute(invokeDocument);
-        return response;
+        return jobRepo.execute(invokeDocument);
     }
 
     static private void checkResponse(IngridDocument mdekResponse) throws MdekException {

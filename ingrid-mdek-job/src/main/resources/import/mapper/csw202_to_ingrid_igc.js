@@ -3094,13 +3094,13 @@ function createUUID() {
 
 function protocol(level, msg) {
 	if (level==DEBUG){
-	    protocolHandler.addMessage(Packages.de.ingrid.mdek.job.protocol.ProtocolHandler.Type.DEBUG, msg);
+	    protocolHandler.addMessage(ProtocolHandler.Type.DEBUG, msg);
 	} else if (level==INFO){
-	    protocolHandler.addMessage(Packages.de.ingrid.mdek.job.protocol.ProtocolHandler.Type.INFO, msg);
+	    protocolHandler.addMessage(ProtocolHandler.Type.INFO, msg);
 	} else if (level==WARN){
-	    protocolHandler.addMessage(Packages.de.ingrid.mdek.job.protocol.ProtocolHandler.Type.WARN, msg);
+	    protocolHandler.addMessage(ProtocolHandler.Type.WARN, msg);
 	} else if (level==ERROR){
-	    protocolHandler.addMessage(Packages.de.ingrid.mdek.job.protocol.ProtocolHandler.Type.ERROR, msg);
+	    protocolHandler.addMessage(ProtocolHandler.Type.ERROR, msg);
 	}
 }
 
