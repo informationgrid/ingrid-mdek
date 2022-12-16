@@ -5,6 +5,15 @@
   </properties>
   <body>
 
+    <release version="5.14.4-SNAPSHOT" date="2022-xx-xx" description="Release 5.14.4">
+      <action type="update" dev="wemove" issue="4615">
+        LUBW: Add OAC to exported ISO XML
+      </action>
+      <action type="fix" dev="wemove" issue="4622">
+        LUBW: Fix environmentDescription ISO placement
+      </action>
+    </release>
+
     <release version="5.14.3" date="2022-12-07" description="Release 5.14.3">
       <action type="add" dev="wemove" issue="4576">
         LUBW: Add "access constraints" fields to index
