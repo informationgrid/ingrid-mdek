@@ -38,14 +38,39 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 
 //---------- <idf:idfMdMetadata> ----------
 var objId = sourceRecord.get("id");
+
+/*
+ * Export environmentDescription
+ */
 var environmentDescription = getAdditionalFieldFromObject(objId, null, 'environmentDescription', 'data');
 if (environmentDescription) {
     var mdDataIdentification = DOM.getElement(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo/gmd:MD_DataIdentification");
+    // if MD_DataIdentification doesn't exist, create it and add environmentDescription
+    // WARN: this should never be the case (due to ISO restrictions) and is only added for completeness
     if (!mdDataIdentification) {
         var dataMetadata = DOM.getElement(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo");
         mdDataIdentification = dataMetadata.addElement("gmd:MD_DataIdentification");
+        mdDataIdentification.addElement("gmd:environmentDescription/gco:CharacterString").addText(environmentDescription);
     }
-    mdDataIdentification.addElement("gmd:environmentDescription/gco:CharacterString").addText(environmentDescription);
+    // if MD_DataIdentification _does_ exist, add environmentDescription at the correct palce:
+    // directly before extent if it exists
+    // otherwise directly before supplementalInformation if it exists
+    // otherwise at the end
+    else {
+        var dataIdentificationChildNodes = XPATH.getNodeList(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo/gmd:MD_DataIdentification/*");
+        var previousSibling;
+        for (var i = 0; i < dataIdentificationChildNodes.length; i++) {
+            var currentSibling = dataIdentificationChildNodes.item(i);
+            if (currentSibling.getTagName() == "gmd:extent" || currentSibling.getTagName() == "gmd:supplementalInformation") {
+                break;
+            }
+            previousSibling = currentSibling;
+        }
+        if (previousSibling) {
+            var previousElem = DOM.getElement(mdDataIdentification, previousSibling.getTagName() + "[last()]");
+            previousElem.addElementAsSibling("gmd:environmentDescription/gco:CharacterString").addText(environmentDescription);
+        }
+    }
 }
 
 /**
