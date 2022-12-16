@@ -74,6 +74,28 @@ if (environmentDescription) {
 }
 
 /**
+ * Export OAC
+ */
+var oac = getAdditionalFieldFromObject(objId, null, 'oac', 'data');
+if (oac) {
+    var previousSibling = DOM.getElement(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:descriptiveKeywords[last()]");
+    if (!previousSibling) {
+        var path = ["gmd:citation", "gmd:abstract", "gmd:purpose", "gmd:credit", "gmd:status", "gmd:pointOfContact", "gmd:resourceMaintenance", "gmd:graphicOverview", "gmd:resourceFormat", "gmd:descriptiveKeywords"];
+        // find last present node from paths
+        for (i = 0; i < path.length; i++) {
+            // get the last occurrence of this path if any
+            var currentSibling = DOM.getElement(dataIdentification, path[i] + "[last()]");
+            if (currentSibling) {
+                previousSibling = currentSibling;
+            }
+        }
+    }
+    if (previousSibling) {
+        previousSibling.addElementAsSibling("gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword/gco:CharacterString").addText("oac:" + oac);
+    }
+}
+
+/**
  * Get a value from an additional value with a given fieldId that belongs to an object or a parent.
  * objId or parentId must be null.
  * @param objId
