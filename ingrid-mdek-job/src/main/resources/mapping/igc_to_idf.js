@@ -3107,7 +3107,7 @@ function addAttachedToField(row, parentElement, addAsISO) {
                     textContent = "information";
                 }
             }
-        } else if (!attachedToFieldKey == "9999") {
+        } else if (attachedToFieldKey != "9999") {
 
             // syslist entry, NOT "unspezifischer Verweis"
             if (addAsISO) {
