@@ -15,6 +15,9 @@
       <action type="add" dev="wemove" issue="3807">
         Add WSV Profile
       </action>
+      <action type="update" dev="wemove" issue="4505">
+        Change meter specification in iso xml
+      </action>
     </release>
 
     <release version="5.14.3" date="2022-12-07" description="Release 5.14.3">
