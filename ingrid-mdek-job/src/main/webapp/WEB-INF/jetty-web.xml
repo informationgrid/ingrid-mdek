@@ -47,6 +47,8 @@
           <!-- <Item>../distribution/src/profiles/hmdk/webapp</Item>-->
           <!-- LUBW -->
           <!-- <Item>../distribution/src/profiles/lubw/webapp</Item>-->
+          <!-- WSV -->
+          <!--<Item>../distribution/src/profiles/wsv/webapp</Item>-->
           <Item>src/main/webapp</Item>
           <Item>target/base-webapp</Item>
           <!--<Item><SystemProperty name="jetty.home" default="."/>/webapps/foo</Item>-->
