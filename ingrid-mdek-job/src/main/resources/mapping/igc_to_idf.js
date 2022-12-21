@@ -146,7 +146,7 @@ for (i=0; i<objRows.size(); i++) {
                 // check if parent is a folder
                 // this query normally shoud return no value if parent is a folder, since they are never published ("V")
                 var parentObjRow = SQL.first("SELECT obj_class FROM t01_object WHERE (org_obj_id=? OR obj_uuid=?) and work_state=?", [objParentUuid, objParentUuid, "V"]);
-                if (hasValue(parentObjRow) && !parentObjRow.get("obj_class") == "1000") {
+                if (hasValue(parentObjRow) && parentObjRow.get("obj_class") != "1000") {
                     mdMetadata.addElement("gmd:parentIdentifier/gco:CharacterString").addText(objParentUuid);
                 }
             }
