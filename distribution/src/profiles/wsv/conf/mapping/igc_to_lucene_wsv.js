@@ -242,12 +242,15 @@ for (i=0; i<objRows.size(); i++) {
         var validKeys = ["10900", "10901", "10902", "10903", "10904"];
         for (j=0; j<rows.size(); j++) {
             var row = rows.get(j)
-            addT017UrlRef(row);
 
-            var attachedToFieldValue = row.get("special_name");
+            var attachedToFieldValue = row.get("special_ref");
+            log.debug("Warenkorb - Field: "+attachedToFieldValue);
             if(hasValue(attachedToFieldValue) && validKeys.indexOf(attachedToFieldValue) != -1){
-                IDX.add("additional_html_1", "<a href='https://geoportal.wsv.res.bund.de/terraCatalog/ordering/shop.do?fileid="+objUuid+"' target='_blank'>Zum Warenkorb</a>");
+                addT017CartUrlRef(row, objUuid)
+                //IDX.add("additional_html_1", "<a href='https://geoportal.wsv.res.bund.de/terraCatalog/ordering/shop.do?fileid="+objUuid+"' target='_blank'>Zum Warenkorb</a>");
             }
+
+            addT017UrlRef(row);
         }
 
         // add connection to the service(s) for class 1 (Map) and 3 (Service)
@@ -806,6 +809,17 @@ function addT017UrlRef(row) {
     IDX.add("t017_url_ref.special_ref", row.get("special_ref"));
     IDX.add("t017_url_ref.special_name", row.get("special_name"));
     IDX.add("t017_url_ref.content", row.get("content"));
+    IDX.add("t017_url_ref.datatype_key", row.get("datatype_key"));
+    IDX.add("t017_url_ref.datatype", row.get("datatype_value"));
+    IDX.add("t017_url_ref.descr", row.get("descr"));
+    IDX.add("t017_url_ref.url_type", row.get("url_type"));
+}
+function addT017CartUrlRef(row, uuid) {
+    IDX.add("t017_url_ref.line", row.get("line"));
+    IDX.add("t017_url_ref.url_link", "https://geoportal.wsv.res.bund.de/terraCatalog/ordering/shop.do?fileid="+objUuid);
+    IDX.add("t017_url_ref.special_ref", row.get("special_ref"));
+    IDX.add("t017_url_ref.special_name", row.get("special_name"));
+    IDX.add("t017_url_ref.content", "Zum Warenkorb");
     IDX.add("t017_url_ref.datatype_key", row.get("datatype_key"));
     IDX.add("t017_url_ref.datatype", row.get("datatype_value"));
     IDX.add("t017_url_ref.descr", row.get("descr"));

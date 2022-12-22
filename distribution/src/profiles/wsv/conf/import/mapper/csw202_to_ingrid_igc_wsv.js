@@ -948,7 +948,7 @@ var mappingDescription = {"mappings":[
             }
         },
         {
-            "defaultValue":"3",
+            "defaultValue":"1",
             "targetNode":"/igc/data-sources/data-source/data-source-instance/additional-information/publication-condition"
         },
         {
@@ -2476,18 +2476,16 @@ function mapDistributionLinkages(source, target) {
                 linkage.datatype_key=-1;
                 linkage.datatype_value="coupled";
             } else {
-                var linkType = XPATH.getString(linkages.item(i), "./gmd:function/gmd:CI_OnLineFunctionCode/@codeListValue");
-                if (linkType === "download" ){
-                    linkage.referenceId = 9990
-                } else if ( linkType === "information" ) {
-                    linkage.referenceId = 5302
-                } else if ( linkType === "offlineAccess" ) {
-                    linkage.referenceId = 5303
-                } else if ( linkType === "order" ) {
-                    linkage.referenceId = 5304
-                } else if ( linkType === "search" ) {
-                    linkage.referenceId = 5305
+                try {
+                    var linkType = XPATH.getString(linkages.item(i), "./gmd:function/gmd:CI_OnLineFunctionCode/@codeListValue");
+                    linkage.referenceId = codeListService.getSysListEntryKey(2000, linkType, "iso");
+                } catch (e) {
+                    if (log.isWarnEnabled()) {
+                        log.warn("Error tranforming OnlineFunctionCode '" + linkType + "' with code list 2000 to IGC id. Does the codeList exist?");
+                    }
+                    protocol(WARN, "Error tranforming OnlineFunctionCode '" + linkType + "' with code list 2000 to IGC id. Does the codeList exist?")
                 }
+
                 linkage.datatype_value = XPATH.getString(linkages.item(i), "./gmd:applicationProfile/gco:CharacterString");
             }
 
