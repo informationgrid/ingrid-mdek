@@ -175,7 +175,7 @@ prepareJavaStatement()
     fi
 
     export CLASSPATH="$CLASSPATH"
-    INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME $JAVA_OPTS -Dpolyglot.engine.WarnInterpreterOnly=false --add-opens java.base/java.lang=ALL-UNNAMED"
+    INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME $JAVA_OPTS -Dpolyglot.engine.WarnInterpreterOnly=false --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED"
 }
 
 startIplug()
