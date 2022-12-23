@@ -25,7 +25,7 @@ var CAPABILITIES = Java.type('de.ingrid.utils.capabilities.CapabilitiesUtils');
 // var document = Java.type("org.apache.lucene.document");
 var DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 // var transformation = Java.type("de.ingrid.geo.utils.transformation");
-// var mdek = Java.type("de.ingrid.mdek");
+var MdekServer = Java.type("de.ingrid.mdek.MdekServer");
 
 // importPackage(Packages.org.w3c.dom);
 
