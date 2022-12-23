@@ -40,7 +40,7 @@
         <Logger name="org.springframework" level="info" additivity="false">
             <AppenderRef ref="LogFile" />
         </Logger>
-        <Logger name="org.hibernate.internal.SessionImpl" level="error" additivity="false">
+        <Logger name="org.hibernate" level="error" additivity="false">
             <AppenderRef ref="LogFile" />
         </Logger>
         <Logger name="net.weta" level="info" additivity="false">
