@@ -223,7 +223,7 @@ public class MdekServer {
         Map<String, String> map = readParameters(args);
 
         // avoid FileNotFound exceptions by TomCat's JarScanner
-        System.setProperty(Constants.SKIP_JARS_PROPERTY, "derby*.jar,unit-api*.jar,geo*.jar,si*.jar,jai*.jar,commons*.jar,Geo*.jar,jgrid*.jar,uo*.jar,system*.jar,gt*.jar,jackson*.jar,org*.jar,ej*.jar,jt*.jar,net*.jar,serial*.jar,xml*.jar,xerc*.jar,mchan*.jar");
+        System.setProperty(Constants.SKIP_JARS_PROPERTY, "tools.jar,derby*.jar,unit-api*.jar,geo*.jar,si*.jar,jai*.jar,commons*.jar,Geo*.jar,jgrid*.jar,uo*.jar,system*.jar,gt*.jar,jackson*.jar,org*.jar,ej*.jar,jt*.jar,net*.jar,serial*.jar,xml*.jar,xerc*.jar,mchan*.jar");
         
         _communicationProperties = getCommunicationFile(map.get("--descriptor"));
 
