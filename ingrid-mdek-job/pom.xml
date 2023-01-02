@@ -22,10 +22,6 @@
     <!-- Define the version that we want to use here, so we have a single line to change when upgrating. -->
     <!-- <geotk.version>3.20-geoapi-3.0</geotk.version> -->
     <geotk.version>4.0-M0</geotk.version>
-    <powermock.version>2.0.9</powermock.version>
-    <!--
-            <powermock.version>2.0.0-beta.5</powermock.version>
-    -->
   </properties>
 
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->

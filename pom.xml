@@ -19,12 +19,12 @@
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
-    <ingrid-udk-importer.version>5.15.0-SNAPSHOT</ingrid-udk-importer.version>
+    <ingrid-udk-importer.version>5.15.0.3324-SNAPSHOT</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>5.15.0.3324-SNAPSHOT</ingrid-codelist-service.version>
     <ingrid-utils.version>5.15.0.3324-SNAPSHOT</ingrid-utils.version>
     <ingrid-iplug-dsc.version>5.15.0.3324-SNAPSHOT</ingrid-iplug-dsc.version>
     <ingrid-base-webapp.version>5.15.0.3324-SNAPSHOT</ingrid-base-webapp.version>
-    <spring.version>2.7.5</spring.version>
+    <spring.version>2.7.7</spring.version>
     <log4j2.version>2.19.0</log4j2.version>
     <maven.compiler.release>17</maven.compiler.release>
   </properties>
