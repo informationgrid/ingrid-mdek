@@ -136,6 +136,11 @@
         <artifactId>log4j-core</artifactId>
         <version>${log4j2.version}</version>
       </dependency>
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>5.1.49</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
