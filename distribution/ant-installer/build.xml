@@ -46,7 +46,7 @@
     <property name="mySqlHibernateDialect"  value="org.hibernate.dialect.MySQLInnoDBDialect"/>
 
     <property name="postgresDriverClass"       value="org.postgresql.Driver"/>
-    <property name="postgresDriver.jar"        value="postgresql-42.3.7.jar"/>
+    <property name="postgresDriver.jar"        value="postgresql-42.3.8.jar"/>
     <property name="postgresHibernateDialect"  value="org.hibernate.dialect.PostgreSQLDialect"/>
 
     <property name="oracleDriverClass"      value="oracle.jdbc.OracleDriver"/>
