@@ -6,6 +6,18 @@
   <body>
 
     <release version="5.15.0-SNAPSHOT" date="2023-xx-xx" description="Release 5.15.0-SNAPSHOT">
+      <action type="update" dev="wemove" issue="4505">
+        Change meter specification in iso xml
+      </action>
+      <action type="update" dev="wemove" issue="4615">
+        LUBW: Add OAC to exported ISO XML
+      </action>
+      <action type="fix" dev="wemove" issue="4622">
+        LUBW: Fix environmentDescription ISO placement
+      </action>
+      <action type="add" dev="wemove" issue="4576">
+        LUBW: Add "access constraints" fields to index
+      </action>
       <action type="add" dev="wemove" issue="4008">
         LUBW: Add "Zugang geschützt" to import
       </action>

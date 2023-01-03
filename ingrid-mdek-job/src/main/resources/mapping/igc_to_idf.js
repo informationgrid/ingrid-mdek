@@ -347,7 +347,7 @@ for (i=0; i<objRows.size(); i++) {
                         if (hasValue(resolutionDim)) {
                             dimensionNode
                                 .addElement("gmd:resolution/gco:Scale")
-                                .addAttribute("uom", "m")
+                                .addAttribute("uom", "meter")
                                 .addText(resolutionDim);
                         }
                     }
