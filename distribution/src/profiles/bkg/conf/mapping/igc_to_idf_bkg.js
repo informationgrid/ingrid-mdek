@@ -20,15 +20,8 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-	load("nashorn:mozilla_compat.js");
-	CAPABILITIES = Java.type('de.ingrid.utils.capabilities.CapabilitiesUtils');
-}
 
-importPackage(Packages.org.w3c.dom);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
-
-
+var DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 
 if (log.isDebugEnabled()) {
     log.debug("BKG: Mapping source record to idf document: " + sourceRecord.toString());
@@ -136,7 +129,7 @@ function getAdditionalFieldFromObject(objId, parentId, fieldId, property) {
 
 function getIdentificationInfo() {
     var identificationInfo = null;
-    if (objClass.equals("3")) {
+    if (objClass == "3") {
         identificationInfo = DOM.getElement(body, "gmd:identificationInfo/srv:SV_ServiceIdentification");
     } else {
         identificationInfo = DOM.getElement(body, "gmd:identificationInfo/gmd:MD_DataIdentification");
@@ -236,12 +229,12 @@ function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherC
 
 function isOpenData() {
     var value = objRow.get("is_open_data");
-    return hasValue(value) && value.equals('Y');
+    return hasValue(value) && value == 'Y';
 }
 
 function isInspireRelevant() {
     var value = objRow.get("is_inspire_relevant");
-    return hasValue(value) && value.equals('Y');
+    return hasValue(value) && value == 'Y';
 }
 
 function handleBKGUseLimitation() {

@@ -20,13 +20,8 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-    load("nashorn:mozilla_compat.js");
-    CAPABILITIES = Java.type('de.ingrid.utils.capabilities.CapabilitiesUtils');
-}
 
-importPackage(Packages.org.w3c.dom);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
+var DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 
 //add Namespaces to Utility for convenient handling of NS !
 DOM.addNS("gmd", "http://www.isotc211.org/2005/gmd");
@@ -48,7 +43,7 @@ if (contentLabel && contentLabel.size() > 0) {
 
         var i;
         var dataIdentification;
-        if (objClass.equals("3")) {
+        if (objClass == "3") {
             dataIdentification = DOM.getElement(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo/srv:SV_ServiceIdentification");
         } else {
             dataIdentification = DOM.getElement(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo/gmd:MD_DataIdentification");
@@ -85,7 +80,7 @@ if ( contentLabel && contentLabel.size() > 0) {
     var i;
     var dataMetadata = DOM.getElement(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo");
     var dataIdentification;
-    if (objClass.equals("3")) {
+    if (objClass == "3") {
         dataIdentification = DOM.getElement(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo/srv:SV_ServiceIdentification");
         if (!dataIdentification) dataIdentification = dataMetadata.addElement("srv:SV_ServiceIdentification");
     } else {
