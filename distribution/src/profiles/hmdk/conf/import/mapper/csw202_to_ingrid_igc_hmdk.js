@@ -56,7 +56,7 @@ function mapSpecialFields(source, target) {
 
     for (var i=0; i<keywords.getLength(); i++ ) {
         var keyword = keywords.item(i).getTextContent();
-        if ("hmbtg".equals(keyword)) {
+        if ("hmbtg" == keyword) {
             var targetEl = target;
             var additionalValues = XPATH.createElementFromXPath(targetEl, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
             var additionalValue = additionalValues.appendChild(targetEl.getOwnerDocument().createElement("general-additional-value"));

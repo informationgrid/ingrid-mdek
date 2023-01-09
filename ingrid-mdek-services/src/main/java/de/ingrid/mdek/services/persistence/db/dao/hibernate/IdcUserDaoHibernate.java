@@ -48,14 +48,14 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 	public IdcUser getCatalogAdmin() {
 		Session session = getSession();
 		return (IdcUser)session.createQuery("from IdcUser u " +
-				"where u.idcRole = ?").setInteger(0, MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue())
+				"where u.idcRole = ?1").setInteger(1, MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue())
 				.uniqueResult();
 	}
 
 	public IdcUser getIdcUserByAddrUuid(String addrUuid) {
 		Session session = getSession();
 		return (IdcUser)session.createQuery("from IdcUser u " +
-				"where u.addrUuid = ?").setString(0, addrUuid)
+				"where u.addrUuid = ?1").setString(1, addrUuid)
 				.uniqueResult();
 	}
 
@@ -65,7 +65,7 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 				"from IdcUser u, IdcUserGroup uG " +
 				"where " +
 				"u.id = uG.idcUserId " +
-				"AND uG.idcGroupId = ?").setLong(0, groupId).list();
+				"AND uG.idcGroupId = ?1").setLong(1, groupId).list();
 	}
 
 	public List<IdcUser> getIdcUsersByGroupName(String groupName) {
@@ -75,9 +75,9 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 				"where " +
 				"u.id = uG.idcUserId " +
 				"AND uG.idcGroupId = g.id " +
-				"AND g.name= ?";
+				"AND g.name= ?1";
 
-		return (List<IdcUser>)session.createQuery(query).setString(0, groupName).list();
+		return (List<IdcUser>)session.createQuery(query).setString(1, groupName).list();
 	}
 
 	public List<IdcGroup> getGroupsOfUser(String userUuid) {
@@ -87,14 +87,14 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 				"where " +
 				"u.id = uG.idcUserId " +
 				"AND uG.idcGroupId = g.id " +
-				"AND u.addrUuid= ?";
+				"AND u.addrUuid= ?1";
 
-		return (List<IdcGroup>)session.createQuery(query).setString(0, userUuid).list();
+		return (List<IdcGroup>)session.createQuery(query).setString(1, userUuid).list();
 	}
 
 	public List<IdcUser> getSubUsers(Long parentIdcUserId) {
 		Session session = getSession();
 		return (List<IdcUser>)session.createQuery("from IdcUser u " +
-		"where u.parentId = ?").setLong(0, parentIdcUserId).list();
+		"where u.parentId = ?1").setLong(1, parentIdcUserId).list();
 	}
 }

@@ -20,13 +20,7 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf("1.8") === 0) {
-    load("nashorn:mozilla_compat.js");
-    CAPABILITIES = Java.type('de.ingrid.utils.capabilities.CapabilitiesUtils');
-}
-
-importPackage(Packages.org.w3c.dom);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
+var DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 
 if (log.isDebugEnabled()) {
     log.debug("Nokis: Mapping source record to idf document: " + sourceRecord.toString());
@@ -39,13 +33,13 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 var objId = +sourceRecord.get("id");
 
 // objClass variable is from script before "igc_to_idf.js"
-if (objClass.equals("1")) {
+if (objClass == "1") {
     removeCoupledServiceInformation();
     var hierarchyLevel = getAdditionalFieldFromObject(objId, "bawHierarchyLevelName", "data")
     if (hierarchyLevel === "Messdaten") {
         addMeasureData();
     }
-} else if (objClass.equals("6")) {
+} else if (objClass == "6") {
     addSoftwareData();
 }
 
@@ -222,7 +216,7 @@ function getAdditionalFieldFromObject(objId, fieldId, property) {
     var field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldId]);
     if (hasValue(field)) {
         var value= field.get(property);
-        if(hasValue(value) && !value.equals("NaN")){
+        if(hasValue(value) && !value == "NaN"){
           return value;
         }
      }

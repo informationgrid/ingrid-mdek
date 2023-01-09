@@ -79,6 +79,16 @@ public class IgeCswFolderUtil {
 
         return folderImportDoc.getString(MdekKeys.UUID);
     }
+    
+    public String getUUIDFromString(String text) {
+        String stringClean = text.replaceAll("\\s+", " ");
+        UUID uuid = UUID.nameUUIDFromBytes(stringClean.getBytes());
+        StringBuffer idcUuid = new StringBuffer(uuid.toString().toUpperCase());
+        while (idcUuid.length() < 36) {
+            idcUuid.append("0");
+        }
+        return idcUuid.toString();
+    } 
 
     private IngridDocument createFolderImportDocument(String folderName, String userUuid) {
         return createFolderImportDocument(folderName, userUuid, null);

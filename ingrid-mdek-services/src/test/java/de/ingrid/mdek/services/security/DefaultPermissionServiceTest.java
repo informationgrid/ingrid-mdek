@@ -24,9 +24,6 @@ package de.ingrid.mdek.services.security;
 
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import de.ingrid.mdek.MdekUtilsSecurity;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.IEntity;
@@ -39,6 +36,7 @@ import de.ingrid.mdek.services.persistence.db.model.ObjectNode;
 import de.ingrid.mdek.services.persistence.db.model.Permission;
 import de.ingrid.mdek.services.persistence.db.model.PermissionAddr;
 import de.ingrid.mdek.services.persistence.db.model.PermissionObj;
+import org.junit.jupiter.api.Test;
 
 public class DefaultPermissionServiceTest extends AbstractSecurityTest {
 
@@ -199,61 +197,61 @@ public class DefaultPermissionServiceTest extends AbstractSecurityTest {
 		s.grantAddressPermission(user.getAddrUuid(), PermissionFactory.getSingleAddressPermissionTemplate("address-uuid-1"), null);
 		s.grantObjectPermission(user.getAddrUuid(), PermissionFactory.getSingleObjectPermissionTemplate("object-uuid-1"), null);
 
-		Assert.assertEquals(s.hasPermissionForAddress(user.getAddrUuid(), PermissionFactory
+		assertEquals(s.hasPermissionForAddress(user.getAddrUuid(), PermissionFactory
 				.getSingleAddressPermissionTemplate("address-uuid-1"), null), true);
-		Assert.assertEquals(s.hasPermissionForObject(user.getAddrUuid(), PermissionFactory
+		assertEquals(s.hasPermissionForObject(user.getAddrUuid(), PermissionFactory
 				.getSingleObjectPermissionTemplate("object-uuid-1"), null), true);
-		Assert.assertEquals(s.hasPermissionForAddress(user.getAddrUuid(), PermissionFactory
+		assertEquals(s.hasPermissionForAddress(user.getAddrUuid(), PermissionFactory
 				.getSingleAddressPermissionTemplate("address-uuid-2"), null), false);
-		Assert.assertEquals(s.hasPermissionForObject(user.getAddrUuid(), PermissionFactory
+		assertEquals(s.hasPermissionForObject(user.getAddrUuid(), PermissionFactory
 				.getSingleObjectPermissionTemplate("object-uuid-2"), null), false);
 
 		s.revokeAddressPermission(user.getAddrUuid(), PermissionFactory.getSingleAddressPermissionTemplate("address-uuid-1"), null);
 		s.revokeObjectPermission(user.getAddrUuid(), PermissionFactory.getSingleObjectPermissionTemplate("object-uuid-1"), null);
 
-		Assert.assertEquals(s.hasPermissionForAddress(user.getAddrUuid(), PermissionFactory
+		assertEquals(s.hasPermissionForAddress(user.getAddrUuid(), PermissionFactory
 				.getSingleAddressPermissionTemplate("address-uuid-1"), null), false);
-		Assert.assertEquals(s.hasPermissionForObject(user.getAddrUuid(), PermissionFactory
+		assertEquals(s.hasPermissionForObject(user.getAddrUuid(), PermissionFactory
 				.getSingleObjectPermissionTemplate("object-uuid-1"), null), false);
 
 		s.grantObjectPermission(user.getAddrUuid(), PermissionFactory
 				.getSingleObjectPermissionTemplate("object-uuid-1"), null);
-		Assert.assertEquals(s.hasInheritedPermissionForObject(user.getAddrUuid(), PermissionFactory
+		assertEquals(s.hasInheritedPermissionForObject(user.getAddrUuid(), PermissionFactory
 				.getSingleObjectPermissionTemplate("object-uuid-3"), null), true);
 		s.revokeObjectPermission(user.getAddrUuid(), PermissionFactory
 				.getSingleObjectPermissionTemplate("object-uuid-1"), null);
-		Assert.assertEquals(s.hasInheritedPermissionForObject(user.getAddrUuid(), PermissionFactory
+		assertEquals(s.hasInheritedPermissionForObject(user.getAddrUuid(), PermissionFactory
 				.getSingleObjectPermissionTemplate("object-uuid-3"), null), false);
 
 		s.grantAddressPermission(user.getAddrUuid(), PermissionFactory
 				.getSingleAddressPermissionTemplate("address-uuid-1"), null);
-		Assert.assertEquals(s.hasInheritedPermissionForAddress(user.getAddrUuid(), PermissionFactory
+		assertEquals(s.hasInheritedPermissionForAddress(user.getAddrUuid(), PermissionFactory
 				.getSingleAddressPermissionTemplate("address-uuid-3"), null), true);
 		s.revokeAddressPermission(user.getAddrUuid(), PermissionFactory
 				.getSingleAddressPermissionTemplate("address-uuid-1"), null);
-		Assert.assertEquals(s.hasInheritedPermissionForAddress(user.getAddrUuid(), PermissionFactory
+		assertEquals(s.hasInheritedPermissionForAddress(user.getAddrUuid(), PermissionFactory
 				.getSingleAddressPermissionTemplate("address-uuid-3"), null), false);
 		
 		
         s.grantAddressPermission(user.getAddrUuid(), PermissionFactory.getSubNodeAddressPermissionTemplate("address-uuid-1"), null);
         s.grantObjectPermission(user.getAddrUuid(), PermissionFactory.getSubNodeObjectPermissionTemplate("object-uuid-1"), null);
         
-        Assert.assertEquals(s.hasPermissionForAddress(user.getAddrUuid(), PermissionFactory
+        assertEquals(s.hasPermissionForAddress(user.getAddrUuid(), PermissionFactory
                 .getSubNodeAddressPermissionTemplate("address-uuid-1"), null), true);
-        Assert.assertEquals(s.hasPermissionForObject(user.getAddrUuid(), PermissionFactory
+        assertEquals(s.hasPermissionForObject(user.getAddrUuid(), PermissionFactory
                 .getSubNodeObjectPermissionTemplate("object-uuid-1"), null), true);
-        Assert.assertEquals(s.hasPermissionForAddress(user.getAddrUuid(), PermissionFactory
+        assertEquals(s.hasPermissionForAddress(user.getAddrUuid(), PermissionFactory
                 .getSubNodeAddressPermissionTemplate("address-uuid-2"), null), false);
-        Assert.assertEquals(s.hasPermissionForObject(user.getAddrUuid(), PermissionFactory
+        assertEquals(s.hasPermissionForObject(user.getAddrUuid(), PermissionFactory
                 .getSubNodeObjectPermissionTemplate("object-uuid-2"), null), false);
         
 		
 		
 
 		s.grantUserPermission(user.getAddrUuid(), PermissionFactory.getPermissionTemplateCreateRoot(), null);
-		Assert.assertEquals(s.hasUserPermission(user.getAddrUuid(), PermissionFactory.getPermissionTemplateCreateRoot(), null), true);
+		assertEquals(s.hasUserPermission(user.getAddrUuid(), PermissionFactory.getPermissionTemplateCreateRoot(), null), true);
 		s.revokeUserPermission(user.getAddrUuid(), PermissionFactory.getPermissionTemplateCreateRoot(), null);
-		Assert.assertEquals(s.hasUserPermission(user.getAddrUuid(), PermissionFactory.getPermissionTemplateCreateRoot(), null), false);
+		assertEquals(s.hasUserPermission(user.getAddrUuid(), PermissionFactory.getPermissionTemplateCreateRoot(), null), false);
 
 		this.commitTransaction();
 	}

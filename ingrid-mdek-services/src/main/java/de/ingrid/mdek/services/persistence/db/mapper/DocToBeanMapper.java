@@ -691,6 +691,8 @@ public class DocToBeanMapper implements IMapper {
 			String inUuidTo = (String) aDocTo.get(MdekKeys.UUID);
 			Integer inRelType = (Integer) aDocTo.get(MdekKeys.RELATION_TYPE_ID);
 			String inRelTypeName = (String) aDocTo.get(MdekKeys.RELATION_TYPE_NAME);
+			if (inRelTypeName == null) inRelTypeName = inRelType.toString();
+			
 			boolean found = false;
 			for (T012ObjAdr oA : oAs) {
 				boolean sameAsOtherReference = oA.getAdrUuid().equals(inUuidTo) &&

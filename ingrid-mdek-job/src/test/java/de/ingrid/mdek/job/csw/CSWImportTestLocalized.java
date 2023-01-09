@@ -34,14 +34,13 @@ import de.ingrid.mdek.xml.importer.IngridXMLStreamReader;
 import de.ingrid.utils.IngridDocument;
 import de.ingrid.utils.xml.XMLUtils;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -60,20 +59,18 @@ import java.util.zip.GZIPInputStream;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
-@PowerMockIgnore("javax.management.*")
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ DatabaseConnectionUtils.class, MdekObjectService.class, MdekJobHandler.class })
+@ExtendWith(MockitoExtension.class)
 public class CSWImportTestLocalized extends TestSetup {
 
     //private IgeSearchPlug plug;
 
     // @Mock private ResultSet resultSet;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         String[] mappingScripts = new String[] {
                 "ingrid-mdek-job/src/main/resources/import/mapper/csw202_to_ingrid_igc.js"
@@ -82,13 +79,18 @@ public class CSWImportTestLocalized extends TestSetup {
         beforeSetup( mappingScripts );
     }
 
+    @AfterEach
+    public void after() {
+        mockedDatabaseConnectionUtils.close();
+    }
+
     @Test
     public void importLocalizedISO() throws Exception {
 
         doAnswer( new Answer<Void>() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             public Void answer(InvocationOnMock invocation) throws Exception {
-                Map doc = invocation.getArgumentAt( 1, Map.class );
+                Map doc = invocation.getArgument( 1 );
                 List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
                 assertThat( data, is( not( nullValue() ) ) );
                 assertThat( data.size(), is( 1 ) );

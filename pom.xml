@@ -3,13 +3,13 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>5.11.0</version>
+    <version>5.15.0.3324-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>5.15.0-SNAPSHOT</version>
+  <version>5.15.0.3324-SNAPSHOT</version>
   <name>InGrid iPlug IGE</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.
   </description>
@@ -19,12 +19,14 @@
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
-    <ingrid-udk-importer.version>5.15.0-SNAPSHOT</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>5.15.0-SNAPSHOT</ingrid-codelist-service.version>
-    <ingrid-utils.version>5.14.0</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>5.12.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>5.14.0</ingrid-base-webapp.version>
-    <spring.version>5.3.18</spring.version>
+    <ingrid-udk-importer.version>5.15.0.3324-SNAPSHOT</ingrid-udk-importer.version>
+    <ingrid-codelist-service.version>5.15.0.3324-SNAPSHOT</ingrid-codelist-service.version>
+    <ingrid-utils.version>5.15.0.3324-SNAPSHOT</ingrid-utils.version>
+    <ingrid-iplug-dsc.version>5.15.0.3324-SNAPSHOT</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>5.15.0.3324-SNAPSHOT</ingrid-base-webapp.version>
+    <spring.version>2.7.7</spring.version>
+    <log4j2.version>2.19.0</log4j2.version>
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <!-- ==================== Source Code Management ==================== -->
@@ -43,16 +45,6 @@
       <url>https://nexus.informationgrid.eu/repository/maven-public</url>
     </repository>
 
-<!--
-
-    DEPRECATED, repo unreachable?
-
-    <repository>
-      <id>geotoolkit</id>
-      <name>Geotoolkit repository</name>
-      <url>http://maven.geotoolkit.org/</url>
-    </repository>
--->
     <repository>
       <id>osgeo</id>
       <name>OSGeo Release Repository</name>
@@ -99,27 +91,23 @@
         <artifactId>ingrid-import-export</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <!-- Use new spring because of Java 8 compatibility -->
-      <!-- always use spring from base-webapp -->
+
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-beans</artifactId>
+        <!-- Import dependency management from Spring Boot -->
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
         <version>${spring.version}</version>
+        <!-- <relativePath />-->
+        <!-- lookup parent from repository -->
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-core</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
+
+
       <dependency>
         <groupId>com.thoughtworks.xstream</groupId>
         <artifactId>xstream</artifactId>
-        <version>1.4.19</version>
+        <version>1.4.20</version>
       </dependency>
       <!-- An updated version is needed for log4j2! -->
       <dependency>
@@ -137,6 +125,27 @@
         <artifactId>slf4j-api</artifactId>
         <version>1.7.7</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-1.2-api</artifactId>
+        <version>${log4j2.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j2.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>5.1.49</version>
+      </dependency>
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>42.3.8</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -145,7 +154,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-communication</artifactId>
-      <version>5.11.0</version>
+      <version>5.15.0.3324-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>log4j</groupId>
@@ -168,29 +177,43 @@
           <groupId>log4j</groupId>
           <artifactId>log4j</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-1.2-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-core</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <!-- backward compatible -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-1.2-api</artifactId>
-      <version>2.17.1</version>
+      <version>${log4j2.version}</version>
     </dependency>
     <!-- end -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <version>2.17.1</version>
+      <version>${log4j2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>2.17.1</version>
+      <version>${log4j2.version}</version>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.1</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.9.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <version>2.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -206,8 +229,8 @@
         <version>3.0</version>
         <configuration>
           <encoding>UTF-8</encoding>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>17</source>
+          <target>17</target>
         </configuration>
       </plugin>
 

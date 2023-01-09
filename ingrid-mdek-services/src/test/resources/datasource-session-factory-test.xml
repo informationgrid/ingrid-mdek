@@ -27,16 +27,17 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
    <bean id="sessionFactory"
-         class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+         class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
       <property name="dataSource">
          <ref bean="dataSource"/>
       </property>
       <property name="hibernateProperties">
          <ref bean="hibernateProperties"/>
       </property>
-      <property name="exposeTransactionAwareSessionFactory" value="false"/>
+<!--      <property name="exposeTransactionAwareSessionFactory" value="false"/>-->
       <property name="mappingResources">
          <list>
+            <value>de/ingrid/mdek/services/persistence/db/model/AdditionalFieldData.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/AddressComment.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/AddressMetadata.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/AddressNode.hbm.xml</value>
@@ -49,14 +50,20 @@
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectAccess.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectComment.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectConformity.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectAdvProductGroup.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectDataLanguage.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectDataQuality.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectMetadata.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectNode.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectOpenDataCategory.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectReference.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectTypesCatalogue.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/ObjectUse.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/ObjectUseConstraint.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/Permission.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/PermissionAddr.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/PermissionObj.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/PriorityDataset.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermAdr.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermObj.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SearchtermSns.hbm.xml</value>
@@ -64,19 +71,19 @@
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefSns.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialRefValue.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SpatialReference.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/SpatialSystem.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SysGenericKey.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SysJobInfo.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/SysList.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T0110AvailFormat.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T0112MediaOption.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T0113DatasetReference.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/T0114EnvCategory.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T0114EnvTopic.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjData.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjDataPara.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeo.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoKeyc.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoAxisDim.hbm.xml</value>
+            <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoDataBase.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoScale.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSpatialRep.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T011ObjGeoSupplinfo.hbm.xml</value>
@@ -103,9 +110,6 @@
             <value>de/ingrid/mdek/services/persistence/db/model/T021Communication.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T02Address.hbm.xml</value>
             <value>de/ingrid/mdek/services/persistence/db/model/T03Catalogue.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/T08Attr.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/T08AttrList.hbm.xml</value>
-            <value>de/ingrid/mdek/services/persistence/db/model/T08AttrType.hbm.xml</value>
          </list>
       </property>
 <!--

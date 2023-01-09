@@ -566,6 +566,7 @@ public class MdekAddressService {
 			
 			// create new address with BASIC data
 			aPub = docToBeanMapper.mapT02Address(aDocIn, new T02Address(), MappingQuantity.BASIC_ENTITY);
+			daoT012ObjAdr.makePersistent(aPub);
 		}
 
 		// if working copy then take over data !
@@ -597,7 +598,7 @@ public class MdekAddressService {
 
 		// PERFORM CHECKS ON FINAL DATA BEFORE PERSISTING !!!
 		// This may throw exception leading to working version !
-		checkAddressNodeContentForPublish(aNode);			
+		checkAddressNodeContentForPublish(aNode);
 
 		// checks ok !
 		// FINALLY PERSIST PUBLISHED VERSION AND DELETE FORMER WORKING VERSION !

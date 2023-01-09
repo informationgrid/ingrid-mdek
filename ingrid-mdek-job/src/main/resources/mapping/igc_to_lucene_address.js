@@ -20,13 +20,8 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-	load("nashorn:mozilla_compat.js");
-}
 
-importPackage(Packages.org.apache.lucene.document);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
-importPackage(Packages.de.ingrid.geo.utils.transformation);
+var DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 
 if (log.isDebugEnabled()) {
 	log.debug("Mapping source record to lucene document: " + sourceRecord.toString());
@@ -37,7 +32,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 }
 
 //add default boost value
-IDX.addDocumentBoost(0.1);
+IDX.addDocumentBoost((Java.type('java.lang.Float')).parseFloat("0.1"));
 
 // ---------- t02_address ----------
 // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
@@ -124,7 +119,7 @@ function addT02AddressFolder(row) {
     IDX.add("t02_address.publish_id", row.get("publish_id"));
     // also add plain "publish_id" so objects AND addresses can be queried with "publish_id:1" ...
     IDX.add("publish_id", row.get("publish_id"));
-    IDX.add("isfolder", true);
+    IDX.add("isfolder", "true");
 }
 function addT02Address(row) {
     IDX.add("t02_address.id", row.get("id"));
@@ -162,7 +157,7 @@ function addT02Address(row) {
     IDX.add("t02_address.publish_id", row.get("publish_id"));
     // also add plain "publish_id" so objects AND addresses can be queried with "publish_id:1" ...
     IDX.add("publish_id", row.get("publish_id"));
-    IDX.add("isfolder", false);
+    IDX.add("isfolder", "false");
 }
 function addT021Communication(row) {
     IDX.add("t021_communication.line", row.get("line"));

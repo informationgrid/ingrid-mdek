@@ -20,15 +20,13 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-    load("nashorn:mozilla_compat.js");
-    CAPABILITIES = Java.type('de.ingrid.utils.capabilities.CapabilitiesUtils');
-}
 
-importPackage(Packages.org.apache.lucene.document);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
-importPackage(Packages.de.ingrid.geo.utils.transformation);
-importPackage(Packages.de.ingrid.mdek);
+var CAPABILITIES = Java.type('de.ingrid.utils.capabilities.CapabilitiesUtils');
+
+// var document = Java.type("org.apache.lucene.document");
+var DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
+// var transformation = Java.type("de.ingrid.geo.utils.transformation");
+var MdekServer = Java.type("de.ingrid.mdek.MdekServer");
 
 // constant to punish the rank of a service/data object, which has no coupled resource
 var BOOST_NO_COUPLED_RESOURCE  = 0.9;
@@ -44,7 +42,7 @@ if (!(sourceRecord instanceof DatabaseSourceRecord)) {
 }
 
 // add default boost value
-IDX.addDocumentBoost(1.0);
+IDX.addDocumentBoost((Java.type('java.lang.Float')).parseFloat("1.0"));
 
 // ---------- t01_object ----------
 // convert id to number to be used in PreparedStatement as Integer to avoid postgres error !
@@ -120,7 +118,7 @@ for (i=0; i<objRows.size(); i++) {
         // ---------- t011_obj_serv ----------
         var rows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
         for (j=0; j<rows.size(); j++) {
-            if (objClass.equals("3")){
+            if (objClass == "3"){
                 addT011ObjServ(rows.get(j));
             }
             var objServId = rows.get(j).get("id");
@@ -235,7 +233,7 @@ for (i=0; i<objRows.size(); i++) {
         var rows = SQL.all("SELECT * FROM t017_url_ref WHERE obj_id=? AND special_ref!=9000", [+objId]);
 
         // Add url_refs of linked Geoservices (of type 'other' or 'download') for Geodatasets
-        if (objClass.equals("1")){
+        if (objClass == "1"){
             rows.addAll(SQL.all("SELECT t01obj.obj_name, urlref.* FROM object_reference oref, t01_object t01obj, t011_obj_serv t011_object, t017_url_ref urlref WHERE obj_to_uuid=? AND oref.special_ref=3600 AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=3 AND t01obj.work_state='V' AND urlref.obj_id=t01obj.id AND (urlref.special_ref=5066 OR urlref.special_ref=9990) AND t011_object.obj_id=t01obj.id AND (t011_object.type_key=3 OR t011_object.type_key=6)", [objUuid]));
         }
 
@@ -244,11 +242,11 @@ for (i=0; i<objRows.size(); i++) {
         }
 
         // add connection to the service(s) for class 1 (Map) and 3 (Service)
-        if (objClass.equals("1") || objClass.equals("3")) {
+        if (objClass == "1" || objClass == "3") {
 
             // all from links
             // the links should all come from service objects (class=3)
-            if (objClass.equals("1")) {
+            if (objClass == "1") {
                 // get all getCapabilities-URLs from operations table of the coupled service
                 rows = SQL.all("SELECT DISTINCT t01obj.obj_name, serv.type_key, servOp.id, servOp.name_value, servOpConn.connect_point FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
             } else {
@@ -407,7 +405,7 @@ for (i=0; i<objRows.size(); i++) {
 
                 // service FROM (helps to identify links from services to data-objects)
                 // this kind of link comes from an object of class 3 and has a link type of '3600'
-                if ("3600".equals(rows.get(j).get("special_ref")) && "3".equals(subRows.get(k).get("obj_class"))) {
+                if ("3600" == rows.get(j).get("special_ref") && "3" == subRows.get(k).get("obj_class")) {
                     var firstCapabilitiesUrl = SQL.first("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3600 AND serv.type_key=2 AND t01obj.work_state='V'", [rows.get(j).get("obj_to_uuid"), +objFromId]);
                     var dsIdentifier = SQL.first("SELECT * FROM t011_obj_geo WHERE obj_id=(SELECT id FROM t01_object WHERE obj_uuid=? AND work_state='V')", [objUuid]);
                     var catalog = SQL.first("SELECT * FROM t03_catalogue WHERE id=?", [+catalogId]);
@@ -497,7 +495,7 @@ function addT01ObjectFolder(row) {
     IDX.add("t01_object.create_time", row.get("create_time"));
     IDX.add("t01_object.mod_time", row.get("mod_time"));
     IDX.add("t01_object.metadata_time", row.get("metadata_time"));
-    IDX.add("isfolder", true);
+    IDX.add("isfolder", "true");
 }
 function addT01Object(row) {
     IDX.add("t01_object.id", row.get("id"));
@@ -587,7 +585,7 @@ function addT01Object(row) {
     if (hasValue(row.get("is_catalog_data")) && row.get("is_catalog_data")=='Y') {
         IDX.add("datatype", "topics");
     }
-    IDX.add("isfolder", false);
+    IDX.add("isfolder", "false");
 }
 function addT0110AvailFormat(row) {
     IDX.add("t0110_avail_format.line", row.get("line"));
@@ -1026,7 +1024,7 @@ function addT01ObjectTo(row, id) {
   IDX.add("object_reference.obj_name", row.get("obj_name"));
   IDX.add("object_reference.obj_class", row.get("obj_class"));
   var tmpRows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
-  if(tmpRows.size() > 0 && row.get("obj_class").equals("3")) {
+  if(tmpRows.size() > 0 && row.get("obj_class") == "3") {
     for (t=0; t<tmpRows.size(); t++) {
       IDX.add("object_reference.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key")));
     }
@@ -1039,7 +1037,7 @@ function addT01ObjectFrom(row, id) {
     IDX.add("refering.object_reference.obj_name", row.get("obj_name"));
     IDX.add("refering.object_reference.obj_class", row.get("obj_class"));
     var tmpRows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
-    if(tmpRows.size() > 0 && row.get("obj_class").equals("3")) {
+    if(tmpRows.size() > 0 && row.get("obj_class") == "3") {
       for (t=0; t<tmpRows.size(); t++) {
         IDX.add("refering.object_reference.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, tmpRows.get(t).get("type_key")));
       }
@@ -1056,7 +1054,7 @@ function addT0114EnvTopic(row) {
     var value = TRANSF.getCodeListEntryFromIGCSyslistEntry(1410, row.get("topic_key"), specificLangId);
     IDX.add("topic", value ? value.toLocaleLowerCase() : null);
     // we also index the displayed value of the topic
-    IDX.add("t0114_env_topic.topic_value", TRANSF.getIGCSyslistEntryName(1410, row.get("topic_key")));
+    IDX.add("t0114_env_topic.topic_value", TRANSF.getIGCSyslistEntryName(1410, +row.get("topic_key")));
 }
 function addT011ObjTopicCat(row) {
     IDX.add("t011_obj_topic_cat.line", row.get("line"));
@@ -1108,10 +1106,10 @@ function addObjectDataLanguage(row) {
 function boostDocumentsByReferences(num) {
     // punish score of document if no coupled resource has been found
     if (num == 0) {
-        IDX.addDocumentBoost(BOOST_NO_COUPLED_RESOURCE);
+        IDX.addDocumentBoost((Java.type('java.lang.Float')).parseFloat(BOOST_NO_COUPLED_RESOURCE + ""));
     } else {
         // boost document if it has more than one coupled resource
-        IDX.addDocumentBoost(BOOST_HAS_COUPLED_RESOURCE);
+        IDX.addDocumentBoost((Java.type('java.lang.Float')).parseFloat(BOOST_HAS_COUPLED_RESOURCE + ""));
     }
 }
 
