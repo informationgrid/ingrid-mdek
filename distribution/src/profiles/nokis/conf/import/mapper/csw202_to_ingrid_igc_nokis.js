@@ -21,17 +21,6 @@
  * **************************************************#
  */
 
-if (javaVersion.indexOf( "1.8" ) === 0) {
-    load("nashorn:mozilla_compat.js");
-    var ProtocolHandler = Java.type("de.ingrid.mdek.job.protocol.ProtocolHandler");
-}
-
-importPackage(Packages.de.ingrid.utils.udk);
-importPackage(Packages.org.w3c.dom);
-importClass(Packages.de.ingrid.utils.xml.XMLUtils);
-importClass(Packages.de.ingrid.mdek.job.protocol.ProtocolHandler);
-
-
 
 
 var mappingDescriptionNokis = {"mappings":[
