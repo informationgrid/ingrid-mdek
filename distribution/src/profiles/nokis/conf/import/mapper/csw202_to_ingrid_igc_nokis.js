@@ -21,7 +21,7 @@
  * **************************************************#
  */
 
-
+var Node = Java.type("org.w3c.dom.Node");
 
 var mappingDescriptionNokis = {"mappings":[
         {
