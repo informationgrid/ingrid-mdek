@@ -232,7 +232,7 @@ function addAdditionalValue(target, line, key, data, parent) {
     DOM.addAttribute(additionalValue.getElement(), "line", line + "");
     additionalValue.addElement("field-key").addText(key);
     additionalValue.addElement("field-key-parent").addText(parent);
-    if (data instanceof Object) {
+    if (data && data instanceof Object) {
         additionalValue.addElement("field-data").addAttribute("id", data.key).addText(data.value);
     } else {
         additionalValue.addElement("field-data").addAttribute("id", "-1").addText(data);
