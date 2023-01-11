@@ -229,7 +229,7 @@ function getAttributes(feature) {
 function addAdditionalValue(target, line, key, data, parent) {
 
     var additionalValue = DOM.addElement(target, "general-additional-value");
-    DOM.addAttribute(additionalValue.getElement(), "line", line);
+    DOM.addAttribute(additionalValue.getElement(), "line", line + "");
     additionalValue.addElement("field-key").addText(key);
     additionalValue.addElement("field-key-parent").addText(parent);
     if (data instanceof Object) {
