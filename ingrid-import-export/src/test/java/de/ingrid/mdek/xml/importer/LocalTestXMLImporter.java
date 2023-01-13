@@ -31,10 +31,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
-import org.junit.Test;
-
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.utils.IngridDocument;
+import org.junit.jupiter.api.Test;
 
 public class LocalTestXMLImporter {
 

@@ -32,24 +32,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.xml.exporter.util.RemoteExporterCallback;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class TestXMLExporter {
 
 	private static XMLExporter xmlExporter;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupExporter() {
 		xmlExporter = new XMLExporter(new RemoteExporterCallback());		
 	}
 
 	@Test
 	public void testXMLAddressExporter() throws IOException {
-		List<String> adrUuids = new ArrayList<String>();
+		List<String> adrUuids = new ArrayList<>();
 		adrUuids.add("15C69BD6-FE15-11D2-AF34-0060084A4596");
 		System.out.println("Export PUBLISHED_VERSION ");
 		byte[] zippedResult = xmlExporter.exportObjects(adrUuids, IdcEntityVersion.PUBLISHED_VERSION, true, "admin");
@@ -72,7 +71,7 @@ public class TestXMLExporter {
 
 	@Test
 	public void testXMLAddressExporterWorksWithIllegalUuid() throws IOException {
-		List<String> adrUuids = new ArrayList<String>();
+		List<String> adrUuids = new ArrayList<>();
 		adrUuids.add("12345");
 		System.out.println("Export PUBLISHED_VERSION ");
 		byte[] zippedResult = xmlExporter.exportObjects(adrUuids, IdcEntityVersion.PUBLISHED_VERSION, true, "admin");
@@ -92,7 +91,7 @@ public class TestXMLExporter {
 
 	@Test
 	public void testXMLObjectExporter() throws IOException {
-		List<String> objUuids = new ArrayList<String>();
+		List<String> objUuids = new ArrayList<>();
 		objUuids.add("15C69C20-FE15-11D2-AF34-0060084A4596");
 		//objUuids.add("4EFBE5F6-C049-11D4-87DF-0060084A4596");
 		// Results in an error: subobjects(81171714-018E-11D5-87AF-00600852CACF)
@@ -117,7 +116,7 @@ public class TestXMLExporter {
 
 	@Test
 	public void testXMLObjectExporterWorksWithIllegalUuid() throws IOException {
-		List<String> objUuids = new ArrayList<String>();
+		List<String> objUuids = new ArrayList<>();
 		objUuids.add("12345");
 		System.out.println("Export PUBLISHED_VERSION ");
 		byte[] zippedResult = xmlExporter.exportObjects(objUuids, IdcEntityVersion.PUBLISHED_VERSION, true, "admin");
@@ -137,7 +136,7 @@ public class TestXMLExporter {
 
 	@Test
 	public void testXMLObjectsExporter() throws IOException {
-		List<String> objUuids = new ArrayList<String>();
+		List<String> objUuids = new ArrayList<>();
 		objUuids.add("15C69C01-FE15-11D2-AF34-0060084A4596");
 		objUuids.add("12345");
 		objUuids.add("0F5D7569-1F40-11D3-AF4F-0060084A4596");

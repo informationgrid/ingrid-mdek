@@ -32,7 +32,6 @@ import de.ingrid.iplug.dsc.utils.DatabaseConnectionUtils;
 import de.ingrid.mdek.Versioning;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -50,10 +49,7 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
 
     private static Log log = LogFactory.getLog(Configuration.class);
 
-    @Autowired
-    private Config config;
-
-    @Value("${iplug.database.dialect:org.hibernate.dialect.MySQLInnoDBDialect}")
+    @Value("${iplug.database.dialect:org.hibernate.dialect.MySQLDialect}")
     public String databaseDialect;
 
     @Value("${iplug.database.debugSQL:false}")
@@ -211,8 +207,8 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
         return props;
     }
 
-    @Override
-    public void initialize() {
+//    @Override
+    public void initialize(Config config) {
         super.initialize();
 
         updateDatabaseDescriptor();
@@ -240,7 +236,7 @@ public class Configuration extends de.ingrid.iplug.dsc.Configuration {
         // since 5.2.0 the topics datatype has to be removed from the configuration, since it is determined
         // dynamically during indexing
         try {
-            Properties overrideProperties = this.config.getOverrideProperties();
+            Properties overrideProperties = config.getOverrideProperties();
             List<String> selectedProps = overrideProperties.stringPropertyNames().stream()
                     .filter(prop -> prop.startsWith("plugdescription.dataType"))
                     .collect(Collectors.toList());

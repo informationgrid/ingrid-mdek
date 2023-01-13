@@ -47,8 +47,8 @@ public class SpatialRefSnsDaoHibernate
 		Session session = getSession();
 
 		SpatialRefSns spRefSns = (SpatialRefSns) session.createQuery("from SpatialRefSns " +
-			"where snsId = ?")
-			.setString(0, snsId)
+			"where snsId = ?1")
+			.setString(1, snsId)
 			.uniqueResult();
 		
 		return spRefSns;

@@ -21,16 +21,6 @@
  * **************************************************#
  */
 
-if (javaVersion.indexOf("1.8") === 0) {
-    load("nashorn:mozilla_compat.js");
-    var ProtocolHandler = Java.type("de.ingrid.mdek.job.protocol.ProtocolHandler");
-}
-
-importPackage(Packages.de.ingrid.utils.udk);
-importPackage(Packages.org.w3c.dom);
-importClass(Packages.de.ingrid.utils.xml.XMLUtils);
-importClass(Packages.de.ingrid.mdek.job.protocol.ProtocolHandler);
-
 var DEBUG = 1;
 var INFO = 2;
 var WARN = 3;
@@ -125,7 +115,7 @@ function mapAccessConstraintsBkg(source, target) {
                         entryId = getSysListEntryKey(10002, selectValue);
                     }
                     if (addAccessValuesToDoc(target, entryId, freeTextValue)) {
-                        removeAccessConstraint(target, codeListService.getSysListEntryName(10002, entryId));
+                        removeAccessConstraint(target, codeListService.getSysListEntryName(10002, +entryId));
                         removeAccessConstraint(target, freeTextValue);
                     }
                 } else {
@@ -157,7 +147,7 @@ function mapAccessConstraintsBkg(source, target) {
                     }
 
                     if (addAccessValuesToDoc(target, entryId, freeTextValue)) {
-                        removeAccessConstraint(target, codeListService.getSysListEntryName(10002, entryId));
+                        removeAccessConstraint(target, codeListService.getSysListEntryName(10002, +entryId));
                         removeAccessConstraint(target, freeTextValue);
                         removeAccessConstraint(target, accessNode1);
                     }
@@ -179,7 +169,7 @@ function mapAccessConstraintsBkg(source, target) {
                         entryId = 7; // "Template für copyright / license"
                     }
                     if (addAccessValuesToDoc(target, entryId, freeTextValue)) {
-                        removeAccessConstraint(target, codeListService.getSysListEntryName(10002, entryId));
+                        removeAccessConstraint(target, codeListService.getSysListEntryName(10002, +entryId));
                         removeAccessConstraint(target, freeTextValue);
                         removeAccessConstraint(target, accessNode1);
                         removeAccessConstraint(target, accessNode2);
@@ -262,7 +252,7 @@ function mapUseConstraintsBkg(source, target) {
                         freeTextValue = null;
                     }
                     if (addUseValuesToDoc(target, entryId, freeTextValue)) {
-                        removeUseConstraint(target, codeListService.getSysListEntryName(codelistIdBkg, entryId));
+                        removeUseConstraint(target, codeListService.getSysListEntryName(codelistIdBkg, +entryId));
                         removeUseConstraint(target, freeTextValue);
                     }
                 } else {
@@ -313,7 +303,7 @@ function mapUseConstraintsBkg(source, target) {
                     }
 
                     if (addUseValuesToDoc(target, entryId, freeTextValue)) {
-                        removeUseConstraint(target, codeListService.getSysListEntryName(codelistIdBkg, entryId));
+                        removeUseConstraint(target, codeListService.getSysListEntryName(codelistIdBkg, +entryId));
                         removeUseConstraint(target, freeTextValue);
                         removeUseConstraint(target, accessNode1);
                     }
@@ -336,7 +326,7 @@ function mapUseConstraintsBkg(source, target) {
                     }
                     log.debug("BKG: Use constraint 3 nodes, add values: " + entryId + " , " + freeTextValue);
                     if (addUseValuesToDoc(target, entryId, freeTextValue)) {
-                        removeUseConstraint(target, codeListService.getSysListEntryName(codelistIdBkg, entryId));
+                        removeUseConstraint(target, codeListService.getSysListEntryName(codelistIdBkg, +entryId));
                         removeUseConstraint(target, freeTextValue);
                         removeUseConstraint(target, accessNode1);
                         removeUseConstraint(target, accessNode2);
@@ -428,7 +418,7 @@ function addAdditionalValue(additionalFieldsNode, parent, key, codelistEntryId, 
     XMLUtils.createOrReplaceTextNode(keyVar, key);
     var dataVar = XPATH.createElementFromXPath(valueNodeSelect, "field-data");
 
-    if (codelistEntryId !== null) XMLUtils.createOrReplaceAttribute(dataVar, "id", codelistEntryId);
+    if (codelistEntryId !== null) XMLUtils.createOrReplaceAttribute(dataVar, "id", codelistEntryId + "");
     if (data !== null) XMLUtils.createOrReplaceTextNode(dataVar, data);
 
     var parentNode = XPATH.createElementFromXPath(valueNodeSelect, "field-key-parent");

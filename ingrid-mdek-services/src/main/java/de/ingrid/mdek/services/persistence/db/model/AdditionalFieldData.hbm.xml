@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0"?>
 <!--
   **************************************************-
   ingrid-mdek-services
@@ -22,12 +22,13 @@
   **************************************************#
   -->
 
-<!DOCTYPE hibernate-mapping
-  PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="de.ingrid.mdek.services.persistence.db.model">
    <class name="AdditionalFieldData" table="additional_field_data">
       <id name="id" type="long" column="id">
-         <generator class="hilo"/>
+         <generator class="increment"/>
       </id>
       <version name="version" type="integer" column="version"/>
       <property name="objId" type="long" column="obj_id"/>

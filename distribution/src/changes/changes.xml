@@ -5,7 +5,43 @@
   </properties>
   <body>
 
+    <release version="5.15.0-SNAPSHOT" date="2023-xx-xx" description="Release 5.15.0-SNAPSHOT">
+      <action type="update" dev="wemove" issue="4505">
+        Change meter specification in iso xml
+      </action>
+      <action type="update" dev="wemove" issue="4615">
+        LUBW: Add OAC to exported ISO XML
+      </action>
+      <action type="fix" dev="wemove" issue="4622">
+        LUBW: Fix environmentDescription ISO placement
+      </action>
+      <action type="add" dev="wemove" issue="4576">
+        LUBW: Add "access constraints" fields to index
+      </action>
+      <action type="add" dev="wemove" issue="4008">
+        LUBW: Add "Zugang geschützt" to import
+      </action>
+      <action type="fix" dev="wemove" issue="4260">
+        MD zu CSW-Geodatendiensten: GetCapabilities-Verweis wird im MD doppelt angelegt
+      </action>
+      <action type="add" dev="wemove" issue="4378">
+        LUBW: Add custom fields to index for portal URL access
+      </action>
+      <action type="add" dev="wemove" issue="4026">
+        BAW(MIS): Add mapping for custom fields (measurement and software)
+      </action>
+      <action type="add" dev="wemove" issue="3928">
+        Add mapping for region key
+      </action>
+      <action type="add" dev="wemove" issue="2771">
+        Fix saving address references
+      </action>
+    </release>
+
     <release version="5.14.0" date="2022-10-04" description="Release 5.14.0">
+      <action type="add" dev="wemove" issue="4378">
+        LUBW: Add mapping for custom fields (OAC and environmentDescription)
+      </action>
       <action type="fix" dev="wemove" issue="3369">
         Handle getCapabilities-URLs without ? as RESTful
       </action>

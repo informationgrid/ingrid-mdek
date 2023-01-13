@@ -26,8 +26,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -42,7 +42,7 @@ public class TestImporterSax {
 	private XMLReader xmlReader;
 	private InputSource in;
 
-	@Before
+	@BeforeEach
 	public void setup() throws SAXException, FileNotFoundException {
 		setupXMLReader();
 		setupInputSource();
