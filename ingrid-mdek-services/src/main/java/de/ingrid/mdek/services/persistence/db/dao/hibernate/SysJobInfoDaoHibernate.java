@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -49,12 +49,12 @@ public class SysJobInfoDaoHibernate
 		Session session = getSession();
 		
 		String qString = "from SysJobInfo " +
-			"where jobType = ? " +
-			"and userUuid = ? ";
+			"where jobType = ?1 " +
+			"and userUuid = ?2 ";
 
 		Query q = session.createQuery(qString);
-		q.setString(0, jobType.getDbValue());
-		q.setString(1, userUuid);
+		q.setString(1, jobType.getDbValue());
+		q.setString(2, userUuid);
 
 		return (SysJobInfo) q.uniqueResult();
 	}

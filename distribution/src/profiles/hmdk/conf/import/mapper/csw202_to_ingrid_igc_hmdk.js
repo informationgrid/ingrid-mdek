@@ -2,7 +2,7 @@
  * **************************************************-
  * Ingrid Portal MDEK Application
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -56,7 +56,7 @@ function mapSpecialFields(source, target) {
 
     for (var i=0; i<keywords.getLength(); i++ ) {
         var keyword = keywords.item(i).getTextContent();
-        if ("hmbtg".equals(keyword)) {
+        if ("hmbtg" == keyword) {
             var targetEl = target;
             var additionalValues = XPATH.createElementFromXPath(targetEl, "/igc/data-sources/data-source/data-source-instance/general/general-additional-values");
             var additionalValue = additionalValues.appendChild(targetEl.getOwnerDocument().createElement("general-additional-value"));

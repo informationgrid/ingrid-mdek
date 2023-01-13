@@ -2,7 +2,7 @@
  * **************************************************-
  * Ingrid Portal MDEK Application
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -21,18 +21,7 @@
  * **************************************************#
  */
 
-if (javaVersion.indexOf( "1.8" ) === 0) {
-    load("nashorn:mozilla_compat.js");
-    var ProtocolHandler = Java.type("de.ingrid.mdek.job.protocol.ProtocolHandler");
-}
-
-importPackage(Packages.de.ingrid.utils.udk);
-importPackage(Packages.org.w3c.dom);
-importClass(Packages.de.ingrid.utils.xml.XMLUtils);
-importClass(Packages.de.ingrid.mdek.job.protocol.ProtocolHandler);
-
-
-
+var Node = Java.type("org.w3c.dom.Node");
 
 var mappingDescriptionNokis = {"mappings":[
         {
@@ -240,10 +229,10 @@ function getAttributes(feature) {
 function addAdditionalValue(target, line, key, data, parent) {
 
     var additionalValue = DOM.addElement(target, "general-additional-value");
-    DOM.addAttribute(additionalValue.getElement(), "line", line);
+    DOM.addAttribute(additionalValue.getElement(), "line", line + "");
     additionalValue.addElement("field-key").addText(key);
     additionalValue.addElement("field-key-parent").addText(parent);
-    if (data instanceof Object) {
+    if (data && data instanceof Object) {
         additionalValue.addElement("field-data").addAttribute("id", data.key).addText(data.value);
     } else {
         additionalValue.addElement("field-data").addAttribute("id", "-1").addText(data);

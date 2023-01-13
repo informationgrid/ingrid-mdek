@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,7 +22,7 @@
  */
 package de.ingrid.mdek;
 
-import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.Config;
 import de.ingrid.mdek.caller.MdekCallerCatalog;
 import de.ingrid.mdek.job.Configuration;
 import de.ingrid.mdek.job.MdekException;
@@ -34,9 +34,16 @@ import net.weta.components.communication.ICommunication;
 import net.weta.components.communication.reflect.ProxyService;
 import net.weta.components.communication.tcp.StartCommunication;
 import net.weta.components.communication.tcp.TcpCommunication;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.tomcat.util.scan.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -47,13 +54,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
+@ImportResource({"/springapp-servlet.xml", "/override/*.xml"})
+@SpringBootApplication(scanBasePackages = "de.ingrid")
+@ComponentScan(
+        basePackages = "de.ingrid",
+        excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.admin.object.DefaultDataType"),
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.admin.object.BasePlug"),
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.admin.BaseWebappApplication"),
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.admin.controller.RedirectController"),
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.iplug.dsc.SpringConfiguration"),
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.iplug.dsc.DscSearchPlug"),
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.iplug.dsc.Configuration"),
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.iplug.dsc.webapp.object.*"),
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.iplug.dsc.webapp.controller.DatabaseParameterController"),
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "de.ingrid.iplug.dsc.webapp.controller.EditorController"),
+        })
 public class MdekServer {
+
+    private static final Log log = LogFactory.getLog(MdekClient.class);
 
     private static int _intervall = 30;
 
     private static File _communicationProperties = null;
- 
+
     private final IJobRepositoryFacade _jobRepositoryFacade;
 
     private ICommunication _communication;
@@ -61,10 +85,10 @@ public class MdekServer {
     private static volatile boolean _shutdown = false;
 
     public static Configuration conf;
-    private Configuration igeConfig;
+    private final Configuration igeConfig;
 
     @Autowired
-    public MdekServer(IJobRepositoryFacade jobRepositoryFacade, Configuration igeConfig) {
+    public MdekServer(IJobRepositoryFacade jobRepositoryFacade, Config baseConfig, Configuration igeConfig) {
         _jobRepositoryFacade = jobRepositoryFacade;
         this.igeConfig = igeConfig;
 
@@ -72,45 +96,57 @@ public class MdekServer {
         // (/distribution/src/profiles/uvp/conf/mapping/igc_to_idf_uvp.js)
         MdekServer.conf = igeConfig;
 
+        try {
+            baseConfig.initialize();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        if (igeConfig != null) {
+            igeConfig.initialize(baseConfig);
+        } else {
+            log.info("No external configuration found.");
+        }
+
         IngridDocument response = callJob(jobRepositoryFacade, MdekCallerCatalog.MDEK_IDC_CATALOG_JOB_ID, "getCatalog", new IngridDocument());
         _intervall = igeConfig.reconnectInterval;
         _communicationProperties = new File("conf/communication-ige.xml");
         // check response, throws Exception if wrong version !
         checkResponse(response);
     }
-    
+
     @PostConstruct
     public Thread runBackend() throws IOException {
         Thread thread = new CommunicationThread();
-        if (igeConfig.igcEnableIBusCommunication){
+        if (igeConfig.igcEnableIBusCommunication) {
             thread.start();
         }
         return thread;
     }
-    
+
     // constructor used for tests
-    public MdekServer(File communication, IJobRepositoryFacade jobRepositoryFacade) throws IOException {
+    public MdekServer(File communication, IJobRepositoryFacade jobRepositoryFacade, Configuration igeConfig) throws IOException {
         _communicationProperties = communication;
         _jobRepositoryFacade = jobRepositoryFacade;
+        this.igeConfig = igeConfig;
     }
 
     private class CommunicationThread extends Thread {
         public void run() {
             try {
                 _communication = initCommunication(_communicationProperties);
-            
+
                 ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
                 waitForConnection(_intervall);
                 while (!_shutdown) {
                     if (_communication instanceof TcpCommunication) {
                         TcpCommunication tcpCom = (TcpCommunication) _communication;
                         // if no connection to ibus then try to connect again
-                        if (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0))) {
+                        if (!tcpCom.isConnected(tcpCom.getServerNames().get(0))) {
                             closeConnections();
                             _communication = initCommunication(_communicationProperties);
                             ProxyService.createProxyServer(_communication, IJobRepositoryFacade.class, _jobRepositoryFacade);
                             waitForConnection(_intervall);
-                            
+
                         } else {
                             // if connected, then wait for 10s before checking the connection again
                             synchronized (MdekServer.class) {
@@ -134,7 +170,7 @@ public class MdekServer {
         int count = 0;
         if (_communication instanceof TcpCommunication) {
             TcpCommunication tcpCom = (TcpCommunication) _communication;
-            while (!tcpCom.isConnected((String) tcpCom.getServerNames().get(0)) && (count < retries)) {
+            while (!tcpCom.isConnected(tcpCom.getServerNames().get(0)) && (count < retries)) {
                 synchronized (MdekServer.class) {
                     try {
                         MdekServer.class.wait(1000);
@@ -144,7 +180,7 @@ public class MdekServer {
                 }
                 count++;
             }
-        }        
+        }
     }
 
     public static void shutdown() {
@@ -176,7 +212,7 @@ public class MdekServer {
     }
 
     private static Map<String, String> readParameters(String[] args) {
-        Map<String, String> argumentMap = new HashMap<String, String>();
+        Map<String, String> argumentMap = new HashMap<>();
         for (int i = 0; i < args.length; i = i + 2) {
             argumentMap.put(args[i], args[i + 1]);
         }
@@ -185,31 +221,32 @@ public class MdekServer {
 
     public static void main(String[] args) throws Exception {
         Map<String, String> map = readParameters(args);
+
+        // avoid FileNotFound exceptions by TomCat's JarScanner
+        System.setProperty(Constants.SKIP_JARS_PROPERTY, "tools.jar,derby*.jar,unit-api*.jar,geo*.jar,si*.jar,jai*.jar,commons*.jar,Geo*.jar,jgrid*.jar,uo*.jar,system*.jar,gt*.jar,jackson*.jar,org*.jar,ej*.jar,jt*.jar,net*.jar,serial*.jar,xml*.jar,xerc*.jar,mchan*.jar");
         
+        _communicationProperties = getCommunicationFile(map.get("--descriptor"));
+
         // start the Webserver for admin-page and iplug initialization for search and index
         // this also initializes all spring services and does autowiring
-        new JettyStarter(Configuration.class);
-
-        _communicationProperties = getCommunicationFile((String) map.get("--descriptor"));
+        SpringApplication.run(MdekServer.class, args);
         
         // shutdown the server normally
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                try {
-                    shutdown();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                shutdown();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        });
+        }));
     }
 
     private static File getCommunicationFile(String communicationFile) throws IOException {
         File commFile = null;
         if (communicationFile == null) {
-            if (new ClassPathResource( "communication-ige.xml" ).exists()) {
-                commFile = new ClassPathResource( "communication-ige.xml" ).getFile();
-            } else if ( new File("conf/communication-ige.xml").exists()) {
+            if (new ClassPathResource("communication-ige.xml").exists()) {
+                commFile = new ClassPathResource("communication-ige.xml").getFile();
+            } else if (new File("conf/communication-ige.xml").exists()) {
                 commFile = new File("conf/communication-ige.xml");
             }
         } else {
@@ -219,7 +256,7 @@ public class MdekServer {
     }
 
     private List<String> getRegisteredMdekServers() {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         if (_communication instanceof TcpCommunication) {
             TcpCommunication tcpCom = (TcpCommunication) _communication;
             result = tcpCom.getRegisteredClients();
@@ -227,42 +264,41 @@ public class MdekServer {
         return result;
     }
 
-	static private IngridDocument callJob(IJobRepositoryFacade jobRepo,
-			String jobId, String methodName, IngridDocument methodParams) {
-		ArrayList<Pair> methodList = new ArrayList<Pair>();
-		methodList.add(new Pair(methodName, methodParams));
-		
-		IngridDocument invokeDocument = new IngridDocument();
-		invokeDocument.put(IJobRepository.JOB_ID, jobId);
-		invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
+    static private IngridDocument callJob(IJobRepositoryFacade jobRepo,
+                                          String jobId, String methodName, IngridDocument methodParams) {
+        ArrayList<Pair> methodList = new ArrayList<>();
+        methodList.add(new Pair(methodName, methodParams));
 
-		IngridDocument response = jobRepo.execute(invokeDocument);
-		return response;
-	}
+        IngridDocument invokeDocument = new IngridDocument();
+        invokeDocument.put(IJobRepository.JOB_ID, jobId);
+        invokeDocument.put(IJobRepository.JOB_METHODS, methodList);
 
-	static private void checkResponse(IngridDocument mdekResponse) throws MdekException {
-		boolean success = mdekResponse.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS);
-		if (!success) {
-			int numErrorTypes = 4;
-			String[] errMsgs = new String[numErrorTypes];
+        return jobRepo.execute(invokeDocument);
+    }
 
-			errMsgs[0] = (String) mdekResponse.get(IJobRepository.JOB_REGISTER_ERROR_MESSAGE);
-			errMsgs[1] = (String) mdekResponse.get(IJobRepository.JOB_INVOKE_ERROR_MESSAGE);
-			errMsgs[2] = (String) mdekResponse.get(IJobRepository.JOB_COMMON_ERROR_MESSAGE);
-			errMsgs[3] = (String) mdekResponse.get(IJobRepository.JOB_DEREGISTER_ERROR_MESSAGE);
+    static private void checkResponse(IngridDocument mdekResponse) throws MdekException {
+        boolean success = mdekResponse.getBoolean(IJobRepository.JOB_INVOKE_SUCCESS);
+        if (!success) {
+            int numErrorTypes = 4;
+            String[] errMsgs = new String[numErrorTypes];
 
-			String retMsg = null;
-			for (String errMsg : errMsgs) {
-				if (errMsg != null) {
-					if (retMsg == null) {
-						retMsg = errMsg;
-					} else {
-						retMsg += "\n!!! Further Error !!!:\n" + errMsg;
-					}
-				}
-			}
-			
-			System.exit( -1 );
-		}
-	}
+            errMsgs[0] = (String) mdekResponse.get(IJobRepository.JOB_REGISTER_ERROR_MESSAGE);
+            errMsgs[1] = (String) mdekResponse.get(IJobRepository.JOB_INVOKE_ERROR_MESSAGE);
+            errMsgs[2] = (String) mdekResponse.get(IJobRepository.JOB_COMMON_ERROR_MESSAGE);
+            errMsgs[3] = (String) mdekResponse.get(IJobRepository.JOB_DEREGISTER_ERROR_MESSAGE);
+
+            String retMsg = null;
+            for (String errMsg : errMsgs) {
+                if (errMsg != null) {
+                    if (retMsg == null) {
+                        retMsg = errMsg;
+                    } else {
+                        retMsg += "\n!!! Further Error !!!:\n" + errMsg;
+                    }
+                }
+            }
+
+            System.exit(-1);
+        }
+    }
 }

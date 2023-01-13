@@ -5,5 +5,5 @@ distribution/.project
 ingrid-import-export/bin/
 ingrid-mdek-api/bin/
 ingrid-mdek-job/bin/
-/.idea/
 *.iml
+*.idea

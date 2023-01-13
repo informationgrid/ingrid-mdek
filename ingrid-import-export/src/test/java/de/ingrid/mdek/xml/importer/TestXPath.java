@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-import-export
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,8 +22,6 @@
  */
 package de.ingrid.mdek.xml.importer;
 
-import static org.junit.Assert.assertNotNull;
-
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,8 +33,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -44,13 +42,15 @@ import org.xml.sax.SAXException;
 
 import de.ingrid.mdek.xml.util.XPathUtils;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public class TestXPath {
 
 	private static XPath xpath;
 	private static IngridXMLStreamReader xmlReader;
 	private static List<Document> dataSourceInstances;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupClass() throws IOException, SAXException {
 		setupXPath();
 		setupIngridXMLReader();

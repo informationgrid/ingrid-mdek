@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -25,12 +25,10 @@ package de.ingrid.mdek.services.persistence.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
 import de.ingrid.utils.IngridDocument;
+import org.junit.jupiter.api.Test;
 
 public class HQLExecuterTest extends AbstractDaoTest {
 
@@ -70,14 +68,14 @@ public class HQLExecuterTest extends AbstractDaoTest {
 		System.out.println(response);
 		commitAndBeginnNewTransaction();
 
-		Assert.assertEquals(2, response.size());
-		Assert.assertEquals(true, response.getBoolean(IHQLExecuter.HQL_STATE));
+		assertEquals(2, response.size());
+		assertEquals(true, response.getBoolean(IHQLExecuter.HQL_STATE));
 		List<Pair> list = (List<Pair>) response.get(IHQLExecuter.HQL_RESULT);
 		Pair pair = list.get(0);
-		Assert.assertNotNull(pair);
-		Assert.assertEquals("from IdcGroup", pair.getKey());
+		assertNotNull(pair);
+		assertEquals("from IdcGroup", pair.getKey());
 		System.out.println(pair.getValue().getClass().getName());
-		Assert.assertEquals("test group", ((IdcGroup)((List) pair.getValue()).get(0)
+		assertEquals("test group", ((IdcGroup)((List) pair.getValue()).get(0)
 				).getName());
 
 		pairList.remove(selectPair);
@@ -89,14 +87,14 @@ public class HQLExecuterTest extends AbstractDaoTest {
 		pairList.remove(updatePair);
 		response = executer.execute(document);
 
-		Assert.assertEquals(2, response.size());
-		Assert.assertEquals(true, response.getBoolean(IHQLExecuter.HQL_STATE));
+		assertEquals(2, response.size());
+		assertEquals(true, response.getBoolean(IHQLExecuter.HQL_STATE));
 		list = (List<Pair>) response.get(IHQLExecuter.HQL_RESULT);
-		Assert.assertTrue(list.size() == 1);
+		assertTrue(list.size() == 1);
 		pair = list.get(0);
-		Assert.assertNotNull(pair);
-		Assert.assertEquals("from IdcGroup", pair.getKey());
-		Assert.assertEquals("test group 1", ((IdcGroup)((List) pair.getValue()).get(0)
+		assertNotNull(pair);
+		assertEquals("from IdcGroup", pair.getKey());
+		assertEquals("test group 1", ((IdcGroup)((List) pair.getValue()).get(0)
 		).getName());
 
 	}
@@ -119,17 +117,17 @@ public class HQLExecuterTest extends AbstractDaoTest {
 
 		commitAndBeginnNewTransaction();
 
-		Assert.assertEquals(2, response.size());
+		assertEquals(2, response.size());
 		List listResponse = (List) response.get(IHQLExecuter.HQL_RESULT);
-		Assert.assertEquals(2, listResponse.size());
+		assertEquals(2, listResponse.size());
 		Pair pair = (Pair) listResponse.get(0);
-		Assert.assertEquals("from IdcGroup", pair.getKey());
-		Assert.assertEquals("test group", ((IdcGroup)((List) pair.getValue()).get(0)
+		assertEquals("from IdcGroup", pair.getKey());
+		assertEquals("test group", ((IdcGroup)((List) pair.getValue()).get(0)
 		).getName());
 		pair = (Pair) listResponse.get(1);
-		Assert.assertEquals("delete IdcGroup where name is 'test group'", pair
+		assertEquals("delete IdcGroup where name is 'test group'", pair
 				.getKey());
-		Assert.assertEquals(1, pair.getValue());
+		assertEquals(1, pair.getValue());
 
 		list.clear();
 		list.add(selectPair);
@@ -141,12 +139,12 @@ public class HQLExecuterTest extends AbstractDaoTest {
 		document.put(IHQLExecuter.HQL_QUERIES, list);
 		response = executer.execute(document);
 		System.out.println("-" + response);
-		Assert.assertTrue(response.getBoolean(IHQLExecuter.HQL_STATE));
+		assertTrue(response.getBoolean(IHQLExecuter.HQL_STATE));
 		listResponse = (List) response.get(IHQLExecuter.HQL_RESULT);
-		Assert.assertEquals(1, listResponse.size());
+		assertEquals(1, listResponse.size());
 		pair = (Pair) listResponse.get(0);
-		Assert.assertEquals("from IdcGroup", pair.getKey());
-		Assert.assertTrue(((List) pair.getValue()).size() == 0);
+		assertEquals("from IdcGroup", pair.getKey());
+		assertTrue(((List) pair.getValue()).size() == 0);
 
 	}
 }

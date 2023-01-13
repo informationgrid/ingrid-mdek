@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -53,14 +53,14 @@ public class PermissionDaoHibernate extends GenericHibernateDao<Permission> impl
 			"AND uG.idcGroupId = g.id " +
 			"AND g.id = pA.idcGroupId " +
 			"AND pA.permissionId = p.id " +
-			"AND u.addrUuid = ? and pA.uuid = ?";
+			"AND u.addrUuid = ?1 and pA.uuid = ?2";
 		if (groupId != null) {
 			sql = sql + " AND g.id = " + groupId;
 		}
 		
 		Session session = getSession();
 		List<Permission> ps = session.createQuery(sql)
-					.setString(0, userUuid).setString(1, addrUuid).list();
+					.setString(1, userUuid).setString(2, addrUuid).list();
 
 		return ps;
 	}
@@ -75,14 +75,14 @@ public class PermissionDaoHibernate extends GenericHibernateDao<Permission> impl
 			"AND uG.idcGroupId = g.id " +
 			"AND g.id = pO.idcGroupId " +
 			"AND pO.permissionId = p.id " +
-			"AND u.addrUuid = ? and pO.uuid = ?";
+			"AND u.addrUuid = ?1 and pO.uuid = ?2";
 		if (groupId != null) {
 			sql = sql + " AND g.id = " + groupId;
 		}
 
 		Session session = getSession();
 		List<Permission> ps = session.createQuery(sql)
-					.setString(0, userUuid).setString(1, objUuid).list();
+					.setString(1, userUuid).setString(2, objUuid).list();
 
 		return ps;
 	}
@@ -97,14 +97,14 @@ public class PermissionDaoHibernate extends GenericHibernateDao<Permission> impl
 			"AND uG.idcGroupId = g.id " +
 			"AND g.id = pU.idcGroupId " +
 			"AND pU.permissionId = p.id " +
-			"AND u.addrUuid = ?";
+			"AND u.addrUuid = ?1";
 		if (groupId != null) {
 			sql = sql + " AND g.id = " + groupId;
 		}
 
 		Session session = getSession();
 		List<Permission> ps = session.createQuery(sql)
-					.setString(0, userUuid).list();
+					.setString(1, userUuid).list();
 
 		return ps;
 	}

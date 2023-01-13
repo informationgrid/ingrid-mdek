@@ -2,7 +2,7 @@
   **************************************************-
   ingrid-base-webapp
   ==================================================
-  Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+  Copyright (C) 2014 - 2023 wemove digital solutions GmbH
   ==================================================
   Licensed under the EUPL, Version 1.1 or – as soon they will be
   approved by the European Commission - subsequent versions of the
@@ -20,9 +20,9 @@
   limitations under the Licence.
   **************************************************#
   --%>
-<%@ include file="/WEB-INF/jsp/base/include.jsp" %><%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ include file="/WEB-INF/jsp/base/include.jsp" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@page import="de.ingrid.admin.security.IngridPrincipal"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="de">
 <head>
@@ -38,14 +38,11 @@
         <div id="header">
             <img src="../images/base/logo.gif" alt="InGrid" />
             <h1>Konfiguration</h1>
-            <%
-            java.security.Principal  principal = request.getUserPrincipal();
-            if(principal != null && !(principal instanceof IngridPrincipal.SuperAdmin)) {
-            %>
-                <div id="language"><a href="../base/auth/logout.html">Logout</a></div>
-            <%
-            }
-            %>
+            <security:authorize access="isAuthenticated()">
+                <div id="language">
+                    <a href="../base/auth/logout.html">Logout</a>
+                </div>
+            </security:authorize>
         </div>
         
         <div id="help"><a href="#">[?]</a></div>

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -100,16 +100,16 @@ public class SearchtermValueDaoHibernate
 
 		String qString = "from SearchtermObj termObj " +
 				"left join fetch termObj.searchtermValue termVal " +
-				"where termVal.type = ? " +
+				"where termVal.type = ?1 " +
 				// we have to use LIKE to work on Oracle ! can't compare CLOB (text) with =
 				// NOTICE: term changed to VARCHAR(4000) on ORACLE ! but we keep CLOB Version, also works !
-				"and termVal.term LIKE ? " +
-				"and termObj.objId = ?";
+				"and termVal.term LIKE ?2 " +
+				"and termObj.objId = ?3";
 	
 		Query q = session.createQuery(qString);
-		q.setString(0, SearchtermType.FREI.getDbValue());
-		q.setString(1, term);
-		q.setLong(2, objId);
+		q.setString(1, SearchtermType.FREI.getDbValue());
+		q.setString(2, term);
+		q.setLong(3, objId);
 
 		SearchtermValue termValue = null;
 		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ß, lower <-> uppercase ...
@@ -131,16 +131,16 @@ public class SearchtermValueDaoHibernate
 
 		String qString = "from SearchtermAdr termAdr " +
 			"left join fetch termAdr.searchtermValue termVal " +
-			"where termVal.type = ? " +
+			"where termVal.type = ?1 " +
 			// we have to use LIKE to work on Oracle ! can't compare CLOB (text) with =
 			// NOTICE: term changed to VARCHAR(4000) on ORACLE ! but we keep CLOB Version, also works !
-			"and termVal.term LIKE ? " +
-			"and termAdr.adrId = ?";
+			"and termVal.term LIKE ?2 " +
+			"and termAdr.adrId = ?3";
 	
 		Query q = session.createQuery(qString);
-		q.setString(0, SearchtermType.FREI.getDbValue());
-		q.setString(1, term);
-		q.setLong(2, adrId);
+		q.setString(1, SearchtermType.FREI.getDbValue());
+		q.setString(2, term);
+		q.setLong(3, adrId);
 
 		SearchtermValue termValue = null;
 		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ß, lower <-> uppercase ...
@@ -280,7 +280,7 @@ public class SearchtermValueDaoHibernate
 			"left join fetch termVal.searchtermSns " +
 			whereClause;
 		List<SearchtermValue> terms = session.createQuery(q)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		// fetch all terms referenced by Addresses and add to list
@@ -290,7 +290,7 @@ public class SearchtermValueDaoHibernate
 			"left join fetch termVal.searchtermSns " +
 			whereClause;
 		List<SearchtermValue> addrTerms = session.createQuery(q)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 		terms.addAll(addrTerms);
 		

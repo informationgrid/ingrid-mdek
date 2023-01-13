@@ -2,17 +2,17 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * http://ec.europa.eu/idabc/eupl5
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,15 +20,8 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-	load("nashorn:mozilla_compat.js");
-	CAPABILITIES = Java.type('de.ingrid.utils.capabilities.CapabilitiesUtils');
-}
 
-importPackage(Packages.org.w3c.dom);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
-
-
+var DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 
 if (log.isDebugEnabled()) {
     log.debug("BKG: Mapping source record to idf document: " + sourceRecord.toString());
@@ -97,7 +90,7 @@ function handleBKGUseConstraints() {
 
         // add json from codelist-data field for open data datasets
         if (isOpenData()) {
-            var licenseJSON = TRANSF.getISOCodeListEntryData(10003, TRANSF.getIGCSyslistEntryName(10003, bkgUseConstraintSelectListItem));
+            var licenseJSON = TRANSF.getISOCodeListEntryData(10003, TRANSF.getIGCSyslistEntryName(10003, +bkgUseConstraintSelectListItem));
             if (hasValue(licenseJSON)) {
                 if (bkgSourceNoteText) {
                     var licenseJSONParsed = JSON.parse(licenseJSON);
@@ -136,7 +129,7 @@ function getAdditionalFieldFromObject(objId, parentId, fieldId, property) {
 
 function getIdentificationInfo() {
     var identificationInfo = null;
-    if (objClass.equals("3")) {
+    if (objClass == "3") {
         identificationInfo = DOM.getElement(body, "gmd:identificationInfo/srv:SV_ServiceIdentification");
     } else {
         identificationInfo = DOM.getElement(body, "gmd:identificationInfo/gmd:MD_DataIdentification");
@@ -193,7 +186,7 @@ function addUseConstraints(legalConstraint, codelistEntryId, valueFree, sourceNo
         addUseConstraintElements(legalConstraint, ["restricted"], [valueFree, sourceNote]);
         break;
     default:
-        addUseConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10004, codelistEntryId), valueFree, sourceNote]);
+        addUseConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10004, +codelistEntryId), valueFree, sourceNote]);
     }
 }
 
@@ -236,12 +229,12 @@ function addUseConstraintElements(legalConstraint, restrictionCodeValues, otherC
 
 function isOpenData() {
     var value = objRow.get("is_open_data");
-    return hasValue(value) && value.equals('Y');
+    return hasValue(value) && value == 'Y';
 }
 
 function isInspireRelevant() {
     var value = objRow.get("is_inspire_relevant");
-    return hasValue(value) && value.equals('Y');
+    return hasValue(value) && value == 'Y';
 }
 
 function handleBKGUseLimitation() {

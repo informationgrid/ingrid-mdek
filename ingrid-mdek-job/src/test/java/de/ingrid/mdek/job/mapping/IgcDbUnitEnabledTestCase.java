@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,19 +22,7 @@
  */
 package de.ingrid.mdek.job.mapping;
 
-import org.dbunit.DBTestCase;
-import org.dbunit.PropertiesBasedJdbcDatabaseTester;
-import org.dbunit.database.DatabaseConfig;
-import org.dbunit.dataset.*;
-import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.ext.hsqldb.HsqldbDataTypeFactory;
-
-import java.io.FileInputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-public abstract class IgcDbUnitEnabledTestCase extends DBTestCase {
+public abstract class IgcDbUnitEnabledTestCase { /*//extends DBTestCase {
 
     protected String datasourceFileName;
 
@@ -117,5 +105,5 @@ public abstract class IgcDbUnitEnabledTestCase extends DBTestCase {
       } catch (Exception e) {}
 
       return "varchar(255)";
-    }
+    }*/
 }

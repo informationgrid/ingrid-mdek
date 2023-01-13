@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -127,9 +127,9 @@ function getAdditionalForTable(objId, tableId) {
 
     var field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, tableId]);
 
-    if (!hasValue(field)) {return}
+    if (!hasValue(field)) {return []}
 
-    var table = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=?", [field.get("id")])
+    var table = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id=?", [+field.get("id")])
 
     for (var j=0; j<table.size(); j++) {
         var row = table.get(j);

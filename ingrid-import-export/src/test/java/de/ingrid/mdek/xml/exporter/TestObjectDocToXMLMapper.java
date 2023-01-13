@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-import-export
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,21 +22,21 @@
  */
 package de.ingrid.mdek.xml.exporter;
 
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import de.ingrid.mdek.xml.XMLKeys;
 import de.ingrid.mdek.xml.exporter.mapper.DatasourceDocToXMLMapper;
 import de.ingrid.mdek.xml.util.XMLElement;
 import de.ingrid.utils.IngridDocument;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.is;
 
 public class TestObjectDocToXMLMapper {
 
 	private DatasourceDocToXMLMapper emptyDocMapper;
 
-	@Before
+	@BeforeEach
 	public void setupIngridDocToXMLMapper() {
 		createEmptyDocumentMapper();
 	}
@@ -53,8 +53,8 @@ public class TestObjectDocToXMLMapper {
 	@Test
 	public void testEmptyDocMapsToEmptyRoot() {
 		XMLElement dataSourceRoot = emptyDocMapper.createDataSourceInstance();
-		assertTrue("Mapping an empty doc must result in an empty 'data-source' XMLElement.",
-				isEmptyXMLElement(dataSourceRoot) && XMLKeys.DATA_SOURCE_INSTANCE.equals(dataSourceRoot.getName()));
+		assertThat("Mapping an empty doc must result in an empty 'data-source' XMLElement.",
+				isEmptyXMLElement(dataSourceRoot) && XMLKeys.DATA_SOURCE_INSTANCE.equals(dataSourceRoot.getName()), is(true));
 	}
 
 	private boolean isEmptyXMLElement(XMLElement element) {

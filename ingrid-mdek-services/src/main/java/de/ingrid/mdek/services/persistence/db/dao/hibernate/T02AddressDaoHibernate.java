@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -57,19 +57,19 @@ public class T02AddressDaoHibernate
 		String hql = "select obj " +
 			"from T01Object obj " +
 			"join obj.t012ObjAdrs objAdr " +
-			"where objAdr.adrUuid = ?";
+			"where objAdr.adrUuid = ?1";
 		
 		if (referenceTypeId != null) {
 			hql += " and objAdr.type = " + referenceTypeId;
 		}
 
 		Query q = session.createQuery(hql)
-			.setString(0, addressUuid);
+			.setString(1, addressUuid);
 		if (maxNum != null) {
 			q.setMaxResults(maxNum);
 		}
 
-		return q.setResultTransformer(new DistinctRootEntityResultTransformer())
+		return q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 	public String getCsvHQLObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId) {
@@ -93,15 +93,15 @@ public class T02AddressDaoHibernate
 			"where " +
 			// exclude hidden user addresses !
 			AddressType.getHQLExcludeIGEUsersViaAddress("a") +
-			" AND a.responsibleUuid = ?";
+			" AND a.responsibleUuid = ?1";
 		
 		Query q = session.createQuery(hql)
-			.setString(0, responsibleUserUuid);
+			.setString(1, responsibleUserUuid);
 		if (maxNum != null) {
 			q.setMaxResults(maxNum);
 		}
 
-		return q.setResultTransformer(new DistinctRootEntityResultTransformer())
+		return q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 	public String getCsvHQLAllAddressesOfResponsibleUser(String responsibleUserUuid) {

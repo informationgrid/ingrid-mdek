@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-import-export
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -32,10 +32,6 @@ import java.util.List;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import de.ingrid.mdek.MdekKeys;
 import de.ingrid.mdek.MdekUtils.IdcEntityVersion;
 import de.ingrid.mdek.caller.IMdekCaller.FetchQuantity;
@@ -53,6 +49,9 @@ import de.ingrid.mdek.caller.MdekCallerQuery;
 import de.ingrid.mdek.caller.MdekCallerSecurity;
 import de.ingrid.mdek.caller.MdekClientCaller;
 import de.ingrid.utils.IngridDocument;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class TestMapper {
 	private static IMdekClientCaller mdekClientCaller;
@@ -71,13 +70,13 @@ public class TestMapper {
 	private final static int EXPORT_NUM_ADDRESSES = 10;
 	private final static int EXPORT_NUM_OBJECTS = 10;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setup() {
 		setupConnection();
 		setupWriter();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void shutdown() {
 		shutdownConnection();
 		shutdownWriter();

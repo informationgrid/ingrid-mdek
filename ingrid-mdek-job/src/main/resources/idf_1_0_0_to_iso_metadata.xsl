@@ -3,17 +3,14 @@
   **************************************************-
   ingrid-interface-csw
   ==================================================
-  Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+  Copyright (C) 2014 - 2023 wemove digital solutions GmbH
   ==================================================
   Licensed under the EUPL, Version 1.1 or – as soon they will be
   approved by the European Commission - subsequent versions of the
   EUPL (the "Licence");
-  
   You may not use this work except in compliance with the Licence.
   You may obtain a copy of the Licence at:
-  
   http://ec.europa.eu/idabc/eupl5
-  
   Unless required by applicable law or agreed to in writing, software
   distributed under the Licence is distributed on an "AS IS" basis,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -89,6 +86,8 @@
     <xsl:template match="idf:abstract" />
 	<!-- filter idf:doi -->
     <xsl:template match="idf:doi" />
+	<!-- filter idf:regionKey -->
+    <xsl:template match="idf:regionKey" />
 
     <!-- filter idf:keyword and transform them to gmd:keyword -->
     <xsl:template match="idf:keyword">
@@ -96,9 +95,9 @@
         <xsl:apply-templates select="node()" />
       </gco:CharacterString>
     </xsl:template>
-    
+
 	<!--
-	Trim Text nodes 
+	Trim Text nodes
 	-->
  	<xsl:template match='text()'>
 		<xsl:call-template name="trim">
@@ -121,12 +120,12 @@
 			<xsl:value-of select="."/>
 		</xsl:attribute>
 	</xsl:template>
-	
+
 	<xsl:template match="idf:idfOnlineResource">
 		<gmd:CI_OnlineResource>
 			<xsl:apply-templates select="@*|node()" />
 		</gmd:CI_OnlineResource>
-	</xsl:template>   
+	</xsl:template>
 	<xsl:template match="@uuid[parent::idf:idfOnlineResource]">
 		<xsl:attribute name="uuid">
 			<xsl:value-of select="."/>
@@ -137,12 +136,12 @@
 			<xsl:value-of select="."/>
 		</xsl:attribute>
 	</xsl:template>
-	
+
 	<xsl:template match="idf:idfLegalBasisConstraints">
 		<gmd:MD_LegalConstraints>
 			<xsl:apply-templates select="@*|node()" />
 		</gmd:MD_LegalConstraints>
-	</xsl:template>   
+	</xsl:template>
 	<xsl:template match="@uuid[parent::idf:idfLegalBasisConstraints]">
 		<xsl:attribute name="uuid">
 			<xsl:value-of select="."/>

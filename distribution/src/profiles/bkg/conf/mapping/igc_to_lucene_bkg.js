@@ -2,17 +2,17 @@
  * **************************************************-
  * InGrid-iPlug DSC
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * http://ec.europa.eu/idabc/eupl5
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,13 +20,8 @@
  * limitations under the Licence.
  * **************************************************#
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-	load("nashorn:mozilla_compat.js");
-}
 
-importPackage(Packages.org.apache.lucene.document);
-importPackage(Packages.de.ingrid.iplug.dsc.om);
-importPackage(Packages.de.ingrid.geo.utils.transformation);
+var DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
 
 if (log.isDebugEnabled()) {
 	log.debug("BKG: Additional mapping of source record to lucene document: " + sourceRecord.toString());
@@ -76,7 +71,7 @@ function handleBKGUseConstraints() {
         // if there is any value
         if (hasValue(bkgUseConstraintSelectListItem) || hasValue(bkgUseConstraintFreeText)) {
             if (hasValue(bkgUseConstraintSelectListItem)) {
-                var bkgUseConstraintSelectListItemSysListValue = TRANSF.getIGCSyslistEntryName(10004, bkgUseConstraintSelectListItem);
+                var bkgUseConstraintSelectListItemSysListValue = TRANSF.getIGCSyslistEntryName(10004, +bkgUseConstraintSelectListItem);
                 if (hasValue(bkgUseConstraintSelectListItemSysListValue)) {
                     IDX.add("object_use_constraint.license_value", bkgUseConstraintSelectListItemSysListValue);
                 }
@@ -121,7 +116,7 @@ function hasValue(val) {
         return false;
     } else if (typeof val == "string" && val == "") {
         return false;
-    } else if (typeof val == "object" && val.toString().equals("")) {
+    } else if (typeof val == "object" && Object.keys(val).length === 0) {
         return false;
     } else {
       return true;

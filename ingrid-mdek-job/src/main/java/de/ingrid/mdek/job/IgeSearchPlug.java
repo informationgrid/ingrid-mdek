@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -22,7 +22,7 @@
  */
 package de.ingrid.mdek.job;
 
-import de.ingrid.admin.JettyStarter;
+import de.ingrid.admin.Config;
 import de.ingrid.admin.elasticsearch.IndexScheduler;
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.elasticsearch.IBusIndexManager;
@@ -100,6 +100,9 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     @Autowired
     private IndexManager indexManager;
+    
+    @Autowired
+    private Config baseConfig;
 
     private final IndexImpl _indexSearcher;
 
@@ -133,7 +136,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
         if (elasticConfig.esCommunicationThroughIBus) {
 
             ClauseQuery cq = new ClauseQuery(true, false);
-            cq.addField(new FieldQuery(true, false, "iPlugId", JettyStarter.baseConfig.communicationProxyUrl));
+            cq.addField(new FieldQuery(true, false, "iPlugId", baseConfig.communicationProxyUrl));
             query.addClause(cq);
             return this.iBusIndexManager.search(query, start, length);
         }
