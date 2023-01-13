@@ -316,20 +316,6 @@
             </configuration>
           </plugin>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-changes-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>changes-report</id>
-                <phase>none</phase>
-              </execution>
-              <execution>
-                <id>changes-announcement-mail</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>wagon-maven-plugin</artifactId>
             <configuration>
