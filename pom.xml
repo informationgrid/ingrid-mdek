@@ -22,7 +22,7 @@
     <ingrid-udk-importer.version>6.0.0</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>6.0.0</ingrid-codelist-service.version>
     <ingrid-utils.version>6.0.0</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>6.0.0</ingrid-iplug-dsc.version>
+    <ingrid-iplug-dsc.version>6.0.1-SNAPSHOT</ingrid-iplug-dsc.version>
     <ingrid-base-webapp.version>6.0.0</ingrid-base-webapp.version>
     <spring.version>2.7.7</spring.version>
     <log4j2.version>2.19.0</log4j2.version>
