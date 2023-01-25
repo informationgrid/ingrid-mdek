@@ -3201,6 +3201,11 @@ function addRegionKeyInfo(parent, objId) {
 
     if (hasValue(regionKeyRow)) {
         var regionKey = regionKeyRow.data
+        // due to a change at the GDI-DE Registry, the regional key for Germany now is "000000000000" instead of "0"
+        // quickest change without changing all metadata sets manually is to explicitly output "000000000000" for "0"
+        if (regionKey == "0") {
+            regionKey = "000000000000";
+        }
         var regionKeyElement = parent.addElement("idf:regionKey");
 
         var paddedKey = regionKey + "000000000000".substring(regionKey.length);
