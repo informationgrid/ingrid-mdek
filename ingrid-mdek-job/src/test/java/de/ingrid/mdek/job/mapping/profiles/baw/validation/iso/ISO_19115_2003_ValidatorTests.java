@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -27,9 +27,9 @@ import de.ingrid.mdek.job.mapping.validation.iso.ISO_19115_2003_ConditionsValida
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import de.ingrid.mdek.job.mapping.validation.iso.ISO_19115_2003_SchemaValidator;
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -41,8 +41,6 @@ import java.io.File;
 import java.io.IOException;
 
 import static de.ingrid.mdek.job.mapping.profiles.baw.validation.iso.ValidatorTestsTemplateHelper.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -61,7 +59,7 @@ public class ISO_19115_2003_ValidatorTests {
         validator = new ISO_19115_2003_ConditionsValidator();
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         try {
             defaultDocument = ValidatorTestsTemplateHelper.defaultDocument();
@@ -70,7 +68,7 @@ public class ISO_19115_2003_ValidatorTests {
         }
     }
 
-    @After
+    @AfterEach
     public void logMessages() {
     }
 

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -52,15 +52,15 @@ public class T01ObjectDaoHibernate
 
 		String hql = "select o " +
 			"from T01Object o " +
-			"where o.responsibleUuid = ?";
+			"where o.responsibleUuid = ?1";
 	
 		Query q = session.createQuery(hql)
-			.setString(0, responsibleUserUuid);
+			.setString(1, responsibleUserUuid);
 		if (maxNum != null) {
 			q.setMaxResults(maxNum);
 		}
 
-		return q.setResultTransformer(new DistinctRootEntityResultTransformer())
+		return q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 	public String getCsvHQLAllObjectsOfResponsibleUser(String responsibleUserUuid) {
@@ -77,13 +77,15 @@ public class T01ObjectDaoHibernate
 	  String hql = "select objAdr " +
       "from T01Object obj " +
       "join obj.t012ObjAdrs objAdr " +
-      "where objAdr.adrUuid = ? and obj.objUuid = ?";
+      "where objAdr.adrUuid = ?1 and obj.objUuid = ?2";
     
     if (realtionTypeId != null) {
       hql += " and objAdr.type = " + realtionTypeId;
     }
 
-    Query q = session.createQuery(hql).setString(0, addressUuid).setString(1, objectUuid);
+    Query q = session.createQuery(hql)
+			.setString(1, addressUuid)
+			.setString(2, objectUuid);
 
     return !q.list().isEmpty();
 	}

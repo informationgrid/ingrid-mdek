@@ -84,18 +84,14 @@
     </fileSet>
     <fileSet>
       <directory>../ingrid-mdek-job/src/main/webapp</directory>
-      <outputDirectory>${project.build.finalName}/webapp</outputDirectory>
+      <outputDirectory>${project.build.finalName}/public</outputDirectory>
       <excludes>
         <exclude>**/WEB-INF/jetty-web.xml</exclude>
       </excludes>
     </fileSet>
     <fileSet>
       <directory>../ingrid-mdek-job/target/base-webapp</directory>
-      <outputDirectory>${project.build.finalName}/webapp</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>../ingrid-mdek-job/src/main/release/jetty</directory>
-      <outputDirectory>${project.build.finalName}/webapp/WEB-INF</outputDirectory>
+      <outputDirectory>${project.build.finalName}/public</outputDirectory>
     </fileSet>
     <fileSet>
       <directory>../target/installer</directory>

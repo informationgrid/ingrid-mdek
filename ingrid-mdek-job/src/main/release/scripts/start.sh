@@ -3,7 +3,7 @@
 # **************************************************-
 # ingrid-mdek-job
 # ==================================================
-# Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+# Copyright (C) 2014 - 2023 wemove digital solutions GmbH
 # ==================================================
 # Licensed under the EUPL, Version 1.1 or – as soon they will be
 # approved by the European Commission - subsequent versions of the
@@ -175,7 +175,7 @@ prepareJavaStatement()
     fi
 
     export CLASSPATH="$CLASSPATH"
-    INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME $JAVA_OPTS"
+    INGRID_OPTS="$INGRID_OPTS -Dingrid_home=$INGRID_HOME $JAVA_OPTS -Dpolyglot.engine.WarnInterpreterOnly=false --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED"
 }
 
 startIplug()

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -238,7 +238,7 @@ public class SpatialRefValueDaoHibernate
 		}
 
 		return  session.createQuery(q)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 
@@ -257,7 +257,7 @@ public class SpatialRefValueDaoHibernate
 			"where spRef.spatialRefId = " + idSpatialRefValue;
 		
 		return  getSession().createQuery(q)
-			.setResultTransformer(new DistinctRootEntityResultTransformer())
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 	public List<Long> getObjectIdsOfSpatialRefValue(long idSpatialRefValue) {

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -149,7 +149,7 @@ public class MdekCatalogService {
 		beanToDocMapper = BeanToDocMapper.getInstance(daoFactory);
 
 		URL url = getClass().getResource(CACHE_CONFIG_FILE);
-		cacheManager = new CacheManager(url);
+		cacheManager = CacheManager.create(url);
 		syslistMapCache = cacheManager.getCache(CACHE_SYS_LIST_MAP);
 		catalogCache = cacheManager.getCache(CACHE_CATALOG);
 	}

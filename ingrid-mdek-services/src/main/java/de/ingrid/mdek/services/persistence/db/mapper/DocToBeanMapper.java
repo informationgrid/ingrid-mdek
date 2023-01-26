@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -691,6 +691,8 @@ public class DocToBeanMapper implements IMapper {
 			String inUuidTo = (String) aDocTo.get(MdekKeys.UUID);
 			Integer inRelType = (Integer) aDocTo.get(MdekKeys.RELATION_TYPE_ID);
 			String inRelTypeName = (String) aDocTo.get(MdekKeys.RELATION_TYPE_NAME);
+			if (inRelTypeName == null) inRelTypeName = inRelType.toString();
+			
 			boolean found = false;
 			for (T012ObjAdr oA : oAs) {
 				boolean sameAsOtherReference = oA.getAdrUuid().equals(inUuidTo) &&

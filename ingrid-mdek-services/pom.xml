@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>5.14.0.4346-SNAPSHOT</version>
+    <version>6.1.0.4346-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-mdek-services</artifactId>
@@ -27,6 +27,7 @@
       <groupId>de.ingrid.mdek</groupId>
       <artifactId>ingrid-import-export</artifactId>
     </dependency>
+<!--
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-annotations</artifactId>
@@ -46,41 +47,78 @@
         </exclusion>
       </exclusions>
     </dependency>
+-->
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-      <version>3.2.7.ga</version>
-      <!-- Because of asm version conflicts with cglib spring, we can't use the normal cglib dependency of hibernate
-                Rather we use the cglib-nodep lib, which has its own implementation of asm. -->
-      <exclusions>
-        <exclusion>
-          <groupId>asm</groupId>
-          <artifactId>asm-attrs</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>asm</groupId>
-          <artifactId>asm</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>cglib</groupId>
-          <artifactId>cglib</artifactId>
-        </exclusion>
-      </exclusions>
+      <artifactId>hibernate-core</artifactId>
+<!--      <version></version>-->
     </dependency>
-    <!-- Needed for eclipse otherwise indirectly referenced class missing in DefaultPermissionServiceTest.java ! -->
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-orm -->
     <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+    </dependency>
+
+    <!--<dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator-annotation-processor</artifactId>
+    </dependency>-->
+
+    <!--
+        <dependency>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate</artifactId>
+          <version>3.2.7.ga</version>
+          &lt;!&ndash; Because of asm version conflicts with cglib spring, we can't use the normal cglib dependency of hibernate
+                    Rather we use the cglib-nodep lib, which has its own implementation of asm. &ndash;&gt;
+          <exclusions>
+            <exclusion>
+              <groupId>asm</groupId>
+              <artifactId>asm-attrs</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>asm</groupId>
+              <artifactId>asm</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>cglib</groupId>
+              <artifactId>cglib</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+    -->
+    <!-- Needed for eclipse otherwise indirectly referenced class missing in DefaultPermissionServiceTest.java ! -->
+    <!--<dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-hibernate3</artifactId>
       <version>2.0.8</version>
-      <!-- this lib is used during runtime! -->
-      <!-- <scope>test</scope> -->
+      &lt;!&ndash; this lib is used during runtime! &ndash;&gt;
+      &lt;!&ndash; <scope>test</scope> &ndash;&gt;
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-mock</artifactId>
       <version>2.0.8</version>
       <scope>test</scope>
+    </dependency>-->
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-mock</artifactId>
+      <version>2.0.8</version>
+      <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
     <dependency>
       <groupId>com.mchange</groupId>
       <artifactId>c3p0</artifactId>
@@ -89,7 +127,7 @@
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
-      <version>2.1_3</version>
+      <version>3.3.0</version>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
@@ -99,22 +137,14 @@
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
-      <version>1.4.19</version>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.49</version>
-    </dependency>
-    <dependency>
-      <groupId>com.oracle</groupId>
-      <artifactId>ojdbc7</artifactId>
-      <version>12.1.0.2</version>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>9.4.1212</version>
     </dependency>
     <!-- needed for IndexManager but provided by ingrid-mdek-job -->
     <dependency>
@@ -124,8 +154,8 @@
       <type>jar</type>
       <exclusions>
         <exclusion>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
+          <groupId>de.ingrid</groupId>
+          <artifactId>ingrid-base-webapp</artifactId>
         </exclusion>
         <exclusion>
           <groupId>ojdbc</groupId>
@@ -155,13 +185,4 @@
       </resource>
     </resources>
   </build>
-
-  <!-- ==================== Repositories ==================== -->
-  <repositories>
-    <repository>
-      <id>nexus_ojdbc7</id>
-      <name>Nexus Repo for ojdbc7</name>
-      <url>http://nexus.saas.hand-china.com/content/repositories/rdc</url>
-    </repository>
-  </repositories>
 </project>

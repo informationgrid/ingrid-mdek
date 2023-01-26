@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -55,16 +55,15 @@ import de.ingrid.utils.xpath.XPathUtils;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -88,14 +87,12 @@ import java.util.zip.GZIPInputStream;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest({DatabaseConnectionUtils.class, MdekObjectService.class, MdekJobHandler.class})
+@ExtendWith(MockitoExtension.class)
 public class CSWImportBawDmsqTest {
 
     @Mock
@@ -146,8 +143,9 @@ public class CSWImportBawDmsqTest {
     ElasticConfig elasticConfig;
 
     @Mock private IgeCswFolderUtil igeCswFolderUtil;
+    private MockedStatic<DatabaseConnectionUtils> mockedDatabaseConnectionUtils;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
 
         elasticConfig.esCommunicationThroughIBus = false;
@@ -161,17 +159,20 @@ public class CSWImportBawDmsqTest {
         when( permissionService.isCatalogAdmin( "TEST_USER_ID" ) ).thenReturn( true );
 
         when( dataSourceMock.getConnection() ).thenReturn( connectionMock );
-        PowerMockito.mockStatic( DatabaseConnectionUtils.class );
-        when(DatabaseConnectionUtils.getInstance()).thenReturn( dcUtils );
+        mockedDatabaseConnectionUtils = mockStatic( DatabaseConnectionUtils.class );
+        mockedDatabaseConnectionUtils.when(DatabaseConnectionUtils::getInstance).thenReturn(dcUtils);
         when( dcUtils.openConnection( any(DatabaseConnection.class) ) ).thenReturn( connectionMock );
         when( connectionMock.prepareStatement( any(String.class) ) ).thenReturn( ps );
         when( ps.executeQuery() ).thenReturn( resultSet );
         
-        PowerMockito.mockStatic( MdekObjectService.class );
-        when(MdekObjectService.getInstance( any(DaoFactory.class), any(IPermissionService.class) )).thenReturn( mdekObjectService );
+        try (MockedStatic<MdekObjectService> mocked = mockStatic( MdekObjectService.class )) {
+            mocked.when(() -> MdekObjectService.getInstance(any(DaoFactory.class), any(IPermissionService.class))).
+                    thenReturn(mdekObjectService);
+        }
         
-        PowerMockito.mockStatic( MdekJobHandler.class );
-        when(MdekJobHandler.getInstance( any(DaoFactory.class))).thenReturn( jobHandler );
+        try (MockedStatic<MdekJobHandler> mocked = mockStatic( MdekJobHandler.class )) {
+            mocked.when(() -> MdekJobHandler.getInstance(any(DaoFactory.class))).thenReturn(jobHandler);
+        }
         
         ClassPathResource inputResource = new ClassPathResource( "csw/importAdditionalFieldBawDmqs.xml" );
         File file = inputResource.getFile();
@@ -210,6 +211,11 @@ public class CSWImportBawDmsqTest {
         catJob.setDataMapperFactory( dataMapperFactory );
         catJob.setJobHandler( jobHandler );
 
+    }
+
+    @AfterEach
+    public void after() {
+        mockedDatabaseConnectionUtils.close();
     }
 
     private void mockSyslists() {
@@ -355,7 +361,7 @@ public class CSWImportBawDmsqTest {
     @Test
     public void importAdditionalField() throws Exception {
         doAnswer((Answer<Void>) invocation -> {
-            Map doc = invocation.getArgumentAt( 1, Map.class );
+            Map doc = invocation.getArgument( 1 );
             List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
             assertThat( data, is( not( nullValue() ) ) );
             assertThat( data.size(), is( 1 ) );
@@ -379,10 +385,10 @@ public class CSWImportBawDmsqTest {
     }
     
     @Test
-    @Ignore("Input XML does not seem to match with assertion anymore")
+    @Disabled("Input XML does not seem to match with assertion anymore")
     public void importAdditionalFieldSampleFromBaw() throws Exception {
         doAnswer((Answer<Void>) invocation -> {
-            Map doc = invocation.getArgumentAt( 1, Map.class );
+            Map doc = invocation.getArgument( 1 );
             List<byte[]> data = (List<byte[]>) doc.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
             assertThat( data, is( not( nullValue() ) ) );
             assertThat( data.size(), is( 1 ) );

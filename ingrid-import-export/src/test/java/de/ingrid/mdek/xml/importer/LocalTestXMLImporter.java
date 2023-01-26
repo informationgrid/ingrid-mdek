@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-import-export
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -31,10 +31,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
-import org.junit.Test;
-
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
 import de.ingrid.utils.IngridDocument;
+import org.junit.jupiter.api.Test;
 
 public class LocalTestXMLImporter {
 

@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -154,7 +154,7 @@ public class HQLDaoHibernate
 			Query q = session.createQuery(qString);
 			if (distinctRemoved) {
 				// NO ! "destroys" result columns
-//				q.setResultTransformer(new DistinctRootEntityResultTransformer());
+//				q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE);
 			}
 			hits = q.list();
 		}
@@ -216,7 +216,7 @@ public class HQLDaoHibernate
 				q.setMaxResults(maxNumHits);				
 			}
 			if (distinctRemoved) {
-				q.setResultTransformer(new DistinctRootEntityResultTransformer());
+				q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE);
 			}
 			hits = q.list();
 		}

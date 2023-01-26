@@ -2,7 +2,7 @@
  * **************************************************-
  * InGrid mdek-job
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -24,9 +24,9 @@ package de.ingrid.mdek.job.mapping.profiles.baw.validation.iso;
 
 import de.ingrid.mdek.job.protocol.ProtocolHandler;
 import org.apache.log4j.Logger;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -39,8 +39,6 @@ import static de.ingrid.mdek.job.mapping.profiles.baw.validation.iso.ValidatorTe
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -61,7 +59,7 @@ public class BawMetadataProfileValidatorTests {
         }
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         validator = new BawMetadataProfileValidator();
     }
@@ -118,7 +116,7 @@ public class BawMetadataProfileValidatorTests {
     }
     
     @Test
-    @Ignore("Validation of hierarchy level disabled")
+    @Disabled("Validation of hierarchy level disabled")
     public void testHierarchyLevelValue() {
         Document doc = defaultDocument;
         String xpath = "/gmd:MD_Metadata/gmd:hierarchyLevel/gmd:MD_ScopeCode";
@@ -128,14 +126,14 @@ public class BawMetadataProfileValidatorTests {
     }
     
     @Test
-    @Ignore("Validation of hierarchy level disabled")
+    @Disabled("Validation of hierarchy level disabled")
     public void testMissingHierarchyLevelElement() {
         String xpath = "/gmd:MD_Metadata/gmd:hierarchyLevel/gmd:MD_ScopeCode";
         checkFailureForDeletedElement(xpath);
     }
 
     @Test
-    @Ignore("Validation of parent identifier disabled")
+    @Disabled("Validation of parent identifier disabled")
     public void testParentIdentifierAuftragUndefined0() {
         /*
         Document doc = documentWithReplacedValues(IDX_MD_HIERARCHY_LEVEL_NAME_VALUE, "Auftrag");
@@ -146,7 +144,7 @@ public class BawMetadataProfileValidatorTests {
     }
 
     @Test
-    @Ignore("Validation of parent identifier disabled")
+    @Disabled("Validation of parent identifier disabled")
     public void testParentIdentifierAuftragUndefined1() {
         /*
         String template = fetchTemplateString();
@@ -170,7 +168,7 @@ public class BawMetadataProfileValidatorTests {
     }
 
     @Test
-    @Ignore("Validation of parent identifier disabled")
+    @Disabled("Validation of parent identifier disabled")
     public void testParentIdentifierNotAuftragDefined() {
         /*
         Document doc = documentWithReplacedValues(IDX_MD_HIERARCHY_LEVEL_NAME_VALUE, "Simulationslauf");
@@ -179,7 +177,7 @@ public class BawMetadataProfileValidatorTests {
     }
 
     @Test
-    @Ignore("Validation of parent identifier disabled")
+    @Disabled("Validation of parent identifier disabled")
     public void testParentIdentifierIsValidUuid() {
         /*
         // Parent ID should be a valid UUID
@@ -267,7 +265,7 @@ public class BawMetadataProfileValidatorTests {
     }
 
     @Test
-    @Ignore("Needs to be updated according to new requirements")
+    @Disabled("Needs to be updated according to new requirements")
     public void testMissingAuftragsNummer() {
         /*
         String template = fetchTemplateString();
@@ -279,7 +277,7 @@ public class BawMetadataProfileValidatorTests {
     }
 
     @Test
-    @Ignore("Needs to be updated according to new requirements")
+    @Disabled("Needs to be updated according to new requirements")
     public void testInvalidAuftragsNummer() {
         //checkFailureForInvalidValue(IDX_BAW_AUFTRAGS_NR, "B3950.");
     }
@@ -315,27 +313,27 @@ public class BawMetadataProfileValidatorTests {
     }
 
     @Test
-    @Ignore("Tests need upgrade to detect hierarchy level name")
+    @Disabled("Tests need upgrade to detect hierarchy level name")
     public void testMissingTemporalResolution() {
         String xpath = "//gmd:report[./gmd:DQ_AccuracyOfATimeMeasurement]";
         checkFailureForDeletedElement(xpath);
     }
 
     @Test
-    @Ignore("Needs to be updated for xlink:href")
+    @Disabled("Needs to be updated for xlink:href")
     public void testInvalidTemporalResolutionUnits() {
         //checkFailureForInvalidValue(IDX_TEMPORAL_RESOLUTION_UNITS, "m");
     }
 
     @Test
-    @Ignore("Tests need upgrade to detect hierarchy level name")
+    @Disabled("Tests need upgrade to detect hierarchy level name")
     public void testDGSMissingParameterName() {
         String xpath = "//gmd:valueType";
         checkFailureForDeletedElement(xpath);
     }
 
     @Test
-    @Ignore("Tests need upgrade to detect hierarchy level name")
+    @Disabled("Tests need upgrade to detect hierarchy level name")
     public void testDGSMissingRole() {
         String xpath = "//gmd:DQ_DataQuality[./gmd:report/gmd:DQ_QuantitativeAttributeAccuracy]/gmd:lineage";
         checkFailureForDeletedElement(xpath);

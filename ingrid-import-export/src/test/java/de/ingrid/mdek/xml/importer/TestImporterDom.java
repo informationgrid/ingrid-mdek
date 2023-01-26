@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-import-export
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -39,9 +39,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -59,7 +59,7 @@ public class TestImporterDom {
 	private InputSource xsdSource;
 	private InputSource xmlSource;
 
-	@Before
+	@BeforeEach
 	public void setup() throws SAXException, FileNotFoundException {
 		setupSources();
 		setupSchema();
@@ -90,7 +90,7 @@ public class TestImporterDom {
 		validator.validate(new SAXSource(xmlSource));
 	}
 
-	@Ignore("needs lots of heap space (~10x file size)")
+	@Disabled("needs lots of heap space (~10x file size)")
 	@Test
 	public void testDocumentCanBeCreated() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();

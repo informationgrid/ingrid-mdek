@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>5.14.0.4346-SNAPSHOT</version>
+    <version>6.1.0.4346-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-iplug-ige</artifactId>
@@ -80,26 +80,6 @@
             <configuration>
               <skip>false</skip>
             </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-changes-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>changes-report</id>
-                <phase>deploy</phase>
-                <goals>
-                  <goal>changes-report</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>changes-announcement-mail</id>
-                <phase>deploy</phase>
-                <goals>
-                  <goal>announcement-mail</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>

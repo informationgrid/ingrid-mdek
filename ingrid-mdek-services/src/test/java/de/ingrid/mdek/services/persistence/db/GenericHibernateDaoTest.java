@@ -2,7 +2,7 @@
  * **************************************************-
  * ingrid-mdek-services
  * ==================================================
- * Copyright (C) 2014 - 2022 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
  * ==================================================
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
@@ -26,10 +26,9 @@
 package de.ingrid.mdek.services.persistence.db;
 
 import org.hibernate.StaleObjectStateException;
-import org.junit.Assert;
-import org.junit.Test;
 
 import de.ingrid.mdek.services.persistence.db.model.IdcGroup;
+import org.junit.jupiter.api.Test;
 
 public class GenericHibernateDaoTest extends AbstractDaoTest {
 
@@ -70,10 +69,10 @@ public class GenericHibernateDaoTest extends AbstractDaoTest {
 		try {
 			dao.makePersistent(g1);
 			dao.commitTransaction();
-			Assert.fail("We override a version that we doesn't know.");
+			fail("We override a version that we doesn't know.");
 		} catch (StaleObjectStateException e) {
 			dao.rollbackTransaction();
-			Assert.assertTrue(true);
+			assertTrue(true);
 		}
 	}
 
@@ -110,10 +109,10 @@ public class GenericHibernateDaoTest extends AbstractDaoTest {
 		try {
 			dao.makeTransient(g1);
 			dao.commitTransaction();
-			Assert.fail("We delete a version that we doesn't know.");
+			fail("We delete a version that we doesn't know.");
 		} catch (StaleObjectStateException e) {
 			dao.rollbackTransaction();
-			Assert.assertTrue(true);
+			assertTrue(true);
 		}
 	}
 }
