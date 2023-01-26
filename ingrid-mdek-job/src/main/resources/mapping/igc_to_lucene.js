@@ -643,7 +643,11 @@ function addT011ObjDataPara(row) {
 }
 function addT011ObjServ(row) {
     IDX.add("t011_obj_serv.type_key", row.get("type_key"));
-    IDX.add("t011_obj_serv.type", TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, row.get("type_key")));
+    var serviceType = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, row.get("type_key"));
+    if (hasValue(serviceType)){
+        serviceType = serviceType.toLowerCase();
+    }
+    IDX.add("t011_obj_serv.type", serviceType);
     IDX.add("t011_obj_serv.history", row.get("history"));
     IDX.add("t011_obj_serv.environment", row.get("environment"));
     IDX.add("t011_obj_serv.base", row.get("base"));
