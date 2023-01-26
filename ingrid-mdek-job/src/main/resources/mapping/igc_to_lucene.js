@@ -1183,8 +1183,8 @@ function addMissingUrlParameters(connUrl, row) {
             if (isServiceParam) {
 
                 // if connUrl or parameters already contains a ? or & at the end then do not add another one!
-                if (!(connUrl.lastIndexOf("?") === connUrl.length() - 1)
-                    && !(connUrl.lastIndexOf("&") === connUrl.length() - 1)) {
+                if (!(connUrl.lastIndexOf("?") === connUrl.length - 1)
+                    && !(connUrl.lastIndexOf("&") === connUrl.length - 1)) {
                     connUrl += "&";
                 }
                 connUrl += rowsParams.get(j).get("name");
@@ -1196,8 +1196,8 @@ function addMissingUrlParameters(connUrl, row) {
         if (connUrl.toLowerCase().indexOf("request=getcapabilities") === -1 || connUrl.toLowerCase().indexOf("service=") === -1) {
 
             if (connUrl.toLowerCase().indexOf("request=getcapabilities") === -1) {
-                if (!(connUrl.lastIndexOf("?") === connUrl.length() - 1)
-                && !(connUrl.lastIndexOf("&") === connUrl.length() - 1)) {
+                if (!(connUrl.lastIndexOf("?") === connUrl.length - 1)
+                && !(connUrl.lastIndexOf("&") === connUrl.length - 1)) {
                     connUrl += "&";
                 }
                 connUrl += "Request=GetCapabilities";
