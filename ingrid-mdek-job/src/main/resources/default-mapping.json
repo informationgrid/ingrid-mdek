@@ -64,7 +64,7 @@
       "store": true
     },
     "t011_obj_serv.type": {
-      "type": "keyword",
+      "type": "text",
       "store": true
     },
     "t011_obj_serv.type_key": {
