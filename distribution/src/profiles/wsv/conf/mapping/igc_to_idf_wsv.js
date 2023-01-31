@@ -2629,7 +2629,7 @@ function addDistributionInfo(mdMetadata, objId) {
             }
 
             if(hasValue(myUrlLinkSpecialRef) && cartRefKeys.indexOf(myUrlLinkSpecialRef) !== -1) {
-                addCartLink(mdDistribution, objId)
+                addCartLink(mdDistribution, objUuid)
             }
 
             var addedURL = myUrlLink;
