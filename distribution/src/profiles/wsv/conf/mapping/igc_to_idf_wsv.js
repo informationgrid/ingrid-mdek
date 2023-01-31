@@ -927,6 +927,32 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
 
+    // Place-Keywords
+    rows = SQL.all("SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value WHERE spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?", [+objId]);
+    mdKeywords = null;
+    for (i=0; i<rows.size(); i++) {
+        row = rows.get(i);
+
+        if (!(hasValue(row.get("x1")) && hasValue(row.get("x2")) && hasValue(row.get("y1")) && hasValue(row.get("y2")))) {
+
+            var geoIdentifier = getGeographicIdentifier(row);
+            if (hasValue(geoIdentifier)) {
+                if (mdKeywords == null) {
+                    mdKeywords = DOM.createElement("gmd:MD_Keywords");
+                }
+
+                mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText(geoIdentifier);
+            }
+        }
+    }
+    if(mdKeywords != null){
+        identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+
+        mdKeywords.addElement("gmd:type/gmd:MD_KeywordTypeCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#MD_KeywordTypeCode")
+            .addAttribute("codeListValue", "place");
+    }
+
     // if open data is checked then also add categories to thesaurus
     // ATTENTION: since LGV Hamburg wants their categories always displayed, they also want
     //            these mapped to IDF even if open data is not checked (REDMINE-395)
@@ -2316,20 +2342,21 @@ function addExtent(identificationInfo, objRow) {
     rows = SQL.all("SELECT spatial_ref_value.* FROM spatial_reference, spatial_ref_value WHERE spatial_reference.spatial_ref_id=spatial_ref_value.id AND spatial_reference.obj_id=?", [+objId]);
     for (i=0; i<rows.size(); i++) {
         row = rows.get(i);
-        if (!exExtent) {
-            exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
-        }
 
-        // ---------- <gmd:geographicElement/gmd:EX_GeographicDescription> ----------
-        var geoIdentifier = getGeographicIdentifier(row);
-        if (hasValue(geoIdentifier)) {
-            // Spatial_ref_value.name_value + nativekey MD_Metadata/gmd:identificationInfo/srv:CSW_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:MD_Identifier/code/gco:CharacterString
-            var exGeographicDescription = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicDescription");
-            exGeographicDescription.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
-            IDF_UTIL.addLocalizedCharacterstring(exGeographicDescription.addElement("gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code"), geoIdentifier);
-        }
-        // ---------- <gmd:geographicElement/gmd:EX_GeographicBoundingBox> ----------
         if (hasValue(row.get("x1")) && hasValue(row.get("x2")) && hasValue(row.get("y1")) && hasValue(row.get("y2"))) {
+            if (!exExtent) {
+                exExtent = identificationInfo.addElement(extentElemName).addElement("gmd:EX_Extent");
+            }
+
+            // ---------- <gmd:geographicElement/gmd:EX_GeographicDescription> ----------
+            var geoIdentifier = getGeographicIdentifier(row);
+            if (hasValue(geoIdentifier)) {
+                // Spatial_ref_value.name_value + nativekey MD_Metadata/gmd:identificationInfo/srv:CSW_ServiceIdentification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicDescription/gmd:geographicIdentifier/gmd:MD_Identifier/code/gco:CharacterString
+                var exGeographicDescription = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicDescription");
+                exGeographicDescription.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
+                IDF_UTIL.addLocalizedCharacterstring(exGeographicDescription.addElement("gmd:geographicIdentifier/gmd:MD_Identifier/gmd:code"), geoIdentifier);
+            }
+            // ---------- <gmd:geographicElement/gmd:EX_GeographicBoundingBox> ----------
             // Spatial_ref_value.x1 MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/geographicElement/EX_GeographicBoundingBox.westBoundLongitude/gmd:approximateLongitude
             var exGeographicBoundingBox = exExtent.addElement("gmd:geographicElement/gmd:EX_GeographicBoundingBox");
             exGeographicBoundingBox.addElement("gmd:extentTypeCode/gco:Boolean").addText("true");
