@@ -2500,6 +2500,9 @@ function addAvailableLinkage(linkage, target) {
         var linkageNode = XPATH.createElementFromXPathAsSibling(target, "/igc/data-sources/data-source/data-source-instance/available-linkage");
         if (!hasValue(linkage.name)) {
             linkage.name = linkage.url;
+            if(linkage.name.length > 255){
+                linkage.name = linkage.name.substring(0,252) + "...";
+            }
         }
         XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-name"), linkage.name);
         XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(linkageNode, "linkage-url"), linkage.url);
