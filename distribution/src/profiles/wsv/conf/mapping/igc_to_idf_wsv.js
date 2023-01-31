@@ -2591,11 +2591,20 @@ function addDistributionInfo(mdMetadata, objId) {
     }*/
     // ATTENTION: Skip urls already added ! If geoservice and geodata contain the same download link, it will be added twice !
     var addedURLs = [];
+    var cartRefKeys = ["10900", "10901", "10902", "10903", "10904"];
     for (i=0; i<rows.size(); i++) {
         var myUrlLink = rows.get(i).get("url_link");
         var myUrlLinkContent = rows.get(i).get("content");
         var myUrlLinkSpecialRef = rows.get(i).get("special_ref");
         if (hasValue(myUrlLink)) {
+            if (!mdDistribution) {
+                mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
+            }
+
+            if(hasValue(myUrlLinkSpecialRef) && cartRefKeys.indexOf(myUrlLinkSpecialRef) !== -1) {
+                addCartLink(mdDistribution, objId)
+            }
+
             var addedURL = myUrlLink;
             if (hasValue(myUrlLinkContent)) {
                 addedURL += "|" + myUrlLinkContent;
@@ -2609,9 +2618,6 @@ function addDistributionInfo(mdMetadata, objId) {
             }
             addedURLs.push(addedURL);
 
-            if (!mdDistribution) {
-                mdDistribution = mdMetadata.addElement("gmd:distributionInfo/gmd:MD_Distribution");
-            }
             if (!formatWritten && !distributorWritten) {
                 // always write format, here with nilReason children, see INGRID32-146
                 mdDistribution.addElement("gmd:distributionFormat").addElement(nilMdFormatElement);
@@ -2646,6 +2652,18 @@ function addDistributionInfo(mdMetadata, objId) {
         }
     }
 
+    function addCartLink(mdDistribution, uuid) {
+        var idfOnlineResource = mdDistribution.addElement("gmd:transferOptions/gmd:MD_DigitalTransferOptions/gmd:onLine/idf:idfOnlineResource");
+        var cartUrlLink = "https://geoportal.wsv.res.bund.de/terraCatalog/ordering/shop.do?fileid="+uuid
+        idfOnlineResource.addElement("gmd:linkage/gmd:URL").addText(cartUrlLink);
+        IDF_UTIL.addLocalizedCharacterstring(idfOnlineResource.addElement("gmd:name"), "In den Warenkorb");
+        idfOnlineResource.addElement("gmd:function/gmd:CI_OnLineFunctionCode")
+            .addAttribute("codeList", globalCodeListAttrURL + "#CI_OnLineFunctionCode")
+            .addAttribute("codeListValue", "download").addText("download");
+        idfOnlineResource.addElement("idf:attachedToField").addText("Datendownload")
+            .addAttribute("list-id", "2000")
+            .addAttribute("entry-id", "9990");
+    }
 
     function addMissingUrlParameters(connUrl, row) {
         // try to get type from connection point parameter of getCapabilities

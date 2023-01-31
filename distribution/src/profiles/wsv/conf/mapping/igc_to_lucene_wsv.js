@@ -817,9 +817,9 @@ function addT017UrlRef(row) {
 function addT017CartUrlRef(row, uuid) {
     IDX.add("t017_url_ref.line", row.get("line"));
     IDX.add("t017_url_ref.url_link", "https://geoportal.wsv.res.bund.de/terraCatalog/ordering/shop.do?fileid="+objUuid);
-    IDX.add("t017_url_ref.special_ref", row.get("special_ref"));
+    IDX.add("t017_url_ref.special_ref", "9990");
     IDX.add("t017_url_ref.special_name", row.get("special_name"));
-    IDX.add("t017_url_ref.content", "Zum Warenkorb");
+    IDX.add("t017_url_ref.content", "In den  Warenkorb");
     IDX.add("t017_url_ref.datatype_key", row.get("datatype_key"));
     IDX.add("t017_url_ref.datatype", row.get("datatype_value"));
     IDX.add("t017_url_ref.descr", row.get("descr"));
