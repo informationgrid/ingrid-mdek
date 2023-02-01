@@ -48,6 +48,7 @@
     <bean id="recordMapperLUBW" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
         <property name="mappingScripts">
             <list>
+                <value>classpath:mapping/global.js</value>
                 <value>classpath:mapping/igc_to_lucene_lubw.js</value>
             </list>
         </property>
