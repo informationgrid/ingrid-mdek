@@ -49,6 +49,15 @@ for (var i = 0; i < addnFieldRows.size(); i++) {
     }
 }
 
+// add distributor institution to ES document
+// type=5 is distributor (Vertrieb)
+//var obj = SQL.first("SELECT adr_uuid FROM t012_obj_adr WHERE type = 5 and obj_id = ?", [objId]);
+//var address = SQL.first("SELECT institution FROM t02_address WHERE adr_uuid = ?", [obj.get("adr_uuid")]);
+var address = SQL.first("SELECT institution FROM t012_obj_adr "
+                        + "RIGHT JOIN t02_address ON t012_obj_adr.adr_uuid=t02_address.adr_uuid "
+                        + "WHERE t012_obj_adr.type=5 AND t012_obj_adr.obj_id=?", [objId]);
+IDX.add("distributor", address.get("institution"));
+
 addTreePath(objId);
 
 function addTreePath(objId) {
@@ -68,8 +77,8 @@ function addTreePath(objId) {
                     }
                 }
             });
-        }   
-    } 
+        }
+    }
 }
 
 function hasValue(val) {

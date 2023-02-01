@@ -35,6 +35,10 @@
       "type": "keyword",
       "store": true
     },
+    "distributor": {
+      "type": "keyword",
+      "store": true
+    },
     "kml": {
       "type": "keyword",
       "store": true
