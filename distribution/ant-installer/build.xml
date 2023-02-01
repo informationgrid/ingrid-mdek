@@ -38,7 +38,6 @@
          ============================================= -->
 
     <property name="iPlugName"          value="${project.build.finalName}"/>
-    <property name="importerName"       value="ingrid-udk-importer-${ingrid-udk-importer.version}"/>
     <property name="config"             value="${installDir}/conf/config.override.properties"/>
 
     <property name="mySqlDriverClass"       value="com.mysql.jdbc.Driver"/>
@@ -183,7 +182,10 @@
         <property name="postgresDbDriver" location="./${postgresDriver.jar}"/>
 
         <!-- unzip udk-importer-installer to base-directory used for set up/update of IGC database -->
-        <unzip src="./${iPlugName}/lib/${importerName}.jar" dest=".">
+        <unzip dest=".">
+            <fileset dir="./${iPlugName}/lib">
+                <include name="ingrid-udk-importer-*.jar" />
+            </fileset>
             <patternset>
                 <include name="**/ingrid-igc-schema_102*.sql"/>
             </patternset>
