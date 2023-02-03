@@ -95,7 +95,7 @@ function indexChildAdditionalFieldAsKeywords(parentRow, childKey, syslistId) {
     for (var i=0; i<rows.size(); i++) {
         var data = rows.get(i).get("data");
         if (hasValue(data)) {
-            var kw = hasValue(syslistId) ? TRANSF.getIGCSyslistEntryName(syslistId, data, "de"): data;
+            var kw = hasValue(syslistId) ? TRANSF.getIGCSyslistEntryName(syslistId, +data, "de"): data;
             addSearchtermValue("F", kw, "");
         }
     }
@@ -190,7 +190,7 @@ function indexAdditionalFieldValueBWastr(objId) {
 function addBWaStrData(bwastrId, bwastrKmStart, bwastrKmEnd) {
     var syslistId = 3950010;
 
-    if (hasValue(bwastrId)) {
+    if (hasValue(bwastrId) && !isNaN(bwastrId)) {
         var bwastrName = "";
         var bwastrStreckenName = "";
         if (log.isDebugEnabled()) {
