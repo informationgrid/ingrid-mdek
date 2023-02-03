@@ -202,6 +202,10 @@
       "type": "keyword",
       "store": true
     },
+    "refering.object_reference.version": {
+      "type": "keyword",
+      "store": true
+    },
     "t02_address.adr_id": {
       "type": "keyword",
       "store": true
