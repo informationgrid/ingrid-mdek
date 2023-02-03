@@ -155,7 +155,7 @@
       "store": true
     },
     "t011_obj_serv.type": {
-      "type": "keyword",
+      "type": "text",
       "store": true
     },
     "t011_obj_serv.type_key": {
@@ -164,6 +164,10 @@
     },
     "t012_obj_adr.adr_id": {
       "type": "keyword"
+    },
+    "t011_obj_serv_version.version_value": {
+      "type": "keyword",
+      "store": true
     },
     "t01_object.mod_uuid": {
       "type": "keyword"
@@ -193,6 +197,10 @@
       "store": true
     },
     "object_reference.type": {
+      "type": "keyword",
+      "store": true
+    },
+    "object_reference.version": {
       "type": "keyword",
       "store": true
     },
@@ -419,7 +427,7 @@
       "store": true
     },
     "t04_search.searchterm": {
-      "type": "keyword",
+      "type": "text",
       "store": true
     },
     "t017_url_ref.url_link": {
