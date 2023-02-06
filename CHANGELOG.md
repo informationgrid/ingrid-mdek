@@ -1,4 +1,16 @@
 
+## 6.0.1 (06.02.2023)
+
+### Features
+
+* IGE: Korrektur Regionalschlüssel erfassen - Minimallösung (#4597)
+* Workaround für parentIdentifier mit problematischem Format (#3786)
+
+### Bugfixes
+
+* Fix für XSS-Schwachstelle kann nicht deployed werden  (#4734)
+* IGE: anderssprachige Eingaben - fehlerhafte Ausgabe im ISO-XML  (#4670)
+    
 ## 6.0.0 (13.01.2023)
 
 ### Features
