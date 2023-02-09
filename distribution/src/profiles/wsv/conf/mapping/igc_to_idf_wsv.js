@@ -163,6 +163,15 @@ for (i=0; i<objRows.size(); i++) {
             mdMetadata.addElement("gmd:hierarchyLevelName/gco:CharacterString").addText(hierarchyLevelName);
         }
     }
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND (searchterm_value.type=? OR searchterm_value.type=?)", [+objId, "1", "F"]);
+    var topicPrefix = 'wsv_topic_code:'
+    for (i=0; i<rows.size(); i++) {
+        var row = rows.get(i);
+        var keywordValue = row.get("term");
+        if(keywordValue != null && keywordValue.startsWith(topicPrefix)){
+            mdMetadata.addElement("gmd:hierarchyLevelName/gco:CharacterString").addText(keywordValue.substring(topicPrefix.length));
+        }
+    }
     // ---------- <gmd:contact> ----------
 
     // contact for metadata
