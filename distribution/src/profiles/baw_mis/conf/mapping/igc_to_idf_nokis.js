@@ -216,7 +216,7 @@ function getAdditionalFieldFromObject(objId, fieldId, property) {
     var field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldId]);
     if (hasValue(field)) {
         var value= field.get(property);
-        if(hasValue(value) && !value == "NaN"){
+        if(hasValue(value) && value !== "NaN"){
           return value;
         }
      }
