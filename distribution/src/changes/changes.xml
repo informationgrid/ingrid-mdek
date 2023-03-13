@@ -5,6 +5,21 @@
   </properties>
   <body>
 
+    <release version="5.14.5-SNAPSHOT" date="2023-xx-xx" description="Release 5.14.5">
+      <action type="add" dev="wemove" issue="4488">
+        LUBW: Initiale Backend-Implementierung für Vertriebsfacette
+      </action>
+      <action type="add" dev="wemove" issue="4031">
+        WSV: Map Topic-Keyword als hierarchyLevelName
+      </action>
+      <action type="add" dev="wemove" issue="4022">
+        WSV: Freier Raumbezug ohne Koordinaten
+      </action>
+      <action type="update" dev="wemove" issue="3807">
+        WSV: Anpassungen Warenkorb-Link
+      </action>
+    </release>
+
     <release version="5.14.4" date="2022-01-16" description="Release 5.14.4">
       <action type="update" dev="wemove" issue="4615">
         LUBW: Add OAC to exported ISO XML
