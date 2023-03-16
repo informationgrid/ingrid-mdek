@@ -5,7 +5,7 @@
   </properties>
   <body>
 
-    <release version="5.14.5-SNAPSHOT" date="2023-xx-xx" description="Release 5.14.5">
+    <release version="5.14.5" date="2023-03-16" description="Release 5.14.5">
       <action type="add" dev="wemove" issue="4488">
         LUBW: Initiale Backend-Implementierung für Vertriebsfacette
       </action>
