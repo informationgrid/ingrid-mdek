@@ -73,3 +73,17 @@ function addTreePath(objId) {
     } 
     IDX.add("object_node.tree_path.name", treePath);    
 }
+
+function hasValue(val) {
+    if (typeof val == "undefined") {
+        return false;
+    } else if (val == null) {
+        return false;
+    } else if (typeof val == "string" && val == "") {
+        return false;
+    } else if (typeof val == "object" && Object.keys(val).length === 0) {
+        return false;
+    } else {
+      return true;
+    }
+}
