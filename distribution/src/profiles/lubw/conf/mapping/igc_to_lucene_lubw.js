@@ -52,7 +52,6 @@ for (var i = 0; i < addnFieldRows.size(); i++) {
 addTreePath(objId);
 
 function addTreePath(objId) {
-    var treePath = [];
     var objRow = SQL.first("SELECT obj_uuid FROM t01_object WHERE id=?", [objId]);
     if (hasValue(objRow)) {
         var objUuid = objRow.get("obj_uuid");
@@ -65,13 +64,12 @@ function addTreePath(objId) {
                     var tmpRow = SQL.first("SELECT obj_name FROM t01_object WHERE obj_uuid=?", [tmpObjUuid]);
                     if (hasValue(tmpRow)) {
                         var tmpObjName = tmpRow.get("obj_name");
-                        treePath.push(tmpObjName);
+                        IDX.add("object_node.tree_path.name", obj_name);
                     }
                 }
             });
         }   
     } 
-    IDX.add("object_node.tree_path.name", treePath);    
 }
 
 function hasValue(val) {
