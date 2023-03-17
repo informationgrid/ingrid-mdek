@@ -31,6 +31,10 @@
       "type": "keyword",
       "store": true
     },
+    "object_node.tree_path.name": {
+      "type": "keyword",
+      "store": true
+    },
     "kml": {
       "type": "keyword",
       "store": true

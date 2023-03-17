@@ -48,3 +48,28 @@ for (var i = 0; i < addnFieldRows.size(); i++) {
         }
     }
 }
+
+addTreePath(objId);
+
+function addTreePath(objId) {
+    var treePath = [];
+    var objRow = SQL.first("SELECT obj_uuid FROM t01_object WHERE id=?", [objId]);
+    if (hasValue(objRow)) {
+        var objUuid = objRow.get("obj_uuid");
+        var row = SQL.first("SELECT tree_path FROM object_node WHERE obj_uuid=?", [objUuid]);
+        if (hasValue(row)) {
+            var tmpTreePaths = row.get("tree_path");
+            tmpTreePaths.split("||").forEach(function (tmpTreePath) {
+                if (hasValue(tmpTreePath)) {
+                    var tmpObjUuid = tmpTreePath.replace("|", "");
+                    var tmpRow = SQL.first("SELECT obj_name FROM t01_object WHERE obj_uuid=?", [tmpObjUuid]);
+                    if (hasValue(tmpRow)) {
+                        var tmpObjName = tmpRow.get("obj_name");
+                        treePath.push(tmpObjName);
+                    }
+                }
+            });
+        }   
+    } 
+    IDX.add("object_node.tree_path.name", treePath);    
+}
