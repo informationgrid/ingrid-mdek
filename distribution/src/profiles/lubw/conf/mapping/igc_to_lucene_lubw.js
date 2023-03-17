@@ -60,11 +60,11 @@ function addTreePath(objId) {
             var tmpTreePaths = row.get("tree_path");
             tmpTreePaths.split("||").forEach(function (tmpTreePath) {
                 if (hasValue(tmpTreePath)) {
-                    var tmpObjUuid = tmpTreePath.replace("|", "");
+                    var tmpObjUuid = tmpTreePath.replaceAll("|", "");
                     var tmpRow = SQL.first("SELECT obj_name FROM t01_object WHERE obj_uuid=?", [tmpObjUuid]);
                     if (hasValue(tmpRow)) {
                         var tmpObjName = tmpRow.get("obj_name");
-                        IDX.add("object_node.tree_path.name", obj_name);
+                        IDX.add("object_node.tree_path.name", tmpObjName);
                     }
                 }
             });
