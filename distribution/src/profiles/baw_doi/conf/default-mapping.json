@@ -156,7 +156,7 @@
       "type": "keyword"
     },
     "t011_obj_serv_version.version_value": {
-      "type": "keyword",
+      "type": "text",
       "store": true
     },
     "t01_object.mod_uuid": {
