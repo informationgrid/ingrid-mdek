@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -3077,13 +3077,21 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
         idfObjectReference.addAttribute("direction", direction);
     }
 
-    idfObjectReference.addElement("idf:objectName").addText(objRow.get("obj_name"));
+    var title = objRow.get("obj_name");
+    if (title.indexOf("#locale-") !== -1){
+        title = title.substring(0,title.indexOf("#locale-"));
+    }
+    idfObjectReference.addElement("idf:objectName").addText(title);
     idfObjectReference.addElement("idf:objectType").addText(objRow.get("obj_class"));
 
     addAttachedToField(objRow, idfObjectReference);
 
     if (hasValue(objRow.get("obj_descr"))) {
-        idfObjectReference.addElement("idf:description").addText(objRow.get("obj_descr"));
+        var description = objRow.get("obj_descr");
+        if (description.indexOf("#locale-") !== -1){
+            description = description.substring(0,description.indexOf("#locale-"));
+        }
+        idfObjectReference.addElement("idf:description").addText(objRow.get("description"));
     }
 
     // map service data if present !

@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.1 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * http://ec.europa.eu/idabc/eupl5
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -480,7 +480,11 @@ for (i=0; i<objRows.size(); i++) {
 function addT01ObjectFolder(row) {
     IDX.add("t01_object.id", row.get("id"));
     IDX.add("t01_object.obj_id", row.get("obj_uuid"));
-    IDX.add("title", row.get("obj_name"));
+    var title = row.get("obj_name");
+    if (title.indexOf("#locale-") !== -1){
+        title = title.substring(0,title.indexOf("#locale-"));
+    }
+    IDX.add("title", title);
     IDX.add("t01_object.org_obj_id", row.get("org_obj_id"));
     IDX.add("t01_object.obj_class", row.get("obj_class"));
     IDX.add("summary", row.get("obj_descr"));
@@ -500,7 +504,11 @@ function addT01ObjectFolder(row) {
 function addT01Object(row) {
     IDX.add("t01_object.id", row.get("id"));
     IDX.add("t01_object.obj_id", row.get("obj_uuid"));
-    IDX.add("title", row.get("obj_name"));
+    var title = row.get("obj_name");
+    if (title.indexOf("#locale-") !== -1){
+        title = title.substring(0,title.indexOf("#locale-"));
+    }
+    IDX.add("title", title);
     IDX.add("t01_object.org_obj_id", row.get("org_obj_id"));
     IDX.add("t01_object.obj_class", row.get("obj_class"));
     IDX.add("summary", row.get("obj_descr"));
