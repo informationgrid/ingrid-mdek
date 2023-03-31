@@ -49,16 +49,6 @@
  *		protocol.addMessage(protocol.getCurrentFilename() + ": Debug message");
  * }
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-    load("nashorn:mozilla_compat.js");
-    var ProtocolHandler = Java.type("de.ingrid.mdek.job.protocol.ProtocolHandler");
-}
-
-importPackage(Packages.de.ingrid.utils.udk);
-importPackage(Packages.org.w3c.dom);
-importClass(Packages.de.ingrid.utils.xml.XMLUtils);
-importClass(Packages.de.ingrid.mdek.job.protocol.ProtocolHandler);
-
 var DEBUG = 1;
 var INFO = 2;
 var WARN = 3;

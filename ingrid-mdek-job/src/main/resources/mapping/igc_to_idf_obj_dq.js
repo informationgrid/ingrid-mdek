@@ -22,8 +22,6 @@
  */
 
 var DatabaseSourceRecord = Java.type("de.ingrid.iplug.dsc.om.DatabaseSourceRecord");
-/*importPackage(Packages.org.w3c.dom);
-importPackage(Packages.de.ingrid.iplug.dsc.om);*/
 
 if (log.isDebugEnabled()) {
     log.debug("Mapping source record DQ to idf document: " + sourceRecord.toString());

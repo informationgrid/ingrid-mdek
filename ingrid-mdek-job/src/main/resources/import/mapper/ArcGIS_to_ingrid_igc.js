@@ -39,14 +39,6 @@
  * @param log A Log instance
  *
  */
-if (javaVersion.indexOf( "1.8" ) === 0) {
-    load("nashorn:mozilla_compat.js");
-}
-
-importPackage(Packages.de.ingrid.utils.udk);
-importPackage(Packages.de.ingrid.utils.xml);
-importPackage(Packages.org.w3c.dom);
-
 
 var DEBUG = 1;
 var INFO = 2;
