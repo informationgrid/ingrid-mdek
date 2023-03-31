@@ -3085,7 +3085,7 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
         if (description.indexOf("#locale-") !== -1){
             description = description.substring(0,description.indexOf("#locale-"));
         }
-        idfObjectReference.addElement("idf:description").addText(objRow.get("description"));
+        idfObjectReference.addElement("idf:description").addText(description);
     }
 
     // map service data if present !
