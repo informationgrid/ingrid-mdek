@@ -48,11 +48,6 @@
 
                 <!-- ISO 19115/19139 Validators -->
                 <ref bean="isoSchemaValidator" />
-                <!--
-                TODO: delete. see also comment next to tbe bean definition
-                <ref bean="isoConditionsValidator" />
-                <ref bean="bawProfileValidator" />
-                -->
 
                 <!-- Scripts for IGC generation -->
                 <ref bean="csw202ScriptImportDataMapper" />
@@ -63,11 +58,6 @@
 
     <bean id="bawIsoToIdfPreprocessor" class="de.ingrid.mdek.job.mapping.profiles.baw.IsoToIgcPreprocessorBaw" />
     <bean id="isoSchemaValidator" class="de.ingrid.mdek.job.mapping.validation.iso.ISO_19115_2003_SchemaValidator" />
-    <!--
-    TODO: refactor and delete classes
-    <bean id="isoConditionsValidator" class="de.ingrid.mdek.job.mapping.validation.iso.ISO_19115_2003_ConditionsValidator" />
-    <bean id="bawProfileValidator" class="de.ingrid.mdek.job.mapping.profiles.baw.validation.iso.BawMetadataProfileValidator" />
-    -->
     <bean id="bawIsoToIdfMapper" class="de.ingrid.mdek.job.mapping.profiles.baw.IsoToIgcMapperBaw" />
 
     <bean id="csw202ScriptImportDataMapper" class="de.ingrid.mdek.job.mapping.ScriptImportDataMapper">
