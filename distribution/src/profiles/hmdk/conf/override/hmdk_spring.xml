@@ -43,6 +43,17 @@
         <property name="compile" value="false" />
     </bean>
 
+    <bean id="recordMapper" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
+        <property name="mappingScripts">
+            <list>
+                <value>classpath:mapping/global.js</value>
+                <value>classpath:mapping/igc_to_lucene.js</value>
+                <value>classpath:mapping/igc_to_lucene-hmdk.js</value>
+            </list>
+        </property>
+        <property name="compile" value="false" />
+    </bean>
+
     <bean id="csw202ScriptImportDataMapper" class="de.ingrid.mdek.job.mapping.ScriptImportDataMapper">
         <property name="mapperScript">
             <list>
