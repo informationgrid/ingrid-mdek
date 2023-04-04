@@ -40,7 +40,6 @@ for (i=0; i<objRows.size(); i++) {
     var objUuid = objRows.get(i).get("obj_uuid");
     var publishId = objRows.get(i).get("publish_id");
     var objClass = objRows.get(i).get("obj_class");
-    var objUuid = objRows.get(i).get("obj_uuid");
 
     var mapUrl = '';
 
@@ -53,14 +52,12 @@ for (i=0; i<objRows.size(); i++) {
             var capabilitiesUrls = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3600 AND serv.type_key=2 AND t01obj.work_state='V'", [objUuid, +objFromId]);
             for (l=0; l<capabilitiesUrls.size(); l++) {
                 var objFromIdRow = SQL.first("SELECT obj_uuid FROM t01_object WHERE id=?", [+objFromId]);
-                if (hasValue(objFromIdRow)) {
-                    var objFromIdUuid = objFromIdRow.get("obj_uuid");
-                    if (hasValue(objFromIdUuid)) {
-                        mapUrl = addCapabilitiesUrl(capabilitiesUrls.get(l), objFromIdUuid, publishId);
-                        if(hasValue(mapUrl)) {
-                            log.info('Add external map url to lucene by object_reference.');
-                            break;
-                        }
+                var objFromIdUuid = objFromIdRow.get("obj_uuid");
+                if (hasValue(objFromIdUuid)) {
+                    mapUrl = addCapabilitiesUrl(capabilitiesUrls.get(l), objFromIdUuid, publishId);
+                    if(hasValue(mapUrl)) {
+                        log.debug('Add external map url to lucene by object_reference.');
+                        break;
                     }
                 }
             }
@@ -81,7 +78,7 @@ for (i=0; i<objRows.size(); i++) {
                     if(isCapabilityOperation) {
                         mapUrl = addCapabilitiesUrl(subSubRows.get(l), objUuid, publishId);
                         if(hasValue(mapUrl)) {
-                            log.info('Add external map url to lucene by t011_obj_serv_op_connpoint.');
+                            log.debug('Add external map url to lucene by t011_obj_serv_op_connpoint.');
                             break;
                         }
                     }
@@ -90,7 +87,7 @@ for (i=0; i<objRows.size(); i++) {
         }
     }
     if (hasValue(mapUrl)) {
-        log.info('Add external map url to lucene: ' + mapUrl);
+        log.debug('Add external map url to lucene: ' + mapUrl);
         IDX.add("capabilities_url_with_client", mapUrl);
     }
 }
