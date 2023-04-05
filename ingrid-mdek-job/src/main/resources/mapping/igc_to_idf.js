@@ -3093,7 +3093,7 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
         var myValue = TRANSF.getISOCodeListEntryFromIGCSyslistEntry(5100, srvRow.get("type_key") + "");
         idfObjectReference.addElement("idf:serviceType").addText(myValue);
         idfObjectReference.addElement("idf:serviceOperation").addText(srvRow.get("name_value"));
-        idfObjectReference.addElement("idf:serviceUrl").addText(srvRow.get("connect_point"));
+        
         // Add 'hasAccessConstraint' to check constraint
         // Issue: https://redmine.informationgrid.eu/issues/2199
         var hasConstraint = false;
@@ -3105,6 +3105,10 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
           idfObjectReference.addElement("idf:hasAccessConstraint").addText(hasConstraint + "");
         }
         var objServId = srvRow.get("id")
+
+        var tmpVersRow = SQL.first("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [+objServId]);
+        idfObjectReference.addElement("idf:serviceUrl").addText(tmpVersRow.get("connect_point"));
+
         var tmpVersRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
         var referenceVersion = "";
         for (v=0; v<tmpVersRows.size(); v++) {

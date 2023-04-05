@@ -56,6 +56,7 @@ for (i=0; i<objRows.size(); i++) {
                 if (hasValue(objFromIdUuid)) {
                     mapUrl = addCapabilitiesUrl(capabilitiesUrls.get(l), objFromIdUuid, publishId);
                     if(hasValue(mapUrl)) {
+                        IDX.add("capabilities_url_with_client", mapUrl);
                         log.debug('Add external map url to lucene by object_reference.');
                         break;
                     }
@@ -78,6 +79,7 @@ for (i=0; i<objRows.size(); i++) {
                     if(isCapabilityOperation) {
                         mapUrl = addCapabilitiesUrl(subSubRows.get(l), objUuid, publishId);
                         if(hasValue(mapUrl)) {
+                            IDX.add("capabilities_url_with_client", mapUrl);
                             log.debug('Add external map url to lucene by t011_obj_serv_op_connpoint.');
                             break;
                         }
@@ -85,10 +87,6 @@ for (i=0; i<objRows.size(); i++) {
                 }
             }
         }
-    }
-    if (hasValue(mapUrl)) {
-        log.debug('Add external map url to lucene: ' + mapUrl);
-        IDX.add("capabilities_url_with_client", mapUrl);
     }
 }
 
