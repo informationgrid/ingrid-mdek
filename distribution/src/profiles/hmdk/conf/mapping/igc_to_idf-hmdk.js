@@ -153,9 +153,9 @@ for (i=0; i<objRows.size(); i++) {
                 if (hasValue(objFromIdUuid)) {
                     mapUrl = addCapabilitiesUrl(capabilitiesUrls.get(l), objFromIdUuid, publishId);
                     if(hasValue(mapUrl)) {
+                        log.debug('Add external map url to idf by object_reference.');
                         var mdCrossRef = DOM.getElement(idfDoc, "//idf:idfMdMetadata/idf:crossReference[@uuid='" + objFromIdUuid + "']");
                         mdCrossRef.addElement("idf:mapUrl").addText(mapUrl);
-                        log.debug('Add external map url to idf by object_reference.');
                         break;
                     }
                 }
@@ -178,15 +178,18 @@ for (i=0; i<objRows.size(); i++) {
                         mapUrl = addCapabilitiesUrl(subSubRows.get(l), objUuid, publishId);
                         if(hasValue(mapUrl)) {
                             log.debug('Add external map url to idf by t011_obj_serv_op_connpoint.');
-                            var mdMetadata = DOM.getElement(idfDoc, "//idf:idfMdMetadata");
-                            mdMetadata.addElement("idf:mapUrl").addText(mapUrl);
                             break;
                         }
                     }
                 }
             }
         }
-    }  
+    }
+    if(hasValue(mapUrl)){
+        log.debug('Add external map url to idf: ' + mapUrl);
+        var mdMetadata = DOM.getElement(idfDoc, "//idf:idfMdMetadata");
+        mdMetadata.addElement("idf:mapUrl").addText(mapUrl);
+    }    
 }
 
 function addCapabilitiesUrl(row, objUuid, publishId) {
