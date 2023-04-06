@@ -155,8 +155,10 @@ for (i=0; i<objRows.size(); i++) {
                     if(hasValue(mapUrl)) {
                         log.debug('Add external map url to idf by object_reference.');
                         var mdCrossRef = DOM.getElement(idfDoc, "//idf:idfMdMetadata/idf:crossReference[@uuid='" + objFromIdUuid + "']");
-                        mdCrossRef.addElement("idf:mapUrl").addText(mapUrl);
-                        break;
+                        if(hasValue(mdCrossRef)) {
+                            mdCrossRef.addElement("idf:mapUrl").addText(mapUrl);
+                            break;
+                        }
                     }
                 }
             }
