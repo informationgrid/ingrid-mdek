@@ -3107,11 +3107,13 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
         var objServId = srvRow.get("id")
 
         var tmpVersRow = SQL.first("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [+objServId]);
-        idfObjectReference.addElement("idf:serviceUrl").addText(tmpVersRow.get("connect_point"));
+        if (hasValue(tmpVersRow)) {
+            idfObjectReference.addElement("idf:serviceUrl").addText(tmpVersRow.get("connect_point"));
+        }
 
         var tmpVersRows = SQL.all("SELECT * FROM t011_obj_serv_version WHERE obj_serv_id=?", [+objServId]);
         var referenceVersion = "";
-        for (v=0; v<tmpVersRows.size(); v++) {
+        for (var v=0; v<tmpVersRows.size(); v++) {
             var version = tmpVersRows.get(v).get("version_value");
             if(hasValue(version)){
                 if (hasValue(referenceVersion)) {
