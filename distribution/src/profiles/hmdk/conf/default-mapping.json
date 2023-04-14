@@ -23,97 +23,6 @@
       "type": "keyword",
       "store": true
     },
-    "baw_abteilung_short": {
-      "type": "keyword",
-      "store": true
-    },
-    "baw_abteilung_long": {
-      "type": "text",
-      "store": true,
-      "analyzer": "phrase",
-      "search_analyzer": "phrase"
-    },
-    "bwstr-bwastr-id": {
-      "type": "keyword",
-      "store": true
-    },
-    "bwstr-center-lat": {
-      "type": "keyword",
-      "store": true
-    },
-    "bwstr-center-lon": {
-      "type": "keyword",
-      "store": true
-    },
-    "bwstr-bwastr_name": {
-      "type": "keyword",
-      "store": true,
-      "fields": {
-        "phrase": {
-          "type":  "text",
-          "analyzer": "phrase",
-          "search_analyzer": "phrase"
-        }
-      }
-    },
-    "bwstr-strecken_name": {
-      "type": "keyword",
-      "store": true
-    },
-    "bwstr-strecken_km_von": {
-      "type": "keyword",
-      "store": true
-    },
-    "bwstr-strecken_km_bis": {
-      "type": "keyword",
-      "store": true
-    },
-    "simparamname": {
-      "type": "keyword"
-    },
-    "simparaminfo": {
-      "type": "keyword"
-    },
-    "simparamvalue": {
-      "type": "keyword"
-    },
-    "simparamtype": {
-      "type": "keyword"
-    },
-    "simparammdinfo": {
-      "type": "keyword"
-    },
-    "simparamunit": {
-      "type": "keyword"
-    },
-    "simmodeltype": {
-      "type": "keyword",
-      "store": true
-    },
-    "bawauftragsnummer": {
-      "type": "keyword",
-      "store": true
-    },
-    "bawauftragstitel": {
-      "type": "keyword",
-      "store": true
-    },
-    "simprocess": {
-      "type": "keyword",
-      "store": true
-    },
-    "simspatialdimension": {
-      "type": "keyword",
-      "store": true
-    },
-    "physicalparameter.name": {
-      "type": "text",
-      "store": true
-    },
-    "additional_html_citation_quote": {
-      "type": "keyword",
-      "store": true
-    },
     "kml": {
       "type": "keyword",
       "store": true
@@ -123,6 +32,10 @@
       "store": true
     },
     "capabilities_url": {
+      "type": "keyword",
+      "store": true
+    },
+    "capabilities_url_with_client": {
       "type": "keyword",
       "store": true
     },

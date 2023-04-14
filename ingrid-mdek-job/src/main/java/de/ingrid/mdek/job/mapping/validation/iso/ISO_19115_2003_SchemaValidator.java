@@ -37,6 +37,7 @@ import static de.ingrid.mdek.job.mapping.validation.iso.util.IsoImportValidation
  *
  * @author Vikram Notay
  */
+@Deprecated
 public final class ISO_19115_2003_SchemaValidator implements ImportDataMapper<Document, Document> {
 
     public ISO_19115_2003_SchemaValidator() {

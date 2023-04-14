@@ -31,6 +31,14 @@
       "type": "keyword",
       "store": true
     },
+    "object_node.tree_path.name": {
+      "type": "keyword",
+      "store": true
+    },
+    "distributor": {
+      "type": "keyword",
+      "store": true
+    },
     "kml": {
       "type": "keyword",
       "store": true
@@ -80,7 +88,7 @@
       "store": true
     },
     "t011_obj_serv.type": {
-      "type": "keyword",
+      "type": "text",
       "store": true
     },
     "t011_obj_serv.type_key": {
@@ -89,6 +97,10 @@
     },
     "t012_obj_adr.adr_id": {
       "type": "keyword"
+    },
+    "t011_obj_serv_version.version_value": {
+      "type": "text",
+      "store": true
     },
     "t01_object.mod_uuid": {
       "type": "keyword"
@@ -121,6 +133,10 @@
       "type": "keyword",
       "store": true
     },
+    "object_reference.version": {
+      "type": "keyword",
+      "store": true
+    },
     "refering.object_reference.obj_uuid": {
       "type": "keyword",
       "store": true
@@ -134,6 +150,10 @@
       "store": true
     },
     "refering.object_reference.type": {
+      "type": "keyword",
+      "store": true
+    },
+    "refering.object_reference.version": {
       "type": "keyword",
       "store": true
     },

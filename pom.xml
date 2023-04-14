@@ -9,7 +9,7 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>6.0.0</version>
+  <version>6.1.0</version>
   <name>InGrid iPlug IGE</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.
   </description>
@@ -19,12 +19,12 @@
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
-    <ingrid-udk-importer.version>6.0.0</ingrid-udk-importer.version>
+    <ingrid-udk-importer.version>6.1.0</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>6.0.0</ingrid-codelist-service.version>
-    <ingrid-utils.version>6.0.0</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>6.0.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>6.0.0</ingrid-base-webapp.version>
-    <spring.version>2.7.7</spring.version>
+    <ingrid-utils.version>6.1.0</ingrid-utils.version>
+    <ingrid-iplug-dsc.version>6.1.0</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>6.1.0</ingrid-base-webapp.version>
+    <spring.version>2.7.10</spring.version>
     <log4j2.version>2.19.0</log4j2.version>
     <maven.compiler.release>17</maven.compiler.release>
   </properties>
@@ -145,6 +145,27 @@
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
         <version>42.3.8</version>
+      </dependency>
+
+      <!-- Fix security issue => https://avd.aquasec.com/nvd/cve-2022-1471 -->
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>2.0</version>
+      </dependency>
+      
+      <!-- Fix security issue => https://avd.aquasec.com/nvd/cve-2015-7501 -->
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>3.2.2</version>
+      </dependency>
+      
+      <!-- Fix security issue => https://avd.aquasec.com/nvd/cve-2022-41853 -->
+      <dependency>
+        <groupId>org.hsqldb</groupId>
+        <artifactId>hsqldb</artifactId>
+        <version>2.7.1</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

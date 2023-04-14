@@ -51,7 +51,7 @@
                 <gmd:MD_DataIdentification uuid="4915275a-733a-47cd-b1a6-1a3f1e976948">
                     <gmd:citation>
                         <gmd:CI_Citation>
-                            <gmd:title xsi:type="PT_FreeText_PropertyType">
+                            <gmd:title xsi:type="gmd:PT_FreeText_PropertyType">
                                 <gco:CharacterString>Bebauungsplan Barmbek-Nord 18 (1.Änderung) Hamburg</gco:CharacterString>
                                 <gmd:PT_FreeText>
                                     <gmd:textGroup>
@@ -59,7 +59,7 @@
                                     </gmd:textGroup>
                                 </gmd:PT_FreeText>
                             </gmd:title>
-                            <gmd:alternateTitle xsi:type="PT_FreeText_PropertyType">
+                            <gmd:alternateTitle xsi:type="gmd:PT_FreeText_PropertyType">
                                 <gco:CharacterString>BN 18 Ä Textänderungsverfahren</gco:CharacterString>
                                 <gmd:PT_FreeText>
                                     <gmd:textGroup>
@@ -91,7 +91,7 @@
                             </gmd:identifier>
                         </gmd:CI_Citation>
                     </gmd:citation>
-                    <gmd:abstract xsi:type="PT_FreeText_PropertyType">
+                    <gmd:abstract xsi:type="gmd:PT_FreeText_PropertyType">
                         <gco:CharacterString>Dieser Datensatz stellt die geografischen Bezeichnungen von Hamburg im INSPIRE-Zielmodell dar.
                         </gco:CharacterString>
                         <gmd:PT_FreeText>
