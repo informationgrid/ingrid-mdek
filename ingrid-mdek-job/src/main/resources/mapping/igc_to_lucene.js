@@ -511,7 +511,11 @@ function addT01Object(row) {
     IDX.add("title", title);
     IDX.add("t01_object.org_obj_id", row.get("org_obj_id"));
     IDX.add("t01_object.obj_class", row.get("obj_class"));
-    IDX.add("summary", row.get("obj_descr"));
+    var summary = row.get("obj_descr");
+    if (summary.indexOf("#locale-") !== -1){
+        summary = summary.substring(0,summary.indexOf("#locale-"));
+    }
+    IDX.add("summary", summary);
     IDX.add("t01_object.cat_id", row.get("cat_id"));
     IDX.add("t01_object.info_note", row.get("info_note"));
     IDX.add("t01_object.loc_descr", row.get("loc_descr"));
