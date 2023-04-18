@@ -1414,7 +1414,7 @@ for (i=0; i<objRows.size(); i++) {
     rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=?" + publicationConditionFilter, [+objId, 'V']);
     for (i=0; i<rows.size(); i++) {
         // extract service information if present !
-        var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv WHERE serv.obj_id=?", [+rows.get(i).get("id")]);
+        var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv WHERE serv.obj_id=? AND serv.type_key=2", [+rows.get(i).get("id")]);
         if (log.isDebugEnabled()) {
             log.debug("Service object id: " + rows.get(i).get("id"));
             log.debug("Extracted Service Info: " + srvRow);
@@ -1440,7 +1440,7 @@ for (i=0; i<objRows.size(); i++) {
     rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_to_uuid=? AND object_reference.obj_from_id=t01_object.id AND t01_object.work_state=?" + publicationConditionFilter, [objUuid, 'V']);
     for (i=0; i<rows.size(); i++) {
         // extract service information if present !
-        var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv WHERE serv.obj_id=?", [+rows.get(i).get("id")]);
+        var srvRow = SQL.first("SELECT * FROM t011_obj_serv serv WHERE serv.obj_id=? AND serv.type_key=2", [+rows.get(i).get("id")]);
         if (log.isDebugEnabled()) {
             log.debug("Service object id: " + rows.get(i).get("id"));
             log.debug("Extracted Service Info: " + srvRow);
@@ -3106,7 +3106,7 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
         }
         var objServId = srvRow.get("id")
 
-        var tmpVersRow = SQL.first("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [+objServId]);
+        var tmpVersRow = SQL.first("SELECT * FROM t011_obj_serv_op_connpoint servOpConn, t011_obj_serv_operation servOp WHERE servOp.obj_serv_id=? AND servOpConn.obj_serv_op_id=servOp.id AND servOp.name_key=1", [+objServId]);
         if (hasValue(tmpVersRow)) {
             idfObjectReference.addElement("idf:serviceUrl").addText(tmpVersRow.get("connect_point"));
         }
