@@ -151,12 +151,13 @@ for (i=0; i<objRows.size(); i++) {
                 var objFromIdRow = SQL.first("SELECT obj_uuid FROM t01_object WHERE id=?", [+objFromId]);
                 var objFromIdUuid = objFromIdRow.get("obj_uuid");
                 if (hasValue(objFromIdUuid)) {
-                    mapUrl = addCapabilitiesUrl(capabilitiesUrls.get(l), objFromIdUuid, publishId);
+                    mapUrl = addCapabilitiesUrl(capabilitiesUrls.get(l), objUuid, publishId);
                     if(hasValue(mapUrl)) {
                         log.debug('Add external map url to idf by object_reference.');
                         var mdCrossRef = DOM.getElement(idfDoc, "//idf:idfMdMetadata/idf:crossReference[@uuid='" + objFromIdUuid + "']");
                         if(hasValue(mdCrossRef)) {
-                            mdCrossRef.addElement("idf:mapUrl").addText(mapUrl);
+                            var tmpMapUrl = addCapabilitiesUrl(capabilitiesUrls.get(l), objFromIdUuid, publishId);
+                            mdCrossRef.addElement("idf:mapUrl").addText(tmpMapUrl);
                             break;
                         }
                     }
