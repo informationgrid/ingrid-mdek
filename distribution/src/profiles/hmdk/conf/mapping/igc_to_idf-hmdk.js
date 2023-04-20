@@ -156,35 +156,47 @@ for (i=0; i<objRows.size(); i++) {
                         log.debug('Add external map url to idf by object_reference.');
                         var mdCrossRef = DOM.getElement(idfDoc, "//idf:idfMdMetadata/idf:crossReference[@uuid='" + objFromIdUuid + "']");
                         if(hasValue(mdCrossRef)) {
-                            var tmpMapUrl = addCapabilitiesUrl(capabilitiesUrls.get(l), objFromIdUuid, publishId);
-                            mdCrossRef.addElement("idf:mapUrl").addText(tmpMapUrl);
-                            break;
+                            var rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=? AND t01_object.obj_class=?", [+objFromId, 'V', 1]);
+                            var tmpObjUuids = '';
+                            for (m=0; m<rows.size(); m++) {
+                                var tmpObjUuid = rows.get(m).get("obj_uuid");
+                                if(hasValue(tmpObjUuid)) {
+                                    if(hasValue(tmpObjUuids)) {
+                                        tmpObjUuids += ',';
+                                    }
+                                    tmpObjUuids += tmpObjUuid;
+                                }
+                            }
+                            if(hasValue(tmpObjUuids)) {
+                                var subRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objFromId]);
+                                var tmpMapUrl = addCapabilitiesUrl(subRow, tmpObjUuids, publishId);
+                                mdCrossRef.addElement("idf:mapUrl").addText(tmpMapUrl);
+                                log.debug('Add external map url to idf by cross_reference.');
+                                break;
+                            }
                         }
                     }
                 }
             }
         }
     }
-    if (!mapUrl) {
-        var rows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
-        for (j=0; j<rows.size(); j++) {
-            var objServId = rows.get(j).get("id");
-            var subRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [+objServId]);
-            for (k=0; k<subRows.size(); k++) {
-                var objServOpId   = subRows.get(k).get("id");
-                var isCapabilityOperation = rows.get(j).get("type_key") == "2" && subRows.get(k).get("name_key") == "1"; // key of "Darstellungsdienste" is "2" and "GetCapabilities" is "1" !
-
-                // ---------- t011_obj_serv_op_connpoint ----------
-                var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [+objServOpId]);
-                for (l=0; l<subSubRows.size(); l++) {
-                    if(isCapabilityOperation) {
-                        mapUrl = addCapabilitiesUrl(subSubRows.get(l), objUuid, publishId);
-                        if(hasValue(mapUrl)) {
-                            log.debug('Add external map url to idf by t011_obj_serv_op_connpoint.');
-                            break;
-                        }
+    if (objClass == "3") {
+        if (!mapUrl) {
+            var rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=? AND t01_object.obj_class=?", [+id, 'V', 1]);
+            var tmpObjUuids = '';
+            for (j=0; j<rows.size(); j++) {
+                var tmpObjUuid = rows.get(j).get("obj_uuid");
+                if(hasValue(tmpObjUuid)) {
+                    if(hasValue(tmpObjUuids)) {
+                        tmpObjUuids += ',';
                     }
+                    tmpObjUuids += tmpObjUuid;
                 }
+            }
+            if(hasValue(tmpObjUuids)) {
+                var subRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+id]);
+                mapUrl = addCapabilitiesUrl(subRow, tmpObjUuids, publishId);
+                log.debug('Add external map url to lucene by reference objId.');
             }
         }
     }
@@ -196,21 +208,23 @@ for (i=0; i<objRows.size(); i++) {
 }
 
 function addCapabilitiesUrl(row, objUuid, publishId) {
-    if (!hasValue(row.get("has_access_constraint")) || row.get("has_access_constraint") !== 'Y') {
-        var intranetMapUrl = 'https://geofos.fhhnet.stadt.hamburg.de/fhh-atlas/?mdid=';
-        var internetMapUrl = 'https://geoportal-hamburg.de/geo-online/?mdid=';
-        var externalMapUrl = internetMapUrl;
-        if (hasValue(publishId)) {
-            if (publishId === '2') {
-                externalMapUrl = intranetMapUrl + '' + objUuid;
+    if (hasValue(row)) { 
+        if (!hasValue(row.get("has_access_constraint")) || row.get("has_access_constraint") !== 'Y') {
+            var intranetMapUrl = 'https://geofos.fhhnet.stadt.hamburg.de/fhh-atlas/?mdid=';
+            var internetMapUrl = 'https://geoportal-hamburg.de/geo-online/?mdid=';
+            var externalMapUrl = internetMapUrl;
+            if (hasValue(publishId)) {
+                if (publishId === '2') {
+                    externalMapUrl = intranetMapUrl + '' + objUuid;
+                } else {
+                    externalMapUrl += objUuid;
+                }
             } else {
                 externalMapUrl += objUuid;
             }
-        } else {
-            externalMapUrl += objUuid;
-        }
-        if (externalMapUrl !== internetMapUrl) {
-            return externalMapUrl;
+            if (externalMapUrl !== internetMapUrl) {
+                return externalMapUrl;
+            }
         }
     }
     return '';
