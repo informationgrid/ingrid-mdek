@@ -54,7 +54,7 @@ for (i=0; i<objRows.size(); i++) {
                 var objFromIdRow = SQL.first("SELECT obj_uuid FROM t01_object WHERE id=?", [+objFromId]);
                 var objFromIdUuid = objFromIdRow.get("obj_uuid");
                 if (hasValue(objFromIdUuid)) {
-                    mapUrl = addCapabilitiesUrl(capabilitiesUrls.get(l), objFromIdUuid, publishId);
+                    mapUrl = addCapabilitiesUrl(capabilitiesUrls.get(l), objUuid, publishId);
                     if(hasValue(mapUrl)) {
                         log.debug('Add external map url to lucene by object_reference.');
                         break;
@@ -63,26 +63,23 @@ for (i=0; i<objRows.size(); i++) {
             }
         }
     }
-    if (!hasValue(mapUrl)) {
-        var rows = SQL.all("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
-        for (j=0; j<rows.size(); j++) {
-            var objServId = rows.get(j).get("id");
-            var subRows = SQL.all("SELECT * FROM t011_obj_serv_operation WHERE obj_serv_id=?", [+objServId]);
-            for (k=0; k<subRows.size(); k++) {
-                var objServOpId   = subRows.get(k).get("id");
-                var isCapabilityOperation = rows.get(j).get("type_key") == "2" && subRows.get(k).get("name_key") == "1"; // key of "Darstellungsdienste" is "2" and "GetCapabilities" is "1" !
-
-                // ---------- t011_obj_serv_op_connpoint ----------
-                var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [+objServOpId]);
-                for (l=0; l<subSubRows.size(); l++) {
-                    if(isCapabilityOperation) {
-                        mapUrl = addCapabilitiesUrl(subSubRows.get(l), objUuid, publishId);
-                        if(hasValue(mapUrl)) {
-                            log.debug('Add external map url to lucene by t011_obj_serv_op_connpoint.');
-                            break;
-                        }
+    if (objClass == "3") {
+        if (!hasValue(mapUrl)) {
+            var rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object WHERE object_reference.obj_from_id=? AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=? AND t01_object.obj_class=?", [+objId, 'V', 1]);
+            var tmpObjUuids = '';
+            for (j=0; j<rows.size(); j++) {
+                var tmpObjUuid = rows.get(j).get("obj_uuid");
+                if(hasValue(tmpObjUuid)) {
+                    if(hasValue(tmpObjUuids)) {
+                        tmpObjUuids += ',';
                     }
+                    tmpObjUuids += tmpObjUuid;
                 }
+            }
+            if(hasValue(tmpObjUuids)) {
+                var subRow = SQL.first("SELECT * FROM t011_obj_serv WHERE obj_id=?", [+objId]);
+                mapUrl = addCapabilitiesUrl(subRow, tmpObjUuids, publishId);
+                log.debug('Add external map url to lucene by reference objId.');
             }
         }
     }
@@ -93,21 +90,23 @@ for (i=0; i<objRows.size(); i++) {
 }
 
 function addCapabilitiesUrl(row, objUuid, publishId) {
-    if (!hasValue(row.get("has_access_constraint")) || row.get("has_access_constraint") !== 'Y') {
-        var intranetMapUrl = 'https://geofos.fhhnet.stadt.hamburg.de/fhh-atlas/?mdid=';
-        var internetMapUrl = 'https://geoportal-hamburg.de/geo-online/?mdid=';
-        var externalMapUrl = internetMapUrl;
-        if (hasValue(publishId)) {
-            if (publishId === '2') {
-                externalMapUrl = intranetMapUrl + '' + objUuid;
+    if (hasValue(row)) { 
+        if (!hasValue(row.get("has_access_constraint")) || row.get("has_access_constraint") !== 'Y') {
+            var intranetMapUrl = 'https://geofos.fhhnet.stadt.hamburg.de/fhh-atlas/?mdid=';
+            var internetMapUrl = 'https://geoportal-hamburg.de/geo-online/?mdid=';
+            var externalMapUrl = internetMapUrl;
+            if (hasValue(publishId)) {
+                if (publishId === '2') {
+                    externalMapUrl = intranetMapUrl + '' + objUuid;
+                } else {
+                    externalMapUrl += objUuid;
+                }
             } else {
                 externalMapUrl += objUuid;
             }
-        } else {
-            externalMapUrl += objUuid;
-        }
-        if (externalMapUrl !== internetMapUrl) {
-            return externalMapUrl;
+            if (externalMapUrl !== internetMapUrl) {
+                return externalMapUrl;
+            }
         }
     }
     return '';
