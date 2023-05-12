@@ -388,7 +388,7 @@ function getIdfObjectReference(objRow, elementName) {
       }
       log.debug("hasConstraint: " + hasConstraint);
       if (hasConstraint) {
-        idfObjectReference.addElement("idf:hasAccessConstraint").addText(hasConstraint);
+        idfObjectReference.addElement("idf:hasAccessConstraint").addText(hasConstraint + "");
       }
   }
 
