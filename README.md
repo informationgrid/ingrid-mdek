@@ -71,7 +71,7 @@ to get a fully configured elastic search node, ibus and database running.
 
 In order to run the configuration for a specific profile to create the correct index documents, you need to do the following steps:
 
-* in `ingrid-mdek-job\src\main\webapp\WEB-INF\jetty-web.xml`, uncomment the directory of the desired profile in `baseResource`
+* in `ingrid-mdek-job/src/develop/resources/application-default.properties`, uncomment the property `jetty.base.resources` with the profile to be used
 * (IntelliJ) in Project Structure -> `ingrid-mdek-job` module -> Dependencies, add the directory `../distribution/src/profiles/<profile>/conf` as Classes and move it to the top of the list
 * (Eclipse) add `../distribution/src/profiles/<profile>/conf` as `Classpath`
 
@@ -81,7 +81,7 @@ The profiles can be found under "distribution/src/profiles" where all changes sh
 profile.
 
 To develop for a profile you need to make the following changes:
-* edit "ingrid-mdek-job/src/main/webapp/WEB-INF/jetty-web.xml" and uncomment the `<Item>` you need
+* edit "ingrid-mdek-job/src/develop/resources/application-default.properties" and uncomment the `jetty.base.resources` you need
 for your profile (this extends and overwrites the webapp folder)
 * add `distribution/src/profiles/<profile>/conf` to your classpath on top
     * IntelliJ IDEA: 
