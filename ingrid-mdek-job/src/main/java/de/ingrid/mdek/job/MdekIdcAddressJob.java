@@ -24,7 +24,6 @@ package de.ingrid.mdek.job;
 
 import java.util.*;
 
-import de.ingrid.utils.uuid.UuidUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -93,9 +92,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 	protected BeanToDocMapperSecurity beanToDocMapperSecurity;
 
 	private XsltUtils xsltUtils;
-
-	@Autowired
-	private Configuration igeConfig;
 
 	@Autowired
     @Qualifier("dscRecordCreatorAddress")
@@ -527,11 +523,7 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			// set specific data to transfer to working copy and store !
 			workflowHandler.processDocOnStore(aDocIn);
-
-			// If flag is set in config, then use UUID3 for new addresses
-			if (aDocIn.get(MdekKeys.UUID) == null && igeConfig.newAddressesUseUuid3) {
-				addUuid3ForNewAddress(aDocIn);
-			}
+			
 			String uuid = addressService.storeWorkingCopy(aDocIn, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
@@ -564,24 +556,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 				removeRunningJob(userId);				
 			}
 		}
-	}
-
-	private static String addUuid3ForNewAddress(IngridDocument aDocIn) {
-		List<IngridDocument> commList = (List<IngridDocument>) aDocIn.get(MdekKeys.COMMUNICATION);
-		String email = null;
-		for(IngridDocument comm: commList) {
-			if (Objects.equals(comm.get(MdekKeys.COMMUNICATION_MEDIUM_KEY), MdekUtils.COMM_TYPE_EMAIL)) {
-				email = (String) comm.get(MdekKeys.COMMUNICATION_VALUE);
-				break;
-			}
-		}
-
-		if (email != null) {
-			String uuid3 = UuidUtil.uuidType3(UuidUtil.NAMESPACE_DNS, email).toString();
-			aDocIn.put(MdekKeys.UUID, uuid3);
-			return uuid3;
-		}
-		return null;
 	}
 	
 	public IngridDocument assignAddressToQA(IngridDocument aDocIn) {
@@ -811,14 +785,6 @@ public class MdekIdcAddressJob extends MdekIdcJob {
 
 			daoAddressNode.beginTransaction();
 			
-			if (aDocIn.get(MdekKeys.UUID) == null && igeConfig.newAddressesUseUuid3) {
-				String uuid = addUuid3ForNewAddress(aDocIn);
-				// before publish with a generated UUID we need to store it so that the
-				// checks during publishing still work
-				if (uuid != null) {
-					addressService.storeWorkingCopy(aDocIn, userId);
-				}
-			}
 			String uuid = addressService.publishAddress(aDocIn, forcePubCondition, userId);
 
 			// COMMIT BEFORE REFETCHING !!! otherwise we get old data ???
