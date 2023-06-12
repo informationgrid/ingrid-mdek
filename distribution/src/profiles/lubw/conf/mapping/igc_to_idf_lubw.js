@@ -53,7 +53,7 @@ if (environmentDescription) {
     else {
         var dataIdentificationChildNodes = XPATH.getNodeList(idfDoc, "//idf:idfMdMetadata/gmd:identificationInfo/gmd:MD_DataIdentification/*");
         var previousSibling;
-        for (var i = 0; i < dataIdentificationChildNodes.length; i++) {
+        for (var i = 0; i < dataIdentificationChildNodes.getLength(); i++) {
             var currentSibling = dataIdentificationChildNodes.item(i);
             if (currentSibling.getTagName() == "gmd:extent" || currentSibling.getTagName() == "gmd:supplementalInformation") {
                 break;
