@@ -566,7 +566,6 @@ public class MdekAddressService {
 			
 			// create new address with BASIC data
 			aPub = docToBeanMapper.mapT02Address(aDocIn, new T02Address(), MappingQuantity.BASIC_ENTITY);
-			daoT012ObjAdr.makePersistent(aPub);
 		}
 
 		// if working copy then take over data !
