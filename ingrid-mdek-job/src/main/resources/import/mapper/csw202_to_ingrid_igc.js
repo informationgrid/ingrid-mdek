@@ -57,6 +57,9 @@ let UtilsLanguageCodelist = Java.type("de.ingrid.utils.udk.UtilsLanguageCodelist
 let UtilsString = Java.type("de.ingrid.utils.udk.UtilsString");
 let UtilsCountryCodelist = Java.type("de.ingrid.utils.udk.UtilsCountryCodelist");
 let UUID = Java.type("java.util.UUID");
+var UuidUtil = Java.type("de.ingrid.utils.uuid.UuidUtil");
+var MdekServer = Java.type("de.ingrid.mdek.MdekServer");
+var useUuid3ForAddresses = MdekServer.conf.uuid3ForImportedAddresses;
 
 var DEBUG = 1;
 var INFO = 2;
@@ -3076,35 +3079,50 @@ function createUUIDFromAddress(source, overwriteExisting) {
 	var email = XPATH.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString");
 	var zipCode = XPATH.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:postalCode/gco:CharacterString");
 
-	var idString = "";
-	if (hasValue(organisationName)) {
-		idString += organisationName;
-		idString += "_";
-	}
-	if (hasValue(individualName)) {
-		idString += individualName;
-		idString += "_";
-	}
-	if (hasValue(email)) {
-		idString += email;
-	}
-	if (hasValue(zipCode)) {
-		idString += zipCode;
+	var uuid;
+
+	function determineGeneralAddressUuid() {
+		var idString = "";
+		if (hasValue(organisationName)) {
+			idString += organisationName;
+			idString += "_";
+		}
+		if (hasValue(individualName)) {
+			idString += individualName;
+			idString += "_";
+		}
+		if (hasValue(email)) {
+			idString += email;
+		}
+		if (hasValue(zipCode)) {
+			idString += zipCode;
+		}
+
+		// first check for valid uuid to be used for address identification
+		if (hasValue(isoUuid) && !overwriteExisting) {
+			uuid = isoUuid;
+		} else {
+			// otherwise create a uuid from the content, to try to find an address
+			// this should work if same address was referenced without a uuid
+			log.debug("createUUIDFromString: " + idString.toString().toLowerCase());
+			uuid = igeCswFolderUtil.getUUIDFromString(idString.toString().toLowerCase());
+		}
+		return uuid;
 	}
 
-	var uuid;
-	// first check for valid uuid to be used for address identification
-	if (hasValue(isoUuid) && !overwriteExisting) {
-		uuid = isoUuid;
+	if (useUuid3ForAddresses) {
+		if (hasValue(email)) {
+			log.debug("useUuid3ForAddresses with email: " + email);
+			uuid = UuidUtil.uuidType3(UuidUtil.NAMESPACE_DNS, email).toString();
+		} else {
+			log.debug("useUuid3ForAddresses without email (-> general determination)");
+			uuid = determineGeneralAddressUuid();
+		}
 	} else {
-		// otherwise create a uuid from the content, to try to find an address
-		// this should work if same address was referenced without a uuid
-		log.debug("createUUIDFromString: " + idString.toString().toLowerCase());
-		uuid = igeCswFolderUtil.getUUIDFromString(idString.toString().toLowerCase());
+		uuid = determineGeneralAddressUuid();
 	}
 
 	log.info("Created UUID from Address:" + uuid);
-	createUUID();
 
 	return uuid;
 }

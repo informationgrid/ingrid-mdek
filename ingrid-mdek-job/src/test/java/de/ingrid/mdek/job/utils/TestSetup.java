@@ -42,6 +42,8 @@ import java.util.zip.GZIPInputStream;
 
 import de.ingrid.elasticsearch.ElasticConfig;
 import de.ingrid.iplug.dsc.utils.SQLUtils;
+import de.ingrid.mdek.MdekServer;
+import de.ingrid.mdek.job.Configuration;
 import de.ingrid.mdek.job.util.IgeCswFolderUtil;
 import de.ingrid.mdek.xml.Versioning;
 import de.ingrid.utils.PlugDescription;
@@ -189,6 +191,7 @@ public class TestSetup {
             mocked.when(() -> MdekJobHandler.getInstance(any(DaoFactory.class))).thenReturn(jobHandler);
         }
 
+        MdekServer.conf = new Configuration();
 
         when( daoFactory.getSysListDao() ).thenReturn( daoSysList );
 
