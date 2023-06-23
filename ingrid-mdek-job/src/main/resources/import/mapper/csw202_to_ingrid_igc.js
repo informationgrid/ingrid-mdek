@@ -3112,8 +3112,13 @@ function createUUIDFromAddress(source, overwriteExisting) {
 
 	if (useUuid3ForAddresses) {
 		if (hasValue(email)) {
-			log.debug("useUuid3ForAddresses with email: " + email);
-			uuid = UuidUtil.uuidType3(UuidUtil.NAMESPACE_DNS, email).toString();
+			log.debug("Check if contact exists for email: " + email);
+			uuid = existingUuidForEmail(email);
+
+			if (!hasValue(uuid)) {
+				log.debug("useUuid3ForAddresses with email: " + email);
+				uuid = UuidUtil.uuidType3(UuidUtil.NAMESPACE_DNS, email).toString();
+			}
 		} else {
 			log.debug("useUuid3ForAddresses without email (-> general determination)");
 			uuid = determineGeneralAddressUuid();
@@ -3125,6 +3130,13 @@ function createUUIDFromAddress(source, overwriteExisting) {
 	log.info("Created UUID from Address:" + uuid);
 
 	return uuid;
+}
+
+function existingUuidForEmail(email) {
+	var adrRow = SQL.first("SELECT adr.adr_uuid FROM t02_address adr JOIN t021_communication comm ON adr.id = comm.adr_id WHERE comm.commtype_key = 3 AND adr.adr_type != 100 AND comm.comm_value = ?;", email);
+	if (hasValue(adrRow)) {
+		return adrRow.get("adr_uuid");
+	}
 }
 
 function createUUID() {
