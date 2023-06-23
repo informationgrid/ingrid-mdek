@@ -2361,6 +2361,10 @@ function mapAddresses(source, target) {
 	var isoAddressNodes = XPATH.getNodeList(source, "//*[not(self::gmd:contact)]/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
 	var contactMdNodes = XPATH.getNodeList(source, "//gmd:contact/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
 
+	if (useUuid3ForAddresses) {
+		isoAddressNodes = XPATH.getNodeList(source, "//gmd:pointOfContact/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
+	}
+
 	if (hasValue(isoAddressNodes)) {
 		var igcAdressNodes = XPATH.createElementFromXPath(target, "/igc/addresses");
 		var dummyAddressNode = XPATH.createElementFromXPathAsSibling(igcAdressNodes, "address");
