@@ -3137,7 +3137,7 @@ function createUUIDFromAddress(source, overwriteExisting) {
 }
 
 function existingUuidForEmail(email) {
-	var adrRow = SQL.first("SELECT adr.adr_uuid FROM t02_address adr JOIN t021_communication comm ON adr.id = comm.adr_id WHERE comm.commtype_key = 3 AND adr.adr_type != 100 AND comm.comm_value = ?;", email);
+	var adrRow = SQL.first("SELECT adr.adr_uuid FROM t02_address adr JOIN t021_communication comm ON adr.id = comm.adr_id WHERE comm.commtype_key = 3 AND adr.adr_type != 100 AND comm.comm_value = ?;", [email]);
 	if (hasValue(adrRow)) {
 		return adrRow.get("adr_uuid");
 	}
