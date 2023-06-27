@@ -50,12 +50,15 @@ for(var i=0; i<addnFieldRows.size(); i++) {
         IDX.add("simspatialdimension", data);
     } else if (fieldKey && data && fieldKey == "simProcess") {
         IDX.add("simprocess", data);
+        IDX.add("method", data);
     } else if (fieldKey && fieldKey == "bawKeywordCatalogueTable") {
         indexChildAdditionalFieldAsKeywords(row, "bawKeywordCatalogueEntry", 3950005);
     } else if (fieldKey && fieldKey == "simModelTypeTable") {
         indexChildAdditionalFieldAsKeywords(row, "simModelType", 3950003);
     } else if (fieldKey && fieldKey == "simParamTable") {
         indexPhysicalParameters(row);
+    } else if (fieldKey && fieldKey == "measuringMethod") {
+        indexMeasurementMethod(row);
     }
 }
 
@@ -111,6 +114,20 @@ function indexPhysicalParameters(parentRow) {
             data.split(";").forEach(function (paramName) {
                 IDX.add("physicalparameter.name", paramName.trim());
             });
+        }
+    }
+}
+
+function indexMeasurementMethod(parentRow) {
+    var parentFieldId = +parentRow.get("id");
+
+    var rows = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id = ? AND field_key = ?", [parentFieldId, "measuringMethod"]);
+    for (var i=0; i<rows.size(); i++) {
+        var data = rows.get(i).get("data");
+        if (hasValue(data)) {
+            data = data.trim();
+            IDX.add("method", data);
+            IDX.add("measuringMethod", data);
         }
     }
 }

@@ -88,6 +88,14 @@
       "type": "keyword",
       "store": true
     },
+    "method": {
+      "type": "keyword",
+      "store": true
+    },
+    "measuringMethod": {
+      "type": "keyword",
+      "store": true
+    },
     "simprocess": {
       "type": "keyword",
       "store": true
