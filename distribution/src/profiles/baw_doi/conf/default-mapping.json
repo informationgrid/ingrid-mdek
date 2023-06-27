@@ -58,6 +58,10 @@
       "type": "keyword",
       "store": true
     },
+    "data_category": {
+      "type": "keyword",
+      "store": true
+    },
     "simparamname": {
       "type": "keyword"
     },
@@ -77,6 +81,10 @@
       "type": "keyword"
     },
     "simmodeltype": {
+      "type": "keyword",
+      "store": true
+    },
+    "simulation_data_type": {
       "type": "keyword",
       "store": true
     },
