@@ -2659,21 +2659,25 @@ function addDistributionInfo(mdMetadata, objId) {
             // if getCapabilities-URL does not contain '?' it'll be not modified (#3369)
             return connUrl;
         } else {
+            
             // try to get type from connection point parameter of getCapabilities
-            var servOpId = row.get("id");
-            var rowsParams = SQL.all("SELECT servOpPara.* FROM t011_obj_serv_operation servOp, t011_obj_serv_op_para servOpPara WHERE servOpPara.obj_serv_op_id = servOp.id AND servOpPara.obj_serv_op_id=? AND servOp.name_key=?", [+servOpId, 1]);
-            for (j = 0; j < rowsParams.size(); j++) {
-                var tmpName = rowsParams.get(j).get("name");
-                if (hasValue(tmpName)) {
-                    var isServiceParam = tmpName.toLowerCase().indexOf("service=") > -1;
-                    if (isServiceParam) {
-                        // if connUrl or parameters already contains a ? or & at the end then do not add another one!
-                        if (!(connUrl.lastIndexOf("?") === connUrl.length - 1)
-                            && !(connUrl.lastIndexOf("&") === connUrl.length - 1)) {
-                            connUrl += "&";
+            // get service param from parameters if not already provided
+            if (connUrl.toLowerCase().indexOf("service=") == -1) {
+                var servOpId = row.get("id");
+                var rowsParams = SQL.all("SELECT servOpPara.* FROM t011_obj_serv_operation servOp, t011_obj_serv_op_para servOpPara WHERE servOpPara.obj_serv_op_id = servOp.id AND servOpPara.obj_serv_op_id=? AND servOp.name_key=?", [+servOpId, 1]);
+                for (j = 0; j < rowsParams.size(); j++) {
+                    var tmpName = rowsParams.get(j).get("name");
+                    if (hasValue(tmpName)) {
+                        var isServiceParam = tmpName.toLowerCase().indexOf("service=") > -1;
+                        if (isServiceParam) {
+                            // if connUrl or parameters already contains a ? or & at the end then do not add another one!
+                            if (!(connUrl.lastIndexOf("?") === connUrl.length - 1)
+                                && !(connUrl.lastIndexOf("&") === connUrl.length - 1)) {
+                                connUrl += "&";
+                            }
+                            connUrl += tmpName;
+                            break;
                         }
-                        connUrl += tmpName;
-                        break;
                     }
                 }
             }
