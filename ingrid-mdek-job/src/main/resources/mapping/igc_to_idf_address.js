@@ -214,7 +214,7 @@ function getIdfResponsibleParty(addressRow, role, specialElementName) {
     }
 
 	// do NOT USE DISTINCT -> crashes on ORACLE !
-    var rows = SQL.all("SELECT t01_object.*, object_reference.special_ref, object_reference.special_name, object_reference.descr FROM object_reference, t01_object, t012_obj_adr WHERE t012_obj_adr.adr_uuid=? AND t012_obj_adr.obj_id=t01_object.id AND object_reference.obj_to_uuid=t01_object.obj_uuid AND t01_object.work_state=? AND t01_object.publish_id=?", [addressRow.get("adr_uuid"), 'V', 1]);
+    var rows = SQL.all("SELECT t01_object.* FROM t01_object, t012_obj_adr WHERE t012_obj_adr.adr_uuid=? AND t012_obj_adr.obj_id=t01_object.id AND t01_object.work_state=? AND t01_object.publish_id=?", [addressRow.get("adr_uuid"), 'V', 1]);
     var tmpRows = new Array();
     for (var j=0; j<rows.size(); j++) {
         var uuid = rows.get(j).get("obj_uuid");
@@ -363,7 +363,10 @@ function getIdfObjectReference(objRow, elementName) {
     idfObjectReference.addElement("idf:objectName").addText(objRow.get("obj_name"));
     idfObjectReference.addElement("idf:objectType").addText(objRow.get("obj_class"));
 
-    addAttachedToField(objRow, idfObjectReference);
+    var objRefRow = SQL.first("SELECT special_ref, special_name, descr FROM object_reference WHERE obj_to_uuid=?", [objRow.get("obj_uuid")]);
+    if (hasValue(objRefRow)) {
+        addAttachedToField(objRefRow, idfObjectReference);
+    }
 
     if (hasValue(objRow.get("obj_descr"))) {
         idfObjectReference.addElement("idf:description").addText(objRow.get("obj_descr"));
