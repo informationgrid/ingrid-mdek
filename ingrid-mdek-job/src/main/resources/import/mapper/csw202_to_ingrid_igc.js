@@ -2140,6 +2140,7 @@ function mapUseConstraints(source, target) {
 }
 
 function compareUseConstraintWithJson(useConstraint, jsonUseConstraint) {
+	jsonUseConstraint = jsonUseConstraint.replaceAll("\n", " ");
 	jsonUseConstraint = JSON.parse(jsonUseConstraint);
 	if (useConstraint == jsonUseConstraint.name) {
 		return true;
@@ -2170,6 +2171,7 @@ function isJsonString(useConstraint) {
 
 function addJsonUseConstraint(useConstraint, target) {
 	// since issue: 1443, json has priority if the same constraint is given in the two formats
+	useConstraint = useConstraint.replaceAll("\n", " ");
 	var useConstraintObj = JSON.parse(useConstraint);
 
 	log.debug("adding '" + "/igc/data-sources/data-source/data-source-instance/additional-information/use-constraint/license" + "' = '" + useConstraintObj.name + "' to target document.");
