@@ -87,6 +87,8 @@
 	<xsl:template match="@orig-uuid" />
     <!-- filter idf:abstract -->
     <xsl:template match="idf:abstract" />
+    <xsl:template match="software" />
+    <xsl:template match="measurementInfo" />
 
     <!-- filter idf:keyword and transform them to gmd:keyword -->
     <xsl:template match="idf:keyword">
