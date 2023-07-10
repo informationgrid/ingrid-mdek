@@ -45,17 +45,52 @@ for(var i=0; i<addnFieldRows.size(); i++) {
     if (fieldKey && data && fieldKey == "bawHierarchyLevelName") {
         // ---- BAW Hierarchy level name (Auftrag, Variante, etc.) ------
         IDX.add("bawhierarchylevelname", data);
+
+        // Also set the data_category and simulation_data_type if applicable
+        if (data == "Luftbilder") {
+            IDX.add("data_category", "Luftbilder");
+        } else if (data == "Messdaten") {
+            IDX.add("data_category", "Messdaten");
+        } else if (data == "Postprocessing") {
+            IDX.add("data_category", "Simulationsdaten");
+            IDX.add("simulation_data_type", "Postprocessing");
+        } else if (data == "Preprocessing") {
+            IDX.add("data_category", "Simulationsdaten");
+            IDX.add("simulation_data_type", "Preprocessing");
+        } else if (data == "Variante") {
+            IDX.add("data_category", "Simulationsdaten");
+            IDX.add("simulation_data_type", "Variante");
+        } else if (data == "Szenario") {
+            IDX.add("data_category", "Simulationsdaten");
+            IDX.add("simulation_data_type", "Szenario");
+        } else if (data == "Simulationsmodell") {
+            IDX.add("data_category", "Simulationsdaten");
+            IDX.add("simulation_data_type", "Simulationsmodell");
+        } else if (data == "Simulationslauf") {
+            IDX.add("data_category", "Simulationsdaten");
+            IDX.add("simulation_data_type", "Simulationslauf");
+        } else if (data == "Simulationsdatei") {
+            IDX.add("data_category", "Simulationsdaten");
+            IDX.add("simulation_data_type", "Simulationsdatei");
+        } else if (data == "Visualisierung") {
+            IDX.add("data_category", "Visualisierung");
+        } else if (data == "Sonstiges") {
+            IDX.add("data_category", "Sonstiges");
+        }
     } else if (fieldKey && data && fieldKey == "simSpatialDimension") {
         // ---- BAW model spatial dimensionality ----
         IDX.add("simspatialdimension", data);
     } else if (fieldKey && data && fieldKey == "simProcess") {
         IDX.add("simprocess", data);
+        IDX.add("method", data);
     } else if (fieldKey && fieldKey == "bawKeywordCatalogueTable") {
         indexChildAdditionalFieldAsKeywords(row, "bawKeywordCatalogueEntry", 3950005);
     } else if (fieldKey && fieldKey == "simModelTypeTable") {
         indexChildAdditionalFieldAsKeywords(row, "simModelType", 3950003);
     } else if (fieldKey && fieldKey == "simParamTable") {
         indexPhysicalParameters(row);
+    } else if (fieldKey && fieldKey == "measuringMethod") {
+        indexMeasurementMethod(row);
     }
 }
 
@@ -111,6 +146,20 @@ function indexPhysicalParameters(parentRow) {
             data.split(";").forEach(function (paramName) {
                 IDX.add("physicalparameter.name", paramName.trim());
             });
+        }
+    }
+}
+
+function indexMeasurementMethod(parentRow) {
+    var parentFieldId = +parentRow.get("id");
+
+    var rows = SQL.all("SELECT * FROM additional_field_data WHERE parent_field_id = ? AND field_key = ?", [parentFieldId, "measuringMethod"]);
+    for (var i=0; i<rows.size(); i++) {
+        var data = rows.get(i).get("data");
+        if (hasValue(data)) {
+            data = data.trim();
+            IDX.add("method", data);
+            IDX.add("measuringMethod", data);
         }
     }
 }

@@ -566,7 +566,6 @@ public class MdekAddressService {
 			
 			// create new address with BASIC data
 			aPub = docToBeanMapper.mapT02Address(aDocIn, new T02Address(), MappingQuantity.BASIC_ENTITY);
-			daoT012ObjAdr.makePersistent(aPub);
 		}
 
 		// if working copy then take over data !
@@ -593,12 +592,10 @@ public class MdekAddressService {
 		// DO NOT PERSIST WE STILL HAVE TO DO CHECKS ! 
 		docToBeanMapper.mapT02Address(aDocIn, aPub, MappingQuantity.COPY_ENTITY);
 
-		// and update AddressNode with bean to publish, so we can check full data
-		aNode.setT02AddressPublished(aPub);
 
 		// PERFORM CHECKS ON FINAL DATA BEFORE PERSISTING !!!
 		// This may throw exception leading to working version !
-		checkAddressNodeContentForPublish(aNode);
+		checkAddressNodeContentForPublish(aNode, aPub);
 
 		// checks ok !
 		// FINALLY PERSIST PUBLISHED VERSION AND DELETE FORMER WORKING VERSION !
@@ -1337,7 +1334,7 @@ public class MdekAddressService {
 	 * (e.g. check free address conditions ...). CHECKS PUBLISHED VERSION IN NODE !
 	 * Throws MdekException if not valid.
 	 */
-	private void checkAddressNodeContentForPublish(AddressNode node)
+	private void checkAddressNodeContentForPublish(AddressNode node, T02Address addressToBePublished)
 	{
 		if (node == null) {
 			throw new MdekException(new MdekError(MdekErrorType.UUID_NOT_FOUND));
@@ -1345,7 +1342,7 @@ public class MdekAddressService {
 
 		// check whether address has an email address !
 		boolean hasEmail = false;
-		Set<T021Communication> comms = node.getT02AddressPublished().getT021Communications();
+		Set<T021Communication> comms = addressToBePublished.getT021Communications();
 		for (T021Communication comm : comms) {
 			if (MdekUtils.COMM_TYPE_EMAIL.equals(comm.getCommtypeKey())) {
 				hasEmail = true;
@@ -1357,7 +1354,7 @@ public class MdekAddressService {
 		}
 
 		AddressType nodeType = EnumUtil.mapDatabaseToEnumConst(AddressType.class,
-				node.getT02AddressPublished().getAdrType());
+				addressToBePublished.getAdrType());
 		boolean isFreeAddress = (nodeType == AddressType.FREI);
 		String parentUuid = node.getFkAddrUuid();
 

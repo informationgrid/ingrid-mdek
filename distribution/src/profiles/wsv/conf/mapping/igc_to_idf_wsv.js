@@ -1488,7 +1488,7 @@ for (i=0; i<objRows.size(); i++) {
         if (hasValue(objServRow.get("has_access_constraint"))) {
             hasConstraint = objServRow.get("has_access_constraint").equals("Y");
         }
-        mdMetadata.addElement("idf:hasAccessConstraint").addText(hasConstraint);
+        mdMetadata.addElement("idf:hasAccessConstraint").addText(hasConstraint + "");
     }
 
     // ---------- <idf:idfMdMetadata/idf:exportCriteria> ----------
@@ -3108,7 +3108,7 @@ function getIdfObjectReference(objRow, elementName, direction, srvRow) {
         }
         log.debug("hasConstraint: " + hasConstraint);
         if (hasConstraint) {
-            idfObjectReference.addElement("idf:hasAccessConstraint").addText(hasConstraint);
+            idfObjectReference.addElement("idf:hasAccessConstraint").addText(hasConstraint + "");
         }
     }
 

@@ -58,6 +58,10 @@
       "type": "keyword",
       "store": true
     },
+    "data_category": {
+      "type": "keyword",
+      "store": true
+    },
     "simparamname": {
       "type": "keyword"
     },
@@ -80,11 +84,23 @@
       "type": "keyword",
       "store": true
     },
+    "simulation_data_type": {
+      "type": "keyword",
+      "store": true
+    },
     "bawauftragsnummer": {
       "type": "keyword",
       "store": true
     },
     "bawauftragstitel": {
+      "type": "keyword",
+      "store": true
+    },
+    "method": {
+      "type": "keyword",
+      "store": true
+    },
+    "measuringMethod": {
       "type": "keyword",
       "store": true
     },

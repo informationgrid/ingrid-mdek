@@ -57,6 +57,9 @@ let UtilsLanguageCodelist = Java.type("de.ingrid.utils.udk.UtilsLanguageCodelist
 let UtilsString = Java.type("de.ingrid.utils.udk.UtilsString");
 let UtilsCountryCodelist = Java.type("de.ingrid.utils.udk.UtilsCountryCodelist");
 let UUID = Java.type("java.util.UUID");
+var UuidUtil = Java.type("de.ingrid.utils.uuid.UuidUtil");
+var MdekServer = Java.type("de.ingrid.mdek.MdekServer");
+var useUuid3ForAddresses = MdekServer.conf.uuid3ForImportedAddresses;
 
 var DEBUG = 1;
 var INFO = 2;
@@ -2137,6 +2140,7 @@ function mapUseConstraints(source, target) {
 }
 
 function compareUseConstraintWithJson(useConstraint, jsonUseConstraint) {
+	jsonUseConstraint = jsonUseConstraint.replaceAll("\n", " ");
 	jsonUseConstraint = JSON.parse(jsonUseConstraint);
 	if (useConstraint == jsonUseConstraint.name) {
 		return true;
@@ -2167,6 +2171,7 @@ function isJsonString(useConstraint) {
 
 function addJsonUseConstraint(useConstraint, target) {
 	// since issue: 1443, json has priority if the same constraint is given in the two formats
+	useConstraint = useConstraint.replaceAll("\n", " ");
 	var useConstraintObj = JSON.parse(useConstraint);
 
 	log.debug("adding '" + "/igc/data-sources/data-source/data-source-instance/additional-information/use-constraint/license" + "' = '" + useConstraintObj.name + "' to target document.");
@@ -2357,6 +2362,10 @@ function mapAddresses(source, target) {
 
 	var isoAddressNodes = XPATH.getNodeList(source, "//*[not(self::gmd:contact)]/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
 	var contactMdNodes = XPATH.getNodeList(source, "//gmd:contact/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
+
+	if (useUuid3ForAddresses) {
+		isoAddressNodes = XPATH.getNodeList(source, "//gmd:pointOfContact/gmd:CI_ResponsibleParty[gmd:role/gmd:CI_RoleCode/@codeListValue!='']");
+	}
 
 	if (hasValue(isoAddressNodes)) {
 		var igcAdressNodes = XPATH.createElementFromXPath(target, "/igc/addresses");
@@ -3076,37 +3085,64 @@ function createUUIDFromAddress(source, overwriteExisting) {
 	var email = XPATH.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString");
 	var zipCode = XPATH.getString(source, "gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:postalCode/gco:CharacterString");
 
-	var idString = "";
-	if (hasValue(organisationName)) {
-		idString += organisationName;
-		idString += "_";
-	}
-	if (hasValue(individualName)) {
-		idString += individualName;
-		idString += "_";
-	}
-	if (hasValue(email)) {
-		idString += email;
-	}
-	if (hasValue(zipCode)) {
-		idString += zipCode;
+	var uuid;
+
+	function determineGeneralAddressUuid() {
+		var idString = "";
+		if (hasValue(organisationName)) {
+			idString += organisationName;
+			idString += "_";
+		}
+		if (hasValue(individualName)) {
+			idString += individualName;
+			idString += "_";
+		}
+		if (hasValue(email)) {
+			idString += email;
+		}
+		if (hasValue(zipCode)) {
+			idString += zipCode;
+		}
+
+		// first check for valid uuid to be used for address identification
+		if (hasValue(isoUuid) && !overwriteExisting) {
+			uuid = isoUuid;
+		} else {
+			// otherwise create a uuid from the content, to try to find an address
+			// this should work if same address was referenced without a uuid
+			log.debug("createUUIDFromString: " + idString.toString().toLowerCase());
+			uuid = igeCswFolderUtil.getUUIDFromString(idString.toString().toLowerCase());
+		}
+		return uuid;
 	}
 
-	var uuid;
-	// first check for valid uuid to be used for address identification
-	if (hasValue(isoUuid) && !overwriteExisting) {
-		uuid = isoUuid;
+	if (useUuid3ForAddresses) {
+		if (hasValue(email)) {
+			log.debug("Check if contact exists for email: " + email);
+			uuid = existingUuidForEmail(email);
+
+			if (!hasValue(uuid)) {
+				log.debug("useUuid3ForAddresses with email: " + email);
+				uuid = UuidUtil.uuidType3(UuidUtil.NAMESPACE_DNS, email).toString();
+			}
+		} else {
+			log.debug("useUuid3ForAddresses without email (-> general determination)");
+			uuid = determineGeneralAddressUuid();
+		}
 	} else {
-		// otherwise create a uuid from the content, to try to find an address
-		// this should work if same address was referenced without a uuid
-		log.debug("createUUIDFromString: " + idString.toString().toLowerCase());
-		uuid = igeCswFolderUtil.getUUIDFromString(idString.toString().toLowerCase());
+		uuid = determineGeneralAddressUuid();
 	}
 
 	log.info("Created UUID from Address:" + uuid);
-	createUUID();
 
 	return uuid;
+}
+
+function existingUuidForEmail(email) {
+	var adrRow = SQL.first("SELECT adr.adr_uuid FROM t02_address adr JOIN t021_communication comm ON adr.id = comm.adr_id WHERE comm.commtype_key = 3 AND adr.adr_type != 100 AND comm.comm_value = ?;", [email]);
+	if (hasValue(adrRow)) {
+		return adrRow.get("adr_uuid");
+	}
 }
 
 function createUUID() {

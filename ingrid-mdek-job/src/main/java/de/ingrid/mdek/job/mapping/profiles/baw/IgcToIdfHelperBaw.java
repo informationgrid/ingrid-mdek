@@ -181,7 +181,7 @@ class IgcToIdfHelperBaw {
         String distInfoQname = "gmd:distributionInfo";
         String mdDistPath = distInfoQname + "/gmd:MD_Distribution";
         String transferOptionsQname = "gmd:transferOptions";
-        String onlineRelPath = "gmd:MD_DigitalTransferOptions/gmd:onLine/gmd:CI_OnlineResource";
+        String onlineRelPath = "gmd:MD_DigitalTransferOptions/gmd:onLine/idf:idfOnlineResource";
 
         Element mdDistribDomElement = (Element) XPATH.getNode(mdMetadata, mdDistPath);
         IdfElement mdDistribIdfElement;
@@ -241,6 +241,10 @@ class IgcToIdfHelperBaw {
                     .addAttribute("codeList", CODELIST_URL + "gmd:CI_OnLineFunctionCode")
                     .addAttribute("codeListValue", "download")
                     .addText("download");
+            onlineResourceElement.addElement("idf:attachedToField")
+                    .addAttribute("entry-id", "9990")
+                    .addAttribute("list-id", "2000")
+                    .addText("Datendownload");
         }
     }
 
