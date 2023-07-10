@@ -1,4 +1,25 @@
 
+## 6.2.0 (10.07.2023)
+
+### Features
+
+* Portal: Facettenanpassungen für Messverfahren und Similationsdaten (#5265)
+* Reduzierung Memory Verbrauch (Anpassung der Garbage Collection Settings in JAVA) (#5117)
+*  Anpassung des Importverlaufs für Adressen (#5092)
+* HMDK Profil: Linkanpassung bei "Kartenansicht öffnen" (#4680)
+* Portal: Reihung der Angaben ändern (#4533)
+
+### Bugfixes
+
+* Fehler beim CSW-Import  (#5314)
+* Datenbezüge Adresse: Diskrepanz Anzahl in IGE und Portal  (#5305)
+* Feststellungen im Update BKG-MIS auf 6.1.1, speziell fehlende MD  (#5222)
+* Korrektur der GetCapabilities-URL  (#5204)
+* environmentDescription fehlt im ISO  (#5188)
+* ISO-XML Ausgabe im Datenfinder und Datenrepository nicht valide  (#5177)
+* Fehler beim Indizieren von Adressen bei eingeschränkten Diensten  (#5089)
+* Portal: LFS-Links werden nicht richtig angezeigt  (#4263)
+    
 ## 6.1.0 (14.04.2023)
 
 ### Features
