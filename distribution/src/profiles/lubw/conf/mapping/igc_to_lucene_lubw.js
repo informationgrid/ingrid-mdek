@@ -71,10 +71,7 @@ if (hasValue(distributor)) {
 //                name = abbreviation;
 //            }
 //        }
-        // URI encode the distributor here and decode it when displaying it in the portal
-        // otherwise, we get problems with special characters, e.g. "," (comma)
-        var encodedName = encodeURIComponent(name);
-        IDX.add("distributor", encodedName);
+        IDX.add("distributor", name);
     }
 }
 
