@@ -71,6 +71,7 @@ if (hasValue(distributor)) {
 //                name = abbreviation;
 //            }
 //        }
+        name = name.replaceAll(/\n+/g, " ");
         IDX.add("distributor", name);
     }
 }
