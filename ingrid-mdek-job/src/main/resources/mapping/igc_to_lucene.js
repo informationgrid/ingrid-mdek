@@ -1169,10 +1169,23 @@ function addDOIInfo(objId) {
 function addWKT(objId) {
     var wktRow = SQL.first("SELECT fd.data AS data FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'boundingPolygon'", [+objId]);
     if (hasValue(wktRow)) {
+        var srcEpsg;
         var wkt = wktRow.get("data");
-        if(hasValue(wkt)) {
+        if (wkt.indexOf("SRID=") > -1) {
+            log.debug("SRID defined. Extract EPSG and geometry.");
+            var splitWkt = wkt.split(";");
+            srcEpsg = splitWkt[0].replace("SRID=","").trim();
+            wkt = splitWkt[1].trim();
+        }
+        if (hasValue(wkt)) {
             var wkt2geojson = Java.type("de.ingrid.geo.utils.transformation.WktToGeoJsonTransformUtil");
-            var geojson = wkt2geojson.wktToGeoJson(wkt);
+            var geojson;
+            if (hasValue(srcEpsg)) {
+                log.debug("SRID " + srcEpsg + " defined. Transform wkt to geojson with EPSG:4326");
+                geojson = wkt2geojson.wktToGeoJsonTransform(wkt, srcEpsg, "4326");
+            } else {
+                geojson = wkt2geojson.wktToGeoJson(wkt);
+            }
             var wktDoc = {
                 wkt_geo: JSON.parse(geojson),
                 wkt_geo_text: geojson,
