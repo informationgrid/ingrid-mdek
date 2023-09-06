@@ -2290,11 +2290,24 @@ function addExtent(identificationInfo, objRow) {
     if (hasValue(wktRow)) {
         var wkt2gml = Java.type("de.ingrid.geo.utils.transformation.WktToGmlTransformUtil");
 
+        var srcEpsg;
         var wkt = wktRow.get("data");
+        if (wkt.indexOf("SRID=") > -1) {
+            log.debug("SRID defined. Extract EPSG and geometry.");
+            var splitWkt = wkt.split(";");
+            srcEpsg = splitWkt[0].replace("SRID=","").trim();
+            wkt = splitWkt[1].trim();
+        }
         log.debug("WKT for polygon is: " + wkt);
 
         // Convert to gml
-        var gml = wkt2gml.wktToGml3_2AsElement(wkt);
+        var gml;
+        if (hasValue(srcEpsg)) {
+            log.debug("SRID " + srcEpsg + " defined. Transform wkt to gml with EPSG:4326");
+            gml = wkt2gml.wktToGml3_2AsElement(wkt, srcEpsg);
+        } else {
+            gml = wkt2gml.wktToGml3_2AsElement(wkt);
+        }
 
         var gmdBoundingPolygon = identificationInfo.addElement(extentElemName)
             .addElement("gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon");
