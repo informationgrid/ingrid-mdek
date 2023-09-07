@@ -35,6 +35,10 @@
       "type": "keyword",
       "store": true
     },
+    "object_node.tree_path.uuid": {
+      "type": "keyword",
+      "store": true
+    },
     "distributor": {
       "type": "keyword",
       "store": true

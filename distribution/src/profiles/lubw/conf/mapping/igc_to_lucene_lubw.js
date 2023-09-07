@@ -80,10 +80,10 @@ function addTreePath(objId) {
             tmpTreePaths.split("||").forEach(function (tmpTreePath) {
                 if (hasValue(tmpTreePath)) {
                     var tmpObjUuid = tmpTreePath.replaceAll("|", "");
-                    var tmpRow = SQL.first("SELECT obj_name FROM t01_object WHERE obj_uuid=?", [tmpObjUuid]);
+                    var tmpRow = SQL.first("SELECT obj_name, obj_uuid FROM t01_object WHERE obj_uuid=?", [tmpObjUuid]);
                     if (hasValue(tmpRow)) {
-                        var tmpObjName = tmpRow.get("obj_name");
-                        IDX.add("object_node.tree_path.name", tmpObjName);
+                        IDX.add("object_node.tree_path.name", tmpRow.get("obj_name"));
+                        IDX.add("object_node.tree_path.uuid", tmpRow.get("obj_uuid"));
                     }
                 }
             });
