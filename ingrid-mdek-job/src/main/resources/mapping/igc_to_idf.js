@@ -819,7 +819,7 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // GEMET Thesaurus
-    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type, searchterm_value.alternate_term FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [+objId, "G"]);
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type, searchterm_value.alternate_term, searchterm_value.searchterm_sns_id FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [+objId, "G"]);
     mdKeywords = getMdKeywords(rows);
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
@@ -859,6 +859,9 @@ for (i=0; i<objRows.size(); i++) {
         mdKeywords = DOM.createElement("gmd:MD_Keywords");
         mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText("inspireidentifiziert");
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+        
+        // add InVeKoS-keywords
+        addInvekosKeywords(identificationInfo);
     }
 
     // IS_OPEN_DATA leads to specific keyword, default behavior unless changes (REDMINE-128)
@@ -1945,13 +1948,34 @@ function getMdKeywords(rows) {
 
             // GEMET has additional localization in alternate term !
             // see https://dev.informationgrid.eu/redmine/issues/363
-            if (type == "G") {
+            if (type === "G") {
                 keywordAlternateValue = row.get("alternate_term");
+                asAnchor = true;
+                var snsId = row.get("searchterm_sns_id");
+                if (hasValue(snsId)) {
+                    var gemet = SQL.first("SELECT gemet_id FROM searchterm_sns WHERE id=?", [+snsId]);
+                    if (hasValue(gemet)) {
+                        // adapt links to be accepted by INSPIRE validator
+                        keywordLink = gemet.get("gemet_id")
+                            .replace("http:", "https:")
+                            .replace("gemet/concept", "gemet/en/concept");
+                    }
+                }
             }
 
             // INSPIRE does not have to be in ENGLISH anymore for correct mapping in IGE CSW Import
+            var entryId = +row.get("entry_id");
             if (type == "I") {
-                keywordValue = TRANSF.getIGCSyslistEntryName(6100, +row.get("entry_id"), catLangCode);
+                keywordValue = TRANSF.getIGCSyslistEntryName(6100, entryId, catLangCode);
+            }
+            
+            // special anchor representation for InVeKoS
+            if (entryId === 304) {
+                asAnchor = true;
+                keywordLink = "http://inspire.ec.europa.eu/theme/lu";
+            } else if (entryId === 202) {
+                asAnchor = true;
+                keywordLink = "http://inspire.ec.europa.eu/theme/lc";
             }
 
         // "t011_obj_serv_type" table
@@ -1972,6 +1996,8 @@ function getMdKeywords(rows) {
                     log.error("Error getting URL from Priority Dataset within data field in Codelist 6350");
                 }
             }
+        } else if (hasValue(row.get("priority_key"))) {
+            asAnchor = true;
         }
 
         if (hasValue(keywordValue)) {
@@ -2052,7 +2078,7 @@ function getMdKeywords(rows) {
     }
     var thesCit = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
 
-    if (asAnchor) {
+    if (asAnchor && hasValue(thesaurusLink)) {
         thesCit.addElement("gmd:title/gmx:Anchor")
             .addAttribute("xlink:href", thesaurusLink)
             .addText(keywTitle);
@@ -2068,6 +2094,27 @@ function getMdKeywords(rows) {
         .addText("publication");
 
     return mdKeywords;
+}
+
+function addInvekosKeywords(element) {
+    var keywords = SQL.all("SELECT add2.data, add2.list_item_id FROM additional_field_data add1, additional_field_data add2 WHERE add1.obj_id=? AND add1.field_key=? AND add2.parent_field_id=add1.id AND add2.field_key=?", [+objId, "invekosKeywords", "keyword"]);
+    var mdKeywords = DOM.createElement("gmd:MD_Keywords");
+
+    for (i=0; i<keywords.size(); i++) {
+        mdKeywords.addElement("gmd:keyword/gmx:Anchor").addText(keywords.get(i).get("data")).addAttribute("xlink:href", keywords.get(i).get("list_item_id"));
+    }
+    
+    var thesaurusName = DOM.createElement("gmd:thesaurusName");
+    thesaurusName.addElement("gmd:CI_Citation")
+        .addElement("gmd:title").addElement("gmx:Anchor").addText("IACS data").addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/IACSData")
+        .getParent(2)
+        .addElement("gmd:date").addElement("gmd:CI_Date")
+            .addElement("gmd:date").addElement("gco:Date").addText("2021-06-08")
+        .getParent(2)
+        .addElement("gmd:dateType").addElement("gmd:CI_DateTypeCode").addText("publication").addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode").addAttribute("codeListValue", "publication")
+    
+    mdKeywords.addElement(thesaurusName);
+    element.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
 }
 
 function addLocaleElement(id, languageCode, charEncoding) {
