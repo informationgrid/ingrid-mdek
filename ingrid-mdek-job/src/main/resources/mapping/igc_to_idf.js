@@ -1956,9 +1956,12 @@ function getMdKeywords(rows) {
                     var gemet = SQL.first("SELECT gemet_id FROM searchterm_sns WHERE id=?", [+snsId]);
                     if (hasValue(gemet)) {
                         // adapt links to be accepted by INSPIRE validator
-                        keywordLink = gemet.get("gemet_id")
-                            .replace("http:", "https:")
-                            .replace("gemet/concept", "gemet/en/concept");
+                        var gemetId = gemet.get("gemet_id");
+                        if (hasValue(gemetId)) {
+                            keywordLink = gemetId
+                                .replace("http:", "https:")
+                                .replace("gemet/concept", "gemet/en/concept");
+                        }
                     }
                 }
             }
