@@ -66,6 +66,8 @@ for (i=0; i<objRows.size(); i++) {
     var catalogId = objRows.get(i).get("cat_id");
     var objUuid = objRows.get(i).get("obj_uuid");
     var objClass = objRows.get(i).get("obj_class");
+    var publicationConditionFilter = determinePublicationConditionQueryExt(objRows.get(i).get("publish_id"));
+
     if (objClass !== "1000") {
         addT01Object(objRows.get(i));
 
@@ -375,7 +377,7 @@ for (i=0; i<objRows.size(); i++) {
             addObjectReferenceTo(rows.get(j));
             var objToId = rows.get(j).get("id");
 
-            var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [+objToId]);
+            var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V' " + publicationConditionFilter, [+objToId]);
             for (k=0; k<subRows.size(); k++) {
               addT01ObjectTo(subRows.get(k), objToId);
             }
@@ -399,7 +401,7 @@ for (i=0; i<objRows.size(); i++) {
             var objFromId = rows.get(j).get("obj_from_id");
 
             // ---------- t01_object FROM ----------
-            var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [+objFromId]);
+            var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V' " + publicationConditionFilter, [+objFromId]);
             for (k=0; k<subRows.size(); k++) {
                 addT01ObjectFrom(subRows.get(k), objFromId);
 
@@ -1249,5 +1251,15 @@ function addMissingUrlParameters(connUrl, row) {
             connUrl += CAPABILITIES.getMissingCapabilitiesParameter(connUrl, type);
         }
         return connUrl;
+    }
+}
+
+function determinePublicationConditionQueryExt(publishId) {
+    if (publishId == "1") { // Internet
+        return " AND publish_id=1";
+    } else if (publishId == "2") { // Intranet
+        return " AND (publish_id=1 OR publish_id=2)";
+    } else { // allow all for 'amtsintern'
+        return "";
     }
 }
