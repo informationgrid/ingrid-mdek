@@ -3348,12 +3348,10 @@ function addRegionKeyInfo(parent, objId) {
 
 function determinePublicationConditionQueryExt(publishId) {
     if (hasValue(publishId)) {
-        if (publishId == "1") { // Internet
-            return " AND publish_id=1";
-        } else if (publishId == "2") { // Intranet
+        if (publishId == "2") { // Intranet
             return " AND (publish_id=1 OR publish_id=2)";
         } else if (publishId == "3") { // Amtsintern
-            return " AND (publish_id=1 OR publish_id=2 OR publish_id=3)";
+            return "";
         }
     }
     return " AND publish_id=1";
