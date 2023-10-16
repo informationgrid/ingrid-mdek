@@ -66,7 +66,7 @@ for (i=0; i<objRows.size(); i++) {
     var catalogId = objRows.get(i).get("cat_id");
     var objUuid = objRows.get(i).get("obj_uuid");
     var objClass = objRows.get(i).get("obj_class");
-    var publicationConditionFilter = determinePublicationConditionQueryExt(objRows.get(i).get("publish_id"));
+    var publicationConditionFilter = determinePublicationConditionQueryExt(sourceRecord.get("publication"));
 
     if (objClass !== "1000") {
         addT01Object(objRows.get(i));
@@ -1255,11 +1255,14 @@ function addMissingUrlParameters(connUrl, row) {
 }
 
 function determinePublicationConditionQueryExt(publishId) {
-    if (publishId == "1") { // Internet
-        return " AND publish_id=1";
-    } else if (publishId == "2") { // Intranet
-        return " AND (publish_id=1 OR publish_id=2)";
-    } else { // allow all for 'amtsintern'
-        return "";
+    if (hasValue(publishId)) {
+        if (publishId == "1") { // Internet
+            return " AND publish_id=1";
+        } else if (publishId == "2") { // Intranet
+            return " AND (publish_id=1 OR publish_id=2)";
+        } else if (publishId == "3") { // Amtsintern
+            return " AND (publish_id=1 OR publish_id=2 OR publish_id=3)";
+        }
     }
+    return " AND publish_id=1";
 }

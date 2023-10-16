@@ -32,6 +32,7 @@
         <property name="recordSqlValidateParentPublishDoc" value="SELECT DISTINCT node.fk_addr_uuid FROM address_node node, t02_address addr WHERE node.addr_id = addr.id AND ((addr.publish_id=1 OR addr.publish_id=2) OR addr.adr_type = '1000') AND node.addr_uuid=?" />
         <property name="recordParentFolderByIdSql" value="SELECT DISTINCT addr.id, addr.adr_uuid, addr.adr_type FROM address_node node, t02_address addr WHERE node.fk_addr_uuid = addr.adr_uuid AND addr.adr_type = 1000 AND node.addr_id=?" />
         <property name="recordParentFolderByUuidSql" value="SELECT DISTINCT addr.id, addr.adr_uuid, addr.adr_type FROM address_node node, t02_address addr WHERE node.fk_addr_uuid = addr.adr_uuid AND addr.adr_type = 1000 AND node.addr_uuid=?" />
+        <property name="recordPublication" value="2" />
     </bean>
 
     <bean id="recordMapperAddress" class="de.ingrid.iplug.dsc.index.mapper.ScriptedDocumentMapper">
@@ -70,6 +71,7 @@
     
     <bean id="recordProducerAddress" class="de.ingrid.iplug.dsc.record.producer.PlugDescriptionConfiguredDatabaseRecordProducer">
         <property name="indexFieldID" value="t02_address.id" />
+        <property name="publication" value="2" />
     </bean>
     
     <bean id="createIdfMapperAddress" class="de.ingrid.iplug.dsc.record.mapper.CreateIdfMapper"/>

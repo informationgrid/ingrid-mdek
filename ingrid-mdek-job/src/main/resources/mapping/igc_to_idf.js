@@ -81,7 +81,7 @@ for (i=0; i<objRows.size(); i++) {
     var objUuid = objRow.get("obj_uuid");
     var objClass = objRow.get("obj_class");
     var objParentUuid = null; // will be set below
-    var publicationConditionFilter = determinePublicationConditionQueryExt(objRow.get("publish_id"));
+    var publicationConditionFilter = determinePublicationConditionQueryExt(sourceRecord.get("publication"));
 
     // local variables
     var row = null;
@@ -3347,13 +3347,16 @@ function addRegionKeyInfo(parent, objId) {
 }
 
 function determinePublicationConditionQueryExt(publishId) {
-    if (publishId == "1") { // Internet
-        return " AND publish_id=1";
-    } else if (publishId == "2") { // Intranet
-        return " AND (publish_id=1 OR publish_id=2)";
-    } else { // allow all for 'amtsintern'
-        return "";
+    if (hasValue(publishId)) {
+        if (publishId == "1") { // Internet
+            return " AND publish_id=1";
+        } else if (publishId == "2") { // Intranet
+            return " AND (publish_id=1 OR publish_id=2)";
+        } else if (publishId == "3") { // Amtsintern
+            return " AND (publish_id=1 OR publish_id=2 OR publish_id=3)";
+        }
     }
+    return " AND publish_id=1";
 }
 
 /**
