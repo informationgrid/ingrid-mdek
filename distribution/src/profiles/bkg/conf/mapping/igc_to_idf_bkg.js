@@ -115,9 +115,9 @@ function handleBKGUseConstraints() {
 function getAdditionalFieldFromObject(objId, parentId, fieldId, property) {
     var field = null;
     if (objId) {
-        field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [objId, fieldId]);
+        field = SQL.first("SELECT * FROM additional_field_data WHERE obj_id=? AND field_key=?", [+objId, fieldId]);
     } else {
-        field = SQL.first("SELECT * FROM additional_field_data WHERE parent_field_id=? AND field_key=?", [parentId, fieldId]);
+        field = SQL.first("SELECT * FROM additional_field_data WHERE parent_field_id=? AND field_key=?", [+parentId, fieldId]);
     }
     if (hasValue(field)) {
         return field.get(property);
