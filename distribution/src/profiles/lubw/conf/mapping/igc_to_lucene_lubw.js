@@ -50,27 +50,20 @@ for (var i = 0; i < addnFieldRows.size(); i++) {
 }
 
 // ---- add distributor lastname or institution to ES document ----
-var distributor = SQL.first("SELECT institution, lastname FROM t012_obj_adr "
-                        + "RIGHT JOIN t02_address ON t012_obj_adr.adr_uuid=t02_address.adr_uuid "
-                        + "WHERE t012_obj_adr.type=5 AND t012_obj_adr.obj_id=?", [objId]); // type=5 is distributor
+//var distributor = SQL.first("SELECT institution, lastname FROM t012_obj_adr "
+//                        + "RIGHT JOIN t02_address ON t012_obj_adr.adr_uuid=t02_address.adr_uuid "
+//                        + "WHERE t012_obj_adr.type=5 AND t012_obj_adr.obj_id=?", [objId]); // type=5 is distributor
+var distributor = SQL.first(
+    "SELECT t02_parent.institution FROM t012_obj_adr "
+    + "RIGHT JOIN t02_address AS t02_orig ON t012_obj_adr.adr_uuid=t02_orig.adr_uuid "
+    + "RIGHT JOIN address_node ON address_node.addr_id=t02_orig.id "
+    + "RIGHT JOIN t02_address AS t02_parent ON t02_parent.adr_uuid=substring(address_node.tree_path, 2, 36) "
+    + "WHERE t012_obj_adr.type=5 AND t012_obj_adr.obj_id=?", [objId]
+);
 if (hasValue(distributor)) {
-    // use the more specific information first ("lastname" is typically also used for sub-institutions)
-    var name = distributor.get("lastname");
-    // if no lastname is found, use "institution" instead
-    if (!hasValue(name)) {
-        name = distributor.get("institution");
-    }
-    // only add distributor if there is something to add
+    var name = distributor.get("institution");
     if (hasValue(name)) {
-//        // get abbreviation for institution from LUBW-specific codelist if it exists
-//        var lubwDistributorCodelistId = 10100;
-//        var igcEntryId = TRANSF.getISOCodeListEntryId(lubwDistributorCodelistId, name);
-//        if (hasValue(igcEntryId)) {
-//            var abbreviation = TRANSF.getCodeListEntryFromIGCSyslistEntry(lubwDistributorCodelistId, igcEntryId, "abbreviation");
-//            if (hasValue(abbreviation)) {
-//                name = abbreviation;
-//            }
-//        }
+        name = name.replaceAll(/\n+/g, " ");
         IDX.add("distributor", name);
     }
 }
@@ -87,10 +80,10 @@ function addTreePath(objId) {
             tmpTreePaths.split("||").forEach(function (tmpTreePath) {
                 if (hasValue(tmpTreePath)) {
                     var tmpObjUuid = tmpTreePath.replaceAll("|", "");
-                    var tmpRow = SQL.first("SELECT obj_name FROM t01_object WHERE obj_uuid=?", [tmpObjUuid]);
+                    var tmpRow = SQL.first("SELECT obj_name, obj_uuid FROM t01_object WHERE obj_uuid=?", [tmpObjUuid]);
                     if (hasValue(tmpRow)) {
-                        var tmpObjName = tmpRow.get("obj_name");
-                        IDX.add("object_node.tree_path.name", tmpObjName);
+                        IDX.add("object_node.tree_path.name", tmpRow.get("obj_name"));
+                        IDX.add("object_node.tree_path.uuid", tmpRow.get("obj_uuid"));
                     }
                 }
             });

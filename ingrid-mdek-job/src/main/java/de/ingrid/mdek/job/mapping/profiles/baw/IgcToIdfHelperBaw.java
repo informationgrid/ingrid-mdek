@@ -545,10 +545,10 @@ class IgcToIdfHelperBaw {
             }
         } else {
             if (number == null && title != null) {
-                LOG.error("Auftragstitel is defined but no Auftragsnummer found for object with id: " + objId);
+                LOG.error("Auftragstitel is defined but no Auftragsnummer found for object with id: " + objId + ". Auftragstitel is: " + title);
             }
             if (number != null && title == null) {
-                LOG.error("Auftragsnummer is defined but no Auftragstitel found for object with id: " + objId);
+                LOG.error("Auftragsnummer is defined but no Auftragstitel found for object with id: " + objId + "Auftragsnummer is: " + number);
             }
             if (number == null || title == null) return;
 

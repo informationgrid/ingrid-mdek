@@ -66,6 +66,8 @@ for (i=0; i<objRows.size(); i++) {
     var catalogId = objRows.get(i).get("cat_id");
     var objUuid = objRows.get(i).get("obj_uuid");
     var objClass = objRows.get(i).get("obj_class");
+    var publicationConditionFilter = determinePublicationConditionQueryExt(sourceRecord.get("publication"));
+
     if (objClass !== "1000") {
         addT01Object(objRows.get(i));
 
@@ -234,7 +236,7 @@ for (i=0; i<objRows.size(); i++) {
 
         // Add url_refs of linked Geoservices (of type 'other' or 'download') for Geodatasets
         if (objClass == "1"){
-            rows.addAll(SQL.all("SELECT t01obj.obj_name, urlref.* FROM object_reference oref, t01_object t01obj, t011_obj_serv t011_object, t017_url_ref urlref WHERE obj_to_uuid=? AND oref.special_ref=3600 AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=3 AND t01obj.work_state='V' AND urlref.obj_id=t01obj.id AND (urlref.special_ref=5066 OR urlref.special_ref=9990) AND t011_object.obj_id=t01obj.id AND (t011_object.type_key=3 OR t011_object.type_key=6)", [objUuid]));
+            rows.addAll(SQL.all("SELECT t01obj.obj_name, urlref.* FROM object_reference oref, t01_object t01obj, t011_obj_serv t011_object, t017_url_ref urlref WHERE obj_to_uuid=? AND oref.special_ref=3600 AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=3 AND t01obj.work_state='V' AND urlref.obj_id=t01obj.id AND (urlref.special_ref=5066 OR urlref.special_ref=9990) AND t011_object.obj_id=t01obj.id AND (t011_object.type_key=3 OR t011_object.type_key=6) " + publicationConditionFilter, [objUuid]));
         }
 
         for (j=0; j<rows.size(); j++) {
@@ -248,11 +250,11 @@ for (i=0; i<objRows.size(); i++) {
             // the links should all come from service objects (class=3)
             if (objClass == "1") {
                 // get all getCapabilities-URLs from operations table of the coupled service
-                rows = SQL.all("SELECT DISTINCT t01obj.obj_name, serv.type_key, servOp.id, servOp.name_value, servOpConn.connect_point FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
+                rows = SQL.all("SELECT DISTINCT t01obj.obj_name, serv.type_key, servOp.id, servOp.name_value, servOpConn.connect_point FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id " + publicationConditionFilter, [objUuid, 3600, 3]);
             } else {
                 // Service Object
                 // Fetch now Services of all types but still operation has to be of name_key=1 (GetCapabilities), see REDMINE-85
-                rows = SQL.all("SELECT DISTINCT t01obj.obj_name, serv.type_key, servOp.id, servOp.name_value, servOpConn.connect_point FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objId, 3]);
+                rows = SQL.all("SELECT DISTINCT t01obj.obj_name, serv.type_key, servOp.id, servOp.name_value, servOpConn.connect_point FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id " + publicationConditionFilter, [+objId, 3]);
             }
 
             for (i=0; i<rows.size(); i++) {
@@ -375,7 +377,7 @@ for (i=0; i<objRows.size(); i++) {
             addObjectReferenceTo(rows.get(j));
             var objToId = rows.get(j).get("id");
 
-            var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [+objToId]);
+            var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V' " + publicationConditionFilter, [+objToId]);
             for (k=0; k<subRows.size(); k++) {
               addT01ObjectTo(subRows.get(k), objToId);
             }
@@ -399,7 +401,7 @@ for (i=0; i<objRows.size(); i++) {
             var objFromId = rows.get(j).get("obj_from_id");
 
             // ---------- t01_object FROM ----------
-            var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V'", [+objFromId]);
+            var subRows = SQL.all("SELECT * FROM t01_object WHERE id=? AND work_state='V' " + publicationConditionFilter, [+objFromId]);
             for (k=0; k<subRows.size(); k++) {
                 addT01ObjectFrom(subRows.get(k), objFromId);
 
@@ -1169,10 +1171,23 @@ function addDOIInfo(objId) {
 function addWKT(objId) {
     var wktRow = SQL.first("SELECT fd.data AS data FROM additional_field_data fd WHERE fd.obj_id=? AND fd.field_key = 'boundingPolygon'", [+objId]);
     if (hasValue(wktRow)) {
+        var srcEpsg;
         var wkt = wktRow.get("data");
-        if(hasValue(wkt)) {
+        if (wkt.indexOf("SRID=") > -1) {
+            log.debug("SRID defined. Extract EPSG and geometry.");
+            var splitWkt = wkt.split(";");
+            srcEpsg = splitWkt[0].replace("SRID=","").trim();
+            wkt = splitWkt[1].trim();
+        }
+        if (hasValue(wkt)) {
             var wkt2geojson = Java.type("de.ingrid.geo.utils.transformation.WktToGeoJsonTransformUtil");
-            var geojson = wkt2geojson.wktToGeoJson(wkt);
+            var geojson;
+            if (hasValue(srcEpsg)) {
+                log.debug("SRID " + srcEpsg + " defined. Transform wkt to geojson with EPSG:4326");
+                geojson = wkt2geojson.wktToGeoJsonTransform(wkt, srcEpsg, "4326");
+            } else {
+                geojson = wkt2geojson.wktToGeoJson(wkt);
+            }
             var wktDoc = {
                 wkt_geo: JSON.parse(geojson),
                 wkt_geo_text: geojson,
@@ -1237,4 +1252,15 @@ function addMissingUrlParameters(connUrl, row) {
         }
         return connUrl;
     }
+}
+
+function determinePublicationConditionQueryExt(publishId) {
+    if (hasValue(publishId)) {
+        if (publishId == "2") { // Intranet
+            return " AND (publish_id=1 OR publish_id=2)";
+        } else if (publishId == "3") { // Amtsintern
+            return "";
+        }
+    }
+    return " AND publish_id=1";
 }

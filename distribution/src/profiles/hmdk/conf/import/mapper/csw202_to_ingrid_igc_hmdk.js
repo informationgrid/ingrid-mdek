@@ -83,15 +83,15 @@ function mapSpecialFields(source, target) {
     }
 
     /**
-     * Delete optional keyboards that are already handled
+     * Delete already handled optional keywords
      */
-    var registeredKeyboards = XPATH.getNodeList(target, "/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term");
-    for (var j=0; j<registeredKeyboards.getLength(); j++ ) {
-        var keyboard = registeredKeyboards.item(j);
+    var registeredKeywords = XPATH.getNodeList(target, "/igc/data-sources/data-source/data-source-instance/subject-terms/uncontrolled-term");
+    for (var j=0; j<registeredKeywords.getLength(); j++ ) {
+        var keyword = registeredKeywords.item(j);
 
-        if(keyboard.getTextContent() === "Öffentliche Pläne"){
-            XPATH.removeElementAtXPath(keyboard, ".");
-            log.debug("Removing optional keyboard: " + keyboard.getTextContent());
+        if(keyword.getTextContent() === "Öffentliche Pläne"){
+            XPATH.removeElementAtXPath(keyword, ".");
+            log.debug("Removing optional keyword: " + keyword.getTextContent());
         }
     }
 

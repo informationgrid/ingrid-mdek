@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
-    <version>6.2.0</version>
+    <version>6.3.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>ingrid-mdek-job</artifactId>
@@ -22,6 +22,7 @@
     <!-- Define the version that we want to use here, so we have a single line to change when upgrating. -->
     <!-- <geotk.version>3.20-geoapi-3.0</geotk.version> -->
     <geotk.version>4.0-M0</geotk.version>
+    <ingrid-utils-geo.version>6.3.0</ingrid-utils-geo.version>
   </properties>
 
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
@@ -114,7 +115,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-utils-geo</artifactId>
-      <version>6.0.0</version>
+      <version>${ingrid-utils-geo.version}</version>
     </dependency>
 
     <dependency>

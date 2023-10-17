@@ -1,4 +1,21 @@
 
+## 6.3.0 (17.10.2023)
+
+### Features
+
+* Umsetzung der Angabe von InVeKoS-Daten im IGE-Classic (#5549)
+* Facette für Filterung nach Themenbereichen / Kategorien (#4575)
+* Kontakt "Vertrieb" als "Anbieter" im Portal konfigurieren - entsprechende Facette einrichten (#4488)
+* Erweiterung Tipp des Tages um Darstellungen "Neuigkeiten im Datenbestand" (#4121)
+
+### Bugfixes
+
+* Portal: Verweise und Downloades unterschiedlich  (#5581)
+* Daten-Dienste Kopplung   (#5575)
+* Export von externen gekoppelten Daten inkorrekt ins ISO  (#5394)
+* Indizierte Felder werden doppelt in die Konfiguration geschrieben  (#5381)
+* IGE, Portal: Format des WKT und Anzeige des Datensatzes im Portal  (#4767)
+    
 ## 6.2.0 (10.07.2023)
 
 ### Features

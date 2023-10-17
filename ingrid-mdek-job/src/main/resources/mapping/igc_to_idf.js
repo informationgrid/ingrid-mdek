@@ -81,7 +81,7 @@ for (i=0; i<objRows.size(); i++) {
     var objUuid = objRow.get("obj_uuid");
     var objClass = objRow.get("obj_class");
     var objParentUuid = null; // will be set below
-    var publicationConditionFilter = determinePublicationConditionQueryExt(objRow.get("publish_id"));
+    var publicationConditionFilter = determinePublicationConditionQueryExt(sourceRecord.get("publication"));
 
     // local variables
     var row = null;
@@ -819,7 +819,7 @@ for (i=0; i<objRows.size(); i++) {
     }
 
     // GEMET Thesaurus
-    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type, searchterm_value.alternate_term FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [+objId, "G"]);
+    rows = SQL.all("SELECT searchterm_value.term, searchterm_value.type, searchterm_value.alternate_term, searchterm_value.searchterm_sns_id FROM searchterm_obj, searchterm_value WHERE searchterm_obj.searchterm_id=searchterm_value.id AND searchterm_obj.obj_id=? AND searchterm_value.type=?", [+objId, "G"]);
     mdKeywords = getMdKeywords(rows);
     if (mdKeywords != null) {
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
@@ -859,6 +859,9 @@ for (i=0; i<objRows.size(); i++) {
         mdKeywords = DOM.createElement("gmd:MD_Keywords");
         mdKeywords.addElement("gmd:keyword/gco:CharacterString").addText("inspireidentifiziert");
         identificationInfo.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
+        
+        // add InVeKoS-keywords
+        addInvekosKeywords(identificationInfo);
     }
 
     // IS_OPEN_DATA leads to specific keyword, default behavior unless changes (REDMINE-128)
@@ -1147,7 +1150,7 @@ for (i=0; i<objRows.size(); i++) {
 
             // the info about the uuid and identifier are encoded within the url-description field
             // identifier#**#uuid
-            var moreInfo = refUrl.get("descr") ? refUrl.get("descr").split( "#\\*\\*#" ) : [];
+            var moreInfo = refUrl.get("descr") ? refUrl.get("descr").split( "#**#" ) : [];
             if (moreInfo.length !== 2) {
                 log.warn( "A coupled resource which was referenced externally has no identifier and/or uuid: " + refUrl.get("url_link") );
                 continue;
@@ -1945,13 +1948,37 @@ function getMdKeywords(rows) {
 
             // GEMET has additional localization in alternate term !
             // see https://dev.informationgrid.eu/redmine/issues/363
-            if (type == "G") {
+            if (type === "G") {
                 keywordAlternateValue = row.get("alternate_term");
+                asAnchor = true;
+                var snsId = row.get("searchterm_sns_id");
+                if (hasValue(snsId)) {
+                    var gemet = SQL.first("SELECT gemet_id FROM searchterm_sns WHERE id=?", [+snsId]);
+                    if (hasValue(gemet)) {
+                        // adapt links to be accepted by INSPIRE validator
+                        var gemetId = gemet.get("gemet_id");
+                        if (hasValue(gemetId)) {
+                            keywordLink = gemetId
+                                .replace("http:", "https:")
+                                .replace("gemet/concept", "gemet/en/concept");
+                        }
+                    }
+                }
             }
 
             // INSPIRE does not have to be in ENGLISH anymore for correct mapping in IGE CSW Import
+            var entryId = +row.get("entry_id");
             if (type == "I") {
-                keywordValue = TRANSF.getIGCSyslistEntryName(6100, +row.get("entry_id"), catLangCode);
+                keywordValue = TRANSF.getIGCSyslistEntryName(6100, entryId, catLangCode);
+            }
+            
+            // special anchor representation for InVeKoS
+            if (entryId === 304) {
+                asAnchor = true;
+                keywordLink = "http://inspire.ec.europa.eu/theme/lu";
+            } else if (entryId === 202) {
+                asAnchor = true;
+                keywordLink = "http://inspire.ec.europa.eu/theme/lc";
             }
 
         // "t011_obj_serv_type" table
@@ -1972,6 +1999,8 @@ function getMdKeywords(rows) {
                     log.error("Error getting URL from Priority Dataset within data field in Codelist 6350");
                 }
             }
+        } else if (hasValue(row.get("priority_key"))) {
+            asAnchor = true;
         }
 
         if (hasValue(keywordValue)) {
@@ -2052,7 +2081,7 @@ function getMdKeywords(rows) {
     }
     var thesCit = mdKeywords.addElement("gmd:thesaurusName/gmd:CI_Citation");
 
-    if (asAnchor) {
+    if (asAnchor && hasValue(thesaurusLink)) {
         thesCit.addElement("gmd:title/gmx:Anchor")
             .addAttribute("xlink:href", thesaurusLink)
             .addText(keywTitle);
@@ -2068,6 +2097,27 @@ function getMdKeywords(rows) {
         .addText("publication");
 
     return mdKeywords;
+}
+
+function addInvekosKeywords(element) {
+    var keywords = SQL.all("SELECT add2.data, add2.list_item_id FROM additional_field_data add1, additional_field_data add2 WHERE add1.obj_id=? AND add1.field_key=? AND add2.parent_field_id=add1.id AND add2.field_key=?", [+objId, "invekosKeywords", "keyword"]);
+    var mdKeywords = DOM.createElement("gmd:MD_Keywords");
+
+    for (i=0; i<keywords.size(); i++) {
+        mdKeywords.addElement("gmd:keyword/gmx:Anchor").addText(keywords.get(i).get("data")).addAttribute("xlink:href", keywords.get(i).get("list_item_id"));
+    }
+    
+    var thesaurusName = DOM.createElement("gmd:thesaurusName");
+    thesaurusName.addElement("gmd:CI_Citation")
+        .addElement("gmd:title").addElement("gmx:Anchor").addText("IACS data").addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/IACSData")
+        .getParent(2)
+        .addElement("gmd:date").addElement("gmd:CI_Date")
+            .addElement("gmd:date").addElement("gco:Date").addText("2021-06-08")
+        .getParent(2)
+        .addElement("gmd:dateType").addElement("gmd:CI_DateTypeCode").addText("publication").addAttribute("codeList", globalCodeListAttrURL + "#CI_DateTypeCode").addAttribute("codeListValue", "publication")
+    
+    mdKeywords.addElement(thesaurusName);
+    element.addElement("gmd:descriptiveKeywords").addElement(mdKeywords);
 }
 
 function addLocaleElement(id, languageCode, charEncoding) {
@@ -2290,11 +2340,24 @@ function addExtent(identificationInfo, objRow) {
     if (hasValue(wktRow)) {
         var wkt2gml = Java.type("de.ingrid.geo.utils.transformation.WktToGmlTransformUtil");
 
+        var srcEpsg;
         var wkt = wktRow.get("data");
+        if (wkt.indexOf("SRID=") > -1) {
+            log.debug("SRID defined. Extract EPSG and geometry.");
+            var splitWkt = wkt.split(";");
+            srcEpsg = splitWkt[0].replace("SRID=","").trim();
+            wkt = splitWkt[1].trim();
+        }
         log.debug("WKT for polygon is: " + wkt);
 
         // Convert to gml
-        var gml = wkt2gml.wktToGml3_2AsElement(wkt);
+        var gml;
+        if (hasValue(srcEpsg)) {
+            log.debug("SRID " + srcEpsg + " defined. Transform wkt to gml with EPSG:4326");
+            gml = wkt2gml.wktToGml3_2AsElement(wkt, srcEpsg);
+        } else {
+            gml = wkt2gml.wktToGml3_2AsElement(wkt);
+        }
 
         var gmdBoundingPolygon = identificationInfo.addElement(extentElemName)
             .addElement("gmd:EX_Extent/gmd:geographicElement/gmd:EX_BoundingPolygon");
@@ -2747,11 +2810,11 @@ function addDistributionInfo(mdMetadata, objId) {
         // the links should all come from service objects (class=3)
         if (objClass == "1") {
             // get all getCapabilities-URLs from operations table of the coupled service
-            rows = SQL.all("SELECT DISTINCT t01obj.obj_name, serv.type_key, servOp.id, servOp.obj_serv_id, servOp.name_value, servOpConn.connect_point FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [objUuid, 3600, 3]);
+            rows = SQL.all("SELECT DISTINCT t01obj.obj_name, serv.type_key, servOp.id, servOp.obj_serv_id, servOp.name_value, servOpConn.connect_point FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE obj_to_uuid=? and special_ref=? AND oref.obj_from_id=t01obj.id AND t01obj.obj_class=? AND t01obj.work_state='V' AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id " + publicationConditionFilter, [objUuid, 3600, 3]);
         } else {
             // Service Object
             // Fetch now Services of all types but still operation has to be of name_key=1 (GetCapabilities), see REDMINE-85
-            rows = SQL.all("SELECT DISTINCT t01obj.obj_name, serv.type_key, servOp.id, servOp.obj_serv_id, servOp.name_value, servOpConn.connect_point FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id", [+objId, 3]);
+            rows = SQL.all("SELECT DISTINCT t01obj.obj_name, serv.type_key, servOp.id, servOp.obj_serv_id, servOp.name_value, servOpConn.connect_point FROM t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE t01obj.id=? AND t01obj.obj_class=? AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id " + publicationConditionFilter, [+objId, 3]);
         }
 
         for (i=0; i<rows.size(); i++) {
@@ -3284,13 +3347,14 @@ function addRegionKeyInfo(parent, objId) {
 }
 
 function determinePublicationConditionQueryExt(publishId) {
-    if (publishId == "1") { // Internet
-        return " AND publish_id=1";
-    } else if (publishId == "2") { // Intranet
-        return " AND (publish_id=1 OR publish_id=2)";
-    } else { // allow all for 'amtsintern'
-        return "";
+    if (hasValue(publishId)) {
+        if (publishId == "2") { // Intranet
+            return " AND (publish_id=1 OR publish_id=2)";
+        } else if (publishId == "3") { // Amtsintern
+            return "";
+        }
     }
+    return " AND publish_id=1";
 }
 
 /**
