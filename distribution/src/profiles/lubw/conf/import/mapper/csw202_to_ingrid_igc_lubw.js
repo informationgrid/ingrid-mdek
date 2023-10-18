@@ -26,6 +26,11 @@ var mappingDescriptionLUBW = {"mappings":[
         "execute": {
             "funct": mapSpecialFields
         }
+    },
+    {
+        "execute": {
+            "funct": convertBrowseGraphicLinkToRelative
+        }
     }
 ]};
 
@@ -94,5 +99,24 @@ function mapSpecialFields(source, target) {
         var additionalValue = additionalValues.appendChild(targetEl.getOwnerDocument().createElement("general-additional-value"));
         XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key"), "environmentDescription");
         XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-data"), environmentDescription.getTextContent());
+    }
+}
+
+function convertBrowseGraphicLinkToRelative(source, target) {
+    /**
+     * Vorschaubilder: Umwandlung von absolutem zu relativem Link
+     * (damit Vorschaubilder korrekt verknüpft sind und nicht im Papierkorb landen)
+     */
+    var browseGraphic = XPATH.getNode(source, "//gmd:MD_DataIdentification/gmd:graphicOverview/gmd:MD_BrowseGraphic/gmd:fileName/gco:CharacterString");
+    if (browseGraphic && browseGraphic.getTextContent()) {
+        var targetEl = target;
+        var relativeLink = browseGraphic.getTextContent().replace(/.*(ingrid-group_ige-iplug\/.*)/, '$1');
+        // the following does not work because at this time, the IGC does not contain "preview-image"
+//        var igcPath = "/igc/data-sources/data-source/data-source-instance/available-linkage[./linkage-name = 'preview-image']/linkage-url";
+        var linkageUrlPath = "/igc/data-sources/data-source/data-source-instance/available-linkage[./linkage-reference[@id='9000']]/linkage-url";
+        var linkageUrlNode = XPATH.getNode(targetEl, linkageUrlPath);
+        if (linkageUrlNode) {
+            XMLUtils.createOrReplaceTextNode(linkageUrlNode, relativeLink);
+        }
     }
 }
