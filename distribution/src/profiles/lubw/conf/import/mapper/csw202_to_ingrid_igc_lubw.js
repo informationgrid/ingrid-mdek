@@ -31,6 +31,11 @@ var mappingDescriptionLUBW = {"mappings":[
         "execute": {
             "funct": convertBrowseGraphicLinkToRelative
         }
+    },
+    {
+        "execute": {
+            "funct": removeBrowseGraphicDefaultFileDescription
+        }
     }
 ]};
 
@@ -118,5 +123,18 @@ function convertBrowseGraphicLinkToRelative(source, target) {
         if (linkageUrlNode) {
             XMLUtils.createOrReplaceTextNode(linkageUrlNode, relativeLink);
         }
+    }
+}
+
+function removeBrowseGraphicDefaultFileDescription(source, target) {
+    /**
+     * Vorschaubilder: Entfernen der gmd:fileDescription falls sie den Default-Wert enthält (#5500)
+     */
+    var targetEl = target;
+    var defaultValue = 'grafische Darstellung';
+    var linkageDescriptionPath = "/igc/data-sources/data-source/data-source-instance/available-linkage[./linkage-reference[@id='9000']]/linkage-description";
+    var linkageDescriptionNode = XPATH.getNode(targetEl, linkageDescriptionPath);
+    if (linkageDescriptionNode && linkageDescriptionNode.getTextContent() == defaultValue) {
+        XPATH.removeElementAtXPath(linkageDescriptionNode, '.');
     }
 }
