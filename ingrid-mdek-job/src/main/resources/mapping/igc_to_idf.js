@@ -2101,6 +2101,8 @@ function getMdKeywords(rows) {
 
 function addInvekosKeywords(element) {
     var keywords = SQL.all("SELECT add2.data, add2.list_item_id FROM additional_field_data add1, additional_field_data add2 WHERE add1.obj_id=? AND add1.field_key=? AND add2.parent_field_id=add1.id AND add2.field_key=?", [+objId, "invekosKeywords", "keyword"]);
+    if (keywords.size() === 0) return;
+    
     var mdKeywords = DOM.createElement("gmd:MD_Keywords");
 
     for (i=0; i<keywords.size(); i++) {
