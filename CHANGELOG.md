@@ -1,4 +1,11 @@
 
+## 6.3.0.1 (16.11.2023)
+
+### Bugfixes
+
+* INSPIRE Konformität der Metadatensätze nicht erfüllt (#5702)
+
+
 ## 6.3.0 (17.10.2023)
 
 ### Features
