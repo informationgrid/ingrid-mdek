@@ -99,6 +99,14 @@
       "type": "keyword",
       "store": true
     },
+    "t011_obj_serv_url.name": {
+      "type": "keyword",
+      "store": true
+    },
+    "t011_obj_serv_url.url": {
+      "type": "keyword",
+      "store": true
+    },
     "t012_obj_adr.adr_id": {
       "type": "keyword"
     },
