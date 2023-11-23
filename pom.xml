@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
@@ -23,9 +23,9 @@
     <ingrid-codelist-service.version>6.3.0</ingrid-codelist-service.version>
     <ingrid-utils.version>6.3.0</ingrid-utils.version>
     <ingrid-iplug-dsc.version>6.3.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>6.3.0</ingrid-base-webapp.version>
-    <spring.version>2.7.14</spring.version>
-    <log4j2.version>2.19.0</log4j2.version>
+    <ingrid-base-webapp.version>6.4.0-SNAPSHOT</ingrid-base-webapp.version>
+    <spring.version>2.7.17</spring.version>
+    <log4j2.version>2.22.0</log4j2.version>
     <maven.compiler.release>17</maven.compiler.release>
   </properties>
 

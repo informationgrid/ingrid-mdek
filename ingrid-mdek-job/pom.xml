@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>de.ingrid.mdek</groupId>
     <artifactId>ingrid-mdek</artifactId>
@@ -22,7 +22,7 @@
     <!-- Define the version that we want to use here, so we have a single line to change when upgrating. -->
     <!-- <geotk.version>3.20-geoapi-3.0</geotk.version> -->
     <geotk.version>4.0-M0</geotk.version>
-    <ingrid-utils-geo.version>6.3.0</ingrid-utils-geo.version>
+    <ingrid-utils-geo.version>6.4.0-SNAPSHOT</ingrid-utils-geo.version>
   </properties>
 
   <!-- ==================== DEPENDENCY MANAGEMENT ==================== -->
