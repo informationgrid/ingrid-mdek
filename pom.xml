@@ -3,13 +3,13 @@
   <parent>
     <groupId>de.ingrid</groupId>
     <artifactId>ingrid-releases-pom</artifactId>
-    <version>6.2.0</version>
+    <version>7.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>6.4.0-SNAPSHOT</version>
+  <version>7.0.0-SNAPSHOT</version>
   <name>InGrid iPlug IGE</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.
   </description>
@@ -19,11 +19,11 @@
   <!-- ==================== PROPERTIES ==================== -->
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
-    <ingrid-udk-importer.version>6.1.0</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>6.3.0</ingrid-codelist-service.version>
-    <ingrid-utils.version>6.3.0</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>6.3.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>6.4.0-SNAPSHOT</ingrid-base-webapp.version>
+    <ingrid-udk-importer.version>7.0.0-SNAPSHOT</ingrid-udk-importer.version>
+    <ingrid-codelist-service.version>7.0.0-SNAPSHOT</ingrid-codelist-service.version>
+    <ingrid-utils.version>7.0.0-SNAPSHOT</ingrid-utils.version>
+    <ingrid-iplug-dsc.version>7.0.0-SNAPSHOT</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>7.0.0-SNAPSHOT</ingrid-base-webapp.version>
     <spring.version>2.7.17</spring.version>
     <log4j2.version>2.22.0</log4j2.version>
     <maven.compiler.release>17</maven.compiler.release>
@@ -175,7 +175,7 @@
     <dependency>
       <groupId>de.ingrid</groupId>
       <artifactId>ingrid-communication</artifactId>
-      <version>6.0.0</version>
+      <version>7.0.0-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>log4j</groupId>
@@ -282,6 +282,7 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>license-maven-plugin</artifactId>
         <configuration>
+          <licenseResolver>${project.baseUri}/license</licenseResolver>
           <excludes>
             <exclude>**/*.properties</exclude>
             <exclude>**/*.json</exclude>
