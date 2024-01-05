@@ -2,16 +2,16 @@
  * **************************************************-
  * Ingrid Portal MDEK Application
  * ==================================================
- * Copyright (C) 2014 - 2023 wemove digital solutions GmbH
+ * Copyright (C) 2014 - 2024 wemove digital solutions GmbH
  * ==================================================
- * Licensed under the EUPL, Version 1.1 or – as soon they will be
+ * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
  * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
  * 
- * http://ec.europa.eu/idabc/eupl5
+ * https://joinup.ec.europa.eu/software/page/eupl
  * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
@@ -25,6 +25,16 @@ var mappingDescriptionLUBW = {"mappings":[
     {
         "execute": {
             "funct": mapSpecialFields
+        }
+    },
+    {
+        "execute": {
+            "funct": convertBrowseGraphicLinkToRelative
+        }
+    },
+    {
+        "execute": {
+            "funct": removeBrowseGraphicDefaultFileDescription
         }
     }
 ]};
@@ -94,5 +104,37 @@ function mapSpecialFields(source, target) {
         var additionalValue = additionalValues.appendChild(targetEl.getOwnerDocument().createElement("general-additional-value"));
         XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-key"), "environmentDescription");
         XMLUtils.createOrReplaceTextNode(XPATH.createElementFromXPath(additionalValue, "field-data"), environmentDescription.getTextContent());
+    }
+}
+
+function convertBrowseGraphicLinkToRelative(source, target) {
+    /**
+     * Vorschaubilder: Umwandlung von absolutem zu relativem Link
+     * (damit Vorschaubilder korrekt verknüpft sind und nicht im Papierkorb landen)
+     */
+    var browseGraphic = XPATH.getNode(source, "//gmd:MD_DataIdentification/gmd:graphicOverview/gmd:MD_BrowseGraphic/gmd:fileName/gco:CharacterString");
+    if (browseGraphic && browseGraphic.getTextContent()) {
+        var targetEl = target;
+        var relativeLink = browseGraphic.getTextContent().replace(/.*(ingrid-group_ige-iplug\/.*)/, '$1');
+        // the following does not work because at this time, the IGC does not contain "preview-image"
+//        var igcPath = "/igc/data-sources/data-source/data-source-instance/available-linkage[./linkage-name = 'preview-image']/linkage-url";
+        var linkageUrlPath = "/igc/data-sources/data-source/data-source-instance/available-linkage[./linkage-reference[@id='9000']]/linkage-url";
+        var linkageUrlNode = XPATH.getNode(targetEl, linkageUrlPath);
+        if (linkageUrlNode) {
+            XMLUtils.createOrReplaceTextNode(linkageUrlNode, relativeLink);
+        }
+    }
+}
+
+function removeBrowseGraphicDefaultFileDescription(source, target) {
+    /**
+     * Vorschaubilder: Entfernen der gmd:fileDescription falls sie den Default-Wert enthält (#5500)
+     */
+    var targetEl = target;
+    var defaultValue = 'grafische Darstellung';
+    var linkageDescriptionPath = "/igc/data-sources/data-source/data-source-instance/available-linkage[./linkage-reference[@id='9000']]/linkage-description";
+    var linkageDescriptionNode = XPATH.getNode(targetEl, linkageDescriptionPath);
+    if (linkageDescriptionNode && linkageDescriptionNode.getTextContent() == defaultValue) {
+        XPATH.removeElementAtXPath(linkageDescriptionNode, '.');
     }
 }
