@@ -1,4 +1,17 @@
 
+## 7.0.0 (05.01.2024)
+
+### Features
+
+* Portal: Zugangs-URL von Dienst / Anwendung hervorheben (#5410)
+* Umstellung Lizenz auf EUPL Version 1.2 (#1585)
+
+### Bugfixes
+
+* Aktualisierung sicherheitskritischer Libraries (#5724)
+* INSPIRE Konformität der Metadatensätze nicht erfüllt (#5702)
+* Fehlende Vorschaubilder im Editor (und Portal) (#5500)
+    
 ## 6.3.0 (17.10.2023)
 
 ### Features
