@@ -39,6 +39,25 @@ for (i=0; i<objRows.size(); i++) {
     handleBKGUseConstraints();
 }
 
+addIdentificationInfoAdministrativeArea(objId);
+
+function addIdentificationInfoAdministrativeArea(objId) {
+    var administrative_area_entry = SQL.first(
+        "SELECT t02_address.administrative_area_key FROM t012_obj_adr "
+        + "RIGHT JOIN t02_address ON t012_obj_adr.adr_uuid=t02_address.adr_uuid "
+        + "WHERE t012_obj_adr.type=7 AND t012_obj_adr.obj_id=? " // we only want type=7 "Ansprechpartner" (#5692)
+        + "AND administrative_area_key != -1", [+objId]);
+    if (hasValue(administrative_area_entry)) {
+        var administrative_area_key = administrative_area_entry.get("administrative_area_key");
+        if (hasValue(administrative_area_key)) {
+            var administrative_area = TRANSF.getCodeListEntryFromIGCSyslistEntry(6250, administrative_area_key, "de");
+            if (hasValue(administrative_area)) {
+                IDX.add("t02_address.identificationinfo_administrative_area_value", administrative_area);
+            }
+        }
+    }
+}
+
 function handleBKGUseConstraints() {
     // get the container for the select and free text field
     var bkgUseConstraintId = getAdditionalFieldFromObject(objId, null, 'bkg_useConstraints', 'id');
