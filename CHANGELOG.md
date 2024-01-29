@@ -1,3 +1,9 @@
+## 7.0.2 (29.01.2024)
+
+### Features
+
+* AdV-MIS: Korrektur der Facette "Verwaltet von" (#5692)
+
 
 ## 7.0.0 (05.01.2024)
 
