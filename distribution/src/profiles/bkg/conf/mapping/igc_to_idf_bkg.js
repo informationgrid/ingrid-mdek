@@ -77,8 +77,7 @@ function handleBKGAccessConstraints() {
             // add select value and free text to ISO depending on selection
             if ((bkgAccessConstraintSelectListItem && bkgAccessConstraintSelectListItem !== "") || bkgAccessConstraintFreeText !== "") {
                 var legalConstraint = getFirstNodeInIdentificationBefore("gmd:accessConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
-                var sourceNote = getAdditionalFieldFromObject(null, bkgAccessConstraintId, 'bkg_accessConstraints_sourceNote', 'data');
-                addAccessConstraints(legalConstraint, bkgAccessConstraintSelectListItem, bkgAccessConstraintFreeText, sourceNote);
+                addAccessConstraints(legalConstraint, bkgAccessConstraintSelectListItem, bkgAccessConstraintFreeText);
             }
         }
     }
@@ -193,34 +192,31 @@ function getFirstNodeInIdentificationBefore(subNode) {
     return beforeResourceElement;
 }
 
-function addAccessConstraints(legalConstraint, codelistEntryId, valueFree, sourceNote) {
+function addAccessConstraints(legalConstraint, codelistEntryId, valueFree) {
     if (codelistEntryId === null || codelistEntryId === undefined| codelistEntryId === "") {
-        addAccessConstraintElements(legalConstraint, [], [valueFree, sourceNote]);
+        addAccessConstraintElements(legalConstraint, [], [valueFree]);
         return;
     }
 
     // codelist 10001/10002
     switch (codelistEntryId) {
-        case "1":
-            addAccessConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10002, +codelistEntryId), valueFree, sourceNote]);
-            break;
         case "5":
-            addAccessConstraintElements(legalConstraint, ["copyright"], [valueFree, sourceNote]);
+            addAccessConstraintElements(legalConstraint, ["copyright"], [valueFree]);
             break;
         case "6":
-            addAccessConstraintElements(legalConstraint, ["license"], [valueFree, sourceNote]);
+            addAccessConstraintElements(legalConstraint, ["license"], [valueFree]);
             break;
         case "7":
-            addAccessConstraintElements(legalConstraint, ["copyright","license"], [valueFree, sourceNote]);
+            addAccessConstraintElements(legalConstraint, ["copyright","license"], [valueFree]);
             break;
         case "8":
-            addAccessConstraintElements(legalConstraint, ["intellectualPropertyRights"], [valueFree, sourceNote]);
+            addAccessConstraintElements(legalConstraint, ["intellectualPropertyRights"], [valueFree]);
             break;
         case "9":
-            addAccessConstraintElements(legalConstraint, ["restricted"], [valueFree, sourceNote]);
+            addAccessConstraintElements(legalConstraint, ["restricted"], [valueFree]);
             break;
         default:
-            addAccessConstraintElements(legalConstraint, ["copyright"], [TRANSF.getIGCSyslistEntryName(10002, +codelistEntryId), valueFree, sourceNote]);
+            addAccessConstraintElements(legalConstraint, [], [TRANSF.getIGCSyslistEntryName(10002, +codelistEntryId), valueFree]);
     }
 }
 
