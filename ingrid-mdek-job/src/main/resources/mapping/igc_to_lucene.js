@@ -131,11 +131,12 @@ for (i=0; i<objRows.size(); i++) {
                 addT011ObjServOperation(subRows.get(k));
                 var objServOpId   = subRows.get(k).get("id");
                 var isCapabilityOperation = rows.get(j).get("type_key") == "2" && subRows.get(k).get("name_key") == "1"; // key of "Darstellungsdienste" is "2" and "GetCapabilities" is "1" !
+                var isCapabilityDownloadOperation = rows.get(j).get("type_key") == "3" && subRows.get(k).get("name_key") == "1"; // key of "Download-Dienst" is "3" and "GetCapabilities" is "1" !
 
                 // ---------- t011_obj_serv_op_connpoint ----------
                 var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_connpoint WHERE obj_serv_op_id=?", [+objServOpId]);
                 for (l=0; l<subSubRows.size(); l++) {
-                    addT011ObjServOpConnpoint(subSubRows.get(l), isCapabilityOperation);
+                    addT011ObjServOpConnpoint(subSubRows.get(l), isCapabilityOperation, isCapabilityDownloadOperation);
                 }
                 // ---------- t011_obj_serv_op_depends ----------
                 var subSubRows = SQL.all("SELECT * FROM t011_obj_serv_op_depends WHERE obj_serv_op_id=?", [+objServOpId]);
@@ -184,6 +185,11 @@ for (i=0; i<objRows.size(); i++) {
                 for (l=0; l<capabilitiesUrls.size(); l++) {
                     //log.debug("Found capabilitiesUrls for "+k+". service object: " + capabilitiesUrls.size());
                     addCapabilitiesUrl(capabilitiesUrls.get(l));
+                }
+                var capabilitiesDownloadUrls = SQL.all("SELECT * FROM object_reference oref, t01_object t01obj, t011_obj_serv serv, t011_obj_serv_operation servOp, t011_Obj_serv_op_connPoint servOpConn WHERE oref.obj_from_id=t01obj.id AND serv.obj_id=t01obj.id AND servOp.obj_serv_id=serv.id AND servOp.name_key=1 AND servOpConn.obj_serv_op_id=servOp.id AND obj_to_uuid=? AND obj_from_id=? AND special_ref=3600 AND serv.type_key=3 AND t01obj.work_state='V'", [objUuid, +serviceObjects.get(k).get("obj_from_id")]);
+                for (l=0; l<capabilitiesDownloadUrls.size(); l++) {
+                    //log.debug("Found capabilitiesUrls for "+k+". service object: " + capabilitiesUrls.size());
+                    addCapabilitiesDownloadUrl(capabilitiesDownloadUrls.get(l));
                 }
             }
             // boost this documents according to how many services are connected to this data object
@@ -682,7 +688,7 @@ function addT011ObjServOperation(row) {
     IDX.add("t011_obj_serv_operation.descr", row.get("descr"));
     IDX.add("t011_obj_serv_operation.invocation_name", row.get("invocation_name"));
 }
-function addT011ObjServOpConnpoint(row, isCapabilityUrl) {
+function addT011ObjServOpConnpoint(row, isCapabilityUrl, isCapabilityDownloadUrl) {
     IDX.add("t011_obj_serv_op_connpoint.line", row.get("line"));
     IDX.add("t011_obj_serv_op_connpoint.connect_point", row.get("connect_point"));
 
@@ -690,12 +696,22 @@ function addT011ObjServOpConnpoint(row, isCapabilityUrl) {
     if (isCapabilityUrl == true) {
         addCapabilitiesUrl(row);
     }
+    if(isCapabilityDownloadUrl == true) {
+        addCapabilitiesDownloadUrl(row);
+    }
 }
 function addCapabilitiesUrl(row) {
     // Add 't011_obj_serv.has_access_constraint' to check constraint
     // Issue: https://redmine.informationgrid.eu/issues/2199
     if (!hasValue(row.get("has_access_constraint")) || row.get("has_access_constraint") !== 'Y') {
         IDX.add("capabilities_url", row.get("connect_point"));
+    }
+}
+function addCapabilitiesDownloadUrl(row) {
+    // Add 't011_obj_serv.has_access_constraint' to check constraint
+    // Issue: https://redmine.informationgrid.eu/issues/2199
+    if (!hasValue(row.get("has_access_constraint")) || row.get("has_access_constraint") !== 'Y') {
+        IDX.add("capabilities_download_url", row.get("connect_point"));
     }
 }
 function addT011ObjServOpDepends(row) {
