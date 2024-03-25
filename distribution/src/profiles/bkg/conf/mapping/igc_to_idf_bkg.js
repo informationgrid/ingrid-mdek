@@ -193,7 +193,7 @@ function getFirstNodeInIdentificationBefore(subNode) {
 }
 
 function addAccessConstraints(legalConstraint, codelistEntryId, valueFree) {
-    if (codelistEntryId === null || codelistEntryId === undefined| codelistEntryId === "") {
+    if (codelistEntryId === null || codelistEntryId === undefined || codelistEntryId === "") {
         addAccessConstraintElements(legalConstraint, [], [valueFree]);
         return;
     }
@@ -272,9 +272,17 @@ function addAccessConstraintElements(legalConstraint, restrictionCodeValues, oth
     if (hasValue(otherConstraints)) {
         for (var j=0; j<otherConstraints.length; j++) {
             if (otherConstraints[j]) {
-                legalConstraint
-                .addElement("gmd:otherConstraints/gco:CharacterString")
-                .addText(otherConstraints[j]);
+                if (otherConstraints[j] === "Es gelten keine Zugriffsbeschränkungen") {
+                    legalConstraint
+                        .addElement("gmd:otherConstraints/gmx:Anchor")
+                        .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations")
+                        .addText(otherConstraints[j]);
+
+                } else {
+                    legalConstraint
+                        .addElement("gmd:otherConstraints/gco:CharacterString")
+                        .addText(otherConstraints[j]);
+                }
             }
         }
     }
