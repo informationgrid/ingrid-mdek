@@ -1,4 +1,16 @@
 
+## 7.1.0 (27.03.2024)
+
+### Features
+
+* AdV-MIS: Korrektur der Facette "Verwaltet von" (#5692)
+* IGE: BKG-MIS - Feld "Zugriffsbeschränkungen" wieder herstellen (#5481)
+
+### Bugfixes
+
+* Korrekte Wiedergabe der WMS und WFS URLs im CSV-Export (#6074)
+* Aktualisierung sicherheitskritischer Libraries (#6018)
+    
 ## 7.0.0 (05.01.2024)
 
 ### Features
