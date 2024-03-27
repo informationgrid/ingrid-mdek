@@ -21,9 +21,9 @@
     <iplug.type>IPLUG_IGE</iplug.type>
     <ingrid-udk-importer.version>7.0.0</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>7.1.0-SNAPSHOT</ingrid-codelist-service.version>
-    <ingrid-utils.version>7.0.0</ingrid-utils.version>
+    <ingrid-utils.version>7.1.0-SNAPSHOT</ingrid-utils.version>
     <ingrid-iplug-dsc.version>7.0.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>7.0.0</ingrid-base-webapp.version>
+    <ingrid-base-webapp.version>7.1.0-SNAPSHOT</ingrid-base-webapp.version>
     <ingrid-utils-geo.version>7.0.0</ingrid-utils-geo.version>
     <!-- <geotk.version>3.20-geoapi-3.0</geotk.version> -->
     <geotk.version>4.0-M0</geotk.version>
