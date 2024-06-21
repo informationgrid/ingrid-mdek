@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,19 +26,23 @@
 package de.ingrid.mdek.services.persistence.db;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.Criteria;
-import org.hibernate.FlushMode;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.hibernate.LockMode;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StaleObjectStateException;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Example;
+import org.hibernate.query.Query;
 
 /**
  * @param <T>
- * @param <ID>
  */
 public class GenericHibernateDao<T extends IEntity> extends TransactionService implements
         IGenericDao<T> {
@@ -46,9 +50,8 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
     private Class<T> _persistentClass;
 
     /**
-     * @param factory 
-     * @param clazz 
-     * @param sessionFactory
+     * @param factory
+     * @param clazz
      */
     @SuppressWarnings("unchecked")
     public GenericHibernateDao(SessionFactory factory, Class clazz) {
@@ -66,12 +69,12 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
 
     public T findFirst() {
         T entity = null;
-        
+
         List<T> all = findByCriteria();
 		if (all != null && all.size() > 0) {
 			entity = all.get(0);
 		}
-		
+
 		return entity;
     }
 
@@ -92,10 +95,10 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
         T entity = null;
     	if (id != null) {
             if (lock) {
-                entity = (T) getSession().get(getPersistentClass(), id, LockMode.UPGRADE);
+                entity = (T) getSession().get(getPersistentClass(), id, LockMode.UPGRADE_NOWAIT);
             } else {
                 entity = (T) getSession().get(getPersistentClass(), id);
-            }    		
+            }
     	}
 
         return entity;
@@ -110,7 +113,7 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
         T entity = null;
     	if (id != null) {
             if (lock) {
-                entity = (T) getSession().load(getPersistentClass(), id, LockMode.UPGRADE);
+                entity = (T) getSession().load(getPersistentClass(), id, LockMode.UPGRADE_NOWAIT);
             } else {
                 entity = (T) getSession().load(getPersistentClass(), id);
             }
@@ -147,52 +150,84 @@ public class GenericHibernateDao<T extends IEntity> extends TransactionService i
     	// Further: This doesn't detect changes ! (due to using cache ?)
 //        changedInBetween(entity);
     	if (entity != null) {
-            getSession().delete(entity);    		
+            getSession().delete(entity);
     	}
     }
 
     @SuppressWarnings("unchecked")
     private T findUniqueByExample(T exampleInstance, String[] excludeProperty) {
-        Criteria crit = createCriteriaForExample(exampleInstance, excludeProperty);
-        return (T) crit.uniqueResult();
+        Session session = getSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<T> query = builder.createQuery(getPersistentClass());
+        Root<T> root = query.from(getPersistentClass());
+
+        Predicate examplePredicate = buildPredicateFromExample(builder, root, exampleInstance, excludeProperty);
+
+        query.where(examplePredicate);
+
+        Query<T> jpaQuery = session.createQuery(query);
+        return jpaQuery.uniqueResult();
     }
 
     @SuppressWarnings("unchecked")
-    protected List<T> findByCriteria(Criterion... criterion) {
-        return createCriteria(criterion).list();
+    protected List<T> findByCriteria(Predicate... predicates) {
+        return createCriteria(predicates).list();
     }
 
-    protected Criteria createCriteria(Criterion... criterion) {
-        Criteria crit = getSession().createCriteria(getPersistentClass());
-        for (Criterion c : criterion) {
-            crit.add(c);
-        }
-        return crit;
-    }
+    protected Query createCriteria(Predicate... predicates) {
+        Session session = getSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<T> query = builder.createQuery(getPersistentClass());
+        query.from(getPersistentClass());
 
-    private Criteria createCriteriaForExample(T exampleInstance, String[] excludeProperty) {
-        Criteria crit = getSession().createCriteria(getPersistentClass());
-        Example example = Example.create(exampleInstance);
-        for (String exclude : excludeProperty) {
-            example.excludeProperty(exclude);
-        }
-        crit.add(example);
-        return crit;
+        query.where(predicates);
+        return session.createQuery(query);
     }
 
     @SuppressWarnings("unchecked")
     private List<T> findByExample(T exampleInstance, int max, String[] excludeProperties) {
-        Criteria crit = createCriteriaForExample(exampleInstance, excludeProperties);
+        Session session = getSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<T> query = builder.createQuery(getPersistentClass());
+        Root<T> root = query.from(getPersistentClass());
+
+        Predicate examplePredicate = buildPredicateFromExample(builder, root, exampleInstance, excludeProperties);
+
+        query.where(examplePredicate);
+
+        Query<T> jpaQuery = session.createQuery(query);
+
         if (max != -1) {
-            crit.setMaxResults(max);
+            jpaQuery.setMaxResults(max);
         }
-        return crit.list();
+
+        return jpaQuery.getResultList();
     }
 
     public void disableAutoFlush() {
-        getSession().setFlushMode(FlushMode.MANUAL);
+        getSession().setFlushMode(FlushModeType.COMMIT);
     }
     public void flush() {
         getSession().flush();
+    }
+
+    private Predicate buildPredicateFromExample(CriteriaBuilder builder, Root<T> root, T exampleInstance, String[] excludeProperty) {
+        List<Predicate> predicates = new ArrayList<>();
+        List<String> excludeList = List.of(excludeProperty);
+
+        for (Field field : exampleInstance.getClass().getDeclaredFields()) {
+            if (!excludeList.contains(field.getName())) {
+                field.setAccessible(true);
+                try {
+                    Object value = field.get(exampleInstance);
+                    if (value != null) {
+                        predicates.add(builder.equal(root.get(field.getName()), value));
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Failed to access property: " + field.getName(), e);
+                }
+            }
+        }
+        return builder.and(predicates.toArray(new Predicate[0]));
     }
 }

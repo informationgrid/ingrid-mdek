@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,9 +55,9 @@ public class IdcGroupDaoHibernate
 
 		IdcGroup grp = (IdcGroup) session.createQuery("from IdcGroup grp " +
 			"where grp.name = ?1")
-			.setString(1, name)
+			.setParameter(1, name)
 			.uniqueResult();
-		
+
 		return grp;
 	}
 
@@ -65,7 +65,7 @@ public class IdcGroupDaoHibernate
 		Session session = getSession();
 		String query = "select group from IdcGroup group " +
 			"order by group.name";
-		
+
 		List<IdcGroup> groups = session.createQuery(query).list();
 
 		return groups;
@@ -78,7 +78,7 @@ public class IdcGroupDaoHibernate
 		IdcGroup grp = (IdcGroup) session.createQuery(
 			createGroupDetailsQueryString() +
 			"where grp.name = ?1")
-			.setString(1, name)
+			.setParameter(1, name)
 			.uniqueResult();
 
 		return grp;
@@ -91,12 +91,12 @@ public class IdcGroupDaoHibernate
 		IdcGroup grp = (IdcGroup) session.createQuery(
 			createGroupDetailsQueryString() +
 			"where grp.id = ?1")
-			.setLong(1, groupId)
+			.setParameter(1, groupId, Long.class)
 			.uniqueResult();
 
 		return grp;
 	}
-	
+
 	private String createGroupDetailsQueryString() {
 		String qString = "from IdcGroup grp " +
 			"left join fetch grp.permissionAddrs permAddr " +
@@ -109,7 +109,7 @@ public class IdcGroupDaoHibernate
 			"left join fetch oNode.t01ObjectWork o " +
 			"left join fetch grp.idcUserPermissions permUser " +
 			"left join fetch permUser.permission permU ";
-		
+
 		return qString;
 	}
 
@@ -120,7 +120,7 @@ public class IdcGroupDaoHibernate
 			"uG.idcGroupId = g.id " +
 			"AND uG.idcUserId = u.id " +
 			"AND g.name='" + groupName + "'";
-		
+
 		return qString;
 	}
 
@@ -129,8 +129,8 @@ public class IdcGroupDaoHibernate
 		Session session = getSession();
 
 		String q = "select distinct new Map(" +
-				"o.objUuid as " + KEY_ENTITY_UUID + 
-				", o.modUuid as " + KEY_USER_UUID + 
+				"o.objUuid as " + KEY_ENTITY_UUID +
+				", o.modUuid as " + KEY_USER_UUID +
 			") " +
 			"from ObjectNode oNode " +
 			"inner join oNode.t01ObjectWork o " +
@@ -150,13 +150,13 @@ public class IdcGroupDaoHibernate
 		Session session = getSession();
 
 		String q = "select distinct new Map(" +
-				"a.adrUuid as " + KEY_ENTITY_UUID + 
-				", a.modUuid as " + KEY_USER_UUID + 
+				"a.adrUuid as " + KEY_ENTITY_UUID +
+				", a.modUuid as " + KEY_USER_UUID +
 			") " +
 			"from AddressNode aNode " +
 			"inner join aNode.t02AddressWork a " +
 			"where " +
-			// we do NOT check IGE USER ADDRESSES ! 
+			// we do NOT check IGE USER ADDRESSES !
 			MdekUtils.AddressType.getHQLExcludeIGEUsersViaAddress("a") +
 			"and a.workState != '" + addrWorkState.getDbValue() + "' " +
 			"and a.modUuid in (" +
@@ -172,8 +172,8 @@ public class IdcGroupDaoHibernate
 		Session session = getSession();
 
 		String q = "select distinct new Map(" +
-				"o.objUuid as " + KEY_ENTITY_UUID + 
-				", o.responsibleUuid as " + KEY_USER_UUID + 
+				"o.objUuid as " + KEY_ENTITY_UUID +
+				", o.responsibleUuid as " + KEY_USER_UUID +
 			") " +
 			"from ObjectNode oNode " +
 			"inner join oNode.t01ObjectWork o " +
@@ -191,13 +191,13 @@ public class IdcGroupDaoHibernate
 		Session session = getSession();
 
 		String q = "select distinct new Map(" +
-				"a.adrUuid as " + KEY_ENTITY_UUID + 
-				", a.responsibleUuid as " + KEY_USER_UUID + 
+				"a.adrUuid as " + KEY_ENTITY_UUID +
+				", a.responsibleUuid as " + KEY_USER_UUID +
 			") " +
 			"from AddressNode aNode " +
 			"inner join aNode.t02AddressWork a " +
 			"where " +
-			// we do NOT check IGE USER ADDRESSES ! 
+			// we do NOT check IGE USER ADDRESSES !
 			MdekUtils.AddressType.getHQLExcludeIGEUsersViaAddress("a") +
 			"and a.responsibleUuid in (" +
 				getHQLUserUuidsOfGroup(groupName) +

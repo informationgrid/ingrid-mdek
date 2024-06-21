@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,11 +22,10 @@
  */
 package de.ingrid.mdek.services.persistence.db.test;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Version;
-
 import de.ingrid.mdek.services.persistence.db.IEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 
 @Entity
 public class TestMetadata implements IEntity, java.io.Serializable {
@@ -67,7 +66,7 @@ public class TestMetadata implements IEntity, java.io.Serializable {
 	public void setMetadataKey(String key) {
 		_metadataKey = key;
 	}
-	
+
 	@Override
 	public String toString() {
 		return _metadataKey + "#" + _metadataValue;
