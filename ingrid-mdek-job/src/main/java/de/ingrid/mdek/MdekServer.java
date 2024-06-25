@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * https://joinup.ec.europa.eu/software/page/eupl
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,7 +30,6 @@ import de.ingrid.mdek.job.repository.IJobRepository;
 import de.ingrid.mdek.job.repository.IJobRepositoryFacade;
 import de.ingrid.mdek.job.repository.Pair;
 import de.ingrid.utils.IngridDocument;
-import jakarta.annotation.PostConstruct;
 import net.weta.components.communication.ICommunication;
 import net.weta.components.communication.reflect.ProxyService;
 import net.weta.components.communication.tcp.StartCommunication;
@@ -46,6 +45,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.ClassPathResource;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -224,13 +224,13 @@ public class MdekServer {
 
         // avoid FileNotFound exceptions by TomCat's JarScanner
         System.setProperty(Constants.SKIP_JARS_PROPERTY, "tools.jar,derby*.jar,unit-api*.jar,geo*.jar,si*.jar,jai*.jar,commons*.jar,Geo*.jar,jgrid*.jar,uo*.jar,system*.jar,gt*.jar,jackson*.jar,org*.jar,ej*.jar,jt*.jar,net*.jar,serial*.jar,xml*.jar,xerc*.jar,mchan*.jar");
-
+        
         _communicationProperties = getCommunicationFile(map.get("--descriptor"));
 
         // start the Webserver for admin-page and iplug initialization for search and index
         // this also initializes all spring services and does autowiring
         SpringApplication.run(MdekServer.class, args);
-
+        
         // shutdown the server normally
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {

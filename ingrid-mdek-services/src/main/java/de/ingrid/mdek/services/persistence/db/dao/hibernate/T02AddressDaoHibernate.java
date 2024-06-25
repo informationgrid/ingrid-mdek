@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * https://joinup.ec.europa.eu/software/page/eupl
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,26 +23,22 @@
 package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 
 import java.util.List;
-import java.util.TooManyListenersException;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.MdekUtils.AddressType;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.IT02AddressDao;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
 import de.ingrid.mdek.services.persistence.db.model.T02Address;
-import org.hibernate.jpa.spi.NativeQueryTupleTransformer;
-import org.hibernate.query.Query;
-import org.hibernate.query.ResultListTransformer;
-import org.hibernate.transform.ResultTransformer;
-import org.hibernate.transform.ToListResultTransformer;
 
 /**
  * Hibernate-specific implementation of the <tt>IT02AddressDao</tt>
  * non-CRUD (Create, Read, Update, Delete) data access object.
- *
+ * 
  * @author Martin
  */
 public class T02AddressDaoHibernate
@@ -62,18 +58,18 @@ public class T02AddressDaoHibernate
 			"from T01Object obj " +
 			"join obj.t012ObjAdrs objAdr " +
 			"where objAdr.adrUuid = ?1";
-
+		
 		if (referenceTypeId != null) {
 			hql += " and objAdr.type = " + referenceTypeId;
 		}
 
 		Query q = session.createQuery(hql)
-			.setParameter(1, addressUuid);
+			.setString(1, addressUuid);
 		if (maxNum != null) {
 			q.setMaxResults(maxNum);
 		}
 
-		return q.setResultTransformer(NativeQueryTupleTransformer.INSTANCE)
+		return q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 	public String getCsvHQLObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId) {
@@ -81,11 +77,11 @@ public class T02AddressDaoHibernate
 			"from T01Object o " +
 			"join o.t012ObjAdrs objAdr " +
 			"where objAdr.adrUuid = '" + addressUuid + "'";
-
+		
 		if (referenceTypeId != null) {
 			hql += " and objAdr.type = " + referenceTypeId;
 		}
-
+		
 		return hql;
 	}
 
@@ -98,14 +94,14 @@ public class T02AddressDaoHibernate
 			// exclude hidden user addresses !
 			AddressType.getHQLExcludeIGEUsersViaAddress("a") +
 			" AND a.responsibleUuid = ?1";
-
+		
 		Query q = session.createQuery(hql)
-			.setParameter(1, responsibleUserUuid, String.class);
+			.setString(1, responsibleUserUuid);
 		if (maxNum != null) {
 			q.setMaxResults(maxNum);
 		}
 
-		return q.setResultTransformer(ToListResultTransformer.INSTANCE)
+		return q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 	public String getCsvHQLAllAddressesOfResponsibleUser(String responsibleUserUuid) {

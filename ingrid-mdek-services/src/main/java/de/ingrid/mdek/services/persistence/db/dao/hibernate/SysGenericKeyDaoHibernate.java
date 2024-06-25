@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * https://joinup.ec.europa.eu/software/page/eupl
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,7 @@ package de.ingrid.mdek.services.persistence.db.dao.hibernate;
 import java.util.Arrays;
 import java.util.List;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -32,12 +33,11 @@ import de.ingrid.mdek.MdekUtils;
 import de.ingrid.mdek.services.persistence.db.GenericHibernateDao;
 import de.ingrid.mdek.services.persistence.db.dao.ISysGenericKeyDao;
 import de.ingrid.mdek.services.persistence.db.model.SysGenericKey;
-import org.hibernate.query.Query;
 
 /**
  * Hibernate-specific implementation of the <tt>ISysGenericKeyDao</tt>
  * non-CRUD (Create, Read, Update, Delete) data access object.
- *
+ * 
  * @author Martin
  */
 public class SysGenericKeyDaoHibernate
@@ -60,9 +60,9 @@ public class SysGenericKeyDaoHibernate
 		if (selectKeys) {
 			sql += " where " + MdekUtils.createSplittedSqlQuery( "genericKey.keyName", Arrays.asList( keyNames ), 500 );
 		}
-
+		
 		Query q = session.createQuery(sql);
-
+		
 		return q.list();
 	}
 }

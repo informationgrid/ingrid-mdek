@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * https://joinup.ec.europa.eu/software/page/eupl
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,8 +26,10 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -40,13 +42,11 @@ import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 import de.ingrid.mdek.services.persistence.db.model.SpatialRefValue;
 import de.ingrid.mdek.services.persistence.db.model.SpatialReference;
 import de.ingrid.mdek.services.persistence.db.model.T01Object;
-import org.hibernate.query.Query;
-import org.hibernate.transform.ToListResultTransformer;
 
 /**
  * Hibernate-specific implementation of the <tt>SpatialRefValue</tt>
  * non-CRUD (Create, Read, Update, Delete) data access object.
- *
+ * 
  * @author Martin
  */
 public class SpatialRefValueDaoHibernate
@@ -58,12 +58,14 @@ public class SpatialRefValueDaoHibernate
     public SpatialRefValueDaoHibernate(SessionFactory factory) {
         super(factory, SpatialRefValue.class);
     }
-
-	/** Load SpatialRefValue according to given values. Returns null if not found.
+    
+	/** Load SpatialRefValue according to given values. Returns null if not found. 
 	 * @param type
 	 * @param nameValue
 	 * @param nameKey
 	 * @param spatialRefSnsId id of record in SpatialRefSns
+	 * @param nativekey
+	 * @param objectId connected to this object, PASS NULL IF CONNECTION DOESN'T MATTER
 	 * @return SpatialRefValue or null
 	 */
 	private SpatialRefValue loadRefValue(String type, String nameValue, Integer nameKey,
@@ -76,7 +78,7 @@ public class SpatialRefValueDaoHibernate
 
 		} else if (SpatialReferenceType.GEO_THESAURUS == spRefType) {
 			spRefValue = loadThesaurusRefValue(spatialRefSnsId);
-
+			
 		} else {
 			LOG.warn("Unknown Type of SpatialRefValue, type: " + type);
 		}
@@ -84,9 +86,10 @@ public class SpatialRefValueDaoHibernate
 		return spRefValue;
 	}
 
-	/** Load Freien SpatialRefValue according to given values. Returns null if not found.
+	/** Load Freien SpatialRefValue according to given values. Returns null if not found. 
 	 * @param nameValue set if freier eintrag (then key is -1)
 	 * @param nameKey set if from syslist, then value is null !
+	 * @param objectId connected to this object, HAS TO BE PASSED TO GUARANTEE LOADING OF CORRECT ENTITY !
 	 * @return
 	 */
 	private SpatialRefValue loadFreiRefValue(String nameValue, Integer nameKey, Long objId) {
@@ -128,10 +131,10 @@ public class SpatialRefValueDaoHibernate
 			}
 		}
 
-		return spRefValue;
+		return spRefValue; 
 	}
 
-	/** Load SNS Geo-Thesaurus SpatialRefValue according to given value. Returns null if not found.
+	/** Load SNS Geo-Thesaurus SpatialRefValue according to given value. Returns null if not found. 
 	 * @param spatialRefSnsId id of record in SpatialRefSns, NEVER NULL, has to exist !
 	 * @return SpatialRefValue or null
 	 */
@@ -153,13 +156,13 @@ public class SpatialRefValueDaoHibernate
 		return (SpatialRefValue) q.uniqueResult();
 	}
 
-	public SpatialRefValue loadOrCreate(String type,
-			String nameValue, Integer nameKey,
+	public SpatialRefValue loadOrCreate(String type, 
+			String nameValue, Integer nameKey, 
 			SpatialRefSns spRefSns, Long objId) {
-		Long spRefSnsId = (spRefSns != null) ? spRefSns.getId() : null;
+		Long spRefSnsId = (spRefSns != null) ? spRefSns.getId() : null; 
 		SpatialRefValue spRefValue =
 			loadRefValue(type, nameValue, nameKey, spRefSnsId, objId);
-
+		
 		if (spRefValue == null) {
 			spRefValue = new SpatialRefValue();
 		}
@@ -171,7 +174,7 @@ public class SpatialRefValueDaoHibernate
 		spRefValue.setSpatialRefSns(spRefSns);
 		spRefValue.setSpatialRefSnsId(spRefSnsId);
 		makePersistent(spRefValue);
-
+		
 		return spRefValue;
 	}
 
@@ -235,7 +238,7 @@ public class SpatialRefValueDaoHibernate
 		}
 
 		return  session.createQuery(q)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 
@@ -243,7 +246,7 @@ public class SpatialRefValueDaoHibernate
 		String q = "select count(distinct spRef) " +
 			"from SpatialReference spRef " +
 			"where spRef.spatialRefId = " + idSpatialRefValue;
-
+		
 		return (Long) getSession().createQuery(q).uniqueResult();
 	}
 
@@ -252,9 +255,9 @@ public class SpatialRefValueDaoHibernate
 			"from T01Object obj " +
 			"inner join obj.spatialReferences spRef " +
 			"where spRef.spatialRefId = " + idSpatialRefValue;
-
+		
 		return  getSession().createQuery(q)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 	}
 	public List<Long> getObjectIdsOfSpatialRefValue(long idSpatialRefValue) {
@@ -267,7 +270,7 @@ public class SpatialRefValueDaoHibernate
 	public List<SpatialReference> getSpatialReferences(long idSpatialRefValue) {
 		String q = "from SpatialReference spRef " +
 			"where spRef.spatialRefId = " + idSpatialRefValue;
-
+		
 		return  getSession().createQuery(q).list();
 	}
 }

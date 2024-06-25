@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * https://joinup.ec.europa.eu/software/page/eupl
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,8 +29,10 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekUtils.IdcEntityType;
@@ -41,13 +43,11 @@ import de.ingrid.mdek.services.persistence.db.model.SearchtermAdr;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermObj;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermSns;
 import de.ingrid.mdek.services.persistence.db.model.SearchtermValue;
-import org.hibernate.query.Query;
-import org.hibernate.transform.ToListResultTransformer;
 
 /**
  * Hibernate-specific implementation of the <tt>SearchtermValue</tt>
  * non-CRUD (Create, Read, Update, Delete) data access object.
- *
+ * 
  * @author Martin
  */
 public class SearchtermValueDaoHibernate
@@ -59,14 +59,14 @@ public class SearchtermValueDaoHibernate
     public SearchtermValueDaoHibernate(SessionFactory factory) {
         super(factory, SearchtermValue.class);
     }
-
+    
 	public SearchtermValue loadSearchterm(String type, String term, Integer entryId,
 		Long searchtermSnsId,
 		Long entityId, IdcEntityType entityType)
 	{
 
 //		if (LOG.isDebugEnabled()) {
-//			LOG.debug("type: " + type + ", term: " + term + ", SearchtermSns_ID: " + searchtermSnsId);
+//			LOG.debug("type: " + type + ", term: " + term + ", SearchtermSns_ID: " + searchtermSnsId);			
 //		}
 
 		SearchtermType termType = EnumUtil.mapDatabaseToEnumConst(SearchtermType.class, type);
@@ -83,10 +83,10 @@ public class SearchtermValueDaoHibernate
 
 		} else if (SearchtermType.isThesaurusType(termType)) {
 			termValue = loadThesaurusSearchterm(termType, searchtermSnsId);
-
+			
 		} else if (SearchtermType.INSPIRE == termType) {
 			termValue = loadInspireSearchterm(entryId);
-
+			
 		} else {
 			LOG.warn("Unknown Type of SearchtermValue, type: " + type);
 		}
@@ -105,11 +105,11 @@ public class SearchtermValueDaoHibernate
 				// NOTICE: term changed to VARCHAR(4000) on ORACLE ! but we keep CLOB Version, also works !
 				"and termVal.term LIKE ?2 " +
 				"and termObj.objId = ?3";
-
+	
 		Query q = session.createQuery(qString);
-		q.setParameter(1, SearchtermType.FREI.getDbValue());
-		q.setParameter(2, term);
-		q.setParameter(3, objId, Long.class);
+		q.setString(1, SearchtermType.FREI.getDbValue());
+		q.setString(2, term);
+		q.setLong(3, objId);
 
 		SearchtermValue termValue = null;
 		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ß, lower <-> uppercase ...
@@ -122,7 +122,7 @@ public class SearchtermValueDaoHibernate
 			}
 		}
 
-		return termValue;
+		return termValue; 
 	}
 
 	/** Load Freien SearchtermValue according to given values. Returns null if not found. */
@@ -136,11 +136,11 @@ public class SearchtermValueDaoHibernate
 			// NOTICE: term changed to VARCHAR(4000) on ORACLE ! but we keep CLOB Version, also works !
 			"and termVal.term LIKE ?2 " +
 			"and termAdr.adrId = ?3";
-
+	
 		Query q = session.createQuery(qString);
-		q.setParameter(1, SearchtermType.FREI.getDbValue());
-		q.setParameter(2, term);
-		q.setParameter(3, adrId, Long.class);
+		q.setString(1, SearchtermType.FREI.getDbValue());
+		q.setString(2, term);
+		q.setLong(3, adrId);
 
 		SearchtermValue termValue = null;
 		// we query list(), NOT uniqueResult() because mySQL doesn't differ between ss <-> ß, lower <-> uppercase ...
@@ -153,7 +153,7 @@ public class SearchtermValueDaoHibernate
 			}
 		}
 
-		return termValue;
+		return termValue; 
 	}
 
 	/** Load Thesaurus SearchtermValue according to given values. Returns null if not found.
@@ -170,7 +170,7 @@ public class SearchtermValueDaoHibernate
 			"and termVal.searchtermSnsId = " + searchtermSnsId;
 
 		// we query list(), NOT uniqueResult() ! e.g. ST catalog has multiple imported
-		// values ("Messdaten", "Meßdaten") refering to same searchtermSns. Comparison
+		// values ("Messdaten", "Meßdaten") refering to same searchtermSns. Comparison 
 		// of these names in MySQL equals true, due to configuration of MySQL !
 		SearchtermValue searchtermVal = null;
 		List<SearchtermValue> searchtermVals = session.createQuery(qString).list();
@@ -191,20 +191,20 @@ public class SearchtermValueDaoHibernate
 		String qString = "from SearchtermValue termVal " +
 			"where termVal.type = '" + SearchtermType.INSPIRE.getDbValue() + "' " +
 			"and termVal.entryId = " + entryId;
-
+	
 		return (SearchtermValue) session.createQuery(qString).uniqueResult();
 	}
 
 	public SearchtermValue loadOrCreate(String type,
-			String term, String alternateTerm,
+			String term, String alternateTerm,  
 			Integer entryId,
 			SearchtermSns termSns,
 			Long entityId, IdcEntityType entityType)
 	{
-		Long termSnsId = (termSns != null) ? termSns.getId() : null;
+		Long termSnsId = (termSns != null) ? termSns.getId() : null; 
 		SearchtermValue termValue = loadSearchterm(type, term, entryId, termSnsId,
 			entityId, entityType);
-
+		
 		if (termValue == null) {
 			termValue = new SearchtermValue();
 		}
@@ -250,7 +250,7 @@ public class SearchtermValueDaoHibernate
 			}
 */
 			// we query list(), NOT uniqueResult() ! e.g. ST catalog has multiple imported
-			// values ("Messdaten", "Meßdaten") refering to same searchtermSns. Comparison
+			// values ("Messdaten", "Meßdaten") refering to same searchtermSns. Comparison 
 			// of these names in MySQL equals true, due to configuration of MySQL !
 			retList = session.createQuery(q).list();
 		}
@@ -272,7 +272,7 @@ public class SearchtermValueDaoHibernate
 			whereClause += hqlToken + "termVal.type = '" + type.getDbValue() + "' ";
 			hqlToken = "OR ";
 		}
-
+		
 		// fetch all terms referenced by Objects !
 		String q = "select termVal " +
 			"from SearchtermObj termObj " +
@@ -280,7 +280,7 @@ public class SearchtermValueDaoHibernate
 			"left join fetch termVal.searchtermSns " +
 			whereClause;
 		List<SearchtermValue> terms = session.createQuery(q)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		// fetch all terms referenced by Addresses and add to list
@@ -290,10 +290,10 @@ public class SearchtermValueDaoHibernate
 			"left join fetch termVal.searchtermSns " +
 			whereClause;
 		List<SearchtermValue> addrTerms = session.createQuery(q)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 		terms.addAll(addrTerms);
-
+		
 		// set up result list, remove duplicate SearchtermValues
 		List<SearchtermValue> resultList = new ArrayList<SearchtermValue>();
 		Set<Long> addedIds = new HashSet<Long>();
@@ -303,7 +303,7 @@ public class SearchtermValueDaoHibernate
 				resultList.add(term);
 			}
 		}
-
+		
 		return resultList;
 	}
 
@@ -311,21 +311,21 @@ public class SearchtermValueDaoHibernate
 		String q = "select count(distinct termObj) " +
 			"from SearchtermObj termObj " +
 			"where termObj.searchtermId = " + termId;
-
+		
 		return (Long) getSession().createQuery(q).uniqueResult();
 	}
 	public long countAddressesOfSearchterm(long termId) {
 		String q = "select count(distinct termAdr) " +
 			"from SearchtermAdr termAdr " +
 			"where termAdr.searchtermId = " + termId;
-
+	
 		return (Long) getSession().createQuery(q).uniqueResult();
 	}
 
 	public List<SearchtermObj> getSearchtermObjs(long searchtermValueId) {
 		String q = "from SearchtermObj termObj " +
 			"where termObj.searchtermId = " + searchtermValueId;
-
+		
 		return  getSession().createQuery(q).list();
 	}
 	public List<Long> getSearchtermObj_objIds(long searchtermValueId) {
@@ -339,7 +339,7 @@ public class SearchtermValueDaoHibernate
 	public List<SearchtermAdr> getSearchtermAdrs(long searchtermValueId) {
 		String q = "from SearchtermAdr termAdr " +
 			"where termAdr.searchtermId = " + searchtermValueId;
-
+		
 		return  getSession().createQuery(q).list();
 	}
 	public List<Long> getSearchtermAdr_adrIds(long searchtermValueId) {

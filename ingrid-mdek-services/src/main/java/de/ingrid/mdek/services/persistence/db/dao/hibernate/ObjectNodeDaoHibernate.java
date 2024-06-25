@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * https://joinup.ec.europa.eu/software/page/eupl
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,8 +27,10 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -56,13 +58,11 @@ import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.utils.IngridDocument;
-import org.hibernate.query.Query;
-import org.hibernate.transform.ToListResultTransformer;
 
 /**
  * Hibernate-specific implementation of the <tt>IObjectNodeDao</tt>
  * non-CRUD (Create, Read, Update, Delete) data access object.
- *
+ * 
  * @author Martin
  */
 public class ObjectNodeDaoHibernate
@@ -83,18 +83,18 @@ public class ObjectNodeDaoHibernate
 		Session session = getSession();
 
 		String qString = "from ObjectNode oNode ";
-		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			qString += "left join fetch oNode.t01ObjectWork ";
+			qString += "left join fetch oNode.t01ObjectWork ";			
 		}
-		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			qString += "left join fetch oNode.t01ObjectPublished ";
+			qString += "left join fetch oNode.t01ObjectPublished ";			
 		}
 		qString += "where oNode.objUuid = ?1";
 
 		ObjectNode oN = (ObjectNode) session.createQuery(qString)
-			.setParameter(1, uuid)
+			.setString(1, uuid)
 			.uniqueResult();
 
 		return oN;
@@ -110,17 +110,17 @@ public class ObjectNodeDaoHibernate
 		// always fetch working version. Is needed for querying, so we fetch it.
 		String qString = "select oNode from ObjectNode oNode " +
 				"left join fetch oNode.t01ObjectWork oWork ";
-		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			qString += "left join fetch oNode.t01ObjectPublished ";
+			qString += "left join fetch oNode.t01ObjectPublished ";			
 		}
 		qString += "where oWork.orgObjId = ?1 ";
-		// order to guarantee always same node in front if multiple nodes with same orig id !
+		// order to guarantee always same node in front if multiple nodes with same orig id ! 
 		qString += "order by oNode.objUuid";
 
 		List<ObjectNode> oNodes = session.createQuery(qString)
-			.setParameter(1, origId)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setString(1, origId)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		ObjectNode retNode = null;
@@ -144,12 +144,12 @@ public class ObjectNodeDaoHibernate
 
 		String q = "select oNode from ObjectNode oNode ";
 		String objAlias = "?";
-		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			objAlias = "oPub";
 			q += "left join fetch oNode.t01ObjectPublished " + objAlias + " ";
 		}
-		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			objAlias = "oWork";
 			q += "left join fetch oNode.t01ObjectWork " + objAlias + " ";
@@ -162,12 +162,12 @@ public class ObjectNodeDaoHibernate
 		if (whichEntityVersion != null) {
 			// only order if only ONE version requested
 			if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
-				q += "order by " + objAlias + ".objName";
+				q += "order by " + objAlias + ".objName"; 
 			}
 		}
-
+		
 		List<ObjectNode> oNodes = session.createQuery(q)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return oNodes;
@@ -180,12 +180,12 @@ public class ObjectNodeDaoHibernate
 
 		String q = "select oNode from ObjectNode oNode ";
 		String objAlias = "?";
-		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			objAlias = "oPub";
 			q += "left join fetch oNode.t01ObjectPublished " + objAlias + " ";
 		}
-		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			objAlias = "oWork";
 			q += "left join fetch oNode.t01ObjectWork " + objAlias + " ";
@@ -198,13 +198,13 @@ public class ObjectNodeDaoHibernate
 		if (whichEntityVersion != null) {
 			// only order if only ONE version requested
 			if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
-				q += "order by " + objAlias + ".objName";
+				q += "order by " + objAlias + ".objName"; 
 			}
 		}
-
+		
 		List<ObjectNode> oNodes = session.createQuery(q)
-			.setParameter(1, parentUuid)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setString(1, parentUuid)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return oNodes;
@@ -217,12 +217,12 @@ public class ObjectNodeDaoHibernate
 
 		String q = "select oNode from ObjectNode oNode ";
 		String objAlias = "?";
-		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			objAlias = "oPub";
 			q += "left join fetch oNode.t01ObjectPublished " + objAlias + " ";
 		}
-		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			objAlias = "oWork";
 			q += "left join fetch oNode.t01ObjectWork " + objAlias + " ";
@@ -235,12 +235,12 @@ public class ObjectNodeDaoHibernate
 		if (whichEntityVersion != null) {
 			// only order if only ONE version requested
 			if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
-				q += "order by " + objAlias + ".objName";
+				q += "order by " + objAlias + ".objName"; 
 			}
 		}
-
+		
 		List<ObjectNode> oNodes = session.createQuery(q)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return oNodes;
@@ -259,9 +259,9 @@ public class ObjectNodeDaoHibernate
 		if (whichChildren == IdcChildrenSelectionType.PUBLICATION_CONDITION_PROBLEMATIC) {
 			q += "and o.publishId < " + parentPubType.getDbValue();
 		}
-
+		
 		List<ObjectNode> oNodes = session.createQuery(q)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return oNodes;
@@ -269,7 +269,7 @@ public class ObjectNodeDaoHibernate
 
 	public int countAllSubObjects(String parentUuid, IdcEntityVersion versionOfSubObjectsToCount) {
 		Session session = getSession();
-
+		
 		String q = "select count(oNode) " +
 			"from ObjectNode oNode " +
 			"where oNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%'";
@@ -278,11 +278,11 @@ public class ObjectNodeDaoHibernate
 			q += " and oNode.objId != oNode.objIdPublished ";
 
 		} else if (versionOfSubObjectsToCount == IdcEntityVersion.PUBLISHED_VERSION) {
-			q += " and oNode.objIdPublished is not null";
+			q += " and oNode.objIdPublished is not null";			
 		}
-
+		
 		Long totalNum = (Long) session.createQuery(q).uniqueResult();
-
+		
 		return totalNum.intValue();
 	}
 
@@ -290,23 +290,23 @@ public class ObjectNodeDaoHibernate
 		boolean isSubNode = false;
 
 		List<String> path = getObjectPath(uuidToCheck);
-
+		
 		if (path != null) {
 			if (path.contains(uuidParent)) {
 				isSubNode = true;
 			}
 		}
-
+		
 		return isSubNode;
 	}
-
+	
 	public ObjectNode getParent(String uuid) {
 		ObjectNode parentNode = null;
 		ObjectNode oN = loadByUuid(uuid, null);
 		if (oN != null && oN.getFkObjUuid() != null) {
 			parentNode = loadByUuid(oN.getFkObjUuid(), null);
 		}
-
+		
 		return parentNode;
 	}
 
@@ -319,12 +319,12 @@ public class ObjectNodeDaoHibernate
 
 		String q = "from ObjectNode oNode ";
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION) {
-			q += "left join fetch oNode.t01ObjectPublished o ";
+			q += "left join fetch oNode.t01ObjectPublished o ";			
 		} else {
-			q += "left join fetch oNode.t01ObjectWork o ";
+			q += "left join fetch oNode.t01ObjectWork o ";			
 		}
-		q +=
-		// referenced objects (to)
+		q += 
+		// referenced objects (to) 
 			"left join fetch o.objectReferences oRef " +
 			"left join fetch oRef.objectNode oRefNode " +
 			"left join fetch oRefNode.t01ObjectWork oRefObj " +
@@ -336,20 +336,20 @@ public class ObjectNodeDaoHibernate
 //			"left join fetch objAdr.addressNode aNode " +
 //			"left join fetch aNode.t02AddressWork aWork " +
 //			"left join fetch aWork.t021Communications aComm " +
-		// spatial references
+		// spatial references 
 //			"left join fetch o.spatialReferences spatRef " +
 //			"left join fetch spatRef.spatialRefValue spatialRefVal " +
 //			"left join fetch spatialRefVal.spatialRefSns " +
-		// url refs
+		// url refs 
 //			"left join fetch o.t017UrlRefs urlRef " +
 			"where oNode.objUuid = ?1";
 
 		// enable address filter ?
 //		session.enableFilter("t012ObjAdrFilter").setParameter("type", 1);
-
+		
 		// fetch all at once (one select with outer joins)
 		ObjectNode oN = (ObjectNode) session.createQuery(q)
-			.setParameter(1, uuid)
+			.setString(1, uuid)
 			.uniqueResult();
 
 //		session.disableFilter("t012ObjAdrFilter");
@@ -367,7 +367,7 @@ public class ObjectNodeDaoHibernate
 				"left join oNode.t01ObjectWork oWork " +
 				"left join oWork.objectReferences oRef " +
 				"where oRef.objToUuid = ?1")
-				.setParameter(1, uuid)
+				.setString(1, uuid)
 				.list();
 
 		// then select all references from published ones
@@ -376,7 +376,7 @@ public class ObjectNodeDaoHibernate
 				"left join oNode.t01ObjectPublished oPub " +
 				"left join oPub.objectReferences oRef " +
 				"where oRef.objToUuid = ?1")
-				.setParameter(1, uuid)
+				.setString(1, uuid)
 				.list();
 
 		// then remove all published references also contained in working references.
@@ -390,7 +390,7 @@ public class ObjectNodeDaoHibernate
 				nodeIdsPubOnly.add(idPub);
 			}
 		}
-
+		
 		// fetch all "nodes with work references"
 		List<ObjectNode> nodesWork = new ArrayList<ObjectNode>();
 		if (nodeIdsWork.size() > 0) {
@@ -403,8 +403,8 @@ public class ObjectNodeDaoHibernate
 						"left join oWork2.objectReferences oRef " +
 						"where oRef.objToUuid = ?1" +
 					")")
-					.setParameter(1, uuid)
-					.setResultTransformer(ToListResultTransformer.INSTANCE)
+					.setString(1, uuid)
+					.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 					.list();
 
 		}
@@ -416,7 +416,7 @@ public class ObjectNodeDaoHibernate
 					"LEFT JOIN FETCH oNode.t01ObjectPublished oPub WHERE ";
 			query += MdekUtils.createSplittedSqlQuery( "oNode.id", nodeIdsPubOnly, 500 );
 			nodesPubOnly = session.createQuery(query)
-					.setResultTransformer(ToListResultTransformer.INSTANCE)
+					.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 					.list();
 		}
 
@@ -445,7 +445,7 @@ public class ObjectNodeDaoHibernate
 	public long queryObjectsThesaurusTermTotalNum(String termSnsId) {
 
 		String qString = createThesaurusQueryString(termSnsId);
-
+		
 		if (qString == null) {
 			return 0;
 		}
@@ -465,7 +465,7 @@ public class ObjectNodeDaoHibernate
 		List<ObjectNode> retList = new ArrayList<ObjectNode>();
 
 		String qString = createThesaurusQueryString(termSnsId);
-
+		
 		if (qString == null) {
 			return retList;
 		}
@@ -478,16 +478,19 @@ public class ObjectNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return retList;
 	}
-
+	
 	/**
 	 * Create basic query string for querying objects associated with passed thesaurus term.
 	 * @param termSnsId sns id of thesaurus term
-	 * @return basic query string or null if no parameters.
+	 * @param isCountQuery<br>
+	 * 		true=create query for counting total results<br>
+	 * 		false=create query for fetching results
+	 * @return basic query string or null if no parameters. 
 	 */
 	private String createThesaurusQueryString(String termSnsId) {
 		termSnsId = MdekUtils.processStringParameter(termSnsId);
@@ -504,14 +507,14 @@ public class ObjectNodeDaoHibernate
 			"inner join termVal.searchtermSns termSns " +
 			"where " +
 			"termSns.snsId = '" + termSnsId + "'";
-
+		
 		return qString;
 	}
 
 	public long queryObjectsFullTextTotalNum(String searchTerm) {
 
 		String qString = createFullTextQueryString(searchTerm);
-
+		
 		if (qString == null) {
 			return 0;
 		}
@@ -531,7 +534,7 @@ public class ObjectNodeDaoHibernate
 		List<ObjectNode> retList = new ArrayList<ObjectNode>();
 
 		String qString = createFullTextQueryString(searchTerm);
-
+		
 		if (qString == null) {
 			return retList;
 		}
@@ -544,40 +547,40 @@ public class ObjectNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return retList;
 	}
-
+	
 	public List<ObjectNode> queryObjectsExtended(IngridDocument searchParams,
 			int startHit, int numHits) {
-
+		
 		List<ObjectNode> retList = new ArrayList<ObjectNode>();
-
+		
 		// create hql from queryParams
 		String qString = ExtendedSearchHqlUtil.createObjectExtendedSearchQuery(searchParams);
-
+		
 		qString = "select oNode " + qString;
 		qString += " order by obj.objClass, obj.objName";
-
+		
 		Session session = getSession();
 
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return retList;
-
+		
 	}
-
+	
 	public long queryObjectsExtendedTotalNum(IngridDocument searchParams) {
-
+		
 		// create hql from queryParams
 		String qString = ExtendedSearchHqlUtil.createObjectExtendedSearchQuery(searchParams);
-
+		
 		if (qString == null) {
 			return 0;
 		}
@@ -595,7 +598,7 @@ public class ObjectNodeDaoHibernate
 	/**
 	 * Create basic query string for querying addresses concerning full text.
 	 * @param searchTerm term to search for
-	 * @return basic query string or null if no parameters.
+	 * @return basic query string or null if no parameters. 
 	 */
 	private String createFullTextQueryString(String searchTerm) {
 		searchTerm = MdekUtils.processStringParameter(searchTerm);
@@ -622,9 +625,9 @@ public class ObjectNodeDaoHibernate
 
 		// default result
 		IngridDocument defaultResult = new IngridDocument();
-		defaultResult.put(MdekKeys.TOTAL_NUM_PAGING, 0L);
+		defaultResult.put(MdekKeys.TOTAL_NUM_PAGING, new Long(0));
 		defaultResult.put(MdekKeys.OBJ_ENTITIES, new ArrayList<ObjectNode>());
-
+		
 		if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED) {
 			return getWorkObjectsExpired(userUuid, orderBy, orderAsc, startHit, numHits);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.MODIFIED) {
@@ -640,7 +643,7 @@ public class ObjectNodeDaoHibernate
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST_PUBLISHED) {
 			return getPublishedObjectsPortalQuicklist(userUuid, startHit, numHits);
 		}
-
+		
 		return defaultResult;
 	}
 
@@ -655,7 +658,7 @@ public class ObjectNodeDaoHibernate
 		// selection criteria
 		String qCriteria = " where " +
 			"o.responsibleUuid = '"+ userUuid +"' " +
-			"and o.objClass != '1000' " + // ignore folders
+			"and o.objClass != '1000' " + // ignore folders 
 			"and oMeta.expiryState = " + ExpiryState.EXPIRED.getDbValue();
 
 		// query string for counting -> without fetch (fetching not possible)
@@ -664,7 +667,7 @@ public class ObjectNodeDaoHibernate
 				"inner join oNode.t01ObjectPublished o " +
 				"inner join o.objectMetadata oMeta " + qCriteria;
 
-		// query string for fetching results !
+		// query string for fetching results ! 
 		String qStringSelect = "from ObjectNode oNode " +
 				"inner join fetch oNode.t01ObjectPublished o " +
 				"inner join fetch o.objectMetadata oMeta " +
@@ -693,7 +696,7 @@ public class ObjectNodeDaoHibernate
 		qOrderBy += orderAsc ? " asc " : " desc ";
 
 		qStringSelect += qOrderBy;
-
+		
 		// first count total number
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Counting WORK objects: " + qStringCount);
@@ -708,12 +711,12 @@ public class ObjectNodeDaoHibernate
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
 			.list();
-
+	
 		// return results
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
 		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
-
+		
 		return result;
 	}
 
@@ -727,7 +730,7 @@ public class ObjectNodeDaoHibernate
 		// selection criteria
 		String qCriteria = " where " +
 			"o.workState = '" + WorkState.IN_BEARBEITUNG.getDbValue() + "' " +
-			"and o.objClass != '1000' " + // ignore folders
+			"and o.objClass != '1000' " + // ignore folders 
 			"and (o.modUuid = '" + userUuid + "' or o.responsibleUuid = '" + userUuid + "') ";
 
 		// query string for counting -> without fetch (fetching not possible)
@@ -735,7 +738,7 @@ public class ObjectNodeDaoHibernate
 			"from ObjectNode oNode " +
 				"inner join oNode.t01ObjectWork o " + qCriteria;
 
-		// query string for fetching results !
+		// query string for fetching results ! 
 		String qStringSelect = "from ObjectNode oNode " +
 				"inner join fetch oNode.t01ObjectWork o " +
 				"left join fetch o.addressNodeMod aNode " +
@@ -759,7 +762,7 @@ public class ObjectNodeDaoHibernate
 		qOrderBy += orderAsc ? " asc " : " desc ";
 
 		qStringSelect += qOrderBy;
-
+		
 		// first count total number
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Counting WORK objects: " + qStringCount);
@@ -774,12 +777,12 @@ public class ObjectNodeDaoHibernate
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
 			.list();
-
+	
 		// return results
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
 		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
-
+		
 		return result;
 	}
 
@@ -806,7 +809,7 @@ public class ObjectNodeDaoHibernate
 				"inner join oNode.t01ObjectWork o " +
 				"inner join o.objectMetadata oMeta ";
 
-		// query string for fetching results !
+		// query string for fetching results ! 
 		String qStringSelect = "from ObjectNode oNode " +
 				"inner join fetch oNode.t01ObjectWork o " +
 				"inner join fetch o.objectMetadata oMeta " +
@@ -839,7 +842,7 @@ public class ObjectNodeDaoHibernate
 		qOrderBy += orderAsc ? " asc " : " desc ";
 
 		qStringSelect += qOrderBy;
-
+		
 		// first count total numbers
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Counting WORK objects \"QA\": " + qStringCount + qCriteria);
@@ -858,14 +861,14 @@ public class ObjectNodeDaoHibernate
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
 			.list();
-
+	
 		// return results
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
 		result.put(MdekKeys.TOTAL_NUM_QA_ASSIGNED, totalNumAssigned);
 		result.put(MdekKeys.TOTAL_NUM_QA_REASSIGNED, totalNumReassigned);
 		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
-
+		
 		return result;
 	}
 
@@ -893,7 +896,7 @@ public class ObjectNodeDaoHibernate
 				"inner join oNode.t01ObjectWork o " +
 				qStringCommon + qCriteria;
 
-		// query string for fetching results !
+		// query string for fetching results ! 
 		String qStringSelect = "select oNode " +
 				"from ObjectNode oNode " +
 				"inner join fetch oNode.t01ObjectWork o " +
@@ -923,7 +926,7 @@ public class ObjectNodeDaoHibernate
 		qOrderBy += orderAsc ? " asc " : " desc ";
 
 		qStringSelect += qOrderBy;
-
+		
 		// first count total number
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Counting WORK objects: " + qStringCount);
@@ -937,14 +940,14 @@ public class ObjectNodeDaoHibernate
 		List<ObjectNode> oNodes = session.createQuery(qStringSelect)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
-
+	
 		// return results
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
 		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
-
+		
 		return result;
 	}
 
@@ -959,7 +962,7 @@ public class ObjectNodeDaoHibernate
 		String qCriteria = " where " +
 //			"oNode.objIdPublished is not null and " +
 			"o.modUuid = '" + userUuid + "' " +
-		    "and o.objClass != '1000' "; // ignore folders
+		    "and o.objClass != '1000' "; // ignore folders 
 
 		// query string for counting -> without fetch (fetching not possible)
 		String qStringCount = "select count(oNode) " +
@@ -967,7 +970,7 @@ public class ObjectNodeDaoHibernate
 				"inner join oNode.t01ObjectPublished o ";
 		qStringCount = qStringCount + qCriteria;
 
-		// query string for fetching results !
+		// query string for fetching results ! 
 		String qStringSelect = "from ObjectNode oNode " +
 				"inner join fetch oNode.t01ObjectPublished o ";
 		qStringSelect = qStringSelect + qCriteria;
@@ -975,7 +978,7 @@ public class ObjectNodeDaoHibernate
 		// always order by date
 		String qOrderBy = " order by o.modTime desc";
 		qStringSelect += qOrderBy;
-
+		
 		// first count total numbers
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Counting PUBLISHED objects: " + qStringCount);
@@ -990,12 +993,12 @@ public class ObjectNodeDaoHibernate
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
 			.list();
-
+	
 		// return results
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
 		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
-
+		
 		return result;
 	}
 
@@ -1036,7 +1039,7 @@ public class ObjectNodeDaoHibernate
 		}
 		qStringCount = qStringCount + qCriteria;
 
-		// query string for fetching results !
+		// query string for fetching results ! 
 		String qStringSelect = "from ObjectNode oNode " +
 				"inner join fetch oNode.t01ObjectWork o ";
 		if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
@@ -1048,7 +1051,7 @@ public class ObjectNodeDaoHibernate
 		// always order by date
 		String qOrderBy = " order by o.modTime desc";
 		qStringSelect += qOrderBy;
-
+		
 		// first count total numbers
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Counting WORK objects: " + qStringCount);
@@ -1063,12 +1066,12 @@ public class ObjectNodeDaoHibernate
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
 			.list();
-
+	
 		// return results
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
 		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
-
+		
 		return result;
 	}
 
@@ -1079,9 +1082,9 @@ public class ObjectNodeDaoHibernate
 
 		// default result
 		IngridDocument defaultResult = new IngridDocument();
-		defaultResult.put(MdekKeys.TOTAL_NUM_PAGING, 0L);
+		defaultResult.put(MdekKeys.TOTAL_NUM_PAGING, new Long(0));
 		defaultResult.put(MdekKeys.OBJ_ENTITIES, new ArrayList<ObjectNode>());
-
+		
 		// check whether QA user
 		if (!permHandler.hasQAPermission(userUuid)) {
 			return defaultResult;
@@ -1090,7 +1093,7 @@ public class ObjectNodeDaoHibernate
 		if (isCatAdmin) {
 			return getQAObjects(null, null, whichWorkState, selectionType, orderBy, orderAsc, startHit, numHits);
 		} else {
-			return getQAObjectsViaGroup(userUuid, whichWorkState, selectionType, orderBy, orderAsc, startHit, numHits);
+			return getQAObjectsViaGroup(userUuid, whichWorkState, selectionType, orderBy, orderAsc, startHit, numHits);			
 		}
 	}
 
@@ -1098,7 +1101,7 @@ public class ObjectNodeDaoHibernate
 	 * QA PAGE: Get ALL Objects where given user is QA and objects WORKING VERSION match passed selection criteria.
 	 * The QA objects are determined via assigned objects in QA group of user.
 	 * All sub-objects of "write-tree" objects are included !
-	 * We return nodes, so we can evaluate whether published version exists !
+	 * We return nodes, so we can evaluate whether published version exists ! 
 	 * @param userUuid QA user
 	 * @param whichWorkState only return objects in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if all objects
@@ -1186,12 +1189,12 @@ public class ObjectNodeDaoHibernate
 		if (objUuidsWriteTree != null && objUuidsWriteTree.size() == 0) {
 			objUuidsWriteTree = null;
 		}
-
+		
 		Session session = getSession();
 
 		// prepare queries
-
-		// associations for querying expired spatial refs
+		
+		// associations for querying expired spatial refs 
 		String qStringSpatialRefs = "inner join o.spatialReferences spRef " +
 			"inner join spRef.spatialRefValue spRefVal " +
 			"inner join spRefVal.spatialRefSns spRefSns ";
@@ -1203,21 +1206,21 @@ public class ObjectNodeDaoHibernate
 			// queries PUBLISHED version because mod-date of published one is displayed !
 			qStringCount += "inner join oNode.t01ObjectPublished o ";
 		} else {
-			qStringCount += "inner join oNode.t01ObjectWork o ";
+			qStringCount += "inner join oNode.t01ObjectWork o ";			
 		}
 		qStringCount += "inner join o.objectMetadata oMeta ";
 		if (selectionType == IdcQAEntitiesSelectionType.SPATIAL_REF_EXPIRED) {
 			qStringCount += qStringSpatialRefs;
 		}
 
-		// with fetch: always fetch object and metadata, e.g. needed when mapping user operation (mark deleted)
+		// with fetch: always fetch object and metadata, e.g. needed when mapping user operation (mark deleted) 
 		String qStringSelect = "select oNode " +
 			"from ObjectNode oNode ";
 		if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
 			// queries PUBLISHED version because mod-date of published one is displayed !
 			qStringSelect += "inner join fetch oNode.t01ObjectPublished o ";
 		} else {
-			qStringSelect += "inner join fetch oNode.t01ObjectWork o ";
+			qStringSelect += "inner join fetch oNode.t01ObjectWork o ";			
 		}
 		qStringSelect += "inner join fetch o.objectMetadata oMeta ";
 		if (whichWorkState == WorkState.QS_UEBERWIESEN) {
@@ -1257,13 +1260,13 @@ public class ObjectNodeDaoHibernate
 				}
 				addAnd = true;
 			}
-
+			
 			if (objUuidsWriteSingle != null || objUuidsWriteTree != null) {
 				if (addAnd) {
 					qStringCriteria += " and ( ";
 				}
 
-				// WRITE SINGLE
+				// WRITE SINGLE 
 				// add all write tree nodes to single nodes
 				// -> top nodes of branch have to be selected in same way as write single objects
 				if (objUuidsWriteSingle == null) {
@@ -1275,28 +1278,28 @@ public class ObjectNodeDaoHibernate
 
 				qStringCriteria += MdekUtils.createSplittedSqlQuery( "oNode.objUuid", objUuidsWriteSingle, 500 );
 
-				// WRITE TREE
+				// WRITE TREE 
 				if (objUuidsWriteTree != null) {
 					qStringCriteria += " or ( ";
 
 					boolean start = true;
 					for (String oUuid : objUuidsWriteTree) {
 						if (!start) {
-							qStringCriteria += " or ";
+							qStringCriteria += " or ";							
 						}
-						qStringCriteria +=
+						qStringCriteria += 
 							" oNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(oUuid) + "%' ";
 						start = false;
 					}
 					qStringCriteria += " ) ";
 				}
-
+				
 				if (addAnd) {
 					qStringCriteria += " ) ";
 				}
 				addAnd = true;
 			}
-
+			
 			qStringCount += qStringCriteria;
 			qStringSelect += qStringCriteria;
 		}
@@ -1317,14 +1320,14 @@ public class ObjectNodeDaoHibernate
 			qOrderBy += ", a.lastname ";
 			qOrderBy += orderAsc ? " asc " : " desc ";
 			qOrderBy += ", a.firstname ";
-			qOrderBy += orderAsc ? " asc " : " desc ";
+			qOrderBy += orderAsc ? " asc " : " desc ";				
 			qOrderBy += ", o.modTime ";
 		}
 		qOrderBy += orderAsc ? " asc " : " desc ";
 
 		qStringSelect += qOrderBy;
 
-		// set query parameters
+		// set query parameters 
 		Query qCount = session.createQuery(qStringCount);
 		Query qSelect = session.createQuery(qStringSelect);
 
@@ -1341,13 +1344,13 @@ public class ObjectNodeDaoHibernate
 		List<ObjectNode> oNodes = qSelect
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
-
+	
 		// and return results
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
 		result.put(MdekKeys.OBJ_ENTITIES, oNodes);
-
+		
 		return result;
 	}
 
@@ -1363,13 +1366,13 @@ public class ObjectNodeDaoHibernate
 				selectionType == IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS) {
 			result = getObjectStatistics_searchterms(parentUuid, startHit, numHits, selectionType);
 		}
-
+		
 		return result;
 	}
-
+	
 	private IngridDocument getObjectStatistics_classesAndStates(String parentUuid) {
 		IngridDocument result = new IngridDocument();
-
+		
 		Session session = getSession();
 
 		// prepare query
@@ -1395,9 +1398,9 @@ public class ObjectNodeDaoHibernate
 			// get total number of entities of given class underneath parent
 			String qStringClass = qString +	" obj.objClass = " + objClass;
 			totalNum = (Long) session.createQuery(qStringClass).uniqueResult();
-
+			
 			classMap.put(MdekKeys.TOTAL_NUM, totalNum);
-
+			
 			// add number of different work states
 			for (Object workState : workStates) {
 				// get total number of entities of given work state
@@ -1418,7 +1421,7 @@ public class ObjectNodeDaoHibernate
 			IdcStatisticsSelectionType selectionType) {
 
 		IngridDocument result = new IngridDocument();
-
+		
 		Session session = getSession();
 
 		// basics for queries to execute
@@ -1430,10 +1433,10 @@ public class ObjectNodeDaoHibernate
 				"inner join searchtObj.searchtermValue searchtVal " +
 			"where ";
 		if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_FREE) {
-			qStringFromWhere += " searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";
+			qStringFromWhere += " searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";			
 		} else if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS) {
 			qStringFromWhere += " (searchtVal.type = '" + SearchtermType.UMTHES.getDbValue() + "' " +
-				"OR searchtVal.type = '" + SearchtermType.GEMET.getDbValue() + "') ";
+				"OR searchtVal.type = '" + SearchtermType.GEMET.getDbValue() + "') ";			
 		}
 
 		if (parentUuid != null) {
@@ -1458,7 +1461,7 @@ public class ObjectNodeDaoHibernate
 		qString += " group by searchtVal.term " +
 			// NOTICE: in order clause: use of alias for count causes HQL error !
 			// use of same count expression in order causes error on mySql 4 !
-			// use of integer for which select attribute works !
+			// use of integer for which select attribute works ! 
 			"order by 2 desc, searchtVal.term";
 
 //		if (LOG.isDebugEnabled()) {
@@ -1477,7 +1480,7 @@ public class ObjectNodeDaoHibernate
 			IngridDocument termDoc = new IngridDocument();
 			termDoc.put(MdekKeys.TERM_NAME, objs[0]);
 			termDoc.put(MdekKeys.TOTAL_NUM, objs[1]);
-
+			
 			termDocs.add(termDoc);
 		}
 
@@ -1496,9 +1499,9 @@ public class ObjectNodeDaoHibernate
 				"inner join oNode.t01ObjectPublished o " +
 				"inner join o.t014InfoImparts oExp " +
 			"where oExp.impartValue = ?1";
-
+		
 		List<String> uuids = session.createQuery(q)
-				.setParameter(1, exportCriterion)
+				.setString(1, exportCriterion)
 				.list();
 
 		return uuids;
@@ -1509,7 +1512,7 @@ public class ObjectNodeDaoHibernate
 
 		String q = "select distinct objUuid " +
 			"from ObjectNode";
-
+		
 		List<String> uuids = session.createQuery(q)
 				.list();
 
@@ -1524,7 +1527,7 @@ public class ObjectNodeDaoHibernate
 		// These order by in SQL is extreme time consuming when fetching huge data sets !
 
 		String q = "from ObjectNode oNode " +
-			"left join fetch oNode.t01ObjectWork o " +
+			"left join fetch oNode.t01ObjectWork o " +			
 //			"left join fetch o.objectComments " +
 
 //			"left join fetch o.searchtermObjs oTerm " +
@@ -1561,10 +1564,10 @@ public class ObjectNodeDaoHibernate
 //			"left join fetch o.objectConformitys " +
 //			"left join fetch o.objectAccesss " +
 			"where oNode.objUuid = ?1";
-
+		
 		// fetch all at once (one select with outer joins)
 		ObjectNode oN = (ObjectNode) session.createQuery(q)
-			.setParameter(1, uuid)
+			.setString(1, uuid)
 			.uniqueResult();
 
 		return oN;

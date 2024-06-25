@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * https://joinup.ec.europa.eu/software/page/eupl
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,8 +32,10 @@ import java.util.List;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.MdekError;
 import de.ingrid.mdek.MdekError.MdekErrorType;
@@ -46,12 +48,10 @@ import de.ingrid.mdek.services.persistence.db.TransactionService;
 import de.ingrid.mdek.services.persistence.db.dao.IHQLDao;
 import de.ingrid.mdek.services.utils.csv.ExcelCSVPrinter;
 import de.ingrid.utils.IngridDocument;
-import org.hibernate.query.Query;
-import org.hibernate.transform.ToListResultTransformer;
 
 /**
  * Generic HQL operations.
- *
+ * 
  * @author Martin
  */
 public class HQLDaoHibernate
@@ -85,10 +85,10 @@ public class HQLDaoHibernate
 		}
 
 		String qStringFrom = qString.substring(fromStartIndex);
-
+		
 		if (entityAlias == null) {
 			qString = "select count(*) "
-				+ qStringFrom;
+				+ qStringFrom;			
 		} else {
 			// WORKS on ORACLE !
 			qString = "select count(distinct "
@@ -114,21 +114,21 @@ public class HQLDaoHibernate
 
 		List entityList = new ArrayList();
 		if (qString != null) {
-
+			
 			String qStringFrom = qString.substring(fromStartIndex);
 
 			if (entityAlias != null) {
 				qString = "select distinct "
-					+ entityAlias + " "
+					+ entityAlias + " " 
 					+ qStringFrom;
 			}
-
+			
 			Session session = getSession();
 
 			entityList = session.createQuery(qString)
-				.setFirstResult(startHit)
-				.setMaxResults(numHits)
-				.setResultTransformer(ToListResultTransformer.INSTANCE)
+				.setFirstResult(startHit)				
+				.setMaxResults(numHits)				
+				.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 				.list();
 		}
 
@@ -147,7 +147,7 @@ public class HQLDaoHibernate
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
 		Integer fromStartIndex = (Integer) hqlDoc.get(KEY_FROM_START_INDEX);
 		Boolean distinctRemoved = (Boolean) hqlDoc.get(KEY_REMOVED_DISTINCT);
-
+		
 		List hits = new ArrayList();
 		if (qString != null) {
 			Session session = getSession();
@@ -179,7 +179,7 @@ public class HQLDaoHibernate
 			if (ecsvp != null) {
 				ecsvp.close();
 			}
-
+			
 		} catch (Exception ex) {
 			LOG.error("Problems writing csv file !", ex);
 			throw new MdekException(new MdekError(MdekErrorType.CSV_WRITER_PROBLEMS));
@@ -187,7 +187,7 @@ public class HQLDaoHibernate
 
 		byte[] compressedCsv = new byte[0];
 		try {
-			compressedCsv = MdekUtils.compressString(sw.toString());
+			compressedCsv = MdekUtils.compressString(sw.toString());						
 		} catch (Exception ex) {
 			LOG.error("Problems compressing csv file !", ex);
 			throw new MdekException(new MdekError(MdekErrorType.CSV_WRITER_PROBLEMS));
@@ -195,11 +195,11 @@ public class HQLDaoHibernate
 
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.CSV_RESULT, compressedCsv);
-		result.put(MdekKeys.TOTAL_NUM, (long) hits.size());
+		result.put(MdekKeys.TOTAL_NUM, new Long(hits.size()));
 
 		return result;
 	}
-
+	
 	public IngridDocument queryHQLToMap(String hqlQuery, Integer maxNumHits) {
 		IngridDocument hqlDoc = preprocessHQL(hqlQuery, false, false);
 		String qString = hqlDoc.getString(MdekKeys.HQL_QUERY);
@@ -210,18 +210,18 @@ public class HQLDaoHibernate
 		List hits = new ArrayList();
 		if (qString != null) {
 			Session session = getSession();
-
+			
 			Query q = session.createQuery(qString);
 			if (maxNumHits != null) {
-				q.setMaxResults(maxNumHits);
+				q.setMaxResults(maxNumHits);				
 			}
 			if (distinctRemoved) {
-				q.setResultTransformer(ToListResultTransformer.INSTANCE);
+				q.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE);
 			}
 			hits = q.list();
 		}
 
-		List<IngridDocument> resultDocs = new ArrayList<>();
+		List<IngridDocument> resultDocs = new ArrayList<IngridDocument>();
 		if (hits.size() > 0) {
 			List<String> titles = extractCsvTitles(qString.substring(0, fromStartIndex), hits.get(0));
 			for (Object hit : hits) {
@@ -240,11 +240,11 @@ public class HQLDaoHibernate
 		} else {
 			result.put(MdekKeys.ADR_ENTITIES, resultDocs);
 		}
-		result.put(MdekKeys.TOTAL_NUM, (long) hits.size());
+		result.put(MdekKeys.TOTAL_NUM, new Long(hits.size()));
 
 		return result;
 	}
-
+	
 	/**
 	 * Process HQL query string for querying entities (objects or addresses).
 	 * Performs checks etc.
@@ -259,7 +259,7 @@ public class HQLDaoHibernate
 			boolean allowQueryDirectInstances,
 			boolean removeDistinct) {
 		IngridDocument result = new IngridDocument();
-
+		
 		hqlQuery = MdekUtils.processStringParameter(hqlQuery);
 		if (hqlQuery == null) {
 			return result;
@@ -282,7 +282,7 @@ public class HQLDaoHibernate
 		// ----------
 		// fetch not allowed ! Problems with select count()
 		if (hqlUPPERCASE.indexOf("JOIN FETCH") != -1) {
-			throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));
+			throw new MdekException(new MdekError(MdekErrorType.HQL_NOT_VALID));			
 		}
 
 		// Remove distinct because of Oracle ! not possible with CLOBS
@@ -297,7 +297,7 @@ public class HQLDaoHibernate
 					hqlQuery.substring(distinctIndex + 8);
 				hqlUPPERCASE = hqlQuery.toUpperCase();
 				distinctIndex = hqlUPPERCASE.indexOf("DISTINCT");
-			}
+			}			
 		}
 
 		// check which entity
@@ -319,7 +319,7 @@ public class HQLDaoHibernate
 					isAddressQuery = false;
 				}
 			}
-
+			
 			if (isAddressQuery) {
 				entityType = IdcEntityType.ADDRESS;
 				fromStartIndex = tmpFromStartIndex;
@@ -342,7 +342,7 @@ public class HQLDaoHibernate
 				}
 				entityType = IdcEntityType.ADDRESS;
 				fromStartIndex = tmpFromStartIndex;
-			}
+			}			
 		}
 		// wrong entity queried ?
 		if (entityType == null) {
@@ -390,12 +390,12 @@ public class HQLDaoHibernate
 				break;
 			}
 		}
-
+		
 		return entityAlias;
 	}
 
 	private ArrayList<String> extractCsvTitles(String hqlSelectClause, Object hit) {
-		ArrayList<String> titles = new ArrayList<>();
+		ArrayList<String> titles = new ArrayList<String>();
 
 		// first extract titles from select attributes !
 		String[] tokens = hqlSelectClause.split(",");
@@ -407,7 +407,7 @@ public class HQLDaoHibernate
 				int startIndex = token.lastIndexOf(" ");
 				token = token.substring(startIndex+1);
 			}
-			titles.add(token);
+			titles.add(token);				
 		}
 
 		// now we have plain hql select "attributes"
@@ -428,18 +428,18 @@ public class HQLDaoHibernate
 		if (resultObject instanceof IEntity) {
 			String entityAlias = titles.get(indexTitleToResolve);
 			List<String> entityTitles = extractCsvTitlesFromEntity((IEntity)resultObject, entityAlias);
-			// replace entity alias with entity properties !
+			// replace entity alias with entity properties ! 
 			titles.remove(indexTitleToResolve);
 			titles.addAll(indexTitleToResolve, entityTitles);
 		}
 	}
 
 	private ArrayList<String> extractCsvTitlesFromEntity(IEntity mdekEntity, String entityAlias) {
-		ArrayList<String> titles = new ArrayList<>();
+		ArrayList<String> titles = new ArrayList<String>();
 
 		String prefix = "";
 		if (entityAlias != null && entityAlias.trim().length() > 0) {
-			prefix = entityAlias + ".";
+			prefix = entityAlias + ".";			
 		}
 
 		PropertyDescriptor[] props = PropertyUtils.getPropertyDescriptors(mdekEntity.getClass());
@@ -452,10 +452,10 @@ public class HQLDaoHibernate
 
 		return titles;
 	}
-
+	
 	private boolean skipProperty(PropertyDescriptor prop) {
 		boolean skip = false;
-
+		
 		Class propClass = prop.getPropertyType();
 		if (propClass == null) {
 			skip = true;
@@ -470,13 +470,13 @@ public class HQLDaoHibernate
 		} else if (propClass.isAssignableFrom(Class.class)) {
 			skip = true;
 		}
-
+		
 		return skip;
 	}
 
 	private List<Object> extractCsvValues(Object hit) {
-		ArrayList<Object> values = new ArrayList<>();
-
+		ArrayList<Object> values = new ArrayList<Object>();
+		
 		if (hit instanceof Object[]) {
 			Object[] objs = (Object[]) hit;
 			for (Object obj : objs) {
@@ -486,21 +486,21 @@ public class HQLDaoHibernate
 		} else {
 			appendCsvValues(hit, values);
 		}
-
+		
 		return values;
 	}
 
 	private void appendCsvValues(Object resultObject, ArrayList<Object> values) {
 		if (resultObject instanceof IEntity) {
 			values.addAll(extractCsvValuesFromEntity((IEntity) resultObject));
-
+			
 		} else {
 			values.add(resultObject);
 		}
 	}
 
 	private ArrayList<Object> extractCsvValuesFromEntity(IEntity mdekEntity) {
-		ArrayList<Object> values = new ArrayList<>();
+		ArrayList<Object> values = new ArrayList<Object>();
 
 		PropertyDescriptor[] props = PropertyUtils.getPropertyDescriptors(mdekEntity.getClass());
 		for (PropertyDescriptor prop : props) {

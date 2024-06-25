@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * https://joinup.ec.europa.eu/software/page/eupl
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,8 +28,10 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 
 import de.ingrid.mdek.EnumUtil;
 import de.ingrid.mdek.MdekError;
@@ -58,13 +60,11 @@ import de.ingrid.mdek.services.utils.ExtendedSearchHqlUtil;
 import de.ingrid.mdek.services.utils.MdekPermissionHandler;
 import de.ingrid.mdek.services.utils.MdekTreePathHandler;
 import de.ingrid.utils.IngridDocument;
-import org.hibernate.query.Query;
-import org.hibernate.transform.ToListResultTransformer;
 
 /**
  * Hibernate-specific implementation of the <tt>IAddressNodeDao</tt>
  * non-CRUD (Create, Read, Update, Delete) data access object.
- *
+ * 
  * @author Martin
  */
 public class AddressNodeDaoHibernate
@@ -85,19 +85,19 @@ public class AddressNodeDaoHibernate
 		Session session = getSession();
 
 		String qString = "from AddressNode aNode ";
-		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			qString += "left join fetch aNode.t02AddressWork ";
 		}
-		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			qString += "left join fetch aNode.t02AddressPublished ";
+			qString += "left join fetch aNode.t02AddressPublished ";			
 		}
 		// DO NOT EXCLUDE HIDDEN ADDRESSES (IGE Users), these ones are also fetched (e.g. in User management)
 		qString += "where aNode.addrUuid = ?1";
 
 		AddressNode aN = (AddressNode) session.createQuery(qString)
-			.setParameter(1, uuid)
+			.setString(1, uuid)
 			.uniqueResult();
 
 		return aN;
@@ -113,17 +113,17 @@ public class AddressNodeDaoHibernate
 		// always fetch working version. Is needed for querying, so we fetch it.
 		String qString = "select aNode from AddressNode aNode " +
 				"left join fetch aNode.t02AddressWork aWork ";
-		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
-			qString += "left join fetch aNode.t02AddressPublished ";
+			qString += "left join fetch aNode.t02AddressPublished ";			
 		}
 		qString += "where aWork.orgAdrId = ?1 ";
-		// order to guarantee always same node in front if multiple nodes with same orig id !
+		// order to guarantee always same node in front if multiple nodes with same orig id ! 
 		qString += "order by aNode.addrUuid";
 
 		List<AddressNode> aNodes = session.createQuery(qString)
-			.setParameter(1, origId)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setString(1, origId)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		AddressNode retNode = null;
@@ -153,12 +153,12 @@ public class AddressNodeDaoHibernate
 
 		String q = "select aNode from AddressNode aNode ";
 		String addrAlias = "?";
-		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			addrAlias = "aPub";
 			q += "left join fetch aNode.t02AddressPublished " + addrAlias + " ";
 		}
-		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			addrAlias = "aWork";
 			q += "left join fetch aNode.t02AddressWork " + addrAlias + " ";
@@ -172,19 +172,19 @@ public class AddressNodeDaoHibernate
 		if (onlyFreeAddresses) {
 			q += "and " + addrAlias + ".adrType = " + AddressType.FREI.getDbValue();
 		} else {
-			q += "and " + addrAlias + ".adrType != " + AddressType.FREI.getDbValue();
+			q += "and " + addrAlias + ".adrType != " + AddressType.FREI.getDbValue();			
 		}
 		// only order if only ONE version requested
 		if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
-			q += "order by " +
+			q += "order by " + 
 				addrAlias + ".adrType desc, " +
 				addrAlias + ".institution, " +
 				addrAlias + ".lastname, " +
-				addrAlias + ".firstname";
+				addrAlias + ".firstname"; 
 		}
-
+		
 		List<AddressNode> aNodes = session.createQuery(q)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return aNodes;
@@ -197,12 +197,12 @@ public class AddressNodeDaoHibernate
 
 		String q = "select aNode from AddressNode aNode ";
 		String addrAlias = "?";
-		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			addrAlias = "aPub";
 			q += "left join fetch aNode.t02AddressPublished " + addrAlias + " ";
 		}
-		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			addrAlias = "aWork";
 			q += "left join fetch aNode.t02AddressWork " + addrAlias + " ";
@@ -215,17 +215,17 @@ public class AddressNodeDaoHibernate
 		if (whichEntityVersion != null) {
 			// only order if only ONE version requested
 			if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
-				q += "order by " +
+				q += "order by " + 
 					addrAlias + ".adrType desc, " +
 					addrAlias + ".institution, " +
 					addrAlias + ".lastname, " +
-					addrAlias + ".firstname";
+					addrAlias + ".firstname"; 
 			}
 		}
-
+		
 		List<AddressNode> aNodes = session.createQuery(q)
-			.setParameter(1, parentUuid)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setString(1, parentUuid)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return aNodes;
@@ -238,12 +238,12 @@ public class AddressNodeDaoHibernate
 
 		String q = "select aNode from AddressNode aNode ";
 		String addrAlias = "?";
-		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			addrAlias = "aPub";
 			q += "left join fetch aNode.t02AddressPublished " + addrAlias + " ";
 		}
-		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION ||
+		if (whichEntityVersion == IdcEntityVersion.WORKING_VERSION || 
 			whichEntityVersion == IdcEntityVersion.ALL_VERSIONS) {
 			addrAlias = "aWork";
 			q += "left join fetch aNode.t02AddressWork " + addrAlias + " ";
@@ -256,16 +256,16 @@ public class AddressNodeDaoHibernate
 		if (whichEntityVersion != null) {
 			// only order if only ONE version requested
 			if (whichEntityVersion != IdcEntityVersion.ALL_VERSIONS) {
-				q += "order by " +
+				q += "order by " + 
 					addrAlias + ".adrType desc, " +
 					addrAlias + ".institution, " +
 					addrAlias + ".lastname, " +
-					addrAlias + ".firstname";
+					addrAlias + ".firstname"; 
 			}
 		}
-
+		
 		List<AddressNode> aNodes = session.createQuery(q)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return aNodes;
@@ -284,9 +284,9 @@ public class AddressNodeDaoHibernate
 		if (whichChildren == IdcChildrenSelectionType.PUBLICATION_CONDITION_PROBLEMATIC) {
 			q += "and a.publishId < " + parentPubType.getDbValue();
 		}
-
+		
 		List<AddressNode> aNodes = session.createQuery(q)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return aNodes;
@@ -294,7 +294,7 @@ public class AddressNodeDaoHibernate
 
 	public int countAllSubAddresses(String parentUuid, IdcEntityVersion versionOfSubAddressesToCount) {
 		Session session = getSession();
-
+		
 		String q = "select count(aNode) " +
 			"from AddressNode aNode " +
 			"where aNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(parentUuid) + "%'";
@@ -303,11 +303,11 @@ public class AddressNodeDaoHibernate
 			q += " and aNode.addrId != aNode.addrIdPublished ";
 
 		} else if (versionOfSubAddressesToCount == IdcEntityVersion.PUBLISHED_VERSION) {
-			q += " and aNode.addrIdPublished is not null";
+			q += " and aNode.addrIdPublished is not null";			
 		}
-
+		
 		Long totalNum = (Long) session.createQuery(q).uniqueResult();
-
+		
 		return totalNum.intValue();
 	}
 
@@ -315,16 +315,16 @@ public class AddressNodeDaoHibernate
 		boolean isSubNode = false;
 
 		List<String> path = getAddressPath(uuidToCheck);
-
+		
 		if (path != null) {
 			if (path.contains(uuidParent)) {
 				isSubNode = true;
 			}
 		}
-
+		
 		return isSubNode;
 	}
-
+	
 	public AddressNode getAddrDetails(String uuid) {
 		return getAddrDetails(uuid, IdcEntityVersion.WORKING_VERSION);
 	}
@@ -334,18 +334,18 @@ public class AddressNodeDaoHibernate
 
 		String q = "from AddressNode aNode ";
 		if (whichEntityVersion == IdcEntityVersion.PUBLISHED_VERSION) {
-			q += "left join fetch aNode.t02AddressPublished a ";
+			q += "left join fetch aNode.t02AddressPublished a ";			
 		} else {
-			q += "left join fetch aNode.t02AddressWork a ";
+			q += "left join fetch aNode.t02AddressWork a ";			
 		}
 		q += "left join fetch a.t021Communications aComm " +
 		// TODO: FASTER WHITHOUT PRE FETCHING !!!??? Check when all is modeled !
 		// DO NOT EXCLUDE HIDDEN ADDRESSES (IGE Users), these ones are also fetched with details (e.g. in User management)
 			"where aNode.addrUuid = ?1";
-
+ 
 		// fetch all at once (one select with outer joins)
 		AddressNode aN = (AddressNode) session.createQuery(q)
-			.setParameter(1, uuid)
+			.setString(1, uuid)
 			.uniqueResult();
 
 		return aN;
@@ -364,7 +364,7 @@ public class AddressNodeDaoHibernate
 				"left join oPub.t012ObjAdrs objAdr " +
 				"where objAdr.adrUuid = ?1 " +
 				"order by oPub.objName")
-				.setParameter(1, addressUuid)
+				.setString(1, addressUuid)
 				.list();
 		// extract ids as list !
 		List<Long> nodeIdsPub = new ArrayList<Long>();
@@ -384,8 +384,8 @@ public class AddressNodeDaoHibernate
 				"left join oWork.t012ObjAdrs objAdr " +
 				"where objAdr.adrUuid = ?1 " +
 				"order by oWork.objName")
-				.setParameter(1, addressUuid)
-				.list();
+				.setString(1, addressUuid)
+				.list();			
 		// extract ids as list !
 		List<Long> nodeIdsWork = new ArrayList<Long>();
 		for (Object[] nodeIdAndNameWork : nodeIdsAndNamesWork) {
@@ -404,7 +404,7 @@ public class AddressNodeDaoHibernate
 				nodeIdsPubOnly.add(idPub);
 			}
 		}
-
+		
 		// determine total num of object references
 		int totalNum = nodeIdsPubOnly.size() + nodeIdsWork.size();
 		retMap.put(MdekKeys.OBJ_REFERENCES_FROM_TOTAL_NUM, totalNum);
@@ -415,7 +415,7 @@ public class AddressNodeDaoHibernate
 			clearedNodesPubOnly = nodeIdsPubOnly.size();
 			nodeIdsPubOnly.clear();
 		} else {
-			nodeIdsPubOnly = nodeIdsPubOnly.subList(startIndex, nodeIdsPubOnly.size());
+			nodeIdsPubOnly = nodeIdsPubOnly.subList(startIndex, nodeIdsPubOnly.size());			
 		}
 		if (nodeIdsPubOnly.size() > maxNum) {
 			nodeIdsPubOnly = nodeIdsPubOnly.subList(0, maxNum);
@@ -435,7 +435,7 @@ public class AddressNodeDaoHibernate
 				if (nodeIdsWork.size() < firstResult+1) {
 					nodeIdsWork.clear();
 				} else {
-					nodeIdsWork = nodeIdsWork.subList(firstResult, nodeIdsWork.size());
+					nodeIdsWork = nodeIdsWork.subList(firstResult, nodeIdsWork.size());			
 				}
 				if (nodeIdsWork.size() > maxResults) {
 					nodeIdsWork = nodeIdsWork.subList(0, maxResults);
@@ -443,7 +443,7 @@ public class AddressNodeDaoHibernate
 			}
 		} else {
 			// enough nodes to show from nodeIdsPubOnly list
-			nodeIdsWork.clear();
+			nodeIdsWork.clear();			
 		}
 
 		// fetch all needed "nodes with only publish references"
@@ -454,8 +454,8 @@ public class AddressNodeDaoHibernate
 			query += MdekUtils.createSplittedSqlQuery( "oNode.id", nodeIdsPubOnly, 500 );
 			query += " order by oPub.objName";
 			nodesPubOnly = session.createQuery(query)
-					.setResultTransformer(ToListResultTransformer.INSTANCE)
-					.list();
+					.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
+					.list();			
 		}
 
 		// fetch all needed "nodes with work references"
@@ -466,8 +466,8 @@ public class AddressNodeDaoHibernate
 			query += MdekUtils.createSplittedSqlQuery( "oNode.id", nodeIdsWork, 500 );
 			query += " order by oWork.objName";
 			nodesWork = session.createQuery(query)
-					.setResultTransformer(ToListResultTransformer.INSTANCE)
-					.list();
+					.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
+					.list();			
 		}
 
 
@@ -483,21 +483,21 @@ public class AddressNodeDaoHibernate
 
 	public List<ObjectNode> getObjectReferencesByTypeId(String addressUuid, Integer referenceTypeId) {
 		Session session = getSession();
-
+		
 		String sql = "select oNode from ObjectNode oNode " +
 			"left join oNode.t01ObjectWork oWork " +
 			"left join oWork.t012ObjAdrs objAdr " +
 			"where objAdr.adrUuid = ?1";
-
+		
 		if (referenceTypeId != null) {
 			sql += " and objAdr.type = " + referenceTypeId;
 		}
 
 		List<ObjectNode> objs = session.createQuery(sql)
-				.setParameter(1, addressUuid)
-				.setResultTransformer(ToListResultTransformer.INSTANCE)
+				.setString(1, addressUuid)
+				.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 				.list();
-
+		
 		return objs;
 	}
 
@@ -507,7 +507,7 @@ public class AddressNodeDaoHibernate
 		if (aN != null && MdekUtils.isValidUuid(aN.getFkAddrUuid())) {
 			parentNode = loadByUuid(aN.getFkAddrUuid(), null);
 		}
-
+		
 		return parentNode;
 	}
 
@@ -556,7 +556,7 @@ public class AddressNodeDaoHibernate
 	public long searchTotalNumAddresses(IngridDocument searchParams) {
 
 		String qString = createSearchQueryString(searchParams);
-
+		
 		if (qString == null) {
 			return 0;
 		}
@@ -576,7 +576,7 @@ public class AddressNodeDaoHibernate
 		List<AddressNode> retList = new ArrayList<AddressNode>();
 
 		String qString = createSearchQueryString(searchParams);
-
+		
 		if (qString == null) {
 			return retList;
 		}
@@ -589,16 +589,16 @@ public class AddressNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return retList;
 	}
-
+	
 	/**
 	 * Create basic query string for search (no order etc.) dependent from passed search parameters.
 	 * @param searchParams search parameters
-	 * @return basic query string or null if no parameters.
+	 * @return basic query string or null if no parameters. 
 	 */
 	private String createSearchQueryString(IngridDocument searchParams) {
 		String institution = MdekUtils.processStringParameter(searchParams.getString(MdekKeys.ORGANISATION));
@@ -625,14 +625,14 @@ public class AddressNodeDaoHibernate
 		if (firstname != null) {
 			qString += "and addr.firstname LIKE '%" + firstname + "%' ";
 		}
-
+		
 		return qString;
 	}
 
 	public long queryAddressesThesaurusTermTotalNum(String termSnsId) {
 
 		String qString = createThesaurusQueryString(termSnsId);
-
+		
 		if (qString == null) {
 			return 0;
 		}
@@ -652,7 +652,7 @@ public class AddressNodeDaoHibernate
 		List<AddressNode> retList = new ArrayList<AddressNode>();
 
 		String qString = createThesaurusQueryString(termSnsId);
-
+		
 		if (qString == null) {
 			return retList;
 		}
@@ -665,16 +665,16 @@ public class AddressNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return retList;
 	}
-
+	
 	/**
 	 * Create basic query string for querying addresses associated with passed thesaurus term.
 	 * @param termSnsId sns id of thesaurus term
-	 * @return basic query string or null if no parameters.
+	 * @return basic query string or null if no parameters. 
 	 */
 	private String createThesaurusQueryString(String termSnsId) {
 		termSnsId = MdekUtils.processStringParameter(termSnsId);
@@ -693,14 +693,14 @@ public class AddressNodeDaoHibernate
 			// exclude hidden user addresses !
 			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr") +
 			" AND termSns.snsId = '" + termSnsId + "'";
-
+		
 		return qString;
 	}
 
 	public long queryAddressesFullTextTotalNum(String searchTerm) {
 
 		String qString = createFullTextQueryString(searchTerm);
-
+		
 		if (qString == null) {
 			return 0;
 		}
@@ -720,7 +720,7 @@ public class AddressNodeDaoHibernate
 		List<AddressNode> retList = new ArrayList<AddressNode>();
 
 		String qString = createFullTextQueryString(searchTerm);
-
+		
 		if (qString == null) {
 			return retList;
 		}
@@ -733,7 +733,7 @@ public class AddressNodeDaoHibernate
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return retList;
@@ -741,32 +741,32 @@ public class AddressNodeDaoHibernate
 
 	public List<AddressNode> queryAddressesExtended(IngridDocument searchParams,
 			int startHit, int numHits) {
-
+		
 		List<AddressNode> retList = new ArrayList<AddressNode>();
-
+		
 		// create hql from queryParams
 		String qString = ExtendedSearchHqlUtil.createAddressExtendedSearchQuery(searchParams);
-
+		
 		Session session = getSession();
 
 		qString = "select aNode " + qString;
 		qString += " order by addr.adrType, addr.institution, addr.lastname, addr.firstname";
-
+		
 		retList = session.createQuery(qString)
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
-			.setResultTransformer(ToListResultTransformer.INSTANCE)
+			.setResultTransformer(DistinctRootEntityResultTransformer.INSTANCE)
 			.list();
 
 		return retList;
-
+		
 	}
-
+	
 	public long queryAddressesExtendedTotalNum(IngridDocument searchParams) {
-
+		
 		// create hql from queryParams
 		String qString = ExtendedSearchHqlUtil.createAddressExtendedSearchQuery(searchParams);
-
+		
 		if (qString == null) {
 			return 0;
 		}
@@ -779,13 +779,13 @@ public class AddressNodeDaoHibernate
 			.uniqueResult();
 
 		return totalNum;
-	}
-
-
+	}	
+	
+	
 	/**
 	 * Create basic query string for querying addresses concerning full text.
 	 * @param searchTerm term to search for
-	 * @return basic query string or null if no parameters.
+	 * @return basic query string or null if no parameters. 
 	 */
 	private String createFullTextQueryString(String searchTerm) {
 		searchTerm = MdekUtils.processStringParameter(searchTerm);
@@ -803,7 +803,7 @@ public class AddressNodeDaoHibernate
 			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr") +
 			" AND fidx.idxName = '" + IDX_NAME_FULLTEXT + "' " +
 			"and fidx.idxValue like '%" + searchTerm + "%'";
-
+		
 		return qString;
 	}
 
@@ -816,7 +816,7 @@ public class AddressNodeDaoHibernate
 		IngridDocument defaultResult = new IngridDocument();
 		defaultResult.put(MdekKeys.TOTAL_NUM_PAGING, new Long(0));
 		defaultResult.put(MdekKeys.ADR_ENTITIES, new ArrayList<AddressNode>());
-
+		
 		if (selectionType == IdcWorkEntitiesSelectionType.EXPIRED) {
 			return getWorkAddressesExpired(userUuid, orderBy, orderAsc, startHit, numHits);
 		} else 	if (selectionType == IdcWorkEntitiesSelectionType.MODIFIED) {
@@ -852,7 +852,7 @@ public class AddressNodeDaoHibernate
 				"inner join aNode.t02AddressPublished a " +
 				"inner join a.addressMetadata aMeta " + qCriteria;
 
-		// query string for fetching results !
+		// query string for fetching results ! 
 		String qStringSelect = "from AddressNode aNode " +
 				"inner join fetch aNode.t02AddressPublished a " +
 				"inner join fetch a.addressMetadata aMeta " +
@@ -885,7 +885,7 @@ public class AddressNodeDaoHibernate
 		qOrderBy += orderAsc ? " asc " : " desc ";
 
 		qStringSelect += qOrderBy;
-
+		
 		// first count total number
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Counting WORK addresses: " + qStringCount);
@@ -900,12 +900,12 @@ public class AddressNodeDaoHibernate
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
 			.list();
-
+	
 		// return results
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
 		result.put(MdekKeys.ADR_ENTITIES, aNodes);
-
+		
 		return result;
 	}
 
@@ -928,7 +928,7 @@ public class AddressNodeDaoHibernate
 			"from AddressNode aNode " +
 				"inner join aNode.t02AddressWork a " + qCriteria;
 
-		// query string for fetching results !
+		// query string for fetching results ! 
 		String qStringSelect = "from AddressNode aNode " +
 				"inner join fetch aNode.t02AddressWork a " +
 				"left join fetch a.addressNodeMod aNodeUser " +
@@ -958,7 +958,7 @@ public class AddressNodeDaoHibernate
 		qOrderBy += orderAsc ? " asc " : " desc ";
 
 		qStringSelect += qOrderBy;
-
+		
 		// first count total number
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Counting WORK addresses: " + qStringCount);
@@ -973,12 +973,12 @@ public class AddressNodeDaoHibernate
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
 			.list();
-
+	
 		// return results
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
 		result.put(MdekKeys.ADR_ENTITIES, aNodes);
-
+		
 		return result;
 	}
 
@@ -1011,7 +1011,7 @@ public class AddressNodeDaoHibernate
 				"inner join aNode.t02AddressWork a " +
 				"inner join a.addressMetadata aMeta ";
 
-		// query string for fetching results !
+		// query string for fetching results ! 
 		String qStringSelect = "from AddressNode aNode " +
 				"inner join fetch aNode.t02AddressWork a " +
 				"inner join fetch a.addressMetadata aMeta " +
@@ -1048,7 +1048,7 @@ public class AddressNodeDaoHibernate
 		qOrderBy += orderAsc ? " asc " : " desc ";
 
 		qStringSelect += qOrderBy;
-
+		
 		// first count total numbers
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Counting WORK addresses \"QA\": " + qStringCount + qCriteria);
@@ -1067,14 +1067,14 @@ public class AddressNodeDaoHibernate
 			.setFirstResult(startHit)
 			.setMaxResults(numHits)
 			.list();
-
+	
 		// return results
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
 		result.put(MdekKeys.TOTAL_NUM_QA_ASSIGNED, totalNumAssigned);
 		result.put(MdekKeys.TOTAL_NUM_QA_REASSIGNED, totalNumReassigned);
 		result.put(MdekKeys.ADR_ENTITIES, aNodes);
-
+		
 		return result;
 	}
 
@@ -1113,7 +1113,7 @@ public class AddressNodeDaoHibernate
 		}
 		qStringCount = qStringCount + qCriteria;
 
-		// query string for fetching results !
+		// query string for fetching results ! 
 		String qStringSelect = "from AddressNode aNode " +
 				"inner join fetch aNode.t02AddressWork a ";
 		if (selectionType == IdcWorkEntitiesSelectionType.PORTAL_QUICKLIST) {
@@ -1125,7 +1125,7 @@ public class AddressNodeDaoHibernate
 		// always order by date
 		String qOrderBy = " order by a.modTime desc";
 		qStringSelect += qOrderBy;
-
+		
 		// first count total numbers
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("HQL Counting WORK addresses \"QA\": " + qStringCount);
@@ -1145,7 +1145,7 @@ public class AddressNodeDaoHibernate
 		IngridDocument result = new IngridDocument();
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNumPaging);
 		result.put(MdekKeys.ADR_ENTITIES, aNodes);
-
+		
 		return result;
 	}
 
@@ -1167,7 +1167,7 @@ public class AddressNodeDaoHibernate
 		if (isCatAdmin) {
 			return getQAAddresses(null, null, whichWorkState, selectionType, orderBy, orderAsc, startHit, numHits);
 		} else {
-			return getQAAddressesViaGroup(userUuid, whichWorkState, selectionType, orderBy, orderAsc, startHit, numHits);
+			return getQAAddressesViaGroup(userUuid, whichWorkState, selectionType, orderBy, orderAsc, startHit, numHits);			
 		}
 	}
 
@@ -1175,7 +1175,7 @@ public class AddressNodeDaoHibernate
 	 * QA PAGE: Get ALL Addresses where given user is QA and addresses WORKING VERSION match passed selection criteria.
 	 * The QA addresses are determined via assigned addresses in QA group of user.
 	 * All sub-addresses of "write-tree" addresses are included !
-	 * We return nodes, so we can evaluate whether published version exists !
+	 * We return nodes, so we can evaluate whether published version exists ! 
 	 * @param userUuid QA user
 	 * @param whichWorkState only return addresses in this work state, pass null if all workstates
 	 * @param selectionType further selection criteria (see Enum), pass null if all addresses
@@ -1264,7 +1264,7 @@ public class AddressNodeDaoHibernate
 		if (addrUuidsWriteTree != null && addrUuidsWriteTree.size() == 0) {
 			addrUuidsWriteTree = null;
 		}
-
+		
 		Session session = getSession();
 
 		// prepare queries
@@ -1276,17 +1276,17 @@ public class AddressNodeDaoHibernate
 			// queries PUBLISHED version because mod-date of published one is displayed !
 			qStringCount += "inner join aNode.t02AddressPublished a ";
 		} else {
-			qStringCount += "inner join aNode.t02AddressWork a ";
+			qStringCount += "inner join aNode.t02AddressWork a ";			
 		}
 		qStringCount += "inner join a.addressMetadata aMeta ";
 
-		// with fetch: always fetch address and metadata, e.g. needed when mapping user operation (mark deleted)
+		// with fetch: always fetch address and metadata, e.g. needed when mapping user operation (mark deleted) 
 		String qStringSelect = "from AddressNode aNode ";
 		if (selectionType == IdcQAEntitiesSelectionType.EXPIRED) {
 			// queries PUBLISHED version because mod-date of published one is displayed !
 			qStringSelect += "inner join fetch aNode.t02AddressPublished a ";
 		} else {
-			qStringSelect += "inner join fetch aNode.t02AddressWork a ";
+			qStringSelect += "inner join fetch aNode.t02AddressWork a ";			
 		}
 		qStringSelect += "inner join fetch a.addressMetadata aMeta ";
 		if (whichWorkState == WorkState.QS_UEBERWIESEN) {
@@ -1315,9 +1315,9 @@ public class AddressNodeDaoHibernate
 					return result;
 				}
 			}
-
+			
 			if (addrUuidsWriteSingle != null || addrUuidsWriteTree != null) {
-				// WRITE SINGLE
+				// WRITE SINGLE 
 				// add all write tree nodes to single nodes
 				// -> top nodes of branch have to be selected in same way as write single objects
 				if (addrUuidsWriteSingle == null) {
@@ -1329,16 +1329,16 @@ public class AddressNodeDaoHibernate
 
 				qStringCriteria += " AND (" + MdekUtils.createSplittedSqlQuery( "aNode.addrUuid", addrUuidsWriteSingle, 500 );
 
-				// WRITE TREE
+				// WRITE TREE 
 				if (addrUuidsWriteTree != null) {
 					qStringCriteria += " or ( ";
 
 					boolean start = true;
 					for (String aUuid : addrUuidsWriteTree) {
 						if (!start) {
-							qStringCriteria += " or ";
+							qStringCriteria += " or ";							
 						}
-						qStringCriteria +=
+						qStringCriteria += 
 							" aNode.treePath like '%" + MdekTreePathHandler.translateToTreePathUuid(aUuid) + "%' ";
 						start = false;
 					}
@@ -1377,8 +1377,8 @@ public class AddressNodeDaoHibernate
 		qOrderBy += orderAsc ? " asc " : " desc ";
 
 		qStringSelect += qOrderBy;
-
-		// set query parameters
+		
+		// set query parameters 
 		Query qCount = session.createQuery(qStringCount);
 		Query qSelect = session.createQuery(qStringSelect);
 
@@ -1395,11 +1395,11 @@ public class AddressNodeDaoHibernate
 		List<AddressNode> aNodes = qSelect.setFirstResult(startHit)
 			.setMaxResults(numHits)
 			.list();
-
+	
 		// and return results
 		result.put(MdekKeys.TOTAL_NUM_PAGING, totalNum);
 		result.put(MdekKeys.ADR_ENTITIES, aNodes);
-
+		
 		return result;
 	}
 
@@ -1415,14 +1415,14 @@ public class AddressNodeDaoHibernate
 				selectionType == IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS) {
 			result = getAddressStatistics_searchterms(parentUuid, onlyFreeAddresses, startHit, numHits, selectionType);
 		}
-
+		
 		return result;
 	}
-
+	
 	private IngridDocument getAddressStatistics_classesAndStates(String parentUuid,
 			boolean onlyFreeAddresses) {
 		IngridDocument result = new IngridDocument();
-
+		
 		Session session = getSession();
 
 		// prepare query
@@ -1464,9 +1464,9 @@ public class AddressNodeDaoHibernate
 			// get total number of entities of given class underneath parent
 			String qStringClass = qString +	" AND addr.adrType = " + addrClass;
 			totalNum = (Long) session.createQuery(qStringClass).uniqueResult();
-
+			
 			classMap.put(MdekKeys.TOTAL_NUM, totalNum);
-
+			
 			// add number of different work states
 			for (Object workState : workStates) {
 				// get total number of entities of given work state
@@ -1487,7 +1487,7 @@ public class AddressNodeDaoHibernate
 			IdcStatisticsSelectionType selectionType) {
 
 		IngridDocument result = new IngridDocument();
-
+		
 		Session session = getSession();
 
 		// basics for queries to execute
@@ -1502,7 +1502,7 @@ public class AddressNodeDaoHibernate
 				AddressType.getHQLExcludeIGEUsersViaNode("aNode", "addr");
 
 		if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_FREE) {
-			qStringFromWhere += " AND searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";
+			qStringFromWhere += " AND searchtVal.type = '" + SearchtermType.FREI.getDbValue() + "' ";			
 		} else if (selectionType == IdcStatisticsSelectionType.SEARCHTERMS_THESAURUS) {
 			qStringFromWhere += " AND (searchtVal.type = '" + SearchtermType.UMTHES.getDbValue() + "' " +
 				"OR searchtVal.type = '" + SearchtermType.GEMET.getDbValue() + "') ";
@@ -1534,7 +1534,7 @@ public class AddressNodeDaoHibernate
 		qString += " group by searchtVal.term " +
 			// NOTICE: in order clause: use of alias for count causes HQL error !
 			// use of same count expression in order causes error on mySql 4 !
-			// use of integer for which select attribute works !
+			// use of integer for which select attribute works ! 
 			"order by 2 desc, searchtVal.term";
 
 		List hits = session.createQuery(qString)
@@ -1549,7 +1549,7 @@ public class AddressNodeDaoHibernate
 			IngridDocument termDoc = new IngridDocument();
 			termDoc.put(MdekKeys.TERM_NAME, objs[0]);
 			termDoc.put(MdekKeys.TOTAL_NUM, objs[1]);
-
+			
 			termDocs.add(termDoc);
 		}
 
@@ -1568,7 +1568,7 @@ public class AddressNodeDaoHibernate
 			"where " +
 			// exclude hidden user addresses !
 			AddressType.getHQLExcludeIGEUsersViaNode("aNode", null);
-
+		
 		List<String> uuids = session.createQuery(q)
 				.list();
 
@@ -1583,7 +1583,7 @@ public class AddressNodeDaoHibernate
 		// These order by in SQL is extreme time consuming when fetching huge data sets !
 
 		String q = "from AddressNode aNode " +
-			"left join fetch aNode.t02AddressWork a " +
+			"left join fetch aNode.t02AddressWork a " +			
 			"left join fetch a.addressComments " +
 
 			"left join fetch a.searchtermAdrs aTerm " +
@@ -1595,10 +1595,10 @@ public class AddressNodeDaoHibernate
 			// exclude hidden user addresses !
 			AddressType.getHQLExcludeIGEUsersViaNode("aNode", "a") +
 			" AND aNode.addrUuid = ?1";
-
+		
 		// fetch all at once (one select with outer joins)
 		AddressNode aN = (AddressNode) session.createQuery(q)
-			.setParameter(1, uuid)
+			.setString(1, uuid)
 			.uniqueResult();
 
 		return aN;

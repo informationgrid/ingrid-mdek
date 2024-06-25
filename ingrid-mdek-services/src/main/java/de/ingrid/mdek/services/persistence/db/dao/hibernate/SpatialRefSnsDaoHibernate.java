@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * https://joinup.ec.europa.eu/software/page/eupl
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,7 @@ import de.ingrid.mdek.services.persistence.db.model.SpatialRefSns;
 /**
  * Hibernate-specific implementation of the <tt>SpatialRefSns</tt>
  * non-CRUD (Create, Read, Update, Delete) data access object.
- *
+ * 
  * @author Martin
  */
 public class SpatialRefSnsDaoHibernate
@@ -48,21 +48,21 @@ public class SpatialRefSnsDaoHibernate
 
 		SpatialRefSns spRefSns = (SpatialRefSns) session.createQuery("from SpatialRefSns " +
 			"where snsId = ?1")
-			.setParameter(1, snsId)
+			.setString(1, snsId)
 			.uniqueResult();
-
+		
 		return spRefSns;
 	}
 
 	public SpatialRefSns loadOrCreate(String snsId) {
 		SpatialRefSns spRefSns = load(snsId);
-
+		
 		if (spRefSns == null) {
 			spRefSns = new SpatialRefSns();
 			spRefSns.setSnsId(snsId);
-			makePersistent(spRefSns);
+			makePersistent(spRefSns);			
 		}
-
+		
 		return spRefSns;
 	}
 

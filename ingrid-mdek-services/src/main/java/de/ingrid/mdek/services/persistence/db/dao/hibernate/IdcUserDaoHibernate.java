@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- *
+ * 
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- *
+ * 
  * https://joinup.ec.europa.eu/software/page/eupl
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,7 +36,7 @@ import de.ingrid.mdek.services.persistence.db.model.IdcUser;
 /**
  * Hibernate-specific implementation of the <tt>IIdcUserDao</tt> non-CRUD
  * (Create, Read, Update, Delete) data access object.
- *
+ * 
  * @author Joachim
  */
 public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements IIdcUserDao {
@@ -48,14 +48,14 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 	public IdcUser getCatalogAdmin() {
 		Session session = getSession();
 		return (IdcUser)session.createQuery("from IdcUser u " +
-				"where u.idcRole = ?1").setParameter(1, MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue(), Integer.class)
+				"where u.idcRole = ?1").setInteger(1, MdekUtilsSecurity.IdcRole.CATALOG_ADMINISTRATOR.getDbValue())
 				.uniqueResult();
 	}
 
 	public IdcUser getIdcUserByAddrUuid(String addrUuid) {
 		Session session = getSession();
 		return (IdcUser)session.createQuery("from IdcUser u " +
-				"where u.addrUuid = ?1").setParameter(1, addrUuid)
+				"where u.addrUuid = ?1").setString(1, addrUuid)
 				.uniqueResult();
 	}
 
@@ -65,7 +65,7 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 				"from IdcUser u, IdcUserGroup uG " +
 				"where " +
 				"u.id = uG.idcUserId " +
-				"AND uG.idcGroupId = ?1").setParameter(1, groupId, Long.class).list();
+				"AND uG.idcGroupId = ?1").setLong(1, groupId).list();
 	}
 
 	public List<IdcUser> getIdcUsersByGroupName(String groupName) {
@@ -77,7 +77,7 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 				"AND uG.idcGroupId = g.id " +
 				"AND g.name= ?1";
 
-		return (List<IdcUser>)session.createQuery(query).setParameter(1, groupName).list();
+		return (List<IdcUser>)session.createQuery(query).setString(1, groupName).list();
 	}
 
 	public List<IdcGroup> getGroupsOfUser(String userUuid) {
@@ -89,12 +89,12 @@ public class IdcUserDaoHibernate extends GenericHibernateDao<IdcUser> implements
 				"AND uG.idcGroupId = g.id " +
 				"AND u.addrUuid= ?1";
 
-		return (List<IdcGroup>)session.createQuery(query).setParameter(1, userUuid).list();
+		return (List<IdcGroup>)session.createQuery(query).setString(1, userUuid).list();
 	}
 
 	public List<IdcUser> getSubUsers(Long parentIdcUserId) {
 		Session session = getSession();
 		return (List<IdcUser>)session.createQuery("from IdcUser u " +
-		"where u.parentId = ?1").setParameter(1, parentIdcUserId, Long.class).list();
+		"where u.parentId = ?1").setLong(1, parentIdcUserId).list();
 	}
 }
