@@ -22,7 +22,7 @@
     <ingrid-udk-importer.version>7.0.0</ingrid-udk-importer.version>
     <ingrid-codelist-service.version>7.2.0-SNAPSHOT</ingrid-codelist-service.version>
     <ingrid-utils.version>7.1.0</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>7.0.0</ingrid-iplug-dsc.version>
+    <ingrid-iplug-dsc.version>7.2.0-SNAPSHOT</ingrid-iplug-dsc.version>
     <ingrid-base-webapp.version>7.2.0-SNAPSHOT</ingrid-base-webapp.version>
     <jackson.version>2.17.1</jackson.version>
     <elastic.version>8.14.1</elastic.version>
