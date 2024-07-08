@@ -9,7 +9,7 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>7.1.0</version>
+  <version>7.2.0</version>
   <name>InGrid iPlug IGE</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.
   </description>
@@ -20,14 +20,16 @@
   <properties>
     <iplug.type>IPLUG_IGE</iplug.type>
     <ingrid-udk-importer.version>7.0.0</ingrid-udk-importer.version>
-    <ingrid-codelist-service.version>7.1.0</ingrid-codelist-service.version>
+    <ingrid-codelist-service.version>7.2.0</ingrid-codelist-service.version>
     <ingrid-utils.version>7.1.0</ingrid-utils.version>
-    <ingrid-iplug-dsc.version>7.0.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>7.1.0</ingrid-base-webapp.version>
+    <ingrid-iplug-dsc.version>7.2.0</ingrid-iplug-dsc.version>
+    <ingrid-base-webapp.version>7.2.0</ingrid-base-webapp.version>
+    <jackson.version>2.17.1</jackson.version>
+    <elastic.version>8.14.1</elastic.version>
     <ingrid-utils-geo.version>7.0.0</ingrid-utils-geo.version>
     <!-- <geotk.version>3.20-geoapi-3.0</geotk.version> -->
     <geotk.version>4.0-M0</geotk.version>
-    <spring.version>2.7.17</spring.version>
+    <spring.version>2.7.18</spring.version>
     <log4j2.version>2.22.1</log4j2.version>
     <maven.compiler.release>17</maven.compiler.release>
   </properties>
@@ -96,9 +98,49 @@
       </dependency>
 
       <dependency>
+        <groupId>org.elasticsearch.client</groupId>
+        <artifactId>elasticsearch-rest-client</artifactId>
+        <version>${elastic.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jdk8</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.module</groupId>
+        <artifactId>jackson-module-parameter-names</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.json</groupId>
+        <artifactId>jakarta.json-api</artifactId>
+        <version>2.1.3</version>
+      </dependency>
+      <dependency>
         <!-- Import dependency management from Spring Boot -->
         <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
+        <artifactId>spring-boot-dependencies</artifactId>
         <version>${spring.version}</version>
         <!-- <relativePath />-->
         <!-- lookup parent from repository -->
@@ -156,19 +198,25 @@
         <artifactId>snakeyaml</artifactId>
         <version>2.0</version>
       </dependency>
-      
+
       <!-- Fix security issue => https://avd.aquasec.com/nvd/cve-2015-7501 -->
       <dependency>
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
         <version>3.2.2</version>
       </dependency>
-      
+
       <!-- Fix security issue => https://avd.aquasec.com/nvd/cve-2022-41853 -->
       <dependency>
         <groupId>org.hsqldb</groupId>
         <artifactId>hsqldb</artifactId>
         <version>2.7.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.elasticsearch.client</groupId>
+        <artifactId>elasticsearch-rest-client</artifactId>
+        <version>8.14.1</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
