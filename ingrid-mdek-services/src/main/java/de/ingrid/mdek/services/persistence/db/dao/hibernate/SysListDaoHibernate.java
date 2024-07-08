@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,7 +40,7 @@ import de.ingrid.mdek.services.persistence.db.model.SysList;
 /**
  * Hibernate-specific implementation of the <tt>ISysListDao</tt>
  * non-CRUD (Create, Read, Update, Delete) data access object.
- * 
+ *
  * @author Martin
  */
 public class SysListDaoHibernate
@@ -76,6 +76,20 @@ public class SysListDaoHibernate
 		return q.list();
 	}
 
+	public List<SysList> getSysListNoOrder(int lstId, String language) {
+		Session session = getSession();
+
+		String qString = "from SysList " +
+			"where lstId = " + lstId;
+
+		if (language != null) {
+			qString += " and langId = '" + language + "'";
+		}
+
+		Query q = session.createQuery(qString);
+		return q.list();
+	}
+
 	public List<String> getFreeListEntries(MdekSysList sysLst) {
 		Session session = getSession();
 
@@ -95,7 +109,7 @@ public class SysListDaoHibernate
 		} else {
 			LOG.error("Metadata of syslist " + sysLst.getDbValue() + " '" + sysLst + "' not set ! We cannot process free entries !");
 		}
-		
+
 		return freeEntries;
 	}
 
@@ -111,14 +125,14 @@ public class SysListDaoHibernate
 			String keyCol = listMetadata[1];
 			String valueCol = listMetadata[2];
 
-			String hql = "from " + tableName + 
+			String hql = "from " + tableName +
 				" where " + keyCol + " = " + MdekSysList.FREE_ENTRY.getDbValue() +
 				" and " + valueCol + " = '" + freeEntry + "'";
 			entities = session.createQuery(hql).list();
 		} else {
 			LOG.error("Metadata of syslist " + sysLst.getDbValue() + " '" + sysLst + "' not set ! We cannot process free entries !");
 		}
-		
+
 		return entities;
 	}
 }

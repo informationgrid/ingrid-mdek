@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -101,7 +101,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 
 /**
- * Encapsulates all Catalog functionality concerning access, syslists etc. 
+ * Encapsulates all Catalog functionality concerning access, syslists etc.
  */
 @Service
 public class MdekIdcCatalogJob extends MdekIdcJob {
@@ -125,7 +125,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	private IHQLDao daoHQL;
 	private ISearchtermValueDao daoSearchtermValue;
 	private ISpatialRefValueDao daoSpatialRefValue;
-	
+
 	@Autowired
     private DataMapperFactory dataMapperFactory;
 
@@ -141,13 +141,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		 	IndexManager indexManager,
 		 	IBusIndexManager iBusIndexManager) {
 		super(logService.getLogger(MdekIdcCatalogJob.class), daoFactory);
-		
+
 		catalogService = MdekCatalogService.getInstance(daoFactory);
 		exportService = MdekExportService.getInstance(daoFactory, permissionService);
 		importService = MdekImportService.getInstance(daoFactory, permissionService);
 		dbConsistencyService = MdekDBConsistencyService.getInstance(daoFactory);
 		addressService = MdekAddressService.getInstance(daoFactory, permissionService);
-		
+
 		permissionHandler = MdekPermissionHandler.getInstance(permissionService, daoFactory);
 
 		daoObjectNode = daoFactory.getObjectNodeDao();
@@ -172,7 +172,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// first check own conflicts ;) (between IGE and IGC schema)
 			// throws Exception if conflicts occur.
 			catalogService.checkIGCVersion();
-			
+
 			// add Version of IGC Schema to version info, needed in frontend for checking compatibility !
 			String igcSchemaVersion = catalogService.getIGCVersion();
 			result.put(MdekKeys.SYS_GENERIC_KEY_VALUES, new String[] {igcSchemaVersion});
@@ -194,7 +194,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// before fetching catalog check whether version of IGC in database fits !
 			// throws Exception if not !
 			catalogService.checkIGCVersion();
-			
+
 			IngridDocument result = fetchCatalog();
 
 			genericDao.commitTransaction();
@@ -212,7 +212,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 		IngridDocument result = new IngridDocument();
 		beanToDocMapper.mapT03Catalog(catalog, result);
-		
+
 		return result;
 	}
 
@@ -237,7 +237,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// exception if catalog not existing
 			T03Catalogue catalog = catalogService.getCatalog();
-			
+
 			// transfer new data AND MAKE PERSISTENT, so oncoming checks have newest data !
 			docToBeanMapper.mapT03Catalog(cDocIn, catalog);
 			genericDao.makePersistent(catalog);
@@ -257,7 +257,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 				result = fetchCatalog();
 				genericDao.commitTransaction();
 			}
-			
+
 			return result;
 
 		} catch (RuntimeException e) {
@@ -266,11 +266,11 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userId);
 			}
 		}
 	}
-	
+
 	public IngridDocument getSysLists(IngridDocument params) {
 		try {
 			Integer[] lstIds = (Integer[]) params.get(MdekKeys.SYS_LIST_IDS);
@@ -283,12 +283,12 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			if (lstIds != null) {
 				result = catalogService.getSysLists(lstIds, language);
-				
+
 			} else {
 				result = new IngridDocument();
 				result.put(MdekKeys.LST_SYSLISTS, catalogService.getSysListInfos());
 			}
-			
+
 			genericDao.commitTransaction();
 			return result;
 
@@ -297,7 +297,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		}
 	}
-	
+
 	/**
 	 * Return the names of the syslists.
 	 * Note: Not yet implemented since database has to be modified!
@@ -312,7 +312,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	}*/
 
 	/**
-	 * This function updates a syslist in the database manipulated in the IGE 
+	 * This function updates a syslist in the database manipulated in the IGE
 	 * frontend.
 	 * @param docIn contains the syslist
 	 * @return an empty IngridDocument on success
@@ -325,14 +325,14 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			addRunningJob(userId, createRunningJobDescription(JobType.STORE, 0, 1, false));
 
 			Integer lstId = (Integer) docIn.get(MdekKeys.LST_ID);
-	
+
 			genericDao.beginTransaction();
 
 			// check permissions !
 			permissionHandler.checkIsCatalogAdmin(userId);
 
 			// get according syslist and update
-			List<SysList> sysListEntries = daoSysList.getSysList(lstId, null);
+			List<SysList> sysListEntries = daoSysList.getSysListNoOrder(lstId, null);
 			docToBeanMapper.updateSysList(docIn, sysListEntries);
 
 			// clear all caches !
@@ -350,7 +350,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userId);
 			}
 		}
 	}
@@ -377,10 +377,10 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
             List<IngridDocument> codelists = (List<IngridDocument>) docIn.get(MdekKeys.LST_SYSLISTS);
             for (IngridDocument codelist : codelists) {
                 // check if syslist already exists
-                List<SysList> sysListEntries = daoSysList.getSysList(Integer.valueOf(codelist.getInt(MdekKeys.LST_ID)), null);
-                
+                List<SysList> sysListEntries = daoSysList.getSysListNoOrder(Integer.valueOf(codelist.getInt(MdekKeys.LST_ID)), null);
+
                 // TODO: is syslist locked then ignore updating it!
-                
+
                 docToBeanMapper.updateSysListAllLang(codelist, sysListEntries);
             }
 
@@ -408,11 +408,11 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
             throw handledExc;
         } finally {
             if (removeRunningJob) {
-                removeRunningJob(userId);               
+                removeRunningJob(userId);
             }
         }
     }
-	
+
 	public IngridDocument getSysGenericKeys(IngridDocument params) {
 		try {
 			String[] keyNames = (String[]) params.get(MdekKeys.SYS_GENERIC_KEY_NAMES);
@@ -421,7 +421,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			daoObjectNode.disableAutoFlush();
 
 			IngridDocument result = getSysGenericKeys(keyNames);
-			
+
 			genericDao.commitTransaction();
 
 			return result;
@@ -430,14 +430,14 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			RuntimeException handledExc = handleException(e);
 		    throw handledExc;
 		}
-	}	
+	}
 
 	private IngridDocument getSysGenericKeys(String[] keyNames) {
 		IngridDocument result = new IngridDocument();
-		
+
 		List<SysGenericKey> sysGenericKeyList = catalogService.getSysGenericKeys(keyNames);
 		beanToDocMapper.mapSysGenericKeys(sysGenericKeyList, result);
-		
+
 		return result;
 	}
 
@@ -467,7 +467,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.beginTransaction();
 			IngridDocument result = getSysGenericKeys(keyNames);
 			genericDao.commitTransaction();
-			
+
 			return result;
 
 		} catch (RuntimeException e) {
@@ -476,7 +476,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userId);
 			}
 		}
 	}
@@ -491,7 +491,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			String rootUuid = (String) docIn.get(MdekKeys.UUID);
 			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
 			Boolean includeWorkingCopies = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES);
-			
+
 			IdcEntityVersion whichObjectVersions = IdcEntityVersion.PUBLISHED_VERSION;
 			if (includeWorkingCopies) {
 				whichObjectVersions = IdcEntityVersion.ALL_VERSIONS;
@@ -512,7 +512,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// initialize export job info
 			// NOTICE: totalNumToExport should be called and set in exporter !
-//			int totalNumToExport = exportService.getTotalNumObjectsToExport(uuidsToExport, !exportOnlyRoot, userId);				
+//			int totalNumToExport = exportService.getTotalNumObjectsToExport(uuidsToExport, !exportOnlyRoot, userId);
 			exportService.startExportJobInfo(IdcEntityType.OBJECT, 0, userId);
 
 			// export
@@ -534,7 +534,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		} catch (RuntimeException e) {
 			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
-			
+
 			// LOG relevant EXCEPTION IN DATABASE Job Info !
 			if (errorHandler.shouldLog(handledExc)) {
 				logExportException(handledExc, IdcEntityType.OBJECT, 0, userId);
@@ -543,7 +543,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userId);
 			}
 		}
 	}
@@ -559,7 +559,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			Boolean exportOnlyRoot = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ONLY_ROOT);
 			AddressArea addressArea = (AddressArea) docIn.get(MdekKeys.REQUESTINFO_EXPORT_ADDRESS_AREA);
 			Boolean includeWorkingCopies = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES);
-			
+
 			IdcEntityVersion whichAddrVersions = IdcEntityVersion.PUBLISHED_VERSION;
 			if (includeWorkingCopies) {
 				whichAddrVersions = IdcEntityVersion.ALL_VERSIONS;
@@ -611,7 +611,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userId);
 			}
 		}
 	}
@@ -626,7 +626,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			String exportCriterion = (String) docIn.get(MdekKeys.EXPORT_CRITERION_VALUE);
 			Boolean includeWorkingCopies = (Boolean) docIn.get(MdekKeys.REQUESTINFO_EXPORT_INCLUDE_WORKING_COPIES);
-			
+
 			IdcEntityVersion whichObjectVersions = IdcEntityVersion.PUBLISHED_VERSION;
 			if (includeWorkingCopies) {
 				whichObjectVersions = IdcEntityVersion.ALL_VERSIONS;
@@ -644,7 +644,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			// find objects to export
 			List<String> expUuids = daoObjectNode.getObjectUuidsForExport(exportCriterion);
 			numToExport = expUuids.size();
-			
+
 			HashMap exportInfo = new HashMap();
 			byte[] expData = new byte[0];
 			if (numToExport > 0) {
@@ -677,21 +677,21 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userId);
 			}
 		}
 	}
 
 	/** Logs given Exception (opens transaction !) in database for access via JobInfo !
 	 * Pass additional describing info. */
-	private void logExportException(RuntimeException e, 
+	private void logExportException(RuntimeException e,
 			IdcEntityType whichEntityType, int numToExport,
 			String userId) {
 		try {
 			genericDao.beginTransaction();
 			exportService.startExportJobInfo(IdcEntityType.OBJECT, numToExport, userId);
 			exportService.updateExportJobInfoException(e, userId);
-			genericDao.commitTransaction();				
+			genericDao.commitTransaction();
 		} catch (RuntimeException e2) {
 			genericDao.rollbackTransaction();
 			LOG.warn("Problems logging Export Job Exception in database (JobInfo) !", e2);
@@ -735,11 +735,11 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	    String userUuid = getCurrentUserUuid(docIn);
 	    try {
             addRunningJob(userUuid, createRunningJobDescription(JobType.IMPORT_ANALYZE, 0, 0, false));
-    	    
+
             if (!transactionInProgress) {
                 genericDao.beginTransaction();
             }
-    
+
     	    try {
                 if (!"igc".equals( frontendProtocol )) {
                     InputStream in = new GZIPInputStream(new ByteArrayInputStream(importData));
@@ -781,8 +781,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
     	        log.error( "There was an error during mapping." + ex.getMessage() );
     	        result.put( "error", "There was an error during mapping." + ex.getMessage() );
     	    }
-    	    
-    	    
+
+
             // then update job info in database
     	    SysJobInfo jobInfoDB = jobHandler.getJobInfoDB( JobType.IMPORT_ANALYZE, userUuid );
     	    List<byte[]> analyzedData = null;
@@ -795,7 +795,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
         	    if (jobDetails == null) jobDetails = new HashMap<String, List<byte[]>>();
         	    analyzedData = jobDetails.get( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA );
     	    }
-            
+
     	    if (startNewAnalysis || analyzedData == null) analyzedData = new ArrayList<byte[]>();
     	    analyzedData.add( mappedDataCompressed );
     	    jobDetails.put( MdekKeys.REQUESTINFO_IMPORT_ANALYZED_DATA, analyzedData );
@@ -803,26 +803,26 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 	    } catch (Exception ex) {
 	        log.error( "Exception occurred during analysis", ex );
 	    }
-	    
+
 	    jobHandler.removeRunningJob( userUuid );
-	    
+
         // add end info
         jobHandler.endJobInfoDB(JobType.IMPORT_ANALYZE, userUuid);
-	    
+
         if (!transactionInProgress) {
             genericDao.commitTransaction();
         }
-	    
+
         result.put("protocol", protocolHandler);
-        
+
 //        if (importAfterAnalyze) {
 //            docIn.put(MdekKeys.REQUESTINFO_IMPORT_DATA, mappedDataCompressed);
 //            importEntities( docIn );
 //        }
-        
+
         return result;
 	}
-	
+
 	/**
 	 * Make sure to call analyzeImportData-function first, since the result will be
 	 * stored inside the job info, which will be required here.
@@ -841,7 +841,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    if (!transactionInProgress) {
 		        genericDao.beginTransaction();
 		    }
-		    
+
 			IngridDocument jobDescr = createRunningJobDescription(JobType.IMPORT, 0, 0, false);
 			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_EXISTING_UUID, errorOnExisitingUuid );
 			jobDescr.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, errorOnMissingUuid );
@@ -890,7 +890,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// initialize import info in database
 			importService.startImportJobInfo(userId);
-			
+
 
 			// import
 			IImporter xmlImporter = new XMLImporter(importService);
@@ -913,7 +913,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			} else {
 				xmlImporter.importEntities((byte[])importData, userId);
 			}
-			
+
 			// check whether "controlled problems" occured !
 			importService.checkImportEntities(userId);
 
@@ -926,7 +926,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			if (!transactionInProgress) {
 	            genericDao.commitTransaction();
-	            
+
 	            // Update search index with data of PUBLISHED entities and also log if set
 	            updateSearchIndexAndAudit(jobHandler.getRunningJobChangedEntities(userId));
 			}
@@ -947,7 +947,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
         } finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userId);
 			}
 		}
 	}
@@ -1035,7 +1035,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.beginTransaction();
 			importService.startImportJobInfo(userId);
 			importService.updateImportJobInfoException(e, userId);
-			genericDao.commitTransaction();				
+			genericDao.commitTransaction();
 		} catch (RuntimeException e2) {
 			genericDao.rollbackTransaction();
 			LOG.warn("Problems logging Import Job Exception in database (JobInfo) !", e2);
@@ -1070,7 +1070,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		}
 	}
 
-	/** Extract info of job of given type. 
+	/** Extract info of job of given type.
 	 * @param jobType type of job to fetch info about
 	 * @param userUuid calling user, job infos are stored per user !
 	 * @param checkRunningJob true=fetch job info from running job if there is one (of same type)
@@ -1095,14 +1095,14 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		if (jobInfo == null) {
 			if (jobType == JobType.EXPORT) {
 				// specials when EXPORT info. We may include exported file !
-				jobInfo = exportService.getExportJobInfoDB(userUuid, includeAdditionalData);				
+				jobInfo = exportService.getExportJobInfoDB(userUuid, includeAdditionalData);
 			} else {
 				// default mapping
 				SysJobInfo jobInfoDB = jobHandler.getJobInfoDB(jobType, userUuid);
-				jobInfo = jobHandler.mapJobInfoDB(jobInfoDB);				
+				jobInfo = jobHandler.mapJobInfoDB(jobInfoDB);
 			}
 		}
-		
+
 		return jobInfo;
 	}
 
@@ -1231,8 +1231,8 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 				T01Object obj = oNode.getT01ObjectPublished();
 				if ("capabilities".equals(type)) {
     				Set<T011ObjServ> urlRefs = obj.getT011ObjServs();
-    				
-    				
+
+
     				for (T011ObjServ urlRef : urlRefs) {
     				    Set<T011ObjServOperation> operations = urlRef.getT011ObjServOperations();
     				    for (T011ObjServOperation operation : operations) {
@@ -1251,7 +1251,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 				            urlRef.setUrlLink(targetUrl);
 				        }
 				    }
-				    
+
 				}
 			}
 
@@ -1266,7 +1266,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userId);
 			}
 		}
 	}
@@ -1282,29 +1282,29 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		try {
 			// first add basic running jobs info !
 			addRunningJob(userId, createRunningJobDescription(JobType.ANALYZE, 0, 0, false));
-			
+
 			genericDao.beginTransaction();
-			
+
 			// check permissions !
 			permissionHandler.checkIsCatalogAdmin(userId);
-			
+
 			// initialize job info in database
 			dbConsistencyService.startDBConsistencyJobInfo(userId);
-			
+
 			// analyze
 			dbConsistencyService.analyze(userId);
-			
+
 			// finish and fetch job info in database
 			dbConsistencyService.endDBConsistencyJobInfo(userId);
 
 			Map dbConsistencyInfo = dbConsistencyService.getDBConsistencyJobInfoDB(userId);
-			
+
 			genericDao.commitTransaction();
 
 			IngridDocument result = new IngridDocument();
 			result.putAll(dbConsistencyInfo);
 			return result;
-			
+
 		} catch (RuntimeException e) {
 			RuntimeException handledExc = handleException(e);
 			removeRunningJob = errorHandler.shouldRemoveRunningJob(handledExc);
@@ -1312,7 +1312,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);			
+				removeRunningJob(userId);
 			}
 		}
 	}
@@ -1327,7 +1327,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			String oldAddrUuid = (String) params.get(MdekKeys.FROM_UUID);
 			String newAddrUuid = (String) params.get(MdekKeys.TO_UUID);
 			if (MdekUtils.isEqual(oldAddrUuid, newAddrUuid)) {
-				throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_EQUALS_TO_UUID));				
+				throw new MdekException(new MdekError(MdekErrorType.FROM_UUID_EQUALS_TO_UUID));
 			}
 
 			genericDao.beginTransaction();
@@ -1378,7 +1378,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			resultDoc.putInt("numObjectsChanged", numObjectsChanged);
 			resultDoc.putInt("numResponsibleUsersChangedObjs", numResponsibleUsersChangedObjs);
 			resultDoc.putInt("numResponsibleUsersChangedAddrs", numResponsibleUsersChangedAddrs);
-			return resultDoc;		
+			return resultDoc;
 
 		} catch (RuntimeException e) {
 			RuntimeException handledExc = handleException(e);
@@ -1386,7 +1386,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userUuid);				
+				removeRunningJob(userUuid);
 			}
 		}
 	}
@@ -1400,10 +1400,10 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			daoObjectNode.beginTransaction();
 			daoObjectNode.disableAutoFlush();
 
-			List<T01Object> objs = 
+			List<T01Object> objs =
 				daoT02Address.getObjectReferencesByTypeId(uuid, referenceTypeId, maxNum);
 
-			List<IngridDocument> objDocs = 
+			List<IngridDocument> objDocs =
 				beanToDocMapper.mapT01Objects(objs, MappingQuantity.BASIC_ENTITY);
 
 			daoObjectNode.commitTransaction();
@@ -1429,7 +1429,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			List<T01Object> objs =
 				daoT01Object.getObjectsOfResponsibleUser(uuid, maxNum);
 
-			List<IngridDocument> objDocs = 
+			List<IngridDocument> objDocs =
 				beanToDocMapper.mapT01Objects(objs, MappingQuantity.BASIC_ENTITY);
 
 			daoObjectNode.commitTransaction();
@@ -1455,7 +1455,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			List<T02Address> addrs =
 				daoT02Address.getAddressesOfResponsibleUser(uuid, maxNum);
 
-			List<IngridDocument> addrDocs = 
+			List<IngridDocument> addrDocs =
 				beanToDocMapper.mapT02Addresses(addrs, MappingQuantity.BASIC_ENTITY);
 
 			daoObjectNode.commitTransaction();
@@ -1477,13 +1477,13 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			IngridDocument result = new IngridDocument();
 			String hqlQuery = null;
-			
+
 			if (csvType == CsvRequestType.OBJECTS_OF_ADDRESS) {
 				hqlQuery = daoT02Address.getCsvHQLObjectReferencesByTypeId(uuid, null);
-				
+
 			} else if (csvType == CsvRequestType.OBJECTS_OF_RESPONSIBLE_USER) {
 				hqlQuery = daoT01Object.getCsvHQLAllObjectsOfResponsibleUser(uuid);
-				
+
 			} else if (csvType == CsvRequestType.ADDRESSES_OF_RESPONSIBLE_USER) {
 				hqlQuery = daoT02Address.getCsvHQLAllAddressesOfResponsibleUser(uuid);
 			}
@@ -1492,7 +1492,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			genericDao.disableAutoFlush();
 
 			if (hqlQuery != null) {
-				result = daoHQL.queryHQLToCsv(hqlQuery, true);				
+				result = daoHQL.queryHQLToCsv(hqlQuery, true);
 			}
 
 			daoHQL.commitTransaction();
@@ -1539,7 +1539,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			MdekSysList sysLst = EnumUtil.mapDatabaseToEnumConst(MdekSysList.class, lstId);
 			Integer syslstEntryId = ((Integer[]) docIn.get(MdekKeys.LST_ENTRY_IDS))[0];
 			String syslstEntryName = ((String[]) docIn.get(MdekKeys.LST_ENTRY_NAMES))[0];
-	
+
 			genericDao.beginTransaction();
 
 			// check permissions !
@@ -1560,7 +1560,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userId);
 			}
 		}
 	}
@@ -1596,7 +1596,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 
 			// then rebuild index
 			catalogService.rebuildEntitiesIndex(userId);
-			
+
 			// finish and fetch job info
 			catalogService.endJobInfo(JobType.REBUILD_SYSLISTS, userId);
 			HashMap rebuildInfo = getJobInfo(JobType.REBUILD_SYSLISTS, userId, false, false);
@@ -1614,7 +1614,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userId);
 			}
 		}
 	}
@@ -1646,7 +1646,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			}
 			IngridDocument result =
 				beanToDocMapper.mapSearchtermValues(resultTerms, new IngridDocument());
-			
+
 			genericDao.commitTransaction();
 
 			return result;
@@ -1702,7 +1702,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userId);
 			}
 		}
 	}
@@ -1735,7 +1735,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 			}
 			IngridDocument result =
 				beanToDocMapper.mapSpatialRefValues(resultRefValues, new IngridDocument());
-			
+
 			genericDao.commitTransaction();
 
 			return result;
@@ -1792,7 +1792,7 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
 		    throw handledExc;
 		} finally {
 			if (removeRunningJob) {
-				removeRunningJob(userId);				
+				removeRunningJob(userId);
 			}
 		}
 	}
@@ -1805,15 +1805,15 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
             // get all locations of passed type(s)
             String[] keys = {"lastModifiedSyslist"};
             List<SysGenericKey> genericKeysValues = catalogService.getSysGenericKeys(keys);
-            
+
             Long timestamp = -1L;
-            if (genericKeysValues.size() != 0) { 
+            if (genericKeysValues.size() != 0) {
                 timestamp = Long.valueOf(genericKeysValues.get(0).getValueString());
             }
-            
+
             IngridDocument result = new IngridDocument();
             result.put(MdekKeys.LST_LAST_MODIFIED, timestamp);
-            
+
             genericDao.commitTransaction();
 
             return result;
@@ -1830,15 +1830,15 @@ public class MdekIdcCatalogJob extends MdekIdcJob {
         genericDao.commitTransaction();
         return addrUuid;
     }
-    
+
     public void beginTransaction() {
         genericDao.beginTransaction();
     }
-    
+
     public void commitTransaction() {
         genericDao.commitTransaction();
     }
-    
+
     public void rollbackTransaction() {
         genericDao.rollbackTransaction();
     }
