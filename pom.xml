@@ -9,7 +9,7 @@
   <groupId>de.ingrid.mdek</groupId>
   <artifactId>ingrid-mdek</artifactId>
   <packaging>pom</packaging>
-  <version>7.2.0</version>
+  <version>7.3.0</version>
   <name>InGrid iPlug IGE</name>
   <description>This is the backend for the InGrid-Editor. It also indexes the documents which can be queried by the iBus.
   </description>
@@ -23,7 +23,7 @@
     <ingrid-codelist-service.version>7.2.0</ingrid-codelist-service.version>
     <ingrid-utils.version>7.1.0</ingrid-utils.version>
     <ingrid-iplug-dsc.version>7.2.0</ingrid-iplug-dsc.version>
-    <ingrid-base-webapp.version>7.2.0</ingrid-base-webapp.version>
+    <ingrid-base-webapp.version>7.3.0</ingrid-base-webapp.version>
     <jackson.version>2.17.1</jackson.version>
     <elastic.version>8.14.1</elastic.version>
     <ingrid-utils-geo.version>7.0.0</ingrid-utils-geo.version>

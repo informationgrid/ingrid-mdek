@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -72,7 +72,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
     private static Log log = LogFactory.getLog( IgeSearchPlug.class );
 
     private static final String DATA_PARAMETER = "data";
-    
+
     private static Pattern PATTERN_IDENTIFIER = Pattern.compile("^(.*:)?identifier", Pattern.CASE_INSENSITIVE);
 
     @Autowired
@@ -100,7 +100,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     @Autowired
     private IndexManager indexManager;
-    
+
     @Autowired
     private Config baseConfig;
 
@@ -119,7 +119,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see de.ingrid.utils.ISearcher#search(de.ingrid.utils.query.IngridQuery, int, int)
      */
     @Override
@@ -146,7 +146,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see de.ingrid.utils.IRecordLoader#getRecord(de.ingrid.utils.IngridHit)
      */
     @Override
@@ -154,9 +154,9 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
         ElasticDocument document;
         if (elasticConfig.esCommunicationThroughIBus) {
-            document = this.iBusIndexManager.getDocById(hit.getDocumentId());
+            document = this.iBusIndexManager.getDocById(hit);
         } else {
-            document = indexManager.getDocById(hit.getDocumentId());
+            document = indexManager.getDocById(hit);
         }
 
         // TODO: choose between different mapping types
@@ -173,7 +173,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see de.ingrid.iplug.HeartBeatPlug#close()
      */
     @Override
@@ -183,7 +183,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see de.ingrid.iplug.HeartBeatPlug#close()
      */
     @Override
@@ -200,7 +200,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see de.ingrid.iplug.HeartBeatPlug#close()
      */
     @Override
@@ -259,7 +259,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             adminUserUUID = catalogJob.getCatalogAdminUserUuid();
 
             catalogJob.beginTransaction();
-            
+
             /**
              * INSERT DOCS
              */
@@ -290,7 +290,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     insertedObjects++;
                 }
                 if (resultInsert.get(MdekKeys.CHANGED_ENTITIES) != null) {
-                    insertedEntities.addAll( (List<HashMap>) resultInsert.get(MdekKeys.CHANGED_ENTITIES));                    
+                    insertedEntities.addAll( (List<HashMap>) resultInsert.get(MdekKeys.CHANGED_ENTITIES));
                 }
             }
 
@@ -305,7 +305,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                 String parentUuid = utils.getString( item, ".//gmd:parentIdentifier/gco:CharacterString" );
                 String propName = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:PropertyName" );
                 String propValue = utils.getString( item, ".//ogc:PropertyIsEqualTo/ogc:Literal" );
-                
+
                 if (("uuid".equals( propName ) || PATTERN_IDENTIFIER.matcher( propName ).matches()) && propValue != null) {
                     IngridDocument document = prepareImportAnalyzeDocument( builder, updateDocs.item( i ) );
                     document.put( MdekKeys.REQUESTINFO_IMPORT_ERROR_ON_MISSING_UUID, true );
@@ -324,7 +324,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     resultUpdate = catalogJob.importEntities( document );
                     updatedObjects++;
                     if (resultUpdate.get(MdekKeys.CHANGED_ENTITIES) != null) {
-                        updatedEntities.addAll( (List<HashMap>) resultUpdate.get(MdekKeys.CHANGED_ENTITIES));                    
+                        updatedEntities.addAll( (List<HashMap>) resultUpdate.get(MdekKeys.CHANGED_ENTITIES));
                     }
                 } else {
                     log.error( "Constraint not supported with PropertyName: " + propName + " and Literal: " + propValue );
@@ -375,7 +375,7 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
                     if (resultDelete.getBoolean( MdekKeys.RESULTINFO_WAS_FULLY_DELETED )) {
                         deletedObjects++;
                         if (resultDelete.get(MdekKeys.CHANGED_ENTITIES) != null) {
-                            deletedEntities.addAll( (List<HashMap>) resultDelete.get(MdekKeys.CHANGED_ENTITIES));                    
+                            deletedEntities.addAll( (List<HashMap>) resultDelete.get(MdekKeys.CHANGED_ENTITIES));
                         }
                     } else {
                         throw new Exception( "Object could not be deleted: " + propValue );
@@ -394,8 +394,8 @@ public class IgeSearchPlug extends HeartBeatPlug implements IRecordLoader {
             catalogJob.updateSearchIndexAndAudit(updatedEntities);
             // also remove from index when deleted
             catalogJob.updateSearchIndexAndAudit(deletedEntities);
-            
-            
+
+
             IngridDocument result = new IngridDocument();
             result.putInt( "inserts", insertedObjects );
             result.putInt( "updates", updatedObjects );

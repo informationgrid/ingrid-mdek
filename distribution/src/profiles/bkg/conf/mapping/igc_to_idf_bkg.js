@@ -7,12 +7,12 @@
  * Licensed under the EUPL, Version 1.2 or – as soon they will be
  * approved by the European Commission - subsequent versions of the
  * EUPL (the "Licence");
- * 
+ *
  * You may not use this work except in compliance with the Licence.
  * You may obtain a copy of the Licence at:
- * 
+ *
  * https://joinup.ec.europa.eu/software/page/eupl
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -57,15 +57,15 @@ function handleBKGAccessConstraints() {
     // get the container for the select and free text field
     var bkgAccessConstraintId = getAdditionalFieldFromObject(objId, null, 'bkg_accessConstraints', 'id');
     if (bkgAccessConstraintId) {
-        
+
         // get value from select box
         var bkgAccessConstraintSelectListItem = getAdditionalFieldFromObject(null, bkgAccessConstraintId, 'bkg_accessConstraints_select', 'list_item_id');
         if (bkgAccessConstraintSelectListItem) {
-            
+
             if (log.isDebugEnabled()) {
                 log.debug("BKG access constraint field contains value: " + bkgAccessConstraintSelectListItem);
             }
-            
+
             // get value from free text field
             var bkgAccessConstraintFreeText = getAdditionalFieldFromObject(null, bkgAccessConstraintId, 'bkg_accessConstraints_freeText', 'data');
             if (bkgAccessConstraintFreeText) {
@@ -73,7 +73,7 @@ function handleBKGAccessConstraints() {
                     log.debug("BKG access constraint free text field contains value: " + bkgAccessConstraintFreeText);
                 }
             }
-            
+
             // add select value and free text to ISO depending on selection
             if ((bkgAccessConstraintSelectListItem && bkgAccessConstraintSelectListItem !== "") || bkgAccessConstraintFreeText !== "") {
                 var legalConstraint = getFirstNodeInIdentificationBefore("gmd:accessConstraints").addElementAsSibling("gmd:resourceConstraints/gmd:MD_LegalConstraints");
@@ -110,7 +110,7 @@ function handleBKGUseConstraints() {
                 log.debug("BKG use constraint free text field contains value: " + bkgSourceNoteText);
             }
         }
-        
+
         // add select value and free text to ISO depending on selection
         // if there is any value
         if ((bkgUseConstraintSelectListItem && bkgUseConstraintSelectListItem !== "") || bkgUseConstraintFreeText !== "") {
@@ -250,7 +250,7 @@ function addUseConstraints(legalConstraint, codelistEntryId, valueFree, sourceNo
 }
 
 /**
- * 
+ *
  * @param legalConstraint
  * @param restrictionCodeValues
  * @param {string[]} otherConstraints
@@ -263,7 +263,7 @@ function addAccessConstraintElements(legalConstraint, restrictionCodeValues, oth
             .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
             .addText(restrictionCodeValues[i]);
     }
-    
+
     legalConstraint.addElement("gmd:accessConstraints/gmd:MD_RestrictionCode")
     .addAttribute("codeListValue", "otherRestrictions")
     .addAttribute("codeList", globalCodeListAttrURL + "#MD_RestrictionCode")
@@ -272,7 +272,7 @@ function addAccessConstraintElements(legalConstraint, restrictionCodeValues, oth
     if (hasValue(otherConstraints)) {
         for (var j=0; j<otherConstraints.length; j++) {
             if (otherConstraints[j]) {
-                if (otherConstraints[j] === "Es gelten keine Zugriffsbeschränkungen") {
+                if (otherConstraints[j] === "Es gelten keine Zugriffsbeschränkungen" || otherConstraints[j] === "no limitations to public access") {
                     legalConstraint
                         .addElement("gmd:otherConstraints/gmx:Anchor")
                         .addAttribute("xlink:href", "http://inspire.ec.europa.eu/metadata-codelist/LimitationsOnPublicAccess/noLimitations")

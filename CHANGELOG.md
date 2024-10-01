@@ -1,4 +1,12 @@
 
+## 7.3.0 (01.10.2024)
+
+
+### Bugfixes
+
+* getRecord-Anfrage im iBus nicht eindeutig (#6637)
+* Fehler bei Codelist-Synchronisation (#6512)
+    
 ## 7.1.0 (27.03.2024)
 
 ### Features
